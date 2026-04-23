@@ -1,7 +1,8 @@
-import { PrismaClient, MatchStatus } from '@prisma/client'
+import { PrismaClient, MatchStatus, Role } from '@prisma/client'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import 'dotenv/config'
+import bcrypt from 'bcryptjs'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
@@ -12,6 +13,33 @@ async function main() {
   await prisma.match.deleteMany()
   await prisma.batch.deleteMany()
   await prisma.news.deleteMany()
+  await prisma.user.deleteMany()
+
+  // Create Users
+  const hashedPassword = await bcrypt.hash('password123', 10)
+  
+  await prisma.user.createMany({
+    data: [
+      {
+        email: 'admin@ngbhs.com',
+        password: hashedPassword,
+        name: 'Super Admin',
+        role: Role.ADMIN,
+      },
+      {
+        email: 'coadmin@ngbhs.com',
+        password: hashedPassword,
+        name: 'Tournament Manager',
+        role: Role.CO_ADMIN,
+      },
+      {
+        email: 'user@ngbhs.com',
+        password: hashedPassword,
+        name: 'General User',
+        role: Role.USER,
+      },
+    ],
+  })
 
   // Create Batches
   const batches = [
