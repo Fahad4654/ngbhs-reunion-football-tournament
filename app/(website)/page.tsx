@@ -34,7 +34,7 @@ async function getStandings() {
   return batches;
 }
 
-import HeroSlideshow from "./components/HeroSlideshow";
+import HeroSlideshow from "../components/HeroSlideshow";
 
 export default async function Home() {
   const [matches, news, standings] = await Promise.all([

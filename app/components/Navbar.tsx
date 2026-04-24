@@ -60,12 +60,6 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           {user ? (
             <>
               <div style={{ display: 'flex', gap: '1rem', marginRight: '1rem' }}>
-                {user.role === "ADMIN" && (
-                  <Link href="/admin" style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: '700' }}>Admin Panel</Link>
-                )}
-                {(user.role === "CO_ADMIN" || user.role === "ADMIN") && (
-                  <Link href="/dashboard" style={{ fontSize: '0.8rem', color: 'var(--accent-secondary)', fontWeight: '700' }}>Manager Dashboard</Link>
-                )}
                 <Link href="/profile" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Profile</Link>
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Hi, {user.name}</span>

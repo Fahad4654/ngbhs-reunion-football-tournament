@@ -103,7 +103,8 @@ enum PostStatus {
 
 model User {
   id            String    @id @default(cuid())
-  firebaseId    String    @unique
+  firebaseId    String?   @unique
+  password      String?
   name          String?
   email         String    @unique
   role          Role      @default(USER)

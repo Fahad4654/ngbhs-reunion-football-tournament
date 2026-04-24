@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
-import { adminAuth } from './firebase-admin';
 import prisma from './prisma';
+import { decryptSession } from './auth-utils';
 
 export interface AppUser {
   uid: string;
@@ -11,32 +11,34 @@ export interface AppUser {
 }
 
 /**
- * Server-side helper: reads the Firebase session cookie,
- * verifies it, and returns the user's DB record (with role).
+ * Server-side helper: reads our custom session cookie,
+ * decrypts it, and returns the user's DB record.
  * Returns null if not authenticated.
  */
 export async function getServerUser(): Promise<AppUser | null> {
   try {
     const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('firebase-session')?.value;
-    if (!sessionCookie) return null;
+    const sessionToken = cookieStore.get('session')?.value;
+    if (!sessionToken) return null;
 
-    const decoded = await adminAuth.verifySessionCookie(sessionCookie, true /** checkRevoked */);
+    const payload = await decryptSession(sessionToken);
+    if (!payload || !payload.userId) return null;
 
     const user = await prisma.user.findUnique({
-      where: { firebaseId: decoded.uid },
+      where: { id: payload.userId as string },
     });
 
     if (!user) return null;
 
     return {
-      uid: user.firebaseId,
+      uid: user.id,
       email: user.email,
       name: user.name,
       image: user.image,
       role: user.role,
     };
-  } catch {
+  } catch (error) {
+    console.error("Auth verification error:", error);
     return null;
   }
 }
