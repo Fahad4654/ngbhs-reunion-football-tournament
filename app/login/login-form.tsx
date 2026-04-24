@@ -1,77 +1,76 @@
 'use client';
 
-import { useActionState } from 'react';
-import { authenticate } from '@/lib/actions';
-import { signIn } from 'next-auth/react';
+import { useState } from 'react';
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
 
 export default function LoginForm() {
-  const [errorMessage, dispatch, isPending] = useActionState(
-    authenticate,
-    undefined,
-  );
+  const { signInWithEmail, signInWithGoogle } = useAuth();
+  const router = useRouter();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    try {
+      await signInWithEmail(email, password);
+      router.push('/');
+    } catch (err: any) {
+      const msg = err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password'
+        ? 'Invalid email or password.'
+        : 'Something went wrong. Please try again.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setError('');
+    try {
+      await signInWithGoogle();
+      router.push('/');
+    } catch {
+      setError('Google sign-in failed. Please try again.');
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <form action={dispatch} className={styles.form}>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.inputGroup}>
           <label className={styles.label} htmlFor="email">Email Address</label>
-          <input 
-            id="email"
-            name="email"
-            type="email" 
-            placeholder="name@example.com" 
-            className={styles.input} 
-            required 
-          />
+          <input id="email" name="email" type="email" placeholder="name@example.com" className={styles.input} required />
         </div>
-
         <div className={styles.inputGroup}>
           <label className={styles.label} htmlFor="password">Password</label>
-          <input 
-            id="password"
-            name="password"
-            type="password" 
-            placeholder="••••••••" 
-            className={styles.input} 
-            required 
-            minLength={6}
-          />
+          <input id="password" name="password" type="password" placeholder="••••••••" className={styles.input} required minLength={6} />
         </div>
-
-        {errorMessage && (
-          <div style={{ color: 'var(--accent-danger)', fontSize: '0.8rem', textAlign: 'center' }}>
-            {errorMessage}
-          </div>
+        {error && (
+          <div style={{ color: 'var(--accent-danger)', fontSize: '0.8rem', textAlign: 'center' }}>{error}</div>
         )}
-
-        <button 
-          type="submit" 
-          className={`${styles.submitBtn} btn btn-primary`}
-          disabled={isPending}
-        >
-          {isPending ? 'Signing In...' : 'Sign In to Dashboard'}
+        <button type="submit" className={`${styles.submitBtn} btn btn-primary`} disabled={loading}>
+          {loading ? 'Signing In...' : 'Sign In to Dashboard'}
         </button>
       </form>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-        <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+        <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
         OR
-        <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+        <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
       </div>
 
       <button
         type="button"
-        onClick={() => signIn('google', { callbackUrl: '/' })}
+        onClick={handleGoogle}
         className="btn glass"
-        style={{ 
-          width: '100%', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          gap: '0.75rem',
-          border: '1px solid var(--border-color)'
-        }}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', border: '1px solid var(--border-color)' }}
       >
         <svg width="18" height="18" viewBox="0 0 18 18">
           <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.8 2.7l2.8 2.17c1.65-1.52 2.6-3.76 2.6-6.5z"/>

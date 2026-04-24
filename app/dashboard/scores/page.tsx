@@ -1,10 +1,12 @@
+import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
-import { auth } from "@/auth";
+
 import { redirect } from "next/navigation";
 
 export default async function ManagerScoresPage() {
-  const session = await auth();
-  if (session?.user?.role !== "CO_ADMIN" && session?.user?.role !== "ADMIN") redirect("/");
+  const user = await getServerUser();
+  
+  if (user?.role !== "CO_ADMIN" && user?.role !== "ADMIN") redirect("/");
 
   const matches = await prisma.match.findMany({
     where: {

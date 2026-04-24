@@ -1,9 +1,10 @@
 import * as admin from "firebase-admin";
+import serviceAccount from "../service.json";
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(require("../ngbhs-ce6e2-firebase-adminsdk-fbsvc-e296a69e98.json")),
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
 }
 

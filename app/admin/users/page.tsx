@@ -1,10 +1,12 @@
+import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
-import { auth } from "@/auth";
+
 import { redirect } from "next/navigation";
 
 export default async function AdminUsersPage() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") redirect("/");
+  const user = await getServerUser();
+  
+  if (user?.role !== "ADMIN") redirect("/");
 
   const users = await prisma.user.findMany({
     orderBy: {

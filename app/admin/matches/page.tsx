@@ -1,11 +1,13 @@
+import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
-import { auth } from "@/auth";
+
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function AdminMatchesPage() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") redirect("/");
+  const user = await getServerUser();
+  
+  if (user?.role !== "ADMIN") redirect("/");
 
   const matches = await prisma.match.findMany({
     include: {

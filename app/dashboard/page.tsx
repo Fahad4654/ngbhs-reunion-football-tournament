@@ -1,11 +1,11 @@
-import { auth } from "@/auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getServerUser } from "@/lib/server-auth";
 
 export default async function CoAdminDashboard() {
-  const session = await auth();
+  const user = await getServerUser();
   
-  if (session?.user?.role !== "CO_ADMIN" && session?.user?.role !== "ADMIN") {
+  if (user?.role !== "CO_ADMIN" && user?.role !== "ADMIN") {
     redirect("/");
   }
 
@@ -13,7 +13,7 @@ export default async function CoAdminDashboard() {
     <div className="container" style={{ padding: '2rem 1.5rem' }}>
       <header style={{ marginBottom: '3rem' }}>
         <div className="badge" style={{ marginBottom: '0.5rem' }}>Tournament Manager Panel</div>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>Welcome, {session?.user?.name}</h1>
+        <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>Welcome, {user?.name}</h1>
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>

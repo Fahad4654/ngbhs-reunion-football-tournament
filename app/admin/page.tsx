@@ -1,11 +1,11 @@
-import { auth } from "@/auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getServerUser } from "@/lib/server-auth";
 
 export default async function AdminDashboard() {
-  const session = await auth();
+  const user = await getServerUser();
   
-  if (session?.user?.role !== "ADMIN") {
+  if (user?.role !== "ADMIN") {
     redirect("/");
   }
 

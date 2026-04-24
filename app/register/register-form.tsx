@@ -1,96 +1,97 @@
 'use client';
 
-import { useActionState } from 'react';
-import { register } from '@/lib/actions';
-import { signIn } from 'next-auth/react';
+import { useState } from 'react';
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
 import styles from '../login/login.module.css';
 
 export default function RegisterForm() {
-  const [errorMessage, formAction, isPending] = useActionState(
-    register,
-    undefined,
-  );
+  const { signUpWithEmail, signInWithGoogle } = useAuth();
+  const router = useRouter();
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  if (errorMessage === 'SUCCESS') {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    const form = e.currentTarget;
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    try {
+      await signUpWithEmail(name, email, password);
+      setSuccess(true);
+      setTimeout(() => router.push('/'), 1500);
+    } catch (err: any) {
+      const msg = err.code === 'auth/email-already-in-use'
+        ? 'An account with this email already exists.'
+        : err.code === 'auth/weak-password'
+        ? 'Password must be at least 6 characters.'
+        : 'Registration failed. Please try again.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setError('');
+    try {
+      await signInWithGoogle();
+      router.push('/');
+    } catch {
+      setError('Google sign-up failed. Please try again.');
+    }
+  };
+
+  if (success) {
     return (
       <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <h2 style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }}>Success!</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Your account has been created. You can now sign in.</p>
-        <a href="/login" className="btn btn-primary" style={{ width: '100%' }}>Go to Login</a>
+        <h2 style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }}>Welcome! 🎉</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Your account has been created. Redirecting…</p>
+        <div style={{ width: '40px', height: '40px', border: '3px solid var(--accent-primary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
       </div>
     );
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <div className={styles.inputGroup}>
-          <label htmlFor="name">Full Name</label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            placeholder="Enter your name"
-            required
-            disabled={isPending}
-          />
+          <label htmlFor="name" className={styles.label}>Full Name</label>
+          <input id="name" name="name" type="text" placeholder="Your full name" className={styles.input} required disabled={loading} />
         </div>
         <div className={styles.inputGroup}>
-          <label htmlFor="email">Email Address</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            required
-            disabled={isPending}
-          />
+          <label htmlFor="email" className={styles.label}>Email Address</label>
+          <input id="email" name="email" type="email" placeholder="name@example.com" className={styles.input} required disabled={loading} />
         </div>
         <div className={styles.inputGroup}>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Create a password"
-            required
-            disabled={isPending}
-          />
+          <label htmlFor="password" className={styles.label}>Password</label>
+          <input id="password" name="password" type="password" placeholder="At least 6 characters" className={styles.input} required minLength={6} disabled={loading} />
         </div>
 
-        {errorMessage && (
-          <p style={{ color: 'var(--accent-danger)', fontSize: '0.8rem', textAlign: 'center' }}>
-            {errorMessage}
-          </p>
+        {error && (
+          <p style={{ color: 'var(--accent-danger)', fontSize: '0.8rem', textAlign: 'center' }}>{error}</p>
         )}
 
-        <button 
-          type="submit" 
-          className="btn btn-primary" 
-          disabled={isPending}
-          style={{ width: '100%', marginTop: '0.5rem' }}
-        >
-          {isPending ? 'Creating Account...' : 'Register'}
+        <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '0.5rem' }}>
+          {loading ? 'Creating Account…' : 'Create Account'}
         </button>
       </form>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-        <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+        <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
         OR
-        <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+        <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
       </div>
 
       <button
-        onClick={() => signIn('google', { callbackUrl: '/' })}
+        type="button"
+        onClick={handleGoogle}
         className="btn glass"
-        style={{ 
-          width: '100%', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          gap: '0.75rem',
-          border: '1px solid var(--border-color)'
-        }}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', border: '1px solid var(--border-color)' }}
       >
         <svg width="18" height="18" viewBox="0 0 18 18">
           <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.8 2.7l2.8 2.17c1.65-1.52 2.6-3.76 2.6-6.5z"/>
