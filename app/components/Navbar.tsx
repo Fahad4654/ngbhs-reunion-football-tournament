@@ -1,13 +1,12 @@
 'use client';
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
+import { usePathname } from "next/navigation";
+import { logout } from "@/lib/actions";
+import type { AppUser } from "@/lib/server-auth";
 
-export default function Navbar() {
+export default function Navbar({ user }: { user: AppUser | null }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, loading, logout } = useAuth();
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -15,11 +14,6 @@ export default function Navbar() {
     { name: "Standings", href: "/standings" },
     { name: "News", href: "/news" },
   ];
-
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
 
   return (
     <nav className="glass" style={{
@@ -63,9 +57,7 @@ export default function Navbar() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {loading ? (
-            <div style={{ width: '20px', height: '20px', border: '2px solid var(--border-color)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-          ) : user ? (
+          {user ? (
             <>
               <div style={{ display: 'flex', gap: '1rem', marginRight: '1rem' }}>
                 {user.role === "ADMIN" && (
@@ -77,9 +69,11 @@ export default function Navbar() {
                 <Link href="/profile" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Profile</Link>
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Hi, {user.name}</span>
-              <button onClick={handleLogout} className="btn glass" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
-                Sign Out
-              </button>
+              <form action={logout}>
+                <button type="submit" className="btn glass" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
+                  Sign Out
+                </button>
+              </form>
             </>
           ) : (
             <div style={{ display: 'flex', gap: '0.75rem' }}>
