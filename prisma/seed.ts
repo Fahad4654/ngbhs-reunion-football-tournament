@@ -2,7 +2,6 @@ import { PrismaClient, MatchStatus, Role } from '@prisma/client'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import 'dotenv/config'
-import bcrypt from 'bcryptjs'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
@@ -16,25 +15,23 @@ async function main() {
   await prisma.user.deleteMany()
 
   // Create Users
-  const hashedPassword = await bcrypt.hash('password123', 10)
-  
   await prisma.user.createMany({
     data: [
       {
         email: 'admin@ngbhs.com',
-        password: hashedPassword,
+        firebaseId: 'admin_dummy_id',
         name: 'Super Admin',
         role: Role.ADMIN,
       },
       {
         email: 'coadmin@ngbhs.com',
-        password: hashedPassword,
+        firebaseId: 'coadmin_dummy_id',
         name: 'Tournament Manager',
         role: Role.CO_ADMIN,
       },
       {
         email: 'user@ngbhs.com',
-        password: hashedPassword,
+        firebaseId: 'user_dummy_id',
         name: 'General User',
         role: Role.USER,
       },
