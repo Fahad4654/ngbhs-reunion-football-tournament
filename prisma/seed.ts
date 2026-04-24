@@ -1,4 +1,4 @@
-import { PrismaClient, MatchStatus } from '@prisma/client'
+import { PrismaClient, MatchStatus, Role } from '@prisma/client'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import 'dotenv/config'
@@ -12,6 +12,31 @@ async function main() {
   await prisma.match.deleteMany()
   await prisma.batch.deleteMany()
   await prisma.news.deleteMany()
+  await prisma.user.deleteMany()
+
+  // Create Users
+  await prisma.user.createMany({
+    data: [
+      {
+        email: 'admin@ngbhs.com',
+        firebaseId: 'admin_dummy_id',
+        name: 'Super Admin',
+        role: Role.ADMIN,
+      },
+      {
+        email: 'coadmin@ngbhs.com',
+        firebaseId: 'coadmin_dummy_id',
+        name: 'Tournament Manager',
+        role: Role.CO_ADMIN,
+      },
+      {
+        email: 'user@ngbhs.com',
+        firebaseId: 'user_dummy_id',
+        name: 'General User',
+        role: Role.USER,
+      },
+    ],
+  })
 
   // Create Batches
   const batches = [

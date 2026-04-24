@@ -1,70 +1,26 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { auth, signOut } from "@/auth";
 
 export const metadata: Metadata = {
-  title: "NGBHS Reunion Football Tournament",
-  description: "Official platform for tournament updates, news, and live scores for NGBHS Reunion Football.",
-  keywords: ["NGBHS", "Reunion", "Football", "Tournament", "Live Scores", "School Reunion"],
+  title: "Natore Government Boys' High School Reunion Football Championship",
+  description: "Official platform for Natore Government Boys' High School Reunion Football Championship updates, news, and live scores.",
+  keywords: ["Natore Government Boys High School", "Reunion", "Football", "Championship", "Tournament"],
 };
 
-export default function RootLayout({
+import Navbar from "./components/Navbar";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body>
-        <nav className="glass" style={{ 
-          position: 'fixed', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
-          height: 'var(--nav-height)', 
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          borderTop: 'none',
-          borderLeft: 'none',
-          borderRight: 'none',
-          borderRadius: 0,
-          borderBottom: '1px solid var(--border-color)'
-        }}>
-          <div className="container" style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            width: '100%'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ 
-                width: '40px', 
-                height: '40px', 
-                background: 'var(--accent-primary)',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 'bold',
-                color: '#000'
-              }}>
-                NB
-              </div>
-              <h1 style={{ fontSize: '1.25rem', margin: 0 }}>NGBHS <span className="text-gradient">Tournament</span></h1>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '2rem', fontWeight: '600', fontSize: '0.9rem', textTransform: 'uppercase' }}>
-              <a href="/">Home</a>
-              <a href="/matches" style={{ color: 'var(--text-secondary)' }}>Matches</a>
-              <a href="/standings" style={{ color: 'var(--text-secondary)' }}>Standings</a>
-              <a href="/news" style={{ color: 'var(--text-secondary)' }}>News</a>
-            </div>
-
-            <button className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>
-              Admin Login
-            </button>
-          </div>
-        </nav>
+        <Navbar session={session} />
         
         <main style={{ marginTop: 'var(--nav-height)' }}>
           {children}
@@ -79,7 +35,10 @@ export default function RootLayout({
           borderRadius: 0
         }}>
           <div className="container" style={{ textAlign: 'center' }}>
-            <h2 className="text-gradient" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>NGBHS Reunion Football</h2>
+            <h2 className="text-gradient" style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>Natore Government Boys&apos; High School</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '1.5rem', fontWeight: '600' }}>
+              Reunion Football Championship
+            </p>
             <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 2rem' }}>
               Bringing batches together through the beautiful game. Every goal, every match, every memory matters.
             </p>

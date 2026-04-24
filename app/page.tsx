@@ -34,6 +34,8 @@ async function getStandings() {
   return batches;
 }
 
+import HeroSlideshow from "./components/HeroSlideshow";
+
 export default async function Home() {
   const [matches, news, standings] = await Promise.all([
     getMatches(),
@@ -47,20 +49,29 @@ export default async function Home() {
     <div className={styles.page}>
       {/* Hero Section */}
       <section className={styles.hero}>
-        <div className={styles.heroBg}>
-          <div className={styles.blob} style={{ top: '-100px', left: '-100px' }}></div>
-          <div className={styles.blob} style={{ bottom: '-100px', right: '-100px', background: 'radial-gradient(circle, rgba(0, 210, 255, 0.1) 0%, transparent 70%)' }}></div>
-        </div>
+        <HeroSlideshow />
         
         <div className={`${styles.heroContent} container`}>
-          <div className={styles.heroBadge}>Season 2026 • Official Webapp</div>
-          <h1 className={styles.heroTitle}>NGBHS REUNION <br/><span className="text-gradient">FOOTBALL TOURNAMENT</span></h1>
+          <div className="badge">Official Reunion Championship</div>
+          <h1 className="text-gradient" style={{ fontSize: '4.5rem', marginBottom: '0.5rem', lineHeight: '1.1' }}>
+            NGBHS REUNION <br/>FOOTBALL CHAMPIONSHIP
+          </h1>
+          <p style={{ 
+            color: 'var(--accent-primary)', 
+            fontSize: '1.1rem', 
+            fontWeight: '700', 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.2em',
+            marginBottom: '2rem'
+          }}>
+            Natore Government Boys&apos; High School
+          </p>
           <p className={styles.heroSubtitle}>
             Experience the thrill of the reunion. Tracking live scores, exclusive news, and every memorable goal from all school batches.
           </p>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button className="btn btn-primary">View Fixtures</button>
-            <button className="btn glass" style={{ border: '1px solid var(--border-color)' }}>Batch Standings</button>
+            <button className="btn glass">Batch Standings</button>
           </div>
         </div>
       </section>
@@ -165,7 +176,7 @@ export default async function Home() {
                     )}
                   </tbody>
                 </table>
-                <button className="btn glass" style={{ width: '100%', marginTop: '1.5rem', fontSize: '0.75rem' }}>Full Standings</button>
+                <button className="btn glass" style={{ width: '100%', marginTop: '1.5rem' }}>Full Standings</button>
               </div>
             </div>
           </div>
