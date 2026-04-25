@@ -32,7 +32,7 @@ export default async function ProfilePage() {
             <p style={{ color: 'var(--text-secondary)' }}>Update your alumni identity and contact details.</p>
           </header>
 
-          <ProfileForm user={user} batches={batches} />
+          <ProfileForm key={user.uid + (user.batchId || '') + (user.name || '')} user={user} batches={batches} />
         </div>
       </div>
     </div>

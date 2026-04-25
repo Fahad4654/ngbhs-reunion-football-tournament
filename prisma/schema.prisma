@@ -113,7 +113,10 @@ model User {
   role          Role      @default(USER)
   image         String?
   occupation    String?
+  workplace     String?
   phone         String?
+  currentAddress String?
+  permanentAddress String?
   
   batchId       String?
   batch         Batch?    @relation("BatchMembers", fields: [batchId], references: [id])

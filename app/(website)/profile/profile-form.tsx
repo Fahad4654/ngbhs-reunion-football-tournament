@@ -79,9 +79,26 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
       </div>
 
-      <div className={styles.inputGroup}>
-        <label className={styles.label}>Current Position / Job</label>
-        <input name="occupation" type="text" defaultValue={user.occupation || ''} placeholder="e.g. Software Engineer at Google" className={styles.input} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>Current Position / Job</label>
+          <input name="occupation" type="text" defaultValue={user.occupation || ''} placeholder="e.g. Software Engineer" className={styles.input} />
+        </div>
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>Organization / Workplace</label>
+          <input name="workplace" type="text" defaultValue={user.workplace || ''} placeholder="e.g. Google" className={styles.input} />
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>Current Address</label>
+          <textarea name="currentAddress" defaultValue={user.currentAddress || ''} placeholder="City, Country" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
+        </div>
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>Permanent Address</label>
+          <textarea name="permanentAddress" defaultValue={user.permanentAddress || ''} placeholder="Natore, Bangladesh" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
+        </div>
       </div>
 
       {state?.error && (

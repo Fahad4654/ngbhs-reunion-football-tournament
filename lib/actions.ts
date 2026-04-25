@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { hashPassword, comparePassword, setSessionCookie, deleteSessionCookie } from './auth-utils';
+import { getServerUser } from './server-auth';
 import { redirect } from 'next/navigation';
 
 export async function loginWithEmail(prevState: any, formData: FormData) {
@@ -139,23 +140,32 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     const name = formData.get('name') as string;
     const occupation = formData.get('occupation') as string;
+    const workplace = formData.get('workplace') as string;
     const phone = formData.get('phone') as string;
     const batchId = formData.get('batchId') as string;
     const image = formData.get('image') as string;
+    const currentAddress = formData.get('currentAddress') as string;
+    const permanentAddress = formData.get('permanentAddress') as string;
 
     await prisma.user.update({
       where: { id: user.uid },
       data: {
         name,
         occupation,
+        workplace,
         phone,
         batchId: batchId || null,
         image: image || null,
+        currentAddress,
+        permanentAddress,
       },
     });
 
     // Refresh the session cookie with the new name
     await setSessionCookie(user.uid, user.role, name);
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/profile');
 
     return { success: true, message: 'Profile updated successfully!' };
   } catch (error) {
