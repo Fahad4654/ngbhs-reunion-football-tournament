@@ -4,6 +4,7 @@ import { useActionState, useState, useEffect } from 'react';
 import { loginWithEmail } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
+import GoogleLoginButton from '@/app/components/auth/GoogleLoginButton';
 
 export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginWithEmail, null);
@@ -42,11 +43,13 @@ export default function LoginForm() {
         </button>
       </form>
 
-      <div style={{ textAlign: 'center' }}>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-          Don't have an account? <a href="/register" style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>Register here</a>
-        </p>
+      <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0' }}>
+        <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+        <span style={{ padding: '0 10px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>OR</span>
+        <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
       </div>
+
+      <GoogleLoginButton />
     </div>
   );
 }

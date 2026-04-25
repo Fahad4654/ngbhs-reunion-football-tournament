@@ -76,7 +76,47 @@ export async function logout() {
   redirect('/login');
 }
 
-// Placeholder for Google Auth (requires manual OAuth implementation if not using Firebase/NextAuth)
-export async function createSession(idToken: string) {
-  return { error: 'Google Login is currently disabled. Please use email/password.' };
+import { adminAuth } from './firebase-admin';
+
+export async function loginWithGoogle(idToken: string) {
+  try {
+    // 1. Verify the Firebase ID token
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    const { email, name, picture, uid } = decodedToken;
+
+    if (!email) {
+      return { error: 'Email not provided by Google.' };
+    }
+
+    // 2. Find or create user in our database
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          name: name || null,
+          image: picture || null,
+          firebaseId: uid,
+          role: 'USER',
+        },
+      });
+    } else if (!user.firebaseId) {
+      // Link firebaseId if it's the first time they use Google but account exists
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { firebaseId: uid, image: user.image || picture },
+      });
+    }
+
+    // 3. Set the session cookie (same as manual login)
+    await setSessionCookie(user.id, user.role, user.name);
+
+    return { success: true, role: user.role };
+  } catch (error) {
+    console.error('Google login error:', error);
+    return { error: 'Failed to authenticate with Google.' };
+  }
 }
