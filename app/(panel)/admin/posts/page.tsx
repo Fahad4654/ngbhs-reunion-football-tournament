@@ -2,6 +2,7 @@ import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import ModerationActions from "./moderation-actions";
+import MediaRenderer from "@/app/components/MediaRenderer";
 
 export default async function AdminPostsPage() {
   const user = await getServerUser();
@@ -57,19 +58,11 @@ export default async function AdminPostsPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {post.media.map(item => (
                     <div key={item.id}>
-                      {item.type === 'IMAGE' ? (
-                        <img 
-                          src={item.url} 
-                          alt="Post media" 
-                          style={{ width: '100%', borderRadius: '16px', objectFit: 'cover', border: '1px solid var(--border-color)' }}
-                        />
-                      ) : (
-                        <video 
-                          src={item.url} 
-                          controls
-                          style={{ width: '100%', borderRadius: '16px', border: '1px solid var(--border-color)' }}
-                        />
-                      )}
+                      <MediaRenderer 
+                        url={item.url} 
+                        type={item.type} 
+                        style={{ width: '100%', borderRadius: '16px', border: '1px solid var(--border-color)' }}
+                      />
                     </div>
                   ))}
                 </div>

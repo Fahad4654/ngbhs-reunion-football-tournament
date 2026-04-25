@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState, useRef } from 'react';
+import { useActionState, useState, useRef, useEffect } from 'react';
 import { createPost } from '@/lib/actions';
 import type { AppUser } from '@/lib/server-auth';
 
@@ -15,12 +15,22 @@ interface MediaPreview {
 }
 
 import { toast } from 'react-hot-toast';
+import MediaRenderer from '@/app/components/MediaRenderer';
 
 export default function PostForm({ user }: PostFormProps) {
   const [state, formAction, isPending] = useActionState(createPost, null);
   const [mediaPreviews, setMediaPreviews] = useState<MediaPreview[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  // Cleanup object URLs when component unmounts to prevent memory leaks
+  const previewsRef = useRef<MediaPreview[]>(mediaPreviews);
+  previewsRef.current = mediaPreviews;
+  useEffect(() => {
+    return () => {
+      previewsRef.current.forEach(m => URL.revokeObjectURL(m.url));
+    };
+  }, []);
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'IMAGE' | 'VIDEO') => {
     const files = Array.from(e.target.files || []);
@@ -31,33 +41,48 @@ export default function PostForm({ user }: PostFormProps) {
     }
 
     if (files.length > 0) {
-      files.forEach(file => {
+      const newPreviews: MediaPreview[] = files.map(file => {
+        const extension = file.name.split('.').pop()?.toLowerCase();
+
+        // Format validation
+        if (type === 'VIDEO' && ['avi', 'mkv', 'flv', 'wmv'].includes(extension || '')) {
+          toast.error(`Format .${extension} is not supported. Please use MP4 or WebM.`);
+          return null;
+        }
+        if (type === 'IMAGE' && ['tif', 'tiff', 'bmp'].includes(extension || '')) {
+          toast.error(`Format .${extension} is not supported. Please use JPEG, PNG, or WebP.`);
+          return null;
+        }
+
         // Size validation
         if (type === 'IMAGE' && file.size > 10 * 1024 * 1024) {
           toast.error(`Image ${file.name} is too large (Max 10MB)`);
-          return;
+          return null;
         }
         if (type === 'VIDEO' && file.size > 1024 * 1024 * 1024) {
           toast.error(`Video ${file.name} is too large (Max 1GB)`);
-          return;
+          return null;
         }
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setMediaPreviews(prev => [...prev, {
-            url: reader.result as string,
-            type,
-            file
-          }]);
+        // Use URL.createObjectURL instead of FileReader for better performance with large files
+        return {
+          url: URL.createObjectURL(file),
+          type,
+          file
         };
-        reader.readAsDataURL(file);
-      });
+      }).filter((p): p is MediaPreview => p !== null);
+
+      setMediaPreviews(prev => [...prev, ...newPreviews]);
     }
     // Clear input so same file can be selected again
     e.target.value = '';
   };
 
   const removeMedia = (index: number) => {
+    const mediaToRemove = mediaPreviews[index];
+    if (mediaToRemove) {
+      URL.revokeObjectURL(mediaToRemove.url);
+    }
     setMediaPreviews(prev => prev.filter((_, i) => i !== index));
     toast.success("Media removed");
   };
@@ -175,18 +200,12 @@ export default function PostForm({ user }: PostFormProps) {
           <div style={{ padding: '0 1rem 1rem', display: 'grid', gridTemplateColumns: mediaPreviews.length === 1 ? '1fr' : '1fr 1fr', gap: '8px' }}>
             {mediaPreviews.map((media, index) => (
               <div key={index} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', aspectRatio: '1/1' }}>
-                {media.type === 'IMAGE' ? (
-                  <img 
-                    src={media.url} 
-                    alt="Preview" 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  />
-                ) : (
-                  <video 
-                    src={media.url} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  />
-                )}
+                <MediaRenderer 
+                  url={media.url} 
+                  type={media.type} 
+                  fileName={media.file.name}
+                  style={{ borderRadius: '8px' }}
+                />
                 <button 
                   type="button" 
                   onClick={() => removeMedia(index)}
@@ -214,7 +233,7 @@ export default function PostForm({ user }: PostFormProps) {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input 
                 type="file" 
-                accept="image/*, .heic, .heif" 
+                accept="image/*, .jpg, .jpeg, .png, .gif, .webp, .avif, .heic, .heif" 
                 multiple
                 ref={fileInputRef} 
                 onChange={(e) => handleMediaChange(e, 'IMAGE')}
@@ -232,7 +251,7 @@ export default function PostForm({ user }: PostFormProps) {
 
               <input 
                 type="file" 
-                accept="video/*, .mkv, .mov, .avi" 
+                accept="video/*, .mp4, .mov, .webm" 
                 multiple
                 ref={videoInputRef}
                 onChange={(e) => handleMediaChange(e, 'VIDEO')}

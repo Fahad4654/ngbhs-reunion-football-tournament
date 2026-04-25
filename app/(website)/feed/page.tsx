@@ -1,6 +1,7 @@
 import { getApprovedPosts } from "@/lib/actions";
 import { getServerUser } from "@/lib/server-auth";
 import PostActions from "./post-actions";
+import MediaRenderer from "@/app/components/MediaRenderer";
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
@@ -89,19 +90,11 @@ export default async function FeedPage() {
                       overflow: 'hidden',
                       border: '1px solid var(--border-color)'
                     }}>
-                      {item.type === 'IMAGE' ? (
-                        <img 
-                          src={item.url} 
-                          alt={post.title || 'Post image'} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        />
-                      ) : (
-                        <video 
-                          src={item.url} 
-                          controls
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        />
-                      )}
+                      <MediaRenderer 
+                        url={item.url} 
+                        type={item.type} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      />
                     </div>
                   ))}
                 </div>
