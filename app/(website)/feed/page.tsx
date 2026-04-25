@@ -77,28 +77,29 @@ export default async function FeedPage() {
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: post.media.length === 1 ? '1fr' : '1fr 1fr',
-                  gap: '4px',
+                  gap: '8px',
                   padding: '1rem 1.5rem',
-                  maxHeight: '500px',
-                  overflow: 'hidden'
                 }}>
                   {post.media.map((item: any, idx: number) => (
                     <div key={item.id} style={{ 
                       position: 'relative', 
-                      aspectRatio: post.media.length === 1 ? '16/9' : '1/1',
-                      gridColumn: (post.media.length === 3 && idx === 0) ? 'span 2' : 'span 1'
+                      aspectRatio: post.media.length === 1 ? '16/9' : (post.media.length === 3 && idx === 0) ? '16/9' : '1/1',
+                      gridColumn: (post.media.length === 3 && idx === 0) ? 'span 2' : 'span 1',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: '1px solid var(--border-color)'
                     }}>
                       {item.type === 'IMAGE' ? (
                         <img 
                           src={item.url} 
                           alt={post.title || 'Post image'} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                         />
                       ) : (
                         <video 
                           src={item.url} 
                           controls
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                         />
                       )}
                     </div>

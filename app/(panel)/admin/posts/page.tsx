@@ -11,6 +11,7 @@ export default async function AdminPostsPage() {
   const posts = await prisma.post.findMany({
     include: {
       author: true,
+      media: true,
     },
     orderBy: {
       createdAt: 'desc',
@@ -29,7 +30,7 @@ export default async function AdminPostsPage() {
           <div key={post.id} className="glass" style={{ padding: '2rem', borderRadius: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
               <div>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{post.title}</h2>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{post.title || 'Untitled Story'}</h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
                   <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{post.author.name}</span>
                   <span>•</span>
@@ -45,27 +46,32 @@ export default async function AdminPostsPage() {
               </span>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: (post.imageUrl || post.videoUrl) ? '1.5fr 1fr' : '1fr', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: post.media.length > 0 ? '1.5fr 1fr' : '1fr', gap: '2rem' }}>
               <div>
                 <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', whiteSpace: 'pre-wrap' }}>
                   {post.content}
                 </p>
               </div>
 
-              {(post.imageUrl || post.videoUrl) && (
+              {post.media.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {post.imageUrl && (
-                    <img 
-                      src={post.imageUrl} 
-                      alt={post.title} 
-                      style={{ width: '100%', borderRadius: '16px', objectFit: 'cover', border: '1px solid var(--border-color)' }}
-                    />
-                  )}
-                  {post.videoUrl && (
-                    <div style={{ color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: '600' }}>
-                      🎥 Video attached: <a href={post.videoUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'white', textDecoration: 'underline' }}>{post.videoUrl}</a>
+                  {post.media.map(item => (
+                    <div key={item.id}>
+                      {item.type === 'IMAGE' ? (
+                        <img 
+                          src={item.url} 
+                          alt="Post media" 
+                          style={{ width: '100%', borderRadius: '16px', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                        />
+                      ) : (
+                        <video 
+                          src={item.url} 
+                          controls
+                          style={{ width: '100%', borderRadius: '16px', border: '1px solid var(--border-color)' }}
+                        />
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
               )}
             </div>

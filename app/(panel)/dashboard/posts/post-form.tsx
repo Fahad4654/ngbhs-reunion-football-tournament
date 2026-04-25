@@ -22,8 +22,24 @@ export default function PostForm({ user }: PostFormProps) {
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'IMAGE' | 'VIDEO') => {
     const files = Array.from(e.target.files || []);
+    
+    if (mediaPreviews.length + files.length > 50) {
+      alert("Maximum 50 items allowed.");
+      return;
+    }
+
     if (files.length > 0) {
       files.forEach(file => {
+        // Size validation
+        if (type === 'IMAGE' && file.size > 10 * 1024 * 1024) {
+          alert(`Image ${file.name} is too large (Max 10MB)`);
+          return;
+        }
+        if (type === 'VIDEO' && file.size > 1024 * 1024 * 1024) {
+          alert(`Video ${file.name} is too large (Max 1GB)`);
+          return;
+        }
+
         const reader = new FileReader();
         reader.onloadend = () => {
           setMediaPreviews(prev => [...prev, {
@@ -175,8 +191,7 @@ export default function PostForm({ user }: PostFormProps) {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input 
                 type="file" 
-                name="imageFiles" 
-                accept="image/*" 
+                accept="image/*, .heic, .heif" 
                 multiple
                 ref={fileInputRef} 
                 onChange={(e) => handleMediaChange(e, 'IMAGE')}
@@ -190,10 +205,11 @@ export default function PostForm({ user }: PostFormProps) {
               >
                 🖼️
               </button>
+              <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', position: 'absolute', top: '-15px', right: '110px' }}>All Formats</div>
+
               <input 
                 type="file" 
-                name="videoFiles" 
-                accept="video/*" 
+                accept="video/*, .mkv, .mov, .avi" 
                 multiple
                 ref={videoInputRef}
                 onChange={(e) => handleMediaChange(e, 'VIDEO')}
@@ -207,6 +223,7 @@ export default function PostForm({ user }: PostFormProps) {
               >
                 📹
               </button>
+              <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', position: 'absolute', top: '-15px', right: '65px' }}>All Formats</div>
               <button type="button" style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', padding: '4px', borderRadius: '4px' }}>
                 😊
               </button>

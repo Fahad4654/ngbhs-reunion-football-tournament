@@ -191,11 +191,18 @@ export async function createPost(prevState: any, formData: FormData) {
       return { error: 'Post content is required.' };
     }
 
+    if (imageFiles.length + videoFiles.length > 50) {
+      return { error: 'You can only upload a maximum of 50 images/videos per post.' };
+    }
+
     const mediaData: { type: 'IMAGE' | 'VIDEO', url: string }[] = [];
 
     // Handle Multiple Images
     for (const file of imageFiles) {
       if (file && file.size > 0) {
+        if (file.size > 10 * 1024 * 1024) {
+          return { error: `Image "${file.name}" exceeds the 10MB limit.` };
+        }
         const buffer = Buffer.from(await file.arrayBuffer());
         const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
         const uploadPath = path.join(process.cwd(), 'public/uploads', filename);
@@ -207,6 +214,9 @@ export async function createPost(prevState: any, formData: FormData) {
     // Handle Multiple Videos
     for (const file of videoFiles) {
       if (file && file.size > 0) {
+        if (file.size > 1024 * 1024 * 1024) {
+          return { error: `Video "${file.name}" exceeds the 1GB limit.` };
+        }
         const buffer = Buffer.from(await file.arrayBuffer());
         const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
         const uploadPath = path.join(process.cwd(), 'public/uploads', filename);
