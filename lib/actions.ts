@@ -120,3 +120,46 @@ export async function loginWithGoogle(idToken: string) {
     return { error: 'Failed to authenticate with Google.' };
   }
 }
+
+export async function getAllBatches() {
+  try {
+    return await prisma.batch.findMany({
+      orderBy: { name: 'asc' },
+    });
+  } catch (error) {
+    console.error('Error fetching batches:', error);
+    return [];
+  }
+}
+
+export async function updateProfile(prevState: any, formData: FormData) {
+  try {
+    const user = await getServerUser();
+    if (!user) return { error: 'Not authenticated.' };
+
+    const name = formData.get('name') as string;
+    const occupation = formData.get('occupation') as string;
+    const phone = formData.get('phone') as string;
+    const batchId = formData.get('batchId') as string;
+    const image = formData.get('image') as string;
+
+    await prisma.user.update({
+      where: { id: user.uid },
+      data: {
+        name,
+        occupation,
+        phone,
+        batchId: batchId || null,
+        image: image || null,
+      },
+    });
+
+    // Refresh the session cookie with the new name
+    await setSessionCookie(user.uid, user.role, name);
+
+    return { success: true, message: 'Profile updated successfully!' };
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return { error: 'Failed to update profile.' };
+  }
+}

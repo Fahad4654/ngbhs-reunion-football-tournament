@@ -7,7 +7,7 @@ import Link from "next/link";
 export default async function AdminNewsPage() {
   const user = await getServerUser();
   
-  if (user?.role !== "ADMIN") redirect("/");
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") redirect("/");
 
   const news = await prisma.news.findMany({
     orderBy: {

@@ -27,6 +27,9 @@ model Batch {
   homeMatches Match[]  @relation("HomeTeam")
   awayMatches Match[]  @relation("AwayTeam")
   
+  members     User[]   @relation("BatchMembers")
+  followers   User[]   @relation("UserFollows")
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -109,6 +112,13 @@ model User {
   email         String    @unique
   role          Role      @default(USER)
   image         String?
+  occupation    String?
+  phone         String?
+  
+  batchId       String?
+  batch         Batch?    @relation("BatchMembers", fields: [batchId], references: [id])
+  
+  followedBatches Batch[] @relation("UserFollows")
   posts         Post[]
   
   createdAt     DateTime  @default(now())

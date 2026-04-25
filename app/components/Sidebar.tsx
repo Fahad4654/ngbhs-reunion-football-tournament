@@ -12,16 +12,16 @@ interface SidebarProps {
 export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
 
-  const commonLinks = [
-    { name: "Overview", href: user.role === "ADMIN" ? "/admin" : "/dashboard", icon: "📊" },
-    { name: "Live Scores", href: user.role === "ADMIN" ? "/admin/matches" : "/dashboard/scores", icon: "⚽" },
-    { name: "News Manager", href: user.role === "ADMIN" ? "/admin/news" : "/dashboard/news", icon: "📰" },
+  const mainLinks = [
+    { name: "Overview", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin" : "/dashboard", icon: "📊" },
+    { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: "⚽" },
+    { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: "📰" },
+    { name: "Post Moderation", href: "/admin/posts", icon: "💬", roles: ["ADMIN", "CO_ADMIN"] },
   ];
 
-  const adminLinks = [
-    { name: "Batch Standings", href: "/admin/batches", icon: "🛡️" },
-    { name: "User Moderation", href: "/admin/posts", icon: "💬" },
-    { name: "User Management", href: "/admin/users", icon: "👥" },
+  const adminOnlyLinks = [
+    { name: "Batch Settings", href: "/admin/batches", icon: "🛡️" },
+    { name: "User Access", href: "/admin/users", icon: "👥" },
   ];
 
   return (
@@ -56,7 +56,7 @@ export default function Sidebar({ user }: SidebarProps) {
           Main Menu
         </div>
         
-        {commonLinks.map((link) => {
+        {mainLinks.filter(l => !l.roles || l.roles.includes(user.role)).map((link) => {
           const isActive = pathname === link.href;
           return (
             <Link 
@@ -86,7 +86,7 @@ export default function Sidebar({ user }: SidebarProps) {
             <div style={{ fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px', marginTop: '2rem', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>
               Administrative
             </div>
-            {adminLinks.map((link) => {
+            {adminOnlyLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link 

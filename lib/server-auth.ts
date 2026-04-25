@@ -8,6 +8,9 @@ export interface AppUser {
   name: string | null;
   image: string | null;
   role: 'ADMIN' | 'CO_ADMIN' | 'USER';
+  occupation: string | null;
+  phone: string | null;
+  batchId: string | null;
 }
 
 /**
@@ -36,6 +39,9 @@ export async function getServerUser(): Promise<AppUser | null> {
       name: user.name,
       image: user.image,
       role: user.role,
+      occupation: user.occupation,
+      phone: user.phone,
+      batchId: user.batchId,
     };
   } catch (error) {
     console.error("Auth verification error:", error);

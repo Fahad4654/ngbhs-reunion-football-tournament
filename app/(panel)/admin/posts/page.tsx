@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 export default async function AdminPostsPage() {
   const user = await getServerUser();
   
-  if (user?.role !== "ADMIN") redirect("/");
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") redirect("/");
 
   const posts = await prisma.post.findMany({
     include: {
