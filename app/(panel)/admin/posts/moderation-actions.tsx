@@ -12,34 +12,74 @@ export default function ModerationActions({ postId }: ModerationActionsProps) {
   const [isPending, setIsPending] = useState(false);
 
   const confirmAction = (message: string, onConfirm: () => void) => {
-    toast((t) => (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: '250px' }}>
-        <p style={{ margin: 0, fontWeight: '600', fontSize: '0.9rem' }}>{message}</p>
-        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-          <button 
-            onClick={() => {
-              toast.dismiss(t.id);
-            }}
-            className="btn glass"
-            style={{ padding: '4px 12px', fontSize: '0.75rem' }}
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={() => {
-              toast.dismiss(t.id);
-              onConfirm();
-            }}
-            className="btn btn-primary"
-            style={{ padding: '4px 12px', fontSize: '0.75rem' }}
-          >
-            Confirm
-          </button>
+    toast.custom((t) => (
+      <div 
+        style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 9999,
+          opacity: t.visible ? 1 : 0,
+          transition: 'opacity 0.2s ease',
+          pointerEvents: 'auto',
+        }}
+        onClick={() => toast.dismiss(t.id)}
+      >
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="glass"
+          style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '1.5rem', 
+            width: '100%',
+            maxWidth: '400px',
+            padding: '2rem',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(235, 183, 0, 0.1)',
+            border: '1px solid rgba(235, 183, 0, 0.3)',
+            transform: t.visible ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(10px)',
+            transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            margin: '0 1rem',
+          }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ 
+              margin: 0, 
+              fontWeight: '600', 
+              fontSize: '1.25rem', 
+              color: 'var(--text-primary)',
+              fontFamily: 'Outfit, sans-serif'
+            }}>
+              {message}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <button 
+              onClick={() => toast.dismiss(t.id)}
+              className="btn glass"
+              style={{ flex: 1, padding: '0.75rem' }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => {
+                toast.dismiss(t.id);
+                onConfirm();
+              }}
+              className="btn btn-primary"
+              style={{ flex: 1, padding: '0.75rem' }}
+            >
+              Confirm
+            </button>
+          </div>
         </div>
       </div>
     ), {
-      duration: 5000,
-      position: 'top-center',
+      duration: Infinity,
     });
   };
 
