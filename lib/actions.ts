@@ -173,3 +173,235 @@ export async function updateProfile(prevState: any, formData: FormData) {
     return { error: 'Failed to update profile.' };
   }
 }
+
+export async function createPost(prevState: any, formData: FormData) {
+  try {
+    const user = await getServerUser();
+    if (!user) return { error: 'Not authenticated.' };
+
+    const title = formData.get('title') as string;
+    const content = formData.get('content') as string;
+    const imageUrl = formData.get('imageUrl') as string;
+    const videoUrl = formData.get('videoUrl') as string;
+
+    if (!title || !content) {
+      return { error: 'Title and content are required.' };
+    }
+
+    await prisma.post.create({
+      data: {
+        title,
+        content,
+        imageUrl: imageUrl || null,
+        videoUrl: videoUrl || null,
+        authorId: user.uid,
+        status: 'PENDING',
+      },
+    });
+
+    return { success: true, message: 'Post submitted for approval!' };
+  } catch (error) {
+    console.error('Create post error:', error);
+    return { error: 'Failed to create post.' };
+  }
+}
+
+export async function approvePost(postId: string) {
+  try {
+    const user = await getServerUser();
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
+      return { error: 'Unauthorized.' };
+    }
+
+    await prisma.post.update({
+      where: { id: postId },
+      data: { status: 'APPROVED' },
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/admin/posts');
+    revalidatePath('/feed');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Approve post error:', error);
+    return { error: 'Failed to approve post.' };
+  }
+}
+
+export async function rejectPost(postId: string) {
+  try {
+    const user = await getServerUser();
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
+      return { error: 'Unauthorized.' };
+    }
+
+    await prisma.post.update({
+      where: { id: postId },
+      data: { status: 'REJECTED' },
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/admin/posts');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Reject post error:', error);
+    return { error: 'Failed to reject post.' };
+  }
+}
+
+export async function getPendingPosts() {
+  try {
+    const user = await getServerUser();
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
+      return [];
+    }
+
+    return await prisma.post.findMany({
+      where: { status: 'PENDING' },
+      include: { author: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (error) {
+    console.error('Get pending posts error:', error);
+    return [];
+  }
+}
+
+export async function getApprovedPosts() {
+  try {
+    const user = await getServerUser();
+    return await prisma.post.findMany({
+      where: { status: 'APPROVED' },
+      include: { 
+        author: true,
+        cheers: true,
+        comments: {
+          include: { author: true },
+          orderBy: { createdAt: 'asc' }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (error) {
+    console.error('Get approved posts error:', error);
+    return [];
+  }
+}
+
+export async function toggleCheer(postId: string) {
+  try {
+    const user = await getServerUser();
+    if (!user) return { error: 'Not authenticated.' };
+
+    const existingCheer = await prisma.cheer.findUnique({
+      where: {
+        postId_userId: {
+          postId,
+          userId: user.uid,
+        },
+      },
+    });
+
+    if (existingCheer) {
+      await prisma.cheer.delete({
+        where: { id: existingCheer.id },
+      });
+    } else {
+      await prisma.cheer.create({
+        data: {
+          postId,
+          userId: user.uid,
+        },
+      });
+    }
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/feed');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Toggle cheer error:', error);
+    return { error: 'Failed to update cheer.' };
+  }
+}
+
+export async function addComment(postId: string, content: string) {
+  try {
+    const user = await getServerUser();
+    if (!user) return { error: 'Not authenticated.' };
+
+    if (!content || content.trim() === '') {
+      return { error: 'Comment cannot be empty.' };
+    }
+
+    await prisma.comment.create({
+      data: {
+        content,
+        postId,
+        authorId: user.uid,
+      },
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/feed');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Add comment error:', error);
+    return { error: 'Failed to add comment.' };
+  }
+}
+
+export async function getMyPosts() {
+  try {
+    const user = await getServerUser();
+    if (!user) return [];
+
+    return await prisma.post.findMany({
+      where: { authorId: user.uid },
+      include: {
+        _count: {
+          select: { cheers: true, comments: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (error) {
+    console.error('Get my posts error:', error);
+    return [];
+  }
+}
+
+export async function getUserActivity() {
+  try {
+    const user = await getServerUser();
+    if (!user) return null;
+
+    const [posts, cheers, comments] = await Promise.all([
+      prisma.post.findMany({
+        where: { authorId: user.uid },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      }),
+      prisma.cheer.findMany({
+        where: { userId: user.uid },
+        include: { post: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      }),
+      prisma.comment.findMany({
+        where: { authorId: user.uid },
+        include: { post: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      }),
+    ]);
+
+    return { posts, cheers, comments };
+  } catch (error) {
+    console.error('Get user activity error:', error);
+    return null;
+  }
+}

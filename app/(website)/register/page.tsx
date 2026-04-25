@@ -1,7 +1,19 @@
 import styles from "../login/login.module.css";
 import RegisterForm from "./register-form";
+import { getServerUser } from "@/lib/server-auth";
+import { redirect } from "next/navigation";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const user = await getServerUser();
+
+  if (user) {
+    if (user.role === 'ADMIN' || user.role === 'CO_ADMIN') {
+      redirect('/admin');
+    } else {
+      redirect('/dashboard');
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.bgBlob} style={{ top: '-10%', left: '-10%', background: 'radial-gradient(circle, rgba(235, 183, 0, 0.05) 0%, transparent 70%)' }}></div>

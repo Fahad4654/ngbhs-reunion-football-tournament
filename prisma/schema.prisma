@@ -90,12 +90,38 @@ model Post {
   id          String   @id @default(cuid())
   title       String
   content     String   @db.Text
+  imageUrl    String?
+  videoUrl    String?
   status      PostStatus @default(PENDING)
   authorId    String
   author      User     @relation(fields: [authorId], references: [id])
   
+  cheers      Cheer[]
+  comments    Comment[]
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Cheer {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 enum PostStatus {
@@ -123,6 +149,8 @@ model User {
   
   followedBatches Batch[] @relation("UserFollows")
   posts         Post[]
+  cheers        Cheer[]
+  comments      Comment[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

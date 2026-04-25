@@ -1,7 +1,19 @@
 import styles from "./login.module.css";
 import LoginForm from "./login-form";
+import { getServerUser } from "@/lib/server-auth";
+import { redirect } from "next/navigation";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const user = await getServerUser();
+
+  if (user) {
+    if (user.role === 'ADMIN' || user.role === 'CO_ADMIN') {
+      redirect('/admin');
+    } else {
+      redirect('/dashboard');
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.bgBlob} style={{ top: '-10%', left: '-10%', background: 'radial-gradient(circle, rgba(235, 183, 0, 0.05) 0%, transparent 70%)' }}></div>

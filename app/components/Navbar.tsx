@@ -12,6 +12,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
     { name: "Home", href: "/" },
     { name: "Matches", href: "/matches" },
     { name: "Standings", href: "/standings" },
+    { name: "Feed", href: "/feed" },
     { name: "News", href: "/news" },
   ];
 
@@ -60,6 +61,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           {user ? (
             <>
               <div style={{ display: 'flex', gap: '1rem', marginRight: '1rem' }}>
+                <Link href="/dashboard" style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: '700' }}>Dashboard</Link>
                 <Link href="/profile" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Profile</Link>
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Hi, {user.name}</span>
