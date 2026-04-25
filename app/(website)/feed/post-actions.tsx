@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { toggleCheer } from '@/lib/actions';
 import CommentSection from './comment-section';
+import { toast } from 'react-hot-toast';
 
 interface PostActionsProps {
   postId: string;
@@ -20,7 +21,8 @@ export default function PostActions({ postId, initialCheers, initialComments, cu
 
   const handleCheer = async () => {
     if (!currentUserId) {
-      window.location.href = '/login';
+      toast.error('Please login to cheer!');
+      setTimeout(() => window.location.href = '/login', 1500);
       return;
     }
     setIsCheering(true);
@@ -41,7 +43,7 @@ export default function PostActions({ postId, initialCheers, initialComments, cu
     } else {
       // Fallback: Copy to clipboard
       await navigator.clipboard.writeText(postUrl);
-      alert('Post link copied to clipboard!');
+      toast.success('Post link copied to clipboard!');
     }
   };
 

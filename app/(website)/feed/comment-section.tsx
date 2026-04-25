@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { addComment } from '@/lib/actions';
-import styles from '@/app/(website)/login/login.module.css';
+import { toast } from 'react-hot-toast';
 
 interface CommentSectionProps {
   postId: string;
@@ -17,13 +17,20 @@ export default function CommentSection({ postId, comments, currentUserId }: Comm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUserId) {
-      window.location.href = '/login';
+      toast.error('Please login to comment!');
+      setTimeout(() => window.location.href = '/login', 1500);
       return;
     }
     if (!content.trim()) return;
 
     setIsPending(true);
-    await addComment(postId, content);
+    const promise = addComment(postId, content);
+    toast.promise(promise, {
+      loading: 'Posting comment...',
+      success: 'Comment added!',
+      error: 'Failed to add comment.',
+    });
+    await promise;
     setContent('');
     setIsPending(false);
   };

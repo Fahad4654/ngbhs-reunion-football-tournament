@@ -14,6 +14,8 @@ interface MediaPreview {
   file: File;
 }
 
+import { toast } from 'react-hot-toast';
+
 export default function PostForm({ user }: PostFormProps) {
   const [state, formAction, isPending] = useActionState(createPost, null);
   const [mediaPreviews, setMediaPreviews] = useState<MediaPreview[]>([]);
@@ -24,7 +26,7 @@ export default function PostForm({ user }: PostFormProps) {
     const files = Array.from(e.target.files || []);
     
     if (mediaPreviews.length + files.length > 50) {
-      alert("Maximum 50 items allowed.");
+      toast.error("Maximum 50 items allowed.");
       return;
     }
 
@@ -32,11 +34,11 @@ export default function PostForm({ user }: PostFormProps) {
       files.forEach(file => {
         // Size validation
         if (type === 'IMAGE' && file.size > 10 * 1024 * 1024) {
-          alert(`Image ${file.name} is too large (Max 10MB)`);
+          toast.error(`Image ${file.name} is too large (Max 10MB)`);
           return;
         }
         if (type === 'VIDEO' && file.size > 1024 * 1024 * 1024) {
-          alert(`Video ${file.name} is too large (Max 1GB)`);
+          toast.error(`Video ${file.name} is too large (Max 1GB)`);
           return;
         }
 
@@ -57,9 +59,15 @@ export default function PostForm({ user }: PostFormProps) {
 
   const removeMedia = (index: number) => {
     setMediaPreviews(prev => prev.filter((_, i) => i !== index));
+    toast.success("Media removed");
   };
 
   const handleSubmit = (formData: FormData) => {
+    if (mediaPreviews.length === 0 && !formData.get('content')) {
+      toast.error("Please add some content or media.");
+      return;
+    }
+
     // Append all media files to the same key names
     mediaPreviews.forEach(m => {
       if (m.type === 'IMAGE') {
@@ -68,7 +76,21 @@ export default function PostForm({ user }: PostFormProps) {
         formData.append('videoFiles', m.file);
       }
     });
-    formAction(formData);
+
+    const promise = new Promise(async (resolve, reject) => {
+      try {
+        await formAction(formData);
+        resolve(true);
+      } catch (err) {
+        reject(err);
+      }
+    });
+
+    toast.promise(promise, {
+      loading: 'Uploading your story...',
+      success: 'Post submitted! Waiting for approval.',
+      error: 'Failed to submit post.',
+    });
   };
 
   return (
@@ -185,7 +207,8 @@ export default function PostForm({ user }: PostFormProps) {
             padding: '0.75rem 1rem',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            position: 'relative'
           }}>
             <span style={{ color: 'white', fontSize: '0.9rem', fontWeight: '600' }}>Add to your post</span>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -233,19 +256,6 @@ export default function PostForm({ user }: PostFormProps) {
             </div>
           </div>
         </div>
-
-        {/* Messages */}
-        {state?.error && (
-          <div style={{ margin: '0.5rem 1rem', color: 'var(--accent-danger)', fontSize: '0.8rem', fontWeight: '600' }}>
-            ⚠️ {state.error}
-          </div>
-        )}
-
-        {state?.success && (
-          <div style={{ margin: '0.5rem 1rem', color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>
-            🎉 Post submitted! Visible after approval.
-          </div>
-        )}
 
         {/* Footer / Submit */}
         <div style={{ padding: '1rem' }}>
