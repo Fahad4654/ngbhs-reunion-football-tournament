@@ -88,19 +88,32 @@ model Highlight {
 
 model Post {
   id          String   @id @default(cuid())
-  title       String
+  title       String?
   content     String   @db.Text
-  imageUrl    String?
-  videoUrl    String?
   status      PostStatus @default(PENDING)
   authorId    String
   author      User     @relation(fields: [authorId], references: [id])
   
+  media       Media[]
   cheers      Cheer[]
   comments    Comment[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  type      MediaType
+  url       String
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
 }
 
 model Cheer {

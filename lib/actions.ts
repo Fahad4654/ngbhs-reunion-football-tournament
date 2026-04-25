@@ -174,35 +174,68 @@ export async function updateProfile(prevState: any, formData: FormData) {
   }
 }
 
+import { writeFile, mkdir } from 'fs/promises';
+import path from 'path';
+
 export async function createPost(prevState: any, formData: FormData) {
   try {
     const user = await getServerUser();
-    if (!user) return { error: 'Not authenticated.' };
+    if (!user) return { error: 'You must be logged in to create a post.' };
 
     const title = formData.get('title') as string;
     const content = formData.get('content') as string;
-    const imageUrl = formData.get('imageUrl') as string;
-    const videoUrl = formData.get('videoUrl') as string;
+    const imageFiles = formData.getAll('imageFiles') as File[];
+    const videoFiles = formData.getAll('videoFiles') as File[];
 
-    if (!title || !content) {
-      return { error: 'Title and content are required.' };
+    if (!content) {
+      return { error: 'Post content is required.' };
+    }
+
+    const mediaData: { type: 'IMAGE' | 'VIDEO', url: string }[] = [];
+
+    // Handle Multiple Images
+    for (const file of imageFiles) {
+      if (file && file.size > 0) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
+        const uploadPath = path.join(process.cwd(), 'public/uploads', filename);
+        await writeFile(uploadPath, buffer);
+        mediaData.push({ type: 'IMAGE', url: `/uploads/${filename}` });
+      }
+    }
+
+    // Handle Multiple Videos
+    for (const file of videoFiles) {
+      if (file && file.size > 0) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
+        const uploadPath = path.join(process.cwd(), 'public/uploads', filename);
+        await writeFile(uploadPath, buffer);
+        mediaData.push({ type: 'VIDEO', url: `/uploads/${filename}` });
+      }
     }
 
     await prisma.post.create({
       data: {
-        title,
+        title: title || null,
         content,
-        imageUrl: imageUrl || null,
-        videoUrl: videoUrl || null,
         authorId: user.uid,
         status: 'PENDING',
+        media: {
+          create: mediaData,
+        },
       },
     });
 
-    return { success: true, message: 'Post submitted for approval!' };
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/dashboard/posts/my-posts');
+    revalidatePath('/admin/posts');
+    revalidatePath('/feed');
+
+    return { success: true };
   } catch (error) {
     console.error('Create post error:', error);
-    return { error: 'Failed to create post.' };
+    return { error: 'Failed to create post. Please try again.' };
   }
 }
 
@@ -260,7 +293,7 @@ export async function getPendingPosts() {
 
     return await prisma.post.findMany({
       where: { status: 'PENDING' },
-      include: { author: true },
+      include: { author: true, media: true },
       orderBy: { createdAt: 'desc' },
     });
   } catch (error) {
@@ -276,6 +309,7 @@ export async function getApprovedPosts() {
       where: { status: 'APPROVED' },
       include: { 
         author: true,
+        media: true,
         cheers: true,
         comments: {
           include: { author: true },
@@ -362,6 +396,7 @@ export async function getMyPosts() {
     return await prisma.post.findMany({
       where: { authorId: user.uid },
       include: {
+        media: true,
         _count: {
           select: { cheers: true, comments: true }
         }
@@ -382,18 +417,19 @@ export async function getUserActivity() {
     const [posts, cheers, comments] = await Promise.all([
       prisma.post.findMany({
         where: { authorId: user.uid },
+        include: { media: true },
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
       prisma.cheer.findMany({
         where: { userId: user.uid },
-        include: { post: true },
+        include: { post: { include: { media: true } } },
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
       prisma.comment.findMany({
         where: { authorId: user.uid },
-        include: { post: true },
+        include: { post: { include: { media: true } } },
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
