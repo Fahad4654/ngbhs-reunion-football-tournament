@@ -217,7 +217,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             <MediaRenderer 
               url={media[selectedIndex].url} 
               type={media[selectedIndex].type} 
-              controls={media[selectedIndex].type === 'VIDEO'}
               style={{
                 maxWidth: '100%',
                 maxHeight: '100%',

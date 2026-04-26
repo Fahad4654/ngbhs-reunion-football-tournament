@@ -29,14 +29,27 @@ export default async function AdminPostsPage() {
 
       <div style={{ display: 'grid', gap: '2rem' }}>
         {posts.length > 0 ? posts.map((post) => (
-          <div key={post.id} className="glass" style={{ padding: '2rem', borderRadius: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-              <div>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{post.title || 'Untitled Story'}</h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                  <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{post.author.name}</span>
-                  <span>•</span>
-                  <span>{new Date(post.createdAt).toLocaleString()}</span>
+          <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '24px' }}>
+            {/* Post Header */}
+            <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ 
+                width: '44px', 
+                height: '44px', 
+                borderRadius: '50%', 
+                background: 'var(--accent-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '800',
+                color: 'black',
+                fontSize: '1rem'
+              }}>
+                {post.author.name?.charAt(0)}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: 'white', fontWeight: '700', fontSize: '1rem' }}>{post.author.name}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                  {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -56,27 +69,25 @@ export default async function AdminPostsPage() {
                 />
               </div>
             </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: post.media.length > 0 ? '1.5fr 1fr' : '1fr', gap: '2rem' }}>
-              <div>
-                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', whiteSpace: 'pre-wrap' }}>
-                  {post.content}
-                </p>
-              </div>
 
-              {post.media.length > 0 && (
-                <div style={{ margin: '-1rem -1.5rem', padding: '0 0.5rem' }}>
-                  <MediaGallery media={post.media} />
-                </div>
-              )}
+            {/* Post Content */}
+            <div style={{ padding: '1.5rem 1.5rem 0.5rem' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--accent-primary)', textTransform: 'none' }}>{post.title || 'Untitled Story'}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                {post.content}
+              </p>
             </div>
 
+            {/* Post Media Gallery */}
+            <MediaGallery media={post.media} />
+
+            {/* Moderation Actions */}
             {post.status === 'PENDING' && (
-              <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
+              <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
                 <ModerationActions postId={post.id} />
               </div>
             )}
-          </div>
+          </article>
         )) : (
           <div className="glass" style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)', borderRadius: '24px' }}>
             No user posts to moderate at the moment.
