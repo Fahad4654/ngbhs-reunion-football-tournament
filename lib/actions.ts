@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 import { hashPassword, comparePassword, setSessionCookie, deleteSessionCookie } from './auth-utils';
 import { getServerUser } from './server-auth';
 import { redirect } from 'next/navigation';
+import { generateOTP, storeOTP, verifyOTP } from './otp';
+import { sendOTPEmail } from './mail';
 
 export async function loginWithEmail(prevState: any, formData: FormData) {
   const email = formData.get('email') as string;
@@ -14,8 +16,17 @@ export async function loginWithEmail(prevState: any, formData: FormData) {
       where: { email },
     });
 
+
     if (!user || !user.password) {
       return { error: 'Invalid email or password.' };
+    }
+
+    if (!user.emailVerified) {
+      return { 
+        error: 'Please verify your email address before logging in.',
+        needsVerification: true,
+        email: user.email 
+      };
     }
 
     const passwordsMatch = await comparePassword(password, user.password);
@@ -40,35 +51,97 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
   const password = formData.get('password') as string;
 
   try {
-    // 1. Check if user already exists
+    // 1. Check if user already exists and is verified
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (existingUser) {
+    if (existingUser && existingUser.emailVerified) {
       return { error: 'An account with this email already exists.' };
     }
 
     // 2. Hash the password
     const hashedPassword = await hashPassword(password);
 
-    // 3. Create user in our database
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        role: 'USER',
-      },
+    // 3. Create or update unverified user
+    if (existingUser) {
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          name,
+          password: hashedPassword,
+        },
+      });
+    } else {
+      await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+          role: 'USER',
+        },
+      });
+    }
+
+    // 4. Generate and store OTP
+    const otp = generateOTP();
+    await storeOTP(email, otp);
+
+    // 5. Send OTP email
+    await sendOTPEmail(email, otp);
+
+    return { success: true, otpSent: true, email };
+  } catch (error) {
+    console.error('Registration error:', error);
+    return { error: 'Something went wrong. Please try again.' };
+  }
+}
+
+export async function verifyOTPAndRegister(prevState: any, formData: FormData) {
+  const email = formData.get('email') as string;
+  const otp = formData.get('otp') as string;
+
+  try {
+    const isValid = await verifyOTP(email, otp);
+
+    if (!isValid) {
+      return { error: 'Invalid or expired OTP.' };
+    }
+
+    // Mark user as verified
+    const user = await prisma.user.update({
+      where: { email },
+      data: { emailVerified: new Date() },
     });
 
-    // 4. Set session cookie
+    // Set session cookie
     await setSessionCookie(user.id, user.role, user.name);
 
     return { success: true, role: user.role };
   } catch (error) {
-    console.error('Registration error:', error);
-    return { error: 'Something went wrong. Please try again.' };
+    console.error('OTP verification error:', error);
+    return { error: 'Failed to verify OTP. Please try again.' };
+  }
+}
+
+export async function resendOTP(email: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user || user.emailVerified) {
+      return { error: 'Invalid request.' };
+    }
+
+    const otp = generateOTP();
+    await storeOTP(email, otp);
+    await sendOTPEmail(email, otp);
+
+    return { success: true, message: 'OTP resent successfully!' };
+  } catch (error) {
+    console.error('Resend OTP error:', error);
+    return { error: 'Failed to resend OTP.' };
   }
 }
 
