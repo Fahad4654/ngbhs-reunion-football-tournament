@@ -2,7 +2,7 @@ import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import ModerationActions from "./moderation-actions";
-import MediaRenderer from "@/app/components/MediaRenderer";
+import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
 
 export default async function AdminPostsPage() {
@@ -65,16 +65,8 @@ export default async function AdminPostsPage() {
               </div>
 
               {post.media.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {post.media.map(item => (
-                    <div key={item.id}>
-                      <MediaRenderer 
-                        url={item.url} 
-                        type={item.type} 
-                        style={{ width: '100%', borderRadius: '16px', border: '1px solid var(--border-color)' }}
-                      />
-                    </div>
-                  ))}
+                <div style={{ margin: '-1rem -1.5rem', padding: '0 0.5rem' }}>
+                  <MediaGallery media={post.media} />
                 </div>
               )}
             </div>

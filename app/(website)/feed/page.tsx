@@ -1,7 +1,7 @@
 import { getApprovedPosts } from "@/lib/actions";
 import { getServerUser } from "@/lib/server-auth";
 import PostActions from "./post-actions";
-import MediaRenderer from "@/app/components/MediaRenderer";
+import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
 
 export const metadata = {
@@ -81,31 +81,7 @@ export default async function FeedPage() {
               </div>
 
               {/* Post Media Gallery */}
-              {post.media && post.media.length > 0 && (
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: post.media.length === 1 ? '1fr' : '1fr 1fr',
-                  gap: '8px',
-                  padding: '1rem 1.5rem',
-                }}>
-                  {post.media.map((item: any, idx: number) => (
-                    <div key={item.id} style={{ 
-                      position: 'relative', 
-                      aspectRatio: post.media.length === 1 ? '16/9' : (post.media.length === 3 && idx === 0) ? '16/9' : '1/1',
-                      gridColumn: (post.media.length === 3 && idx === 0) ? 'span 2' : 'span 1',
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--border-color)'
-                    }}>
-                      <MediaRenderer 
-                        url={item.url} 
-                        type={item.type} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+              <MediaGallery media={post.media} />
 
               {/* Post Actions (Client Component) */}
               <PostActions 
