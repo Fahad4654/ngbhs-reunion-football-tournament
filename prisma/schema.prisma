@@ -172,5 +172,6 @@ model User {
 enum Role {
   ADMIN
   CO_ADMIN
+  BATCH_MANAGER
   USER
 }

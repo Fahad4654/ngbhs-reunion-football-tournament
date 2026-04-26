@@ -14,8 +14,10 @@ export default function Sidebar({ user }: SidebarProps) {
 
   const mainLinks = [
     { name: "Overview", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin" : "/dashboard", icon: "📊" },
-    { name: "Create Post", href: "/dashboard/posts", icon: "✍️", roles: ["USER"] },
-    { name: "My Posts", href: "/dashboard/posts/my-posts", icon: "📝", roles: ["USER"] },
+    { name: "Create Post", href: "/dashboard/posts", icon: "✍️", roles: ["USER", "BATCH_MANAGER"] },
+    { name: "My Posts", href: "/dashboard/posts/my-posts", icon: "📝", roles: ["USER", "BATCH_MANAGER"] },
+    { name: "Batch Feed", href: "/dashboard/batch-feed", icon: "🎓", roles: ["USER", "BATCH_MANAGER"] },
+    { name: "Manage Batch", href: "/dashboard/manage-batch", icon: "🛠️", roles: ["BATCH_MANAGER"] },
     { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: "⚽", roles: ["ADMIN", "CO_ADMIN"] },
     { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: "📰", roles: ["ADMIN", "CO_ADMIN"] },
     { name: "Post Moderation", href: "/admin/posts", icon: "💬", roles: ["ADMIN", "CO_ADMIN"] },

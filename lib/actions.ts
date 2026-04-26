@@ -318,9 +318,25 @@ export async function createPost(prevState: any, formData: FormData) {
 export async function approvePost(postId: string) {
   try {
     const user = await getServerUser();
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
-      return { error: 'Unauthorized.' };
+    if (!user) return { error: 'Unauthorized.' };
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: { author: true }
+    });
+
+    if (!post) return { error: 'Post not found.' };
+
+    let isAuthorized = user.role === 'ADMIN' || user.role === 'CO_ADMIN';
+    
+    if (!isAuthorized && user.role === 'BATCH_MANAGER') {
+      const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+      if (dbUser?.batchId === post.author.batchId) {
+        isAuthorized = true;
+      }
     }
+
+    if (!isAuthorized) return { error: 'Unauthorized.' };
 
     await prisma.post.update({
       where: { id: postId },
@@ -329,6 +345,7 @@ export async function approvePost(postId: string) {
 
     const { revalidatePath } = await import('next/cache');
     revalidatePath('/admin/posts');
+    revalidatePath('/dashboard/manage-batch');
     revalidatePath('/feed');
 
     return { success: true };
@@ -341,9 +358,25 @@ export async function approvePost(postId: string) {
 export async function rejectPost(postId: string) {
   try {
     const user = await getServerUser();
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
-      return { error: 'Unauthorized.' };
+    if (!user) return { error: 'Unauthorized.' };
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: { author: true }
+    });
+
+    if (!post) return { error: 'Post not found.' };
+
+    let isAuthorized = user.role === 'ADMIN' || user.role === 'CO_ADMIN';
+    
+    if (!isAuthorized && user.role === 'BATCH_MANAGER') {
+      const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+      if (dbUser?.batchId === post.author.batchId) {
+        isAuthorized = true;
+      }
     }
+
+    if (!isAuthorized) return { error: 'Unauthorized.' };
 
     await prisma.post.update({
       where: { id: postId },
@@ -352,7 +385,7 @@ export async function rejectPost(postId: string) {
 
     const { revalidatePath } = await import('next/cache');
     revalidatePath('/admin/posts');
-
+    revalidatePath('/dashboard/manage-batch');
     return { success: true };
   } catch (error) {
     console.error('Reject post error:', error);
@@ -363,13 +396,27 @@ export async function rejectPost(postId: string) {
 export async function getPendingPosts() {
   try {
     const user = await getServerUser();
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
+    if (!user) return [];
+
+    let whereClause: any = { status: 'PENDING' };
+
+    if (user.role === 'BATCH_MANAGER') {
+      const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+      if (!dbUser?.batchId) return [];
+      whereClause = {
+        status: 'PENDING',
+        author: { batchId: dbUser.batchId }
+      };
+    } else if (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN') {
       return [];
     }
 
     return await prisma.post.findMany({
-      where: { status: 'PENDING' },
-      include: { author: true, media: true },
+      where: whereClause,
+      include: { 
+        author: true,
+        media: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
   } catch (error) {
@@ -378,11 +425,23 @@ export async function getPendingPosts() {
   }
 }
 
-export async function getApprovedPosts() {
+export async function getApprovedPosts(batchId?: string) {
   try {
     const user = await getServerUser();
+
+    let whereClause: any = { status: 'APPROVED' };
+    
+    if (batchId) {
+      whereClause = {
+        status: 'APPROVED',
+        author: {
+          batchId: batchId
+        }
+      };
+    }
+
     return await prisma.post.findMany({
-      where: { status: 'APPROVED' },
+      where: whereClause,
       include: { 
         author: true,
         media: true,
@@ -678,15 +737,44 @@ export async function editPostAction(postId: string, formData: FormData) {
   }
 }
 
-export async function updateUserRoleAction(userId: string, newRole: 'USER' | 'CO_ADMIN' | 'ADMIN') {
+export async function updateUserRoleAction(userId: string, newRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'ADMIN') {
   try {
     const requester = await getServerUser();
-    if (requester?.role !== 'ADMIN') {
-      return { error: 'Unauthorized. Only root admins can change roles.' };
+    const isAuthorized = requester?.role === 'ADMIN' || requester?.role === 'CO_ADMIN';
+
+    if (!isAuthorized) {
+      return { error: 'Unauthorized. Only Admins and Co-Admins can change roles.' };
     }
 
     if (userId === requester.uid) {
       return { error: 'You cannot change your own role.' };
+    }
+
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser) return { error: 'User not found.' };
+
+    // Prevent CO_ADMIN from modifying ADMIN
+    if (requester.role === 'CO_ADMIN' && targetUser.role === 'ADMIN') {
+      return { error: 'Unauthorized. Co-Admins cannot modify root Admins.' };
+    }
+
+    // Special check for BATCH_MANAGER: Only one per batch
+    if (newRole === 'BATCH_MANAGER') {
+      if (!targetUser.batchId) {
+        return { error: 'User must belong to a batch to become a Batch Manager.' };
+      }
+
+      const existingManager = await prisma.user.findFirst({
+        where: {
+          batchId: targetUser.batchId,
+          role: 'BATCH_MANAGER',
+          id: { not: userId }
+        }
+      });
+
+      if (existingManager) {
+        return { error: `Batch already has a manager: ${existingManager.name || existingManager.email}. Please demote them first.` };
+      }
     }
 
     await prisma.user.update({
@@ -706,12 +794,22 @@ export async function updateUserRoleAction(userId: string, newRole: 'USER' | 'CO
 export async function deleteUserAction(userId: string) {
   try {
     const requester = await getServerUser();
-    if (requester?.role !== 'ADMIN') {
-      return { error: 'Unauthorized. Only root admins can delete users.' };
+    const isAuthorized = requester?.role === 'ADMIN' || requester?.role === 'CO_ADMIN';
+
+    if (!isAuthorized) {
+      return { error: 'Unauthorized. Only Admins and Co-Admins can delete users.' };
     }
 
     if (userId === requester.uid) {
       return { error: 'You cannot delete yourself.' };
+    }
+
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser) return { error: 'User not found.' };
+
+    // Prevent CO_ADMIN from deleting ADMIN
+    if (requester.role === 'CO_ADMIN' && targetUser.role === 'ADMIN') {
+      return { error: 'Unauthorized. Co-Admins cannot delete root Admins.' };
     }
 
     const userPosts = await prisma.post.findMany({
