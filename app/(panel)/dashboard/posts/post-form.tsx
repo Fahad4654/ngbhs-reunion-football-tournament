@@ -143,18 +143,26 @@ export default function PostForm({ user }: PostFormProps) {
           </div>
           <div>
             <div style={{ color: 'white', fontWeight: '700', fontSize: '0.9rem' }}>{user.name}</div>
-            <div style={{ 
-              background: 'rgba(255,255,255,0.05)', 
-              padding: '2px 8px', 
-              borderRadius: '6px', 
-              fontSize: '0.7rem', 
-              color: 'var(--text-secondary)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              marginTop: '2px'
-            }}>
-              👥 Public
+            <div style={{ marginTop: '4px' }}>
+              <select 
+                name="scope"
+                defaultValue="GLOBAL"
+                className="glass"
+                style={{ 
+                  padding: '4px 8px', 
+                  borderRadius: '6px', 
+                  fontSize: '0.75rem', 
+                  color: 'white',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid var(--border-color)',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                <option value="GLOBAL" style={{ color: 'black' }}>🌍 Global Community</option>
+                {user.batchId && <option value="BATCH" style={{ color: 'black' }}>🎓 My Batch Only</option>}
+              </select>
             </div>
           </div>
         </div>

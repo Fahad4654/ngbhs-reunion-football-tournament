@@ -291,12 +291,15 @@ export async function createPost(prevState: any, formData: FormData) {
       }
     }
 
+    const scope = formData.get('scope') as 'GLOBAL' | 'BATCH' || 'GLOBAL';
+
     await prisma.post.create({
       data: {
         title: title || null,
         content,
         authorId: user.uid,
         status: 'PENDING',
+        scope: scope,
         media: {
           create: mediaData,
         },
@@ -428,15 +431,19 @@ export async function getPendingPosts() {
 export async function getApprovedPosts(batchId?: string) {
   try {
     const user = await getServerUser();
-
+    
     let whereClause: any = { status: 'APPROVED' };
     
     if (batchId) {
       whereClause = {
         status: 'APPROVED',
-        author: {
-          batchId: batchId
-        }
+        author: { batchId: batchId }
+      };
+    } else {
+      // Global feed: only show GLOBAL scope posts
+      whereClause = {
+        status: 'APPROVED',
+        scope: 'GLOBAL'
       };
     }
 

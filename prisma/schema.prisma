@@ -98,8 +98,15 @@ model Post {
   cheers      Cheer[]
   comments    Comment[]
   
+  scope       PostScope @default(GLOBAL)
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+enum PostScope {
+  GLOBAL
+  BATCH
 }
 
 model Media {
