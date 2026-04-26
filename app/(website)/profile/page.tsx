@@ -29,7 +29,17 @@ export default async function ProfilePage() {
           <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <div className="badge" style={{ marginBottom: '0.5rem' }}>Account Settings</div>
             <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>Your Profile</h1>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+              <span className={`badge ${user.status === 'APPROVED' ? 'badge-success' : user.status === 'PENDING' ? 'badge-warning' : 'badge-danger'}`}>
+                Status: {user.status}
+              </span>
+            </div>
             <p style={{ color: 'var(--text-secondary)' }}>Update your alumni identity and contact details.</p>
+            {user.status === 'PENDING' && (
+              <p style={{ color: 'var(--accent-warning)', fontSize: '0.9rem', marginTop: '0.5rem', fontWeight: '600' }}>
+                Your account is currently waiting for approval from your Batch Manager.
+              </p>
+            )}
           </header>
 
           <ProfileForm key={user.uid + (user.batchId || '') + (user.name || '')} user={user} batches={batches} />

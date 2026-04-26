@@ -28,7 +28,7 @@ export async function sendOTPEmail(email: string, otp: string) {
         <div style="font-size: 24px; font-weight: bold; color: #007bff; text-align: center; padding: 20px; background: #f8f9fa; border-radius: 5px; letter-spacing: 5px;">
           ${otp}
         </div>
-        <p>This code will expire in 10 minutes.</p>
+        <p>This code will expire in 5 minutes.</p>
         <p>If you did not request this, please ignore this email.</p>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
         <p style="font-size: 12px; color: #777; text-align: center;">

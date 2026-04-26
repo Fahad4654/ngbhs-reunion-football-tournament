@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import ModerationActions from "@/app/(panel)/admin/posts/moderation-actions";
 import MediaGallery from "@/app/components/MediaGallery";
 import Link from "next/link";
-import { getPendingPosts } from "@/lib/actions";
+import { getPendingPosts, getPendingBatchMembers } from "@/lib/actions";
+import ApprovalActions from "./approval-actions";
 
 export const metadata = {
   title: 'Manage Batch - Dashboard',
@@ -35,12 +36,13 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
     );
   }
 
-  const [pendingPosts, members] = await Promise.all([
+  const [pendingPosts, members, pendingMembers] = await Promise.all([
     getPendingPosts(),
     prisma.user.findMany({
-      where: { batchId: dbUser.batchId },
+      where: { batchId: dbUser.batchId, status: 'APPROVED' },
       orderBy: { name: 'asc' }
-    })
+    }),
+    getPendingBatchMembers()
   ]);
 
   return (
@@ -81,6 +83,19 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
         >
           👥 Members ({members.length})
         </Link>
+        <Link 
+          href="/dashboard/manage-batch?tab=approvals"
+          className="btn"
+          style={{ 
+            flex: 1, 
+            background: tab === 'approvals' ? 'var(--accent-primary)' : 'transparent',
+            color: tab === 'approvals' ? 'black' : 'white',
+            fontSize: '0.8rem',
+            padding: '0.6rem'
+          }}
+        >
+          ⏳ Pending ({pendingMembers.length})
+        </Link>
       </div>
 
       {tab === 'posts' ? (
@@ -113,7 +128,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
             </div>
           )}
         </div>
-      ) : (
+      ) : tab === 'members' ? (
         <div className="glass" style={{ borderRadius: '24px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -124,7 +139,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
               </tr>
             </thead>
             <tbody>
-              {members.map((member) => (
+              {members.length > 0 ? members.map((member) => (
                 <tr key={member.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '1.25rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -144,7 +159,54 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                     {member.phone || '---'}
                   </td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan={3} style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    No approved members found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="glass" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
+                <th style={{ padding: '1.25rem', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>New Applicant</th>
+                <th style={{ padding: '1.25rem', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Joined On</th>
+                <th style={{ padding: '1.25rem', textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingMembers.length > 0 ? pendingMembers.map((member) => (
+                <tr key={member.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '0.8rem' }}>
+                        {member.name?.charAt(0)}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '700', color: 'white' }}>{member.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{member.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '1.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                    {new Date(member.createdAt).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '1.25rem', textAlign: 'right' }}>
+                    <ApprovalActions userId={member.id} />
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={3} style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    No pending approval requests.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

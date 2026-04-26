@@ -49,6 +49,7 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
+  const batchId = formData.get('batchId') as string;
 
   try {
     // 1. Check if user already exists and is verified
@@ -70,6 +71,8 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
         data: {
           name,
           password: hashedPassword,
+          batchId: batchId || null,
+          status: 'PENDING',
         },
       });
     } else {
@@ -79,6 +82,8 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
           password: hashedPassword,
           name,
           role: 'USER',
+          batchId: batchId || null,
+          status: 'PENDING',
         },
       });
     }
@@ -505,6 +510,16 @@ export async function getApprovedPosts(batchId?: string) {
   try {
     const user = await getServerUser();
     
+    // Check if user is approved if they are trying to see batch-specific activity
+    if (batchId) {
+      if (!user) return []; // Guests cannot see batch activity
+      
+      const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+      if (dbUser?.status !== 'APPROVED') {
+        return []; // Return empty if not approved
+      }
+    }
+    
     let whereClause: any = { status: 'APPROVED' };
     
     if (batchId) {
@@ -868,6 +883,91 @@ export async function updateUserRoleAction(userId: string, newRole: 'USER' | 'CO
   } catch (error: any) {
     console.error('Update user role error:', error);
     return { error: error.message || 'Failed to update user role.' };
+  }
+}
+
+export async function getPendingBatchMembers() {
+  try {
+    const user = await getServerUser();
+    if (user?.role !== 'BATCH_MANAGER') return [];
+
+    const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+    if (!dbUser?.batchId) return [];
+
+    return await prisma.user.findMany({
+      where: {
+        batchId: dbUser.batchId,
+        status: 'PENDING',
+        emailVerified: { not: null }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  } catch (error) {
+    console.error('Get pending batch members error:', error);
+    return [];
+  }
+}
+
+export async function approveUserAction(userId: string) {
+  try {
+    const manager = await getServerUser();
+    if (manager?.role !== 'BATCH_MANAGER' && manager?.role !== 'ADMIN' && manager?.role !== 'CO_ADMIN') {
+      return { error: 'Unauthorized.' };
+    }
+
+    const userToApprove = await prisma.user.findUnique({ where: { id: userId } });
+    if (!userToApprove) return { error: 'User not found.' };
+
+    // Batch Manager can only approve members of their own batch
+    if (manager.role === 'BATCH_MANAGER') {
+      const dbManager = await prisma.user.findUnique({ where: { id: manager.uid } });
+      if (dbManager?.batchId !== userToApprove.batchId) {
+        return { error: 'You can only approve members of your own batch.' };
+      }
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { status: 'APPROVED' }
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/dashboard/manage-batch');
+    return { success: true };
+  } catch (error) {
+    console.error('Approve user error:', error);
+    return { error: 'Failed to approve user.' };
+  }
+}
+
+export async function rejectUserAction(userId: string) {
+  try {
+    const manager = await getServerUser();
+    if (manager?.role !== 'BATCH_MANAGER' && manager?.role !== 'ADMIN' && manager?.role !== 'CO_ADMIN') {
+      return { error: 'Unauthorized.' };
+    }
+
+    const userToReject = await prisma.user.findUnique({ where: { id: userId } });
+    if (!userToReject) return { error: 'User not found.' };
+
+    if (manager.role === 'BATCH_MANAGER') {
+      const dbManager = await prisma.user.findUnique({ where: { id: manager.uid } });
+      if (dbManager?.batchId !== userToReject.batchId) {
+        return { error: 'You can only reject members of your own batch.' };
+      }
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { status: 'REJECTED' }
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/dashboard/manage-batch');
+    return { success: true };
+  } catch (error) {
+    console.error('Reject user error:', error);
+    return { error: 'Failed to reject user.' };
   }
 }
 

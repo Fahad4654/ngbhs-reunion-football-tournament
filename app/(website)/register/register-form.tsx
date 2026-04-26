@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import styles from '../login/login.module.css';
 import GoogleLoginButton from '@/app/components/auth/GoogleLoginButton';
 
-export default function RegisterForm() {
+export default function RegisterForm({ batches }: { batches: any[] }) {
   const [state, formAction, isPending] = useActionState(registerWithEmail, null);
   const [otpState, otpFormAction, isOtpPending] = useActionState(verifyOTPAndRegister, null);
   const [resending, setResending] = useState(false);
@@ -54,8 +54,10 @@ export default function RegisterForm() {
     return (
       <div style={{ textAlign: 'center', padding: '2rem' }}>
         <h2 style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }}>Verified! ✅</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Email verified successfully. Redirecting to your dashboard…</p>
-        <div style={{ width: '40px', height: '40px', border: '3px solid var(--accent-primary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+          Email verified successfully. Your account is now <strong>pending approval</strong> from your Batch Manager. You will be able to see batch activity once approved.
+        </p>
+        <button className="btn btn-primary" onClick={() => router.push('/dashboard')}>Go to Dashboard</button>
       </div>
     );
   }
@@ -128,6 +130,17 @@ export default function RegisterForm() {
         <div className={styles.inputGroup}>
           <label htmlFor="email" className={styles.label}>Email Address</label>
           <input id="email" name="email" type="email" placeholder="name@example.com" className={styles.input} required disabled={isPending} />
+        </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="batchId" className={styles.label}>Select Your Batch</label>
+          <select id="batchId" name="batchId" className={styles.input} required disabled={isPending}>
+            <option value="">Choose your batch</option>
+            {batches.map((batch) => (
+              <option key={batch.id} value={batch.id}>
+                {batch.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className={styles.inputGroup}>
           <label htmlFor="password" className={styles.label}>Password</label>

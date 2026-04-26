@@ -6,7 +6,7 @@ export function generateOTP(): string {
 }
 
 export async function storeOTP(email: string, otp: string) {
-  const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+  const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
 
   // Remove existing tokens for this email
   await prisma.verificationToken.deleteMany({
