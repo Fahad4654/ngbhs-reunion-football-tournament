@@ -1,7 +1,8 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useRef, useEffect } from 'react';
 import { updateProfile } from '@/lib/actions';
+import { toast } from 'react-hot-toast';
 import styles from '../login/login.module.css';
 
 interface ProfileFormProps {
@@ -12,42 +13,93 @@ interface ProfileFormProps {
 export default function ProfileForm({ user, batches }: ProfileFormProps) {
   const [state, formAction, isPending] = useActionState(updateProfile, null);
   const [previewImage, setPreviewImage] = useState(user.image || '');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewImage && previewImage.startsWith('blob:')) {
+        URL.revokeObjectURL(previewImage);
+      }
+    };
+  }, [previewImage]);
+
+  useEffect(() => {
+    if (state?.success) {
+      toast.success(state.message || 'Profile updated successfully!');
+    } else if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image must be under 5MB');
+        return;
+      }
+      if (previewImage && previewImage.startsWith('blob:')) {
+        URL.revokeObjectURL(previewImage);
+      }
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
 
   return (
     <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Avatar Section */}
       <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-        <div style={{ 
-          width: '120px', 
-          height: '120px', 
-          borderRadius: '50%', 
-          background: previewImage ? 'transparent' : 'var(--accent-primary)',
-          margin: '0 auto 1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '3rem',
-          color: '#000',
-          fontWeight: '800',
-          overflow: 'hidden',
-          border: '4px solid var(--border-color)',
-          boxShadow: '0 0 20px rgba(235, 183, 0, 0.2)'
-        }}>
+        <input 
+          type="file" 
+          name="profilePicture" 
+          accept="image/*" 
+          ref={fileInputRef} 
+          style={{ display: 'none' }} 
+          onChange={handleImageChange}
+        />
+        <div 
+          onClick={() => fileInputRef.current?.click()}
+          style={{ 
+            width: '120px', 
+            height: '120px', 
+            borderRadius: '50%', 
+            background: previewImage ? 'transparent' : 'var(--accent-primary)',
+            margin: '0 auto 1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '3rem',
+            color: '#000',
+            fontWeight: '800',
+            overflow: 'hidden',
+            border: '4px solid var(--border-color)',
+            boxShadow: '0 0 20px rgba(235, 183, 0, 0.2)',
+            cursor: 'pointer',
+            position: 'relative'
+          }}
+          title="Click to change profile picture"
+        >
           {previewImage
             ? <img src={previewImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : user.name?.charAt(0)
           }
-        </div>
-        <div className={styles.inputGroup} style={{ maxWidth: '300px', margin: '0 auto' }}>
-          <input 
-            type="text" 
-            name="image" 
-            placeholder="Profile Image URL" 
-            className={styles.input}
-            defaultValue={user.image || ''}
-            onChange={(e) => setPreviewImage(e.target.value)}
-            style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}
-          />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(0,0,0,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0,
+            transition: 'opacity 0.2s',
+            color: 'white',
+            fontSize: '1.5rem',
+          }}
+          onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
+          onMouseOut={(e) => e.currentTarget.style.opacity = '0'}
+          >
+            📷
+          </div>
         </div>
       </div>
 
@@ -100,14 +152,6 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           <textarea name="permanentAddress" defaultValue={user.permanentAddress || ''} placeholder="Natore, Bangladesh" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
         </div>
       </div>
-
-      {state?.error && (
-        <p style={{ color: 'var(--accent-danger)', fontSize: '0.85rem', textAlign: 'center' }}>{state.error}</p>
-      )}
-      
-      {state?.success && (
-        <p style={{ color: '#10b981', fontSize: '0.85rem', textAlign: 'center' }}>{state.message}</p>
-      )}
 
       <button type="submit" className="btn btn-primary" disabled={isPending} style={{ marginTop: '1rem' }}>
         {isPending ? 'Saving Changes...' : 'Save Profile Details'}

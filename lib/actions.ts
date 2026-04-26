@@ -143,9 +143,54 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const workplace = formData.get('workplace') as string;
     const phone = formData.get('phone') as string;
     const batchId = formData.get('batchId') as string;
-    const image = formData.get('image') as string;
     const currentAddress = formData.get('currentAddress') as string;
     const permanentAddress = formData.get('permanentAddress') as string;
+    const profilePicture = formData.get('profilePicture') as File | null;
+
+    let finalImageUrl = user.image;
+
+    // Fetch full user from DB to know the existing image URL
+    const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+
+    if (profilePicture && profilePicture.size > 0) {
+      if (profilePicture.size > 5 * 1024 * 1024) {
+        return { error: 'Profile picture must be under 5MB.' };
+      }
+
+      const { unlink, mkdir } = await import('fs/promises');
+      const { createWriteStream } = await import('fs');
+      const path = await import('path');
+
+      const baseUploadsDir = path.join(process.cwd(), 'public/uploads');
+      const profilesUploadsDir = path.join(baseUploadsDir, 'profiles');
+      await mkdir(profilesUploadsDir, { recursive: true });
+
+      // 1. Delete old image if it's stored locally
+      if (dbUser?.image && dbUser.image.startsWith('/uploads/')) {
+        const oldFilename = dbUser.image.replace('/uploads/', '');
+        const oldFilePath = path.join(baseUploadsDir, oldFilename);
+        try {
+          await unlink(oldFilePath);
+        } catch (err) {
+          console.error(`Failed to delete old profile picture ${oldFilePath}:`, err);
+        }
+      }
+
+      // 2. Save new image
+      const filename = `profile-${user.uid}-${Date.now()}-${profilePicture.name.replace(/\s+/g, '-')}`;
+      const uploadPath = path.join(profilesUploadsDir, filename);
+
+      const fileStream = createWriteStream(uploadPath);
+      const reader = profilePicture.stream().getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fileStream.write(value);
+      }
+      fileStream.end();
+
+      finalImageUrl = `/uploads/profiles/${filename}`;
+    }
 
     await prisma.user.update({
       where: { id: user.uid },
@@ -155,7 +200,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
         workplace,
         phone,
         batchId: batchId || null,
-        image: image || null,
+        image: finalImageUrl || null,
         currentAddress,
         permanentAddress,
       },
@@ -199,7 +244,7 @@ export async function createPost(prevState: any, formData: FormData) {
     const mediaData: { type: 'IMAGE' | 'VIDEO', url: string }[] = [];
 
     // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'public/uploads');
+    const uploadsDir = path.join(process.cwd(), 'public/uploads/posts');
     await mkdir(uploadsDir, { recursive: true });
 
     // Handle Multiple Images
@@ -220,7 +265,7 @@ export async function createPost(prevState: any, formData: FormData) {
         }
         fileStream.end();
         
-        mediaData.push({ type: 'IMAGE', url: `/uploads/${filename}` });
+        mediaData.push({ type: 'IMAGE', url: `/uploads/posts/${filename}` });
       }
     }
 
@@ -242,7 +287,7 @@ export async function createPost(prevState: any, formData: FormData) {
         }
         fileStream.end();
         
-        mediaData.push({ type: 'VIDEO', url: `/uploads/${filename}` });
+        mediaData.push({ type: 'VIDEO', url: `/uploads/posts/${filename}` });
       }
     }
 
@@ -549,9 +594,11 @@ export async function editPostAction(postId: string, formData: FormData) {
       return { error: 'Post content is required.' };
     }
 
-    const { unlink } = await import('fs/promises');
+    const { unlink, mkdir } = await import('fs/promises');
     const { createWriteStream } = await import('fs');
-    const uploadsDir = path.join(process.cwd(), 'public/uploads');
+    const baseUploadsDir = path.join(process.cwd(), 'public/uploads');
+    const postsUploadsDir = path.join(baseUploadsDir, 'posts');
+    await mkdir(postsUploadsDir, { recursive: true });
 
     // 1. Handle Removed Media
     if (removedMediaIds.length > 0) {
@@ -559,7 +606,7 @@ export async function editPostAction(postId: string, formData: FormData) {
       for (const item of mediaToRemove) {
         if (item.url && item.url.startsWith('/uploads/')) {
           const filename = item.url.replace('/uploads/', '');
-          const filePath = path.join(uploadsDir, filename);
+          const filePath = path.join(baseUploadsDir, filename);
           try { await unlink(filePath); } catch (err) { console.error(`Failed to delete file ${filePath}:`, err); }
         }
       }
@@ -575,7 +622,7 @@ export async function editPostAction(postId: string, formData: FormData) {
       if (file && file.size > 0) {
         if (file.size > 10 * 1024 * 1024) return { error: `Image "${file.name}" exceeds 10MB limit.` };
         const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
-        const uploadPath = path.join(uploadsDir, filename);
+        const uploadPath = path.join(postsUploadsDir, filename);
         
         const fileStream = createWriteStream(uploadPath);
         const reader = file.stream().getReader();
@@ -585,7 +632,7 @@ export async function editPostAction(postId: string, formData: FormData) {
           fileStream.write(value);
         }
         fileStream.end();
-        mediaData.push({ type: 'IMAGE', url: `/uploads/${filename}` });
+        mediaData.push({ type: 'IMAGE', url: `/uploads/posts/${filename}` });
       }
     }
 
@@ -593,7 +640,7 @@ export async function editPostAction(postId: string, formData: FormData) {
       if (file && file.size > 0) {
         if (file.size > 1024 * 1024 * 1024) return { error: `Video "${file.name}" exceeds 1GB limit.` };
         const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
-        const uploadPath = path.join(uploadsDir, filename);
+        const uploadPath = path.join(postsUploadsDir, filename);
         
         const fileStream = createWriteStream(uploadPath);
         const reader = file.stream().getReader();
@@ -603,7 +650,7 @@ export async function editPostAction(postId: string, formData: FormData) {
           fileStream.write(value);
         }
         fileStream.end();
-        mediaData.push({ type: 'VIDEO', url: `/uploads/${filename}` });
+        mediaData.push({ type: 'VIDEO', url: `/uploads/posts/${filename}` });
       }
     }
 
@@ -628,5 +675,63 @@ export async function editPostAction(postId: string, formData: FormData) {
   } catch (error) {
     console.error('Edit post error:', error);
     return { error: 'Failed to edit post.' };
+  }
+}
+
+export async function updateUserRoleAction(userId: string, newRole: 'USER' | 'CO_ADMIN' | 'ADMIN') {
+  try {
+    const requester = await getServerUser();
+    if (requester?.role !== 'ADMIN') {
+      return { error: 'Unauthorized. Only root admins can change roles.' };
+    }
+
+    if (userId === requester.uid) {
+      return { error: 'You cannot change your own role.' };
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: newRole }
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/admin/users');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Update user role error:', error);
+    return { error: error.message || 'Failed to update user role.' };
+  }
+}
+
+export async function deleteUserAction(userId: string) {
+  try {
+    const requester = await getServerUser();
+    if (requester?.role !== 'ADMIN') {
+      return { error: 'Unauthorized. Only root admins can delete users.' };
+    }
+
+    if (userId === requester.uid) {
+      return { error: 'You cannot delete yourself.' };
+    }
+
+    const userPosts = await prisma.post.findMany({
+      where: { authorId: userId },
+      select: { id: true }
+    });
+
+    for (const post of userPosts) {
+      await deletePostAction(post.id);
+    }
+
+    await prisma.user.delete({
+      where: { id: userId }
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/admin/users');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Delete user error:', error);
+    return { error: error.message || 'Failed to delete user.' };
   }
 }

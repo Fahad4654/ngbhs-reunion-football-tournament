@@ -1,6 +1,6 @@
 import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
-
+import UserActions from "./user-actions";
 import { redirect } from "next/navigation";
 
 export default async function AdminUsersPage() {
@@ -59,12 +59,7 @@ export default async function AdminUsersPage() {
                 </td>
                 <td style={{ padding: '1.25rem' }}>{new Date(user.createdAt).toLocaleDateString()}</td>
                 <td style={{ padding: '1.25rem', textAlign: 'right' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                    {user.role !== 'ADMIN' && (
-                      <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem' }}>Make Co-Admin</button>
-                    )}
-                    <button className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', color: 'var(--accent-danger)' }}>Delete</button>
-                  </div>
+                  <UserActions userId={user.id} currentRole={user.role} />
                 </td>
               </tr>
             ))}
