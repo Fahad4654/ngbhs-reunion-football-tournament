@@ -18,17 +18,16 @@ import { toast } from 'react-hot-toast';
 import MediaRenderer from '@/app/components/MediaRenderer';
 
 export default function PostForm({ user }: PostFormProps) {
-  const [state, formAction, isPending] = useActionState(createPost, null);
+  const [isPending, setIsPending] = useState(false);
   const [mediaPreviews, setMediaPreviews] = useState<MediaPreview[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Cleanup object URLs when component unmounts to prevent memory leaks
-  const previewsRef = useRef<MediaPreview[]>(mediaPreviews);
-  previewsRef.current = mediaPreviews;
   useEffect(() => {
     return () => {
-      previewsRef.current.forEach(m => URL.revokeObjectURL(m.url));
+      mediaPreviews.forEach(m => URL.revokeObjectURL(m.url));
     };
   }, []);
 
@@ -102,25 +101,33 @@ export default function PostForm({ user }: PostFormProps) {
       }
     });
 
-    const promise = new Promise(async (resolve, reject) => {
+    const promise = (async () => {
+      setIsPending(true);
       try {
-        await formAction(formData);
-        resolve(true);
-      } catch (err) {
-        reject(err);
+        const res = await createPost(null, formData);
+        if (res.error) throw new Error(res.error);
+        
+        // Success: Clear everything
+        mediaPreviews.forEach(m => URL.revokeObjectURL(m.url));
+        setMediaPreviews([]);
+        formRef.current?.reset();
+        
+        return res;
+      } finally {
+        setIsPending(false);
       }
-    });
+    })();
 
     toast.promise(promise, {
       loading: 'Uploading your story...',
       success: 'Post submitted! Waiting for approval.',
-      error: 'Failed to submit post.',
+      error: (err) => err.message || 'Failed to submit post.',
     });
   };
 
   return (
     <div className="glass" style={{ borderRadius: '12px', overflow: 'hidden', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-      <form action={handleSubmit}>
+      <form ref={formRef} action={handleSubmit}>
         {/* Header */}
         <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', textAlign: 'center' }}>
           <h2 style={{ fontSize: '1.25rem', color: 'white', margin: 0, textTransform: 'none' }}>Create Post</h2>
