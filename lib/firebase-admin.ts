@@ -1,14 +1,12 @@
-import * as admin from "firebase-admin";
+import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}');
+  
   admin.initializeApp({
-    credential: admin.credential.cert(require("../ngbhs-ce6e2-firebase-adminsdk-fbsvc-e296a69e98.json")),
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 
-const adminAuth = admin.auth();
-const adminDb = admin.firestore();
-const adminStorage = admin.storage();
-
-export { adminAuth, adminDb, adminStorage };
+export const adminAuth = admin.auth();
+export const adminDb = admin.firestore();

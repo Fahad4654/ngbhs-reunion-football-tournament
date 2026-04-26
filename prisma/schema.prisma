@@ -27,6 +27,9 @@ model Batch {
   homeMatches Match[]  @relation("HomeTeam")
   awayMatches Match[]  @relation("AwayTeam")
   
+  members     User[]   @relation("BatchMembers")
+  followers   User[]   @relation("UserFollows")
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -85,14 +88,60 @@ model Highlight {
 
 model Post {
   id          String   @id @default(cuid())
-  title       String
+  title       String?
   content     String   @db.Text
   status      PostStatus @default(PENDING)
   authorId    String
   author      User     @relation(fields: [authorId], references: [id])
   
+  media       Media[]
+  cheers      Cheer[]
+  comments    Comment[]
+  
+  scope       PostScope @default(GLOBAL)
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+enum PostScope {
+  GLOBAL
+  BATCH
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  type      MediaType
+  url       String
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model Cheer {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 enum PostStatus {
@@ -103,12 +152,25 @@ enum PostStatus {
 
 model User {
   id            String    @id @default(cuid())
-  firebaseId    String    @unique
+  firebaseId    String?   @unique
+  password      String?
   name          String?
   email         String    @unique
   role          Role      @default(USER)
   image         String?
+  occupation    String?
+  workplace     String?
+  phone         String?
+  currentAddress String?
+  permanentAddress String?
+  
+  batchId       String?
+  batch         Batch?    @relation("BatchMembers", fields: [batchId], references: [id])
+  
+  followedBatches Batch[] @relation("UserFollows")
   posts         Post[]
+  cheers        Cheer[]
+  comments      Comment[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -117,5 +179,6 @@ model User {
 enum Role {
   ADMIN
   CO_ADMIN
+  BATCH_MANAGER
   USER
 }
