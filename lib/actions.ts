@@ -522,13 +522,20 @@ export async function deletePostAction(postId: string) {
   }
 }
 
-export async function editPostAction(postId: string, title: string, content: string) {
+export async function editPostAction(postId: string, formData: FormData) {
   try {
     const user = await getServerUser();
     if (!user) return { error: 'Not authenticated.' };
 
+    const title = formData.get('title') as string;
+    const content = formData.get('content') as string;
+    const removedMediaIds = formData.getAll('removedMediaIds') as string[];
+    const imageFiles = formData.getAll('imageFiles') as File[];
+    const videoFiles = formData.getAll('videoFiles') as File[];
+
     const post = await prisma.post.findUnique({
       where: { id: postId },
+      include: { media: true },
     });
 
     if (!post) return { error: 'Post not found.' };
@@ -542,11 +549,73 @@ export async function editPostAction(postId: string, title: string, content: str
       return { error: 'Post content is required.' };
     }
 
+    const { unlink } = await import('fs/promises');
+    const { createWriteStream } = await import('fs');
+    const uploadsDir = path.join(process.cwd(), 'public/uploads');
+
+    // 1. Handle Removed Media
+    if (removedMediaIds.length > 0) {
+      const mediaToRemove = post.media.filter(m => removedMediaIds.includes(m.id));
+      for (const item of mediaToRemove) {
+        if (item.url && item.url.startsWith('/uploads/')) {
+          const filename = item.url.replace('/uploads/', '');
+          const filePath = path.join(uploadsDir, filename);
+          try { await unlink(filePath); } catch (err) { console.error(`Failed to delete file ${filePath}:`, err); }
+        }
+      }
+      await prisma.media.deleteMany({
+        where: { id: { in: removedMediaIds }, postId }
+      });
+    }
+
+    // 2. Handle New Media
+    const mediaData: { type: 'IMAGE' | 'VIDEO', url: string }[] = [];
+
+    for (const file of imageFiles) {
+      if (file && file.size > 0) {
+        if (file.size > 10 * 1024 * 1024) return { error: `Image "${file.name}" exceeds 10MB limit.` };
+        const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
+        const uploadPath = path.join(uploadsDir, filename);
+        
+        const fileStream = createWriteStream(uploadPath);
+        const reader = file.stream().getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          fileStream.write(value);
+        }
+        fileStream.end();
+        mediaData.push({ type: 'IMAGE', url: `/uploads/${filename}` });
+      }
+    }
+
+    for (const file of videoFiles) {
+      if (file && file.size > 0) {
+        if (file.size > 1024 * 1024 * 1024) return { error: `Video "${file.name}" exceeds 1GB limit.` };
+        const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
+        const uploadPath = path.join(uploadsDir, filename);
+        
+        const fileStream = createWriteStream(uploadPath);
+        const reader = file.stream().getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          fileStream.write(value);
+        }
+        fileStream.end();
+        mediaData.push({ type: 'VIDEO', url: `/uploads/${filename}` });
+      }
+    }
+
+    // 3. Update Post
     await prisma.post.update({
       where: { id: postId },
       data: {
         title: title || null,
         content,
+        media: {
+          create: mediaData
+        }
       },
     });
 

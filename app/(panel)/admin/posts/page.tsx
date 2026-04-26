@@ -52,6 +52,7 @@ export default async function AdminPostsPage() {
                   title={post.title}
                   content={post.content}
                   isAuthorized={true}
+                  media={post.media}
                 />
               </div>
             </div>

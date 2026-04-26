@@ -68,6 +68,7 @@ export default async function FeedPage() {
                   title={post.title}
                   content={post.content}
                   isAuthorized={user?.role === 'ADMIN' || user?.role === 'CO_ADMIN' || user?.uid === post.authorId}
+                  media={post.media}
                 />
               </div>
 

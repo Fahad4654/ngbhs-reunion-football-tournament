@@ -40,6 +40,7 @@ export default async function MyPostsPage() {
                   title={post.title}
                   content={post.content}
                   isAuthorized={true}
+                  media={post.media}
                 />
               </div>
             </div>
