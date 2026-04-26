@@ -19,6 +19,7 @@ import MediaRenderer from '@/app/components/MediaRenderer';
 
 export default function PostForm({ user }: PostFormProps) {
   const [isPending, setIsPending] = useState(false);
+  const [scope, setScope] = useState<'GLOBAL' | 'BATCH'>('GLOBAL');
   const [mediaPreviews, setMediaPreviews] = useState<MediaPreview[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -92,6 +93,13 @@ export default function PostForm({ user }: PostFormProps) {
       return;
     }
 
+    // Block PENDING users from posting to batch scope
+    const selectedScope = formData.get('scope') as string;
+    if (selectedScope === 'BATCH' && user.status === 'PENDING') {
+      toast.error('Your batch membership is still pending approval. You can only post globally for now.');
+      return;
+    }
+
     // Append all media files to the same key names
     mediaPreviews.forEach(m => {
       if (m.type === 'IMAGE') {
@@ -153,7 +161,8 @@ export default function PostForm({ user }: PostFormProps) {
             <div style={{ marginTop: '4px' }}>
               <select 
                 name="scope"
-                defaultValue="GLOBAL"
+                value={scope}
+                onChange={(e) => setScope(e.target.value as 'GLOBAL' | 'BATCH')}
                 className="glass"
                 style={{ 
                   padding: '4px 8px', 
@@ -171,8 +180,25 @@ export default function PostForm({ user }: PostFormProps) {
                 {user.batchId && <option value="BATCH" style={{ color: 'black' }}>🎓 My Batch Only</option>}
               </select>
             </div>
+            {/* Warn pending users who select batch scope */}
+            {scope === 'BATCH' && user.batchId && user.status === 'PENDING' && (
+              <div style={{
+                marginTop: '0.5rem',
+                padding: '0.5rem 0.75rem',
+                borderRadius: '8px',
+                background: 'rgba(245, 158, 11, 0.1)',
+                border: '1px solid rgba(245, 158, 11, 0.4)',
+                fontSize: '0.75rem',
+                color: '#f59e0b',
+                lineHeight: '1.4',
+                maxWidth: '320px'
+              }}>
+                ⏳ Your batch membership is pending approval. Switch to <strong>Global</strong> to post now.
+              </div>
+            )}
           </div>
         </div>
+
 
         {/* Content Area */}
         <div style={{ padding: '0 1rem' }}>

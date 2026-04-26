@@ -36,6 +36,48 @@ export default async function BatchFeedPage() {
     );
   }
 
+  // Gate: pending or rejected users cannot see batch activity
+  if (userSession.status === 'PENDING') {
+    return (
+      <div style={{ maxWidth: '600px', margin: '4rem auto' }}>
+        <div className="glass" style={{ textAlign: 'center', padding: '4rem 2rem', borderRadius: '24px', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>⏳</div>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#f59e0b' }}>Approval Pending</h2>
+          <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+            Your membership request for <strong style={{ color: 'white' }}>{dbUser.batch?.name}</strong> is awaiting approval by your Batch Manager.
+          </p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '1rem' }}>
+            You'll gain access to the batch feed and be able to post once your request is approved.
+          </p>
+          <Link href="/feed" className="btn glass" style={{ marginTop: '2rem' }}>
+            Browse Global Feed
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (userSession.status === 'REJECTED') {
+    return (
+      <div style={{ maxWidth: '600px', margin: '4rem auto' }}>
+        <div className="glass" style={{ textAlign: 'center', padding: '4rem 2rem', borderRadius: '24px', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>❌</div>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--accent-danger)' }}>Request Rejected</h2>
+          <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+            Your membership request for <strong style={{ color: 'white' }}>{dbUser.batch?.name}</strong> was not approved.
+          </p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '1rem' }}>
+            Please contact your Batch Manager or update your batch selection in your profile.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem', flexWrap: 'wrap' }}>
+            <Link href="/profile" className="btn btn-primary">Update Profile</Link>
+            <Link href="/feed" className="btn glass">Global Feed</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const posts = await getApprovedPosts(dbUser.batchId);
 
   return (
