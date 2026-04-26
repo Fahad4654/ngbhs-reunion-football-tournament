@@ -1,5 +1,6 @@
 import { getMyPosts } from "@/lib/actions";
 import Link from "next/link";
+import PostOptions from "@/app/components/PostOptions";
 
 export default async function MyPostsPage() {
   const posts = await getMyPosts();
@@ -26,13 +27,21 @@ export default async function MyPostsPage() {
                   Submitted on {new Date(post.createdAt).toLocaleDateString()}
                 </div>
               </div>
-              <span className="badge" style={{ 
-                background: post.status === 'APPROVED' ? 'rgba(16, 185, 129, 0.1)' : post.status === 'REJECTED' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 215, 0, 0.1)',
-                color: post.status === 'APPROVED' ? '#10b981' : post.status === 'REJECTED' ? '#ef4444' : 'var(--accent-secondary)',
-                border: '1px solid currentColor'
-              }}>
-                {post.status}
-              </span>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <span className="badge" style={{ 
+                  background: post.status === 'APPROVED' ? 'rgba(16, 185, 129, 0.1)' : post.status === 'REJECTED' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 215, 0, 0.1)',
+                  color: post.status === 'APPROVED' ? '#10b981' : post.status === 'REJECTED' ? '#ef4444' : 'var(--accent-secondary)',
+                  border: '1px solid currentColor'
+                }}>
+                  {post.status}
+                </span>
+                <PostOptions 
+                  postId={post.id}
+                  title={post.title}
+                  content={post.content}
+                  isAuthorized={true}
+                />
+              </div>
             </div>
 
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '1.5rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>

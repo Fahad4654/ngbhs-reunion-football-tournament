@@ -53,6 +53,7 @@ export default function MediaRenderer({ url, type, fileName, className, style }:
         <video 
           src={url} 
           controls 
+          preload="metadata"
           className={className}
           style={{ width: '100%', height: '100%', objectFit: 'cover', ...style }} 
         />

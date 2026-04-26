@@ -175,6 +175,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
 }
 
 import { writeFile, mkdir } from 'fs/promises';
+import { createWriteStream } from 'fs';
 import path from 'path';
 
 export async function createPost(prevState: any, formData: FormData) {
@@ -197,16 +198,28 @@ export async function createPost(prevState: any, formData: FormData) {
 
     const mediaData: { type: 'IMAGE' | 'VIDEO', url: string }[] = [];
 
+    // Ensure uploads directory exists
+    const uploadsDir = path.join(process.cwd(), 'public/uploads');
+    await mkdir(uploadsDir, { recursive: true });
+
     // Handle Multiple Images
     for (const file of imageFiles) {
       if (file && file.size > 0) {
         if (file.size > 10 * 1024 * 1024) {
           return { error: `Image "${file.name}" exceeds the 10MB limit.` };
         }
-        const buffer = Buffer.from(await file.arrayBuffer());
         const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
-        const uploadPath = path.join(process.cwd(), 'public/uploads', filename);
-        await writeFile(uploadPath, buffer);
+        const uploadPath = path.join(uploadsDir, filename);
+        
+        const fileStream = createWriteStream(uploadPath);
+        const reader = file.stream().getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          fileStream.write(value);
+        }
+        fileStream.end();
+        
         mediaData.push({ type: 'IMAGE', url: `/uploads/${filename}` });
       }
     }
@@ -217,10 +230,18 @@ export async function createPost(prevState: any, formData: FormData) {
         if (file.size > 1024 * 1024 * 1024) {
           return { error: `Video "${file.name}" exceeds the 1GB limit.` };
         }
-        const buffer = Buffer.from(await file.arrayBuffer());
         const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/\s+/g, '-')}`;
-        const uploadPath = path.join(process.cwd(), 'public/uploads', filename);
-        await writeFile(uploadPath, buffer);
+        const uploadPath = path.join(uploadsDir, filename);
+        
+        const fileStream = createWriteStream(uploadPath);
+        const reader = file.stream().getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          fileStream.write(value);
+        }
+        fileStream.end();
+        
         mediaData.push({ type: 'VIDEO', url: `/uploads/${filename}` });
       }
     }
@@ -449,5 +470,94 @@ export async function getUserActivity() {
   } catch (error) {
     console.error('Get user activity error:', error);
     return null;
+  }
+}
+
+export async function deletePostAction(postId: string) {
+  try {
+    const user = await getServerUser();
+    if (!user) return { error: 'Not authenticated.' };
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: { media: true },
+    });
+
+    if (!post) return { error: 'Post not found.' };
+
+    const isAuthorized = user.role === 'ADMIN' || user.role === 'CO_ADMIN' || user.uid === post.authorId;
+    if (!isAuthorized) {
+      return { error: 'Unauthorized. You can only delete your own posts.' };
+    }
+
+    // Delete associated media files from physical storage
+    if (post.media && post.media.length > 0) {
+      const { unlink } = await import('fs/promises');
+      for (const item of post.media) {
+        if (item.url && item.url.startsWith('/uploads/')) {
+          const filename = item.url.replace('/uploads/', '');
+          const filePath = path.join(process.cwd(), 'public/uploads', filename);
+          try {
+            await unlink(filePath);
+          } catch (err) {
+            console.error(`Failed to delete physical file ${filePath}:`, err);
+          }
+        }
+      }
+    }
+
+    await prisma.post.delete({
+      where: { id: postId },
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/dashboard/posts/my-posts');
+    revalidatePath('/admin/posts');
+    revalidatePath('/feed');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Delete post error:', error);
+    return { error: 'Failed to delete post.' };
+  }
+}
+
+export async function editPostAction(postId: string, title: string, content: string) {
+  try {
+    const user = await getServerUser();
+    if (!user) return { error: 'Not authenticated.' };
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!post) return { error: 'Post not found.' };
+
+    const isAuthorized = user.role === 'ADMIN' || user.role === 'CO_ADMIN' || user.uid === post.authorId;
+    if (!isAuthorized) {
+      return { error: 'Unauthorized. You can only edit your own posts.' };
+    }
+
+    if (!content || content.trim() === '') {
+      return { error: 'Post content is required.' };
+    }
+
+    await prisma.post.update({
+      where: { id: postId },
+      data: {
+        title: title || null,
+        content,
+      },
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/dashboard/posts/my-posts');
+    revalidatePath('/admin/posts');
+    revalidatePath('/feed');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Edit post error:', error);
+    return { error: 'Failed to edit post.' };
   }
 }

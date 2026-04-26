@@ -2,6 +2,7 @@ import { getApprovedPosts } from "@/lib/actions";
 import { getServerUser } from "@/lib/server-auth";
 import PostActions from "./post-actions";
 import MediaRenderer from "@/app/components/MediaRenderer";
+import PostOptions from "@/app/components/PostOptions";
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
@@ -62,7 +63,12 @@ export default async function FeedPage() {
                     {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
-                <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.2rem', cursor: 'pointer' }}>⋯</button>
+                <PostOptions 
+                  postId={post.id}
+                  title={post.title}
+                  content={post.content}
+                  isAuthorized={user?.role === 'ADMIN' || user?.role === 'CO_ADMIN' || user?.uid === post.authorId}
+                />
               </div>
 
               {/* Post Content */}

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import ModerationActions from "./moderation-actions";
 import MediaRenderer from "@/app/components/MediaRenderer";
+import PostOptions from "@/app/components/PostOptions";
 
 export default async function AdminPostsPage() {
   const user = await getServerUser();
@@ -38,13 +39,21 @@ export default async function AdminPostsPage() {
                   <span>{new Date(post.createdAt).toLocaleString()}</span>
                 </div>
               </div>
-              <span className="badge" style={{ 
-                background: post.status === 'APPROVED' ? 'rgba(16, 185, 129, 0.1)' : post.status === 'REJECTED' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 215, 0, 0.1)',
-                color: post.status === 'APPROVED' ? '#10b981' : post.status === 'REJECTED' ? '#ef4444' : 'var(--accent-secondary)',
-                border: '1px solid currentColor'
-              }}>
-                {post.status}
-              </span>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <span className="badge" style={{ 
+                  background: post.status === 'APPROVED' ? 'rgba(16, 185, 129, 0.1)' : post.status === 'REJECTED' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 215, 0, 0.1)',
+                  color: post.status === 'APPROVED' ? '#10b981' : post.status === 'REJECTED' ? '#ef4444' : 'var(--accent-secondary)',
+                  border: '1px solid currentColor'
+                }}>
+                  {post.status}
+                </span>
+                <PostOptions 
+                  postId={post.id}
+                  title={post.title}
+                  content={post.content}
+                  isAuthorized={true}
+                />
+              </div>
             </div>
             
             <div style={{ display: 'grid', gridTemplateColumns: post.media.length > 0 ? '1.5fr 1fr' : '1fr', gap: '2rem' }}>
