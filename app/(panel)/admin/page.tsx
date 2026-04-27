@@ -23,14 +23,13 @@ export default async function AdminDashboard() {
   return (
     <>
 
-      <div style={{ 
+      <div className="responsive-grid" style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
         gap: '1.5rem',
-        marginBottom: '4rem'
+        marginBottom: '2rem'
       }}>
         {stats.map((stat) => (
-          <div key={stat.name} className="glass" style={{ padding: '2rem', textAlign: 'center' }}>
+          <div key={stat.name} className="glass panel-card" style={{ padding: '2rem', textAlign: 'center' }}>
             <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>{stat.icon}</div>
             <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', textTransform: 'uppercase', fontWeight: '700', marginBottom: '0.5rem' }}>{stat.name}</div>
             <div style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-primary)' }}>{stat.value}</div>
@@ -38,8 +37,8 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-        <div className="glass" style={{ padding: '2rem' }}>
+      <div className="responsive-grid" style={{ display: 'grid', gap: '1.5rem' }}>
+        <div className="glass panel-card" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Quick Actions</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Link href="/admin/matches" className="btn btn-primary" style={{ justifyContent: 'flex-start' }}>
@@ -60,7 +59,7 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        <div className="glass" style={{ padding: '2rem' }}>
+        <div className="glass panel-card" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>System Status</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>

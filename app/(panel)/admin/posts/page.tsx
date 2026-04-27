@@ -27,23 +27,31 @@ export default async function AdminPostsPage() {
         {posts.length > 0 ? posts.map((post) => (
           <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '24px' }}>
             {/* Post Header */}
-            <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+            {/* Post Header */}
+            <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border-color)' }} className="mobile-stack">
               <div style={{ 
                 width: '44px', 
+                minWidth: '44px',
                 height: '44px', 
                 borderRadius: '50%', 
-                background: 'var(--accent-primary)',
+                background: post.author.image ? 'transparent' : 'var(--accent-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: '800',
                 color: 'black',
-                fontSize: '1rem'
+                fontSize: '1rem',
+                overflow: 'hidden',
+                border: post.author.image ? '1px solid var(--border-color)' : 'none'
               }}>
-                {post.author.name?.charAt(0)}
+                {post.author.image ? (
+                  <img src={post.author.image} alt={post.author.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  post.author.name?.charAt(0)
+                )}
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: 'white', fontWeight: '700', fontSize: '1rem' }}>{post.author.name}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: 'white', fontWeight: '700', fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
                 <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase' }}>
                   {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </div>

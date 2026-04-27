@@ -4,39 +4,46 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 const PAGE_INFO: Record<string, { badge: string; title: string }> = {
-  '/dashboard': { badge: 'Overview', title: 'Dashboard Overview' },
+  '/dashboard/posts/my-posts': { badge: 'My Content', title: 'Your Posts' },
   '/dashboard/posts': { badge: 'Create Post', title: 'Community Sharing' },
-  '/dashboard/posts/my-posts': { badge: 'My Posts', title: 'Your Content' },
-  '/dashboard/batch-feed': { badge: 'Batch Feed', title: 'Our Activity' },
-  '/dashboard/manage-batch': { badge: 'Manage Batch', title: 'Batch Moderation' },
-  '/dashboard/scores': { badge: 'Live Scores', title: 'Update Results' },
-  '/admin': { badge: 'System Overview', title: 'Admin Dashboard' },
-  '/admin/batches': { badge: 'Batch Settings', title: 'Batch Standings' },
-  '/admin/matches': { badge: 'Tournament Matches', title: 'Match Schedule' },
-  '/admin/news': { badge: 'News Manager', title: 'Tournament News' },
+  '/dashboard/batch-feed': { badge: 'Batch Activity', title: 'Batch Feed' },
+  '/dashboard/manage-batch': { badge: 'Moderation', title: 'Manage Batch' },
+  '/dashboard/scores': { badge: 'Tournament', title: 'Update Scores' },
+  '/dashboard': { badge: 'Overview', title: 'Dashboard Overview' },
+  '/dashboard/news': { badge: 'News Manager', title: 'Latest Updates' },
+  '/admin/batches': { badge: 'Batches', title: 'Batch Standings' },
+  '/admin/matches': { badge: 'Matches', title: 'Tournament Schedule' },
+  '/admin/news': { badge: 'Announcements', title: 'News Manager' },
   '/admin/posts': { badge: 'Post Moderation', title: 'User Posts' },
-  '/admin/users': { badge: 'User Management', title: 'Access Control' },
+  '/admin/users': { badge: 'Users', title: 'Access Control' },
+  '/admin': { badge: 'System', title: 'Admin Dashboard' },
+  '/profile': { badge: 'Account Settings', title: 'Your Profile' },
 };
 
 interface PanelNavbarProps {
   userName: string | null;
+  userImage?: string | null;
   onMenuClick?: () => void;
 }
 
-export default function PanelNavbar({ userName, onMenuClick }: PanelNavbarProps) {
+export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelNavbarProps) {
   const pathname = usePathname();
   
+  // Find the most specific match first
   const matchingKey = Object.keys(PAGE_INFO)
     .sort((a, b) => b.length - a.length)
-    .find(key => pathname.startsWith(key));
+    .find(key => pathname === key || pathname.startsWith(key + '/'));
     
-  const info = matchingKey ? PAGE_INFO[matchingKey] : { badge: 'Management', title: 'Panel' };
+  // Fallback for exact dashboard/admin matches if sub-route logic misses
+  const finalKey = matchingKey || (Object.keys(PAGE_INFO).find(key => pathname === key));
+  
+  const info = finalKey ? PAGE_INFO[finalKey] : { badge: 'Management', title: 'Panel' };
 
   return (
     <nav
       className="glass"
       style={{
-        height: '84px',
+        minHeight: '84px',
         display: 'flex',
         alignItems: 'center',
         borderTop: 'none',
@@ -51,8 +58,8 @@ export default function PanelNavbar({ userName, onMenuClick }: PanelNavbarProps)
         backdropFilter: 'blur(12px)',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div className="panel-nav-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
           {/* Hamburger Menu - Mobile Only */}
           <button 
             onClick={onMenuClick}
@@ -62,40 +69,51 @@ export default function PanelNavbar({ userName, onMenuClick }: PanelNavbarProps)
             ☰
           </button>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <div className="navbar-badge" style={{ color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', minWidth: 0, flex: 1, marginLeft: '0.25rem', width: 0 }}>
+            <div className="navbar-badge" style={{ color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {info.badge}
             </div>
-            <h2 className="navbar-title" style={{ color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+            <h2 className="navbar-title" style={{ color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {info.title}
             </h2>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0, marginLeft: '0.5rem' }}>
           <Link
             href="/feed"
-            className="btn glass"
+            className="btn glass panel-nav-btn"
             style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
           >
             <span className="desktop-only">🌐 Community Feed</span>
             <span className="mobile-only">🌐</span>
           </Link>
-          <div
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: 'var(--accent-primary)',
-              color: 'black',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '800',
-              fontSize: '0.8rem',
-            }}
-          >
-            {userName?.charAt(0)}
-          </div>
+
+          <Link href="/profile" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: userImage ? 'transparent' : 'var(--accent-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'black',
+                fontWeight: '800',
+                fontSize: '0.8rem',
+                overflow: 'hidden',
+                border: '2px solid var(--border-color)',
+                flexShrink: 0
+              }}
+            >
+              {userImage ? (
+                <img src={userImage} alt={userName || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                (userName || 'U').charAt(0)
+              )}
+            </div>
+          </Link>
         </div>
       </div>
     </nav>

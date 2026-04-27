@@ -154,15 +154,21 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             minWidth: '40px',
             height: '40px', 
             borderRadius: '50%', 
-            background: 'var(--accent-primary)', 
+            background: user.image ? 'transparent' : 'var(--accent-primary)', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
             color: 'black',
             fontWeight: '800',
-            fontSize: '1.1rem'
+            fontSize: '1.1rem',
+            overflow: 'hidden',
+            border: user.image ? '2px solid var(--border-color)' : 'none'
           }}>
-            {(user.name || 'User').charAt(0).toLowerCase()}
+            {user.image ? (
+              <img src={user.image} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              (user.name || 'User').charAt(0).toLowerCase()
+            )}
           </div>
           <div style={{ overflow: 'hidden' }}>
             <div style={{ fontWeight: '700', color: 'white', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>

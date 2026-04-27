@@ -145,19 +145,26 @@ export default function PostForm({ user }: PostFormProps) {
         <div style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ 
             width: '40px', 
+            minWidth: '40px',
             height: '40px', 
             borderRadius: '50%', 
-            background: 'var(--accent-primary)',
+            background: user.image ? 'transparent' : 'var(--accent-primary)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: '800',
-            color: 'black'
+            color: 'black',
+            overflow: 'hidden',
+            border: user.image ? '1px solid var(--border-color)' : 'none'
           }}>
-            {user.name?.charAt(0)}
+            {user.image ? (
+              <img src={user.image} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              user.name?.charAt(0)
+            )}
           </div>
-          <div>
-            <div style={{ color: 'white', fontWeight: '700', fontSize: '0.9rem' }}>{user.name}</div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ color: 'white', fontWeight: '700', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
             <div style={{ marginTop: '4px' }}>
               <select 
                 name="scope"
@@ -176,29 +183,12 @@ export default function PostForm({ user }: PostFormProps) {
                   fontWeight: '600'
                 }}
               >
-                <option value="GLOBAL" style={{ color: 'black' }}>🌍 Global Community</option>
-                {user.batchId && <option value="BATCH" style={{ color: 'black' }}>🎓 My Batch Only</option>}
+                <option value="GLOBAL" style={{ color: 'black' }}>🌍 Global</option>
+                {user.batchId && <option value="BATCH" style={{ color: 'black' }}>🎓 Batch</option>}
               </select>
             </div>
-            {/* Warn pending users who select batch scope */}
-            {scope === 'BATCH' && user.batchId && user.status === 'PENDING' && (
-              <div style={{
-                marginTop: '0.5rem',
-                padding: '0.5rem 0.75rem',
-                borderRadius: '8px',
-                background: 'rgba(245, 158, 11, 0.1)',
-                border: '1px solid rgba(245, 158, 11, 0.4)',
-                fontSize: '0.75rem',
-                color: '#f59e0b',
-                lineHeight: '1.4',
-                maxWidth: '320px'
-              }}>
-                ⏳ Your batch membership is pending approval. Switch to <strong>Global</strong> to post now.
-              </div>
-            )}
           </div>
         </div>
-
 
         {/* Content Area */}
         <div style={{ padding: '0 1rem' }}>
@@ -219,14 +209,14 @@ export default function PostForm({ user }: PostFormProps) {
           />
           <textarea 
             name="content" 
-            placeholder={`What's on your mind, ${user.name?.split(' ')[0]}?`}
+            placeholder={`What's on your mind?`}
             style={{ 
               width: '100%', 
               background: 'transparent', 
               border: 'none', 
               color: 'white', 
-              fontSize: '1.5rem', 
-              minHeight: '150px',
+              fontSize: '1.25rem', 
+              minHeight: '120px',
               padding: '0.5rem 0',
               outline: 'none',
               resize: 'none',

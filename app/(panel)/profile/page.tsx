@@ -12,8 +12,8 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="container" style={{ padding: '4rem 1.5rem' }}>
-      <div className="glass" style={{ maxWidth: '700px', margin: '0 auto', padding: '3rem', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ padding: '2rem 1rem' }}>
+      <div className="glass panel-card" style={{ maxWidth: '800px', margin: '0 auto', padding: '2.5rem', position: 'relative', overflow: 'hidden' }}>
         {/* Background Accents */}
         <div style={{ 
           position: 'absolute', 
@@ -26,17 +26,17 @@ export default async function ProfilePage() {
         }}></div>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <header style={{ marginBottom: '2.5rem' }}>
             <div className="badge" style={{ marginBottom: '0.5rem' }}>Account Settings</div>
-            <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>Your Profile</h1>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <h1 className="text-gradient" style={{ fontSize: '2rem' }}>User Profile</h1>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
               <span className={`badge ${user.status === 'APPROVED' ? 'badge-success' : user.status === 'PENDING' ? 'badge-warning' : 'badge-danger'}`}>
                 Status: {user.status}
               </span>
             </div>
-            <p style={{ color: 'var(--text-secondary)' }}>Update your alumni identity and contact details.</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Manage your alumni identity and contact details.</p>
             {user.status === 'PENDING' && (
-              <p style={{ color: 'var(--accent-warning)', fontSize: '0.9rem', marginTop: '0.5rem', fontWeight: '600' }}>
+              <p style={{ color: 'var(--accent-warning)', fontSize: '0.85rem', marginTop: '0.5rem', fontWeight: '600' }}>
                 Your account is currently waiting for approval from your Batch Manager.
               </p>
             )}

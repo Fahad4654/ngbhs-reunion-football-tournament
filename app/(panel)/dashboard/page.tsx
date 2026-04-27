@@ -15,9 +15,9 @@ export default async function Dashboard() {
   return (
     <>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+      <div className="responsive-grid" style={{ display: 'grid', gap: '1.5rem' }}>
         {/* Main Role-Based Card */}
-        <div className="glass" style={{ padding: '2rem' }}>
+        <div className="glass panel-card" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>
             {user.role === 'USER' ? 'Your Participation' : 'Management Tasks'}
           </h2>
@@ -49,7 +49,7 @@ export default async function Dashboard() {
         </div>
 
         {/* Recent Activity Card */}
-        <div className="glass" style={{ padding: '2rem' }}>
+        <div className="glass panel-card" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Your Recent Activity</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {activity ? (
@@ -59,7 +59,7 @@ export default async function Dashboard() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                       <h3 style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>My Posts</h3>
-                      <Link href="/dashboard/posts/my-posts" style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '700' }}>VIEW ALL</Link>
+                      <Link href="/dashboard/posts/my-posts" style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '700', whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '1rem' }}>VIEW ALL</Link>
                     </div>
                     {activity.posts.map(post => (
                       <Link key={post.id} href="/feed" style={{ display: 'block', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -105,7 +105,7 @@ export default async function Dashboard() {
         </div>
 
         {/* Info Card */}
-        <div className="glass" style={{ padding: '2rem' }}>
+        <div className="glass panel-card" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>
             {user.role === 'USER' ? 'Batch Information' : 'Assigned Matches'}
           </h2>

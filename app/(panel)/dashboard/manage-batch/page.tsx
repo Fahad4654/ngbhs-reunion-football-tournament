@@ -49,29 +49,43 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
     <>
 
       {/* Tabs */}
-      <div className="glass" style={{ display: 'flex', gap: '0.5rem', padding: '0.5rem', borderRadius: '14px', marginBottom: '2rem', maxWidth: '400px' }}>
+      <div className="glass no-scrollbar" style={{ 
+        display: 'flex', 
+        gap: '0.35rem', 
+        padding: '0.5rem', 
+        borderRadius: '14px', 
+        marginBottom: '2rem', 
+        width: '100%', 
+        maxWidth: '600px', 
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch'
+      }}>
         <Link 
           href="/dashboard/manage-batch?tab=posts"
           className="btn"
           style={{ 
-            flex: 1, 
+            flex: '1 0 auto', 
+            minWidth: '80px',
             background: tab === 'posts' ? 'var(--accent-primary)' : 'transparent',
             color: tab === 'posts' ? 'black' : 'white',
-            fontSize: '0.8rem',
-            padding: '0.6rem'
+            fontSize: '0.7rem',
+            padding: '0.6rem 0.25rem',
+            whiteSpace: 'nowrap'
           }}
         >
-          📝 Pending Posts ({pendingPosts.length})
+          📝 Posts ({pendingPosts.length})
         </Link>
         <Link 
           href="/dashboard/manage-batch?tab=members"
           className="btn"
           style={{ 
-            flex: 1, 
+            flex: '1 0 auto', 
+            minWidth: '80px',
             background: tab === 'members' ? 'var(--accent-primary)' : 'transparent',
             color: tab === 'members' ? 'black' : 'white',
-            fontSize: '0.8rem',
-            padding: '0.6rem'
+            fontSize: '0.7rem',
+            padding: '0.6rem 0.25rem',
+            whiteSpace: 'nowrap'
           }}
         >
           👥 Members ({members.length})
@@ -80,11 +94,13 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
           href="/dashboard/manage-batch?tab=approvals"
           className="btn"
           style={{ 
-            flex: 1, 
+            flex: '1 0 auto', 
+            minWidth: '80px',
             background: tab === 'approvals' ? 'var(--accent-primary)' : 'transparent',
             color: tab === 'approvals' ? 'black' : 'white',
-            fontSize: '0.8rem',
-            padding: '0.6rem'
+            fontSize: '0.7rem',
+            padding: '0.6rem 0.25rem',
+            whiteSpace: 'nowrap'
           }}
         >
           ⏳ Pending ({pendingMembers.length})
@@ -163,7 +179,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
           </table>
         </div>
       ) : (
-        <div className="glass" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+        <div className="responsive-table-container glass" style={{ borderRadius: '24px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>

@@ -13,12 +13,12 @@ export default async function MyPostsPage() {
         </Link>
       </div>
 
-      <div style={{ display: 'grid', gap: '1.5rem' }}>
+      <div className="responsive-grid" style={{ display: 'grid', gap: '1.5rem' }}>
         {posts.length > 0 ? posts.map((post) => (
           <div key={post.id} className="glass" style={{ padding: '1.5rem', borderRadius: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div>
-                <h2 style={{ fontSize: '1.25rem', marginBottom: '0.25rem', color: 'white' }}>{post.title}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', gap: '1rem' }} className="mobile-stack">
+              <div style={{ minWidth: 0 }}>
+                <h2 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.title}</h2>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                   Submitted on {new Date(post.createdAt).toLocaleDateString()}
                 </div>
@@ -45,7 +45,7 @@ export default async function MyPostsPage() {
               {post.content}
             </p>
 
-            <div style={{ display: 'flex', gap: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', flexWrap: 'wrap' }}>
               <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
                 🏆 <span style={{ color: 'white', fontWeight: '700' }}>{post._count.cheers}</span> Cheers
               </div>
@@ -54,7 +54,7 @@ export default async function MyPostsPage() {
               </div>
               {post.status === 'APPROVED' && (
                 <Link href={`/feed#post-${post.id}`} style={{ fontSize: '0.875rem', color: 'var(--accent-primary)', marginLeft: 'auto', fontWeight: '600' }}>
-                  View in Feed →
+                  View →
                 </Link>
               )}
             </div>

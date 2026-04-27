@@ -44,9 +44,10 @@ export default function PanelShell({ children, user }: PanelShellProps) {
           top: 0,
           bottom: 0,
           left: isSidebarOpen ? 0 : '-300px',
+          visibility: isSidebarOpen ? 'visible' : 'hidden',
           width: '280px',
           zIndex: 1600,
-          transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           background: 'rgba(10, 11, 13, 0.98)',
           borderRight: '1px solid var(--border-color)',
           boxShadow: isSidebarOpen ? '20px 0 50px rgba(0,0,0,0.5)' : 'none'
@@ -55,13 +56,13 @@ export default function PanelShell({ children, user }: PanelShellProps) {
         <Sidebar user={user} onClose={toggleSidebar} />
       </div>
 
-      <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-        <div style={{ height: '84px' }}>
-          <PanelNavbar userName={user.name} onMenuClick={toggleSidebar} />
+      <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minWidth: 0, width: '100%', overflowX: 'hidden' }}>
+        <div style={{ minHeight: '84px' }}>
+          <PanelNavbar userName={user.name} userImage={user.image} onMenuClick={toggleSidebar} />
         </div>
 
         <main className="panel-main-content" style={{ flex: 1, overflowY: 'auto' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
             {children}
           </div>
         </main>
