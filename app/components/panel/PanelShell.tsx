@@ -18,7 +18,18 @@ export default function PanelShell({ children, user }: PanelShellProps) {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
       {/* Desktop Sidebar */}
-      <div className="sidebar-desktop" style={{ position: 'fixed', left: 0, top: 0, bottom: 0, zIndex: 1000 }}>
+      <div className="sidebar-desktop" style={{ 
+        position: 'fixed', 
+        left: 0, 
+        top: 0, 
+        bottom: 0, 
+        zIndex: 1000, 
+        width: '280px',
+        minWidth: '280px',
+        maxWidth: '280px',
+        overflow: 'hidden',
+        borderRight: '1px solid var(--border-color)'
+      }}>
         <Sidebar user={user} />
       </div>
 

@@ -49,50 +49,83 @@ export default function PostActions({ postId, initialCheers, initialComments, cu
 
   return (
     <>
-      <div style={{ padding: '0.25rem 1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: '600' }}>
+      <div className="post-actions-container" style={{ padding: '0.25rem 0.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0.25rem', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: '600' }}>
           <span>🏆 {initialCheers.length} {initialCheers.length === 1 ? 'Cheer' : 'Cheers'}</span>
           <span style={{ cursor: 'pointer' }} onClick={() => setShowComments(!showComments)}>
             {initialComments.length} {initialComments.length === 1 ? 'Comment' : 'Comments'}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(3, 1fr)', 
+          gap: '0.35rem', 
+          paddingTop: '0.5rem', 
+          paddingBottom: '0.5rem' 
+        }}>
           <button 
             onClick={handleCheer}
             className="btn glass" 
             style={{ 
-              flex: 1, 
-              padding: '0.6rem', 
-              fontSize: '0.875rem', 
+              padding: '0.45rem 0.1rem', 
+              fontSize: '0.65rem', 
               color: hasCheered ? 'var(--accent-primary)' : 'var(--text-muted)',
               borderColor: hasCheered ? 'var(--accent-primary)' : 'var(--border-color)',
               background: hasCheered ? 'rgba(235, 183, 0, 0.1)' : 'transparent',
-              textTransform: 'none'
+              textTransform: 'none',
+              minWidth: 0,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.2rem'
             }}
             disabled={isCheering}
           >
-            <span style={{ fontSize: '1.1rem' }}>⚽</span> Cheer
+            <span style={{ fontSize: '0.85rem' }}>⚽</span> Cheer
           </button>
           <button 
             onClick={() => setShowComments(!showComments)}
             className="btn glass" 
             style={{ 
-              flex: 1, 
-              padding: '0.6rem', 
-              fontSize: '0.875rem', 
+              padding: '0.45rem 0.1rem', 
+              fontSize: '0.65rem', 
               color: showComments ? 'white' : 'var(--text-muted)',
               background: showComments ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-              textTransform: 'none'
+              textTransform: 'none',
+              minWidth: 0,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.2rem'
             }}
           >
-            <span style={{ fontSize: '1.1rem' }}>💬</span> Comment
+            <span style={{ fontSize: '0.85rem' }}>💬</span> Comment
           </button>
           <button 
             onClick={handleShare}
             className="btn glass" 
-            style={{ flex: 1, padding: '0.6rem', fontSize: '0.875rem', color: 'var(--text-muted)', textTransform: 'none' }}
+            style={{ 
+              padding: '0.45rem 0.1rem', 
+              fontSize: '0.65rem', 
+              color: 'var(--text-muted)', 
+              textTransform: 'none', 
+              minWidth: 0,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.2rem'
+            }}
           >
-            <span style={{ fontSize: '1.1rem' }}>📢</span> Share
+            <span style={{ fontSize: '0.85rem' }}>📢</span> Share
           </button>
         </div>
       </div>

@@ -253,13 +253,22 @@ a {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .feed-grid {
     grid-template-columns: 1fr;
-    max-width: 650px;
+    gap: 1.25rem;
+    padding: 0 0.5rem;
   }
+  
   .feed-grid aside {
     display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .feed-grid {
+    padding: 0 0.25rem;
+    gap: 1rem;
   }
 }
 

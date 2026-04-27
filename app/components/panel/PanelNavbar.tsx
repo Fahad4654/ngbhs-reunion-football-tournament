@@ -60,11 +60,11 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
     >
       <div className="panel-nav-container" style={{ 
         width: '100%', 
-        padding: '0 1rem',
+        padding: '0 2rem',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '1rem'
+        gap: '1.5rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
           {/* Hamburger Menu - Mobile Only */}

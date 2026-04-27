@@ -170,7 +170,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
               (user.name || 'User').charAt(0).toLowerCase()
             )}
           </div>
-          <div style={{ overflow: 'hidden' }}>
+          <div style={{ minWidth: 0, overflow: 'hidden', flex: 1 }}>
             <div style={{ fontWeight: '700', color: 'white', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
           </div>

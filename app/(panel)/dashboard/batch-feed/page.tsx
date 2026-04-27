@@ -84,29 +84,39 @@ export default async function BatchFeedPage() {
     <>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {posts.length > 0 ? posts.map((post) => (
-          <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '24px' }}>
+          <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '24px' }}>
             {/* Post Header */}
-            <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ 
-                width: '44px', 
-                height: '44px', 
-                borderRadius: '50%', 
-                background: 'var(--accent-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '800',
-                color: 'black',
-                fontSize: '1rem'
-              }}>
-                {post.author.name?.charAt(0)}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: 'white', fontWeight: '700', fontSize: '1rem' }}>{post.author.name}</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase' }}>
-                  {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            <div style={{ padding: '0.85rem 0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0, flex: 1 }}>
+                <div style={{ 
+                  width: '36px', 
+                  minWidth: '36px',
+                  height: '36px', 
+                  borderRadius: '50%', 
+                  background: post.author.image ? 'transparent' : 'var(--accent-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '800',
+                  color: 'black',
+                  fontSize: '0.85rem',
+                  overflow: 'hidden',
+                  border: post.author.image ? '1px solid var(--border-color)' : 'none',
+                  flexShrink: 0
+                }}>
+                  {post.author.image ? (
+                    <img src={post.author.image} alt={post.author.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    post.author.name?.charAt(0)
+                  )}
+                </div>
+                <div style={{ minWidth: 0, width: 0, flex: 1 }}>
+                  <div style={{ color: 'white', fontWeight: '800', fontSize: '1.05rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '2px' }}>
+                    {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
               </div>
               <PostOptions 
@@ -119,9 +129,9 @@ export default async function BatchFeedPage() {
             </div>
 
             {/* Post Content */}
-            <div style={{ padding: '1.5rem 1.5rem 0.5rem' }}>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--accent-primary)', textTransform: 'none' }}>{post.title}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+            <div style={{ padding: '1rem 0.5rem 0.5rem' }}>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none' }}>{post.title}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                 {post.content}
               </p>
             </div>
