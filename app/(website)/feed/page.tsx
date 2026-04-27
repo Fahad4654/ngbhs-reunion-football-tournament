@@ -84,8 +84,8 @@ export default async function FeedPage() {
 
               {/* Post Content */}
               <div style={{ padding: '1.5rem 1.5rem 0.5rem' }}>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--accent-primary)', textTransform: 'none' }}>{post.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                   {post.content}
                 </p>
               </div>

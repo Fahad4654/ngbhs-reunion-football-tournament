@@ -144,8 +144,8 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                 </div>
               </div>
               <div style={{ padding: '1.5rem 1.5rem 0.5rem' }}>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--accent-primary)', textTransform: 'none' }}>{post.title || 'Untitled Post'}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{post.content}</p>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Post'}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.content}</p>
               </div>
               <MediaGallery media={post.media} />
               <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
