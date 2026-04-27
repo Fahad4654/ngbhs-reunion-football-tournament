@@ -37,25 +37,25 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       flexDirection: 'column',
       padding: 0,
       borderRadius: 0,
-      borderRight: '1px solid var(--border-color)',
+      borderRight: '0.052vw solid var(--border-color)',
       overflow: 'hidden',
       borderTop: 'none',
       borderLeft: 'none',
       borderBottom: 'none'
     }}>
       {/* Fixed Header */}
-      <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', background: 'rgba(10, 11, 13, 0.2)', position: 'relative' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img src="/logo.jpg" alt="NGBHS Logo" style={{ width: '44px', height: '44px', borderRadius: '10px', objectFit: 'cover' }} />
+      <div style={{ padding: '2.222vh 1.25vw', borderBottom: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.2)', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
+          <img src="/logo.jpg" alt="NGBHS Logo" style={{ width: '2.292vw', height: '2.292vw', borderRadius: '0.521vw', objectFit: 'cover' }} />
           <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '1.1rem', margin: 0, color: 'white', fontWeight: '800' }}>NGBHS</h2>
-            <p style={{ fontSize: '0.65rem', color: 'var(--accent-primary)', fontWeight: '700', textTransform: 'uppercase', margin: 0 }}>Management</p>
+            <h2 style={{ fontSize: '1.2vw', margin: 0, color: 'white', fontWeight: '800' }}>NGBHS</h2>
+            <p style={{ fontSize: '0.8vw', color: 'var(--accent-primary)', fontWeight: '700', textTransform: 'uppercase', margin: 0 }}>Management</p>
           </div>
           {onClose && (
             <button 
               onClick={onClose}
               className="mobile-only btn glass"
-              style={{ padding: '0.5rem', minWidth: '36px', height: '36px', borderRadius: '50%', color: 'white' }}
+              style={{ padding: '0.926vh 1.042vw', minWidth: '8vw', height: '8vw', borderRadius: '50%', color: 'white', fontSize: '3vw', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               ✕
             </button>
@@ -64,10 +64,10 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       </div>
 
       {/* Scrollable Middle Section */}
-      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.25rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <div style={{ fontSize: '0.6rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.4rem', marginLeft: '0.5rem' }}>
+      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.852vh 1.042vw' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.222vh' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.37vh' }}>
+            <div style={{ fontSize: '0.8vw', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.593vh', marginLeft: '0.417vw' }}>
               Main Menu
             </div>
             
@@ -80,18 +80,18 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.6rem 0.85rem',
-                    borderRadius: '10px',
+                    gap: '0.625vw',
+                    padding: '0.889vh 0.708vw',
+                    borderRadius: '0.521vw',
                     color: isActive ? 'white' : 'var(--text-secondary)',
                     background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-                    border: isActive ? '1px solid var(--border-color)' : '1px solid transparent',
+                    border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
                     transition: 'all 0.2s ease',
                     fontWeight: isActive ? '700' : '500',
-                    fontSize: '0.85rem'
+                    fontSize: '1.0vw'
                   }}
                 >
-                  <span style={{ fontSize: '1.1rem' }}>{link.icon}</span>
+                  <span style={{ fontSize: '0.917vw' }}>{link.icon}</span>
                   <span>{link.name}</span>
                 </Link>
               );
@@ -99,8 +99,8 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
           </div>
 
           {(user.role === "ADMIN" || user.role === "CO_ADMIN") && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <div style={{ fontSize: '0.6rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.4rem', marginLeft: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.37vh' }}>
+              <div style={{ fontSize: '0.8vw', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.593vh', marginLeft: '0.417vw' }}>
                 Administrative
               </div>
               {adminOnlyLinks.map((link) => {
@@ -112,18 +112,18 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.6rem 0.85rem',
-                      borderRadius: '10px',
+                      gap: '0.625vw',
+                      padding: '0.889vh 0.708vw',
+                      borderRadius: '0.521vw',
                       color: isActive ? 'white' : 'var(--text-secondary)',
                       background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-                      border: isActive ? '1px solid var(--border-color)' : '1px solid transparent',
+                      border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
                       transition: 'all 0.2s ease',
                       fontWeight: isActive ? '700' : '500',
-                      fontSize: '0.85rem'
+                      fontSize: '1.0vw'
                     }}
                   >
-                    <span style={{ fontSize: '1.1rem' }}>{link.icon}</span>
+                    <span style={{ fontSize: '0.917vw' }}>{link.icon}</span>
                     <span>{link.name}</span>
                   </Link>
                 );
@@ -134,25 +134,25 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       </div>
 
       {/* Fixed Bottom Section */}
-      <div style={{ padding: '1.25rem', borderTop: '1px solid var(--border-color)', background: 'rgba(10, 11, 13, 0.4)' }}>
+      <div style={{ padding: '1.852vh 1.042vw', borderTop: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.4)' }}>
         <Link 
           href="/profile"
           className="btn-profile-sidebar"
           style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: '1rem', 
-            marginBottom: '1.25rem', 
-            padding: '0.5rem',
-            borderRadius: '12px',
+            gap: '0.833vw', 
+            marginBottom: '1.852vh', 
+            padding: '0.741vh 0.417vw',
+            borderRadius: '0.625vw',
             transition: 'all 0.2s ease',
             textDecoration: 'none'
           }}
         >
           <div style={{ 
-            width: '40px', 
-            minWidth: '40px',
-            height: '40px', 
+            width: '2.083vw', 
+            minWidth: '2.083vw',
+            height: '2.083vw', 
             borderRadius: '50%', 
             background: user.image ? 'transparent' : 'var(--accent-primary)', 
             display: 'flex', 
@@ -160,9 +160,9 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             justifyContent: 'center',
             color: 'black',
             fontWeight: '800',
-            fontSize: '1.1rem',
+            fontSize: '0.917vw',
             overflow: 'hidden',
-            border: user.image ? '2px solid var(--border-color)' : 'none'
+            border: user.image ? '0.104vw solid var(--border-color)' : 'none'
           }}>
             {user.image ? (
               <img src={user.image} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -171,16 +171,16 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             )}
           </div>
           <div style={{ minWidth: 0, overflow: 'hidden', flex: 1 }}>
-            <div style={{ fontWeight: '700', color: 'white', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
+            <div style={{ fontWeight: '700', color: 'white', fontSize: '1.0vw', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
+            <div style={{ fontSize: '0.7vw', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
           </div>
         </Link>
 
-        <Link href="/" className="btn glass" style={{ width: '100%', marginBottom: '0.75rem', fontSize: '0.85rem', fontWeight: '800', color: 'var(--accent-primary)', justifyContent: 'center', border: '1px solid rgba(235, 183, 0, 0.2)' }}>
+        <Link href="/" className="btn glass" style={{ width: '100%', marginBottom: '1.111vh', fontSize: '0.9vw', fontWeight: '800', color: 'var(--accent-primary)', justifyContent: 'center', border: '0.052vw solid rgba(235, 183, 0, 0.2)' }}>
           🏠 EXIT TO WEBSITE
         </Link>
         <form action={logout}>
-          <button type="submit" className="btn glass" style={{ width: '100%', color: '#ff4444', fontSize: '0.8rem', fontWeight: '700', justifyContent: 'center' }}>
+          <button type="submit" className="btn glass" style={{ width: '100%', color: '#ff4444', fontSize: '0.9vw', fontWeight: '700', justifyContent: 'center' }}>
             🚪 SIGN OUT
           </button>
         </form>

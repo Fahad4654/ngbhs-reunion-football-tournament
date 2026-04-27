@@ -165,7 +165,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
       <div style={{ position: 'relative' }} ref={dropdownRef}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.2rem', cursor: 'pointer', padding: '0.25rem 0.5rem' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1vw', cursor: 'pointer', padding: '0.37vh 0.417vw' }}
         >
           ⋯
         </button>
@@ -176,27 +176,27 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
             right: 0,
             top: '100%',
             background: 'var(--bg-secondary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '12px',
-            padding: '0.5rem',
+            border: '0.052vw solid var(--border-color)',
+            borderRadius: '0.625vw',
+            padding: '0.741vh 0.417vw',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.25rem',
-            minWidth: '150px',
+            gap: '0.37vh',
+            minWidth: '7.813vw',
             zIndex: 50,
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
+            boxShadow: '0 0.521vw 1.302vw -0.26vw rgba(0, 0, 0, 0.5)'
           }}>
             <button 
               onClick={() => { setIsEditing(true); setIsOpen(false); }}
               className="btn"
-              style={{ background: 'transparent', color: 'white', justifyContent: 'flex-start', padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+              style={{ background: 'transparent', color: 'white', justifyContent: 'flex-start', padding: '0.741vh 0.833vw', fontSize: '0.75vw' }}
             >
               ✏️ Edit Post
             </button>
             <button 
               onClick={handleDelete}
               className="btn"
-              style={{ background: 'transparent', color: '#ef4444', justifyContent: 'flex-start', padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+              style={{ background: 'transparent', color: '#ef4444', justifyContent: 'flex-start', padding: '0.741vh 0.833vw', fontSize: '0.75vw' }}
             >
               🗑️ Delete Post
             </button>
@@ -215,59 +215,59 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
           justifyContent: 'center',
           padding: '1rem'
         }}>
-          <div className="glass" style={{ width: '100%', maxWidth: '600px', borderRadius: '24px', padding: '2rem' }}>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'white' }}>Edit Post</h3>
+          <div className="glass" style={{ width: '100%', maxWidth: '31.25vw', borderRadius: '1.25vw', padding: '1.852vh 1.667vw' }}>
+            <h3 style={{ fontSize: '1.25vw', marginBottom: '2.222vh', color: 'white' }}>Edit Post</h3>
             
             <form onSubmit={handleEdit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Title (Optional)</label>
+                <label style={{ display: 'block', marginBottom: '0.741vh', color: 'var(--text-muted)', fontSize: '0.729vw' }}>Title (Optional)</label>
                 <input 
                   name="title" 
                   defaultValue={title || ''} 
-                  style={{ width: '100%', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'white' }}
+                  style={{ width: '100%', padding: '1.111vh 0.833vw', background: 'rgba(255,255,255,0.05)', border: '0.052vw solid var(--border-color)', borderRadius: '0.625vw', color: 'white' }}
                 />
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Content</label>
+                <label style={{ display: 'block', marginBottom: '0.741vh', color: 'var(--text-muted)', fontSize: '0.729vw' }}>Content</label>
                 <textarea 
                   name="content" 
                   defaultValue={content}
                   required
                   rows={4}
-                  style={{ width: '100%', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'white', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '1.111vh 0.833vw', background: 'rgba(255,255,255,0.05)', border: '0.052vw solid var(--border-color)', borderRadius: '0.625vw', color: 'white', resize: 'vertical' }}
                 />
               </div>
 
               {/* Media Section */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(5.208vw, 1fr))', gap: '0.417vw' }}>
                 {media.filter(m => !removedMediaIds.includes(m.id)).map(m => (
-                  <div key={m.id} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                    <MediaRenderer url={m.url} type={m.type} style={{ borderRadius: '8px' }} />
-                    <button type="button" onClick={() => removeExistingMedia(m.id)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>✕</button>
+                  <div key={m.id} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '0.417vw', overflow: 'hidden', border: '0.052vw solid var(--border-color)' }}>
+                    <MediaRenderer url={m.url} type={m.type} style={{ borderRadius: '0.417vw' }} />
+                    <button type="button" onClick={() => removeExistingMedia(m.id)} style={{ position: 'absolute', top: '0.208vw', right: '0.208vw', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '1.042vw', height: '1.042vw', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.521vw' }}>✕</button>
                   </div>
                 ))}
                 {newMediaPreviews.map((m, idx) => (
-                  <div key={idx} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', opacity: 0.8 }}>
-                    <MediaRenderer url={m.url} type={m.type} style={{ borderRadius: '8px' }} />
-                    <button type="button" onClick={() => removeNewMedia(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>✕</button>
+                  <div key={idx} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '0.417vw', overflow: 'hidden', border: '0.052vw solid var(--border-color)', opacity: 0.8 }}>
+                    <MediaRenderer url={m.url} type={m.type} style={{ borderRadius: '0.417vw' }} />
+                    <button type="button" onClick={() => removeNewMedia(idx)} style={{ position: 'absolute', top: '0.208vw', right: '0.208vw', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '1.042vw', height: '1.042vw', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.521vw' }}>✕</button>
                   </div>
                 ))}
               </div>
 
               {/* Attachments Section */}
-              <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'white', fontSize: '0.875rem' }}>Add to your post</span>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ border: '0.052vw solid var(--border-color)', borderRadius: '0.417vw', padding: '0.741vh 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'white', fontSize: '0.729vw' }}>Add to your post</span>
+                <div style={{ display: 'flex', gap: '0.417vw' }}>
                   <input type="file" accept="image/*, .jpg, .jpeg, .png, .webp" multiple ref={fileInputRef} onChange={(e) => handleMediaChange(e, 'IMAGE')} style={{ display: 'none' }} />
-                  <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', padding: '4px' }} title="Add Photo">🖼️</button>
+                  <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: 'none', border: 'none', fontSize: '1.042vw', cursor: 'pointer', padding: '0.208vw' }} title="Add Photo">🖼️</button>
                   
                   <input type="file" accept="video/*, .mp4, .webm" multiple ref={videoInputRef} onChange={(e) => handleMediaChange(e, 'VIDEO')} style={{ display: 'none' }} />
-                  <button type="button" onClick={() => videoInputRef.current?.click()} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', padding: '4px' }} title="Add Video">📹</button>
+                  <button type="button" onClick={() => videoInputRef.current?.click()} style={{ background: 'none', border: 'none', fontSize: '1.042vw', cursor: 'pointer', padding: '0.208vw' }} title="Add Video">📹</button>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.833vw', marginTop: '0.741vh' }}>
                 <button type="button" onClick={() => setIsEditing(false)} className="btn glass" style={{ flex: 1 }}>
                   Cancel
                 </button>
@@ -289,7 +289,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(8px)',
+            backdropFilter: 'blur(0.417vw)',
             zIndex: 99999,
             animation: 'fadeIn 0.2s ease-out forwards',
           }}
@@ -301,32 +301,32 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
             style={{ 
               display: 'flex', 
               flexDirection: 'column', 
-              gap: '1.5rem', 
+              gap: '2.222vh', 
               width: '100%',
-              maxWidth: '400px',
-              padding: '2rem',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(235, 183, 0, 0.1)',
-              border: '1px solid rgba(235, 183, 0, 0.3)',
+              maxWidth: '20.833vw',
+              padding: '1.852vh 1.667vw',
+              boxShadow: '0 1.302vw 2.604vw -0.625vw rgba(0, 0, 0, 0.8), 0 0 1.563vw rgba(235, 183, 0, 0.1)',
+              border: '0.052vw solid rgba(235, 183, 0, 0.3)',
               animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-              margin: '0 1rem',
+              margin: '0 0.833vw',
             }}
           >
             <div style={{ textAlign: 'center' }}>
               <p style={{ 
                 margin: 0, 
                 fontWeight: '600', 
-                fontSize: '1.25rem', 
+                fontSize: '1.042vw', 
                 color: 'var(--text-primary)',
                 fontFamily: 'Outfit, sans-serif'
               }}>
                 {confirmState.message}
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.833vw', justifyContent: 'center' }}>
               <button 
                 onClick={closeConfirm}
                 className="btn glass"
-                style={{ flex: 1, padding: '0.75rem' }}
+                style={{ flex: 1, padding: '1.111vh 0.833vw' }}
               >
                 Cancel
               </button>
@@ -336,7 +336,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
                   closeConfirm();
                 }}
                 className="btn"
-                style={{ flex: 1, padding: '0.75rem', background: '#ef4444', color: 'white', border: 'none' }}
+                style={{ flex: 1, padding: '1.111vh 0.833vw', background: '#ef4444', color: 'white', border: 'none' }}
               >
                 Delete
               </button>

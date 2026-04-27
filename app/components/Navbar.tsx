@@ -37,8 +37,8 @@ export default function Navbar({ user }: { user: AppUser | null }) {
       background: 'rgba(10, 11, 13, 0.95)'
     }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img src="/logo.jpg" alt="NGBHS Logo" style={{ width: '40px', height: '40px', borderRadius: '10px', objectFit: 'cover' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
+          <img src="/logo.jpg" alt="NGBHS Logo" style={{ width: '3.125vw', height: '3.125vw', borderRadius: '0.521vw', objectFit: 'cover' }} />
           <h1 className="navbar-title" style={{ margin: 0 }}>
             <Link href="/">
               <span className="desktop-only">
@@ -57,7 +57,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
               <Link
                 key={link.href}
                 href={link.href}
-                style={{ color: isActive ? 'white' : 'var(--text-muted)', transition: 'all 0.2s ease' }}
+                style={{ color: isActive ? 'white' : 'var(--accent-primary)', transition: 'all 0.2s ease', borderBottom: isActive ? '0.185vh solid var(--accent-primary)' : 'none', paddingBottom: '0.463vh' }}
               >
                 {link.name}
               </Link>
@@ -65,17 +65,17 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           })}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
           <div className="desktop-only nav-auth">
             {user ? (
               <>
-                <Link href="/dashboard" style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: '700' }}>Dashboard</Link>
+                <Link href="/dashboard" style={{ fontSize: '1.0vw', color: 'var(--accent-primary)', fontWeight: '700' }}>Dashboard</Link>
                 <form action={logout}>
-                  <button type="submit" className="btn glass" style={{ padding: '0.5rem 1rem', fontSize: '0.7rem' }}>Sign Out</button>
+                  <button type="submit" className="btn glass" style={{ padding: '0.926vh 1.042vw', fontSize: '0.9vw' }}>Sign Out</button>
                 </form>
               </>
             ) : (
-              <Link href="/login" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}>Sign In</Link>
+              <Link href="/login" className="btn btn-primary" style={{ padding: '0.926vh 1.042vw', fontSize: '1.0vw' }}>Sign In</Link>
             )}
           </div>
 
@@ -83,7 +83,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="mobile-only btn glass"
-            style={{ padding: '0.5rem', minWidth: '40px', height: '40px' }}
+            style={{ padding: '0.463vh 0.417vw', minWidth: '4.167vw', height: '4.167vw', fontSize: '1.25vw' }}
           >
             {isMenuOpen ? '✕' : '☰'}
           </button>
@@ -100,15 +100,15 @@ export default function Navbar({ user }: { user: AppUser | null }) {
             left: '0',
             right: '0',
             bottom: '0',
-            padding: '2rem 1.5rem',
+            padding: '3.704vh 2.604vw',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
+            gap: '1.852vh',
             zIndex: 999,
             background: 'rgba(10, 11, 13, 0.98)',
-            backdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(1.042vw)',
             animation: 'fadeIn 0.2s ease',
-            borderTop: '1px solid var(--border-color)'
+            borderTop: '0.052vw solid var(--border-color)'
           }}
         >
           {navLinks.map((link) => (
@@ -116,21 +116,21 @@ export default function Navbar({ user }: { user: AppUser | null }) {
               key={link.href} 
               href={link.href} 
               onClick={() => setIsMenuOpen(false)}
-              style={{ padding: '0.75rem', fontSize: '1rem', fontWeight: '700', borderBottom: '1px solid var(--border-color)' }}
+              style={{ padding: '1.389vh', fontSize: '1.458vw', fontWeight: '700', borderBottom: '0.052vw solid var(--border-color)', color: pathname === link.href ? 'var(--accent-primary)' : 'white' }}
             >
               {link.name}
             </Link>
           ))}
-          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ marginTop: '1.852vh', display: 'flex', flexDirection: 'column', gap: '1.389vh' }}>
             {user ? (
               <>
-                <Link href="/dashboard" className="btn btn-primary" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                <Link href="/dashboard" className="btn btn-primary" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1.25vw' }}>Dashboard</Link>
                 <form action={logout}>
-                  <button type="submit" className="btn glass" style={{ width: '100%' }}>Sign Out</button>
+                  <button type="submit" className="btn glass" style={{ width: '100%', fontSize: '1.25vw' }}>Sign Out</button>
                 </form>
               </>
             ) : (
-              <Link href="/login" className="btn btn-primary" onClick={() => setIsMenuOpen(false)}>Sign In</Link>
+              <Link href="/login" className="btn btn-primary" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1.25vw' }}>Sign In</Link>
             )}
           </div>
         </div>

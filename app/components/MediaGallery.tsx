@@ -65,8 +65,8 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: media.length === 1 ? '1fr' : '1fr 1fr',
-        gap: '8px',
-        padding: '1rem 1.5rem',
+        gap: '0.417vw',
+        padding: '1.481vh 1.25vw',
       }}>
         {media.map((item, idx) => (
           <div 
@@ -76,9 +76,9 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               position: 'relative', 
               aspectRatio: media.length === 1 ? '16/9' : (media.length === 3 && idx === 0) ? '16/9' : '1/1',
               gridColumn: (media.length === 3 && idx === 0) ? 'span 2' : 'span 1',
-              borderRadius: '12px',
+              borderRadius: '0.625vw',
               overflow: 'hidden',
-              border: '1px solid var(--border-color)',
+              border: '0.052vw solid var(--border-color)',
               cursor: 'pointer'
             }}
           >
@@ -98,7 +98,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             position: 'fixed',
             inset: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            backdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(0.521vw)',
             zIndex: 999999,
             display: 'flex',
             alignItems: 'center',
@@ -111,19 +111,19 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             onClick={handleClose}
             style={{
               position: 'absolute',
-              top: '1.5rem',
-              right: '1.5rem',
+              top: '1.25vw',
+              right: '1.25vw',
               background: 'rgba(255,255,255,0.1)',
               border: 'none',
               color: 'white',
-              width: '44px',
-              height: '44px',
+              width: '2.292vw',
+              height: '2.292vw',
               borderRadius: '50%',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.5rem',
+              fontSize: '1.25vw',
               zIndex: 10,
               transition: 'background 0.2s',
             }}
@@ -140,18 +140,18 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 onClick={handlePrev}
                 style={{
                   position: 'absolute',
-                  left: '1.5rem',
+                  left: '1.25vw',
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: 'white',
-                  width: '56px',
-                  height: '56px',
+                  width: '2.917vw',
+                  height: '2.917vw',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2rem',
+                  fontSize: '1.667vw',
                   zIndex: 10,
                   transition: 'background 0.2s',
                 }}
@@ -164,18 +164,18 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 onClick={handleNext}
                 style={{
                   position: 'absolute',
-                  right: '1.5rem',
+                  right: '1.25vw',
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: 'white',
-                  width: '56px',
-                  height: '56px',
+                  width: '2.917vw',
+                  height: '2.917vw',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2rem',
+                  fontSize: '1.667vw',
                   zIndex: 10,
                   transition: 'background 0.2s',
                 }}
@@ -188,13 +188,13 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               {/* Media Counter */}
               <div style={{
                 position: 'absolute',
-                bottom: '2rem',
+                bottom: '1.667vw',
                 color: 'white',
                 background: 'rgba(0,0,0,0.5)',
-                padding: '0.5rem 1rem',
-                borderRadius: '20px',
-                fontSize: '0.875rem',
-                letterSpacing: '2px',
+                padding: '0.741vh 0.833vw',
+                borderRadius: '1.042vw',
+                fontSize: '0.729vw',
+                letterSpacing: '0.104vw',
               }}>
                 {selectedIndex + 1} / {media.length}
               </div>
@@ -221,8 +221,8 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 maxWidth: '100%',
                 maxHeight: '100%',
                 objectFit: 'contain',
-                borderRadius: '8px',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                borderRadius: '0.417vw',
+                boxShadow: '0 1.302vw 2.604vw -0.625vw rgba(0, 0, 0, 0.5)',
               }}
             />
           </div>

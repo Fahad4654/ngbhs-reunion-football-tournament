@@ -43,35 +43,35 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
     <nav
       className="glass"
       style={{
-        minHeight: '70px',
+        minHeight: '8.148vh',
         display: 'flex',
         alignItems: 'center',
         borderTop: 'none',
         borderLeft: 'none',
         borderRight: 'none',
         borderRadius: 0,
-        borderBottom: '1px solid var(--border-color)',
+        borderBottom: '0.052vw solid var(--border-color)',
         position: 'sticky',
         top: 0,
         zIndex: 900,
         background: 'rgba(10, 10, 10, 0.95)',
-        backdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(1.111vh)',
       }}
     >
       <div className="panel-nav-container" style={{ 
         width: '100%', 
-        padding: '0 2rem',
+        padding: '0 1.667vw',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '1.5rem'
+        gap: '1.25vw'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
           {/* Hamburger Menu - Mobile Only */}
           <button 
             onClick={onMenuClick}
             className="mobile-only btn glass"
-            style={{ padding: '0.5rem', minWidth: '40px', height: '40px' }}
+            style={{ padding: '0.463vh 0.417vw', minWidth: '4.167vw', height: '4.167vw', fontSize: '1.25vw' }}
           >
             ☰
           </button>
@@ -90,7 +90,7 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
           <Link
             href="/feed"
             className="btn glass panel-nav-btn"
-            style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
+            style={{ fontSize: '1.0vw', padding: '0.694vh 1.042vw' }}
           >
             <span className="desktop-only">🌐 Community Feed</span>
             <span className="mobile-only">🌐</span>
@@ -99,8 +99,8 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
           <Link href="/profile" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '1.667vw',
+                height: '1.667vw',
                 borderRadius: '50%',
                 background: userImage ? 'transparent' : 'var(--accent-primary)',
                 display: 'flex',
@@ -108,9 +108,9 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
                 justifyContent: 'center',
                 color: 'black',
                 fontWeight: '800',
-                fontSize: '0.8rem',
+                fontSize: '0.833vw',
                 overflow: 'hidden',
-                border: '2px solid var(--border-color)',
+                border: '0.104vw solid var(--border-color)',
                 flexShrink: 0
               }}
             >

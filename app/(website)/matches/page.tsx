@@ -19,9 +19,9 @@ export default async function MatchesPage() {
   return (
     <div className="container">
       <section className={styles.section}>
-        <div style={{ marginBottom: '3rem' }}>
-          <h1 className="text-gradient" style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>Tournament <br/>Fixtures & Results</h1>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '600px' }}>
+        <div style={{ marginBottom: '2.778vh' }}>
+          <h1 className="text-gradient" style={{ fontSize: '2.917vw', marginBottom: '0.926vh' }}>Tournament <br/>Fixtures & Results</h1>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '31.25vw' }}>
             Stay updated with every match. From intense group stages to the grand finale, track all the action here.
           </p>
         </div>
@@ -46,7 +46,7 @@ export default async function MatchesPage() {
                 </div>
                 <div className={styles.scoreBox}>
                   {match.status === 'SCHEDULED' ? (
-                    <span style={{ fontSize: '1rem' }}>VS</span>
+                    <span style={{ fontSize: '1.2vw' }}>VS</span>
                   ) : (
                     `${match.homeScore} - ${match.awayScore}`
                   )}
@@ -63,7 +63,7 @@ export default async function MatchesPage() {
               </div>
             </div>
           )) : (
-            <div className="glass" style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <div className="glass" style={{ padding: '3.704vh 1.667vw', textAlign: 'center', color: 'var(--text-muted)' }}>
               No matches have been scheduled yet. Check back soon!
             </div>
           )}

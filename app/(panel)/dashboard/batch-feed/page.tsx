@@ -21,11 +21,11 @@ export default async function BatchFeedPage() {
 
   if (!dbUser?.batchId) {
     return (
-      <div style={{ maxWidth: '600px', margin: '4rem auto' }}>
-        <div className="glass" style={{ textAlign: 'center', padding: '4rem 2rem', borderRadius: '24px' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🎓</div>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--accent-primary)' }}>Batch Not Selected</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', lineHeight: '1.6' }}>
+      <div style={{ maxWidth: '31.25vw', margin: '5.926vh auto' }}>
+        <div className="glass" style={{ textAlign: 'center', padding: '5.926vh 1.667vw', borderRadius: '1.25vw' }}>
+          <div style={{ fontSize: '3.333vw', marginBottom: '2.222vh' }}>🎓</div>
+          <h2 style={{ fontSize: '1.25vw', marginBottom: '1.481vh', color: 'var(--accent-primary)' }}>Batch Not Selected</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2.963vh', lineHeight: '1.6' }}>
             To see your batch-specific feed, please update your profile and select your graduation batch.
           </p>
           <Link href="/profile" className="btn btn-primary">
@@ -39,17 +39,17 @@ export default async function BatchFeedPage() {
   // Gate: pending or rejected users cannot see batch activity
   if (userSession.status === 'PENDING') {
     return (
-      <div style={{ maxWidth: '600px', margin: '4rem auto' }}>
-        <div className="glass" style={{ textAlign: 'center', padding: '4rem 2rem', borderRadius: '24px', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>⏳</div>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#f59e0b' }}>Approval Pending</h2>
+      <div style={{ maxWidth: '31.25vw', margin: '5.926vh auto' }}>
+        <div className="glass" style={{ textAlign: 'center', padding: '5.926vh 1.667vw', borderRadius: '1.25vw', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+          <div style={{ fontSize: '3.333vw', marginBottom: '2.222vh' }}>⏳</div>
+          <h2 style={{ fontSize: '1.25vw', marginBottom: '1.481vh', color: '#f59e0b' }}>Approval Pending</h2>
           <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
             Your membership request for <strong style={{ color: 'white' }}>{dbUser.batch?.name}</strong> is awaiting approval by your Batch Manager.
           </p>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '1rem' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.729vw', marginTop: '1.481vh' }}>
             You'll gain access to the batch feed and be able to post once your request is approved.
           </p>
-          <Link href="/feed" className="btn glass" style={{ marginTop: '2rem' }}>
+          <Link href="/feed" className="btn glass" style={{ marginTop: '2.963vh' }}>
             Browse Global Feed
           </Link>
         </div>
@@ -59,17 +59,17 @@ export default async function BatchFeedPage() {
 
   if (userSession.status === 'REJECTED') {
     return (
-      <div style={{ maxWidth: '600px', margin: '4rem auto' }}>
-        <div className="glass" style={{ textAlign: 'center', padding: '4rem 2rem', borderRadius: '24px', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>❌</div>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--accent-danger)' }}>Request Rejected</h2>
+      <div style={{ maxWidth: '31.25vw', margin: '5.926vh auto' }}>
+        <div className="glass" style={{ textAlign: 'center', padding: '5.926vh 1.667vw', borderRadius: '1.25vw', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+          <div style={{ fontSize: '3.333vw', marginBottom: '2.222vh' }}>❌</div>
+          <h2 style={{ fontSize: '1.25vw', marginBottom: '1.481vh', color: 'var(--accent-danger)' }}>Request Rejected</h2>
           <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
             Your membership request for <strong style={{ color: 'white' }}>{dbUser.batch?.name}</strong> was not approved.
           </p>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '1rem' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.729vw', marginTop: '1.481vh' }}>
             Please contact your Batch Manager or update your batch selection in your profile.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.833vw', justifyContent: 'center', marginTop: '2.963vh', flexWrap: 'wrap' }}>
             <Link href="/profile" className="btn btn-primary">Update Profile</Link>
             <Link href="/feed" className="btn glass">Global Feed</Link>
           </div>
@@ -82,18 +82,18 @@ export default async function BatchFeedPage() {
 
   return (
     <>
-      <div style={{ maxWidth: '700px', width: '100%', margin: '0 auto', padding: '0 0.75rem' }}>
+      <div style={{ maxWidth: '36.458vw', width: '100%', margin: '0 auto', padding: '0 0.391vw' }}>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25vw' }}>
         {posts.length > 0 ? posts.map((post) => (
-          <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '24px' }}>
+          <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '1.25vw' }}>
             {/* Post Header */}
-            <div style={{ padding: '0.85rem 0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0, flex: 1 }}>
+            <div style={{ padding: '1.259vh 0.417vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.417vw', borderBottom: '0.052vw solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.542vw', minWidth: 0, flex: 1 }}>
                 <div style={{ 
-                  width: '36px', 
-                  minWidth: '36px',
-                  height: '36px', 
+                  width: '1.875vw', 
+                  minWidth: '1.875vw',
+                  height: '1.875vw', 
                   borderRadius: '50%', 
                   background: post.author.image ? 'transparent' : 'var(--accent-primary)',
                   display: 'flex',
@@ -101,9 +101,9 @@ export default async function BatchFeedPage() {
                   justifyContent: 'center',
                   fontWeight: '800',
                   color: 'black',
-                  fontSize: '0.85rem',
+                  fontSize: '0.708vw',
                   overflow: 'hidden',
-                  border: post.author.image ? '1px solid var(--border-color)' : 'none',
+                  border: post.author.image ? '0.052vw solid var(--border-color)' : 'none',
                   flexShrink: 0
                 }}>
                   {post.author.image ? (
@@ -113,8 +113,8 @@ export default async function BatchFeedPage() {
                   )}
                 </div>
                 <div style={{ minWidth: 0, width: 0, flex: 1 }}>
-                  <div style={{ color: 'white', fontWeight: '800', fontSize: '1.05rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
-                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '2px' }}>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: '0.875vw', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.542vw', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                     {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
@@ -129,9 +129,9 @@ export default async function BatchFeedPage() {
             </div>
 
             {/* Post Content */}
-            <div style={{ padding: '1rem 0.5rem 0.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.5', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+            <div style={{ padding: '1.481vh 0.417vw 0.741vh' }}>
+              <h3 style={{ fontSize: '0.917vw', marginBottom: '0.741vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.792vw', lineHeight: '1.5', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                 {post.content}
               </p>
             </div>
@@ -149,10 +149,10 @@ export default async function BatchFeedPage() {
             />
           </article>
         )) : (
-          <div className="glass" style={{ textAlign: 'center', padding: '5rem 2rem', borderRadius: '24px' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>🏟️</div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '600' }}>No posts in your batch yet.</p>
-            <Link href="/dashboard/posts" className="btn btn-primary" style={{ marginTop: '2rem' }}>Be the First to Post</Link>
+          <div className="glass" style={{ textAlign: 'center', padding: '7.407vh 1.667vw', borderRadius: '1.25vw' }}>
+            <div style={{ fontSize: '2.5vw', marginBottom: '2.222vh' }}>🏟️</div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.917vw', fontWeight: '600' }}>No posts in your batch yet.</p>
+            <Link href="/dashboard/posts" className="btn btn-primary" style={{ marginTop: '2.963vh' }}>Be the First to Post</Link>
           </div>
         )}
         </div>
