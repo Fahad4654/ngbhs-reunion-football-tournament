@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import styles from "./page.module.css";
+import Link from "next/link";
 
 async function getMatches() {
   return await prisma.match.findMany({
@@ -70,8 +71,8 @@ export default async function Home() {
             Experience the thrill of the reunion. Tracking live scores, exclusive news, and every memorable goal from all school batches.
           </p>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button className="btn btn-primary">View Fixtures</button>
-            <button className="btn glass">Batch Standings</button>
+            <Link href="/matches" className="btn btn-primary">View Fixtures</Link>
+            <Link href="/standings" className="btn glass">Batch Standings</Link>
           </div>
         </div>
       </section>
@@ -84,7 +85,7 @@ export default async function Home() {
               <div style={{ color: 'var(--accent-primary)', fontWeight: '700', fontSize: '0.8rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Current Action</div>
               <h2 className={styles.sectionTitle}>Match <span className="text-gradient">Dashboard</span></h2>
             </div>
-            <a href="/matches" style={{ color: 'var(--accent-secondary)', fontWeight: '600' }}>See all matches →</a>
+            <Link href="/matches" style={{ color: 'var(--accent-secondary)', fontWeight: '600' }}>See all matches →</Link>
           </div>
 
           <div className={styles.scoreboardGrid}>
@@ -126,8 +127,8 @@ export default async function Home() {
       </section>
 
       {/* Standings & News Section */}
-      <section className={`${styles.section} glass`} style={{ margin: '0 1rem', borderRadius: '32px', background: 'rgba(255, 255, 255, 0.01)' }}>
-        <div className="container" style={{ padding: '3rem 1rem' }}>
+      <section className="glass" style={{ margin: '2rem 1rem', borderRadius: '32px', background: 'rgba(255, 255, 255, 0.01)' }}>
+        <div className="container" style={{ padding: '2rem 1rem' }}>
           <div className="feed-grid" style={{ gap: '3rem' }}>
             {/* News Grid */}
             <div style={{ minWidth: 0 }}>
@@ -180,7 +181,7 @@ export default async function Home() {
                     </tbody>
                   </table>
                 </div>
-                <button className="btn glass" style={{ width: '100%', marginTop: '1.25rem', fontWeight: '700' }}>FULL STANDINGS</button>
+                <Link href="/standings" className="btn glass" style={{ width: '100%', marginTop: '1.25rem', fontWeight: '700', justifyContent: 'center' }}>FULL STANDINGS</Link>
               </div>
             </div>
           </div>
