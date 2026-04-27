@@ -246,7 +246,7 @@ a {
 
 @media (max-width: 768px) {
   .feed-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
     padding: 0 0.5rem;
   }

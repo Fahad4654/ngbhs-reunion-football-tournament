@@ -82,7 +82,7 @@ export default async function BatchFeedPage() {
 
   return (
     <>
-      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '700px', width: '100%', margin: '0 auto', padding: '0 0.75rem' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {posts.length > 0 ? posts.map((post) => (
