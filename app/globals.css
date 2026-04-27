@@ -287,11 +287,11 @@ a {
 
 @media (max-width: 768px) {
   .panel-main-content {
-    padding: 0.75rem !important;
+    padding: 0.5rem !important;
   }
   
   .panel-card {
-    padding: 1.25rem !important;
+    padding: 0.5rem !important;
   }
 }
 
@@ -335,6 +335,16 @@ a {
   .panel-main-content {
     padding: 1rem !important;
   }
+  
+  .main-content {
+    padding: 1rem !important;
+  }
+  
+  @media (max-width: 360px) {
+    .main-content {
+      padding: 0.25rem !important;
+    }
+  }
 
   .responsive-grid {
     grid-template-columns: 1fr !important;
@@ -364,6 +374,12 @@ a {
   
   .panel-card {
     padding: 1rem !important;
+  }
+  
+  @media (max-width: 360px) {
+    .panel-card {
+      padding: 0.75rem !important;
+    }
   }
   
   .btn {

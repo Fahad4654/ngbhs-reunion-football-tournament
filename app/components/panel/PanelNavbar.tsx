@@ -43,7 +43,7 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
     <nav
       className="glass"
       style={{
-        minHeight: '84px',
+        minHeight: '70px',
         display: 'flex',
         alignItems: 'center',
         borderTop: 'none',
@@ -58,7 +58,14 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
         backdropFilter: 'blur(12px)',
       }}
     >
-      <div className="panel-nav-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 1rem' }}>
+      <div className="panel-nav-container" style={{ 
+        width: '100%', 
+        padding: '0 1rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '1rem'
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
           {/* Hamburger Menu - Mobile Only */}
           <button 

@@ -44,7 +44,7 @@ export default function PanelShell({ children, user }: PanelShellProps) {
           top: 0,
           bottom: 0,
           left: isSidebarOpen ? 0 : '-300px',
-          visibility: isSidebarOpen ? 'visible' : 'hidden',
+          display: isSidebarOpen ? 'block' : 'none',
           width: '280px',
           zIndex: 1600,
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -57,11 +57,11 @@ export default function PanelShell({ children, user }: PanelShellProps) {
       </div>
 
       <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minWidth: 0, width: '100%', overflowX: 'hidden' }}>
-        <div style={{ minHeight: '84px' }}>
+        <div style={{ minHeight: '70px' }}>
           <PanelNavbar userName={user.name} userImage={user.image} onMenuClick={toggleSidebar} />
         </div>
 
-        <main className="panel-main-content" style={{ flex: 1, overflowY: 'auto' }}>
+        <main className="main-content" style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
             {children}
           </div>
