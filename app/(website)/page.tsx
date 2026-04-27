@@ -152,9 +152,9 @@ export default async function Home() {
             {/* Quick Standings */}
             <div style={{ minWidth: 0 }}>
               <h2 className={styles.sectionTitle} style={{ marginBottom: '2rem' }}>Standings</h2>
-              <div className="glass" style={{ padding: '0.75rem', borderRadius: '24px' }}>
+              <div className="glass" style={{ padding: '0.75rem', borderRadius: '24px', overflow: 'hidden' }}>
                 <div className={styles.tableWrapper}>
-                  <table style={{ width: '100%', minWidth: '450px', borderCollapse: 'collapse' }}>
+                  <table style={{ width: '100%', minWidth: '380px', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
                         <th style={{ padding: '1rem', width: '40%' }}>TEAM</th>
