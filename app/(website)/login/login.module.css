@@ -108,3 +108,13 @@
   filter: blur(100px);
   z-index: 1;
 }
+
+@media (max-width: 600px) {
+  .loginCard {
+    padding: 2rem 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+  }
+}

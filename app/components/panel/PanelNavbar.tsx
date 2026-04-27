@@ -20,9 +20,10 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
 
 interface PanelNavbarProps {
   userName: string | null;
+  onMenuClick?: () => void;
 }
 
-export default function PanelNavbar({ userName }: PanelNavbarProps) {
+export default function PanelNavbar({ userName, onMenuClick }: PanelNavbarProps) {
   const pathname = usePathname();
   
   const matchingKey = Object.keys(PAGE_INFO)
@@ -38,7 +39,6 @@ export default function PanelNavbar({ userName }: PanelNavbarProps) {
         height: '84px',
         display: 'flex',
         alignItems: 'center',
-        padding: '0 2rem',
         borderTop: 'none',
         borderLeft: 'none',
         borderRight: 'none',
@@ -51,22 +51,34 @@ export default function PanelNavbar({ userName }: PanelNavbarProps) {
         backdropFilter: 'blur(12px)',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            {info.badge}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* Hamburger Menu - Mobile Only */}
+          <button 
+            onClick={onMenuClick}
+            className="mobile-only btn glass"
+            style={{ padding: '0.5rem', minWidth: '40px', height: '40px' }}
+          >
+            ☰
+          </button>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+            <div className="navbar-badge" style={{ color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              {info.badge}
+            </div>
+            <h2 className="navbar-title" style={{ color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+              {info.title}
+            </h2>
           </div>
-          <h2 style={{ fontSize: '1.25rem', color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-            {info.title}
-          </h2>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link
             href="/feed"
             className="btn glass"
-            style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+            style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
           >
-            🌐 Community Feed
+            <span className="desktop-only">🌐 Community Feed</span>
+            <span className="mobile-only">🌐</span>
           </Link>
           <div
             style={{

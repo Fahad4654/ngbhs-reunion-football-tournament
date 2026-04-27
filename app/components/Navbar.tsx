@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions";
@@ -7,6 +9,7 @@ import type { AppUser } from "@/lib/server-auth";
 
 export default function Navbar({ user }: { user: AppUser | null }) {
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -30,19 +33,24 @@ export default function Navbar({ user }: { user: AppUser | null }) {
       borderLeft: 'none',
       borderRight: 'none',
       borderRadius: 0,
-      borderBottom: '1px solid var(--border-color)'
+      borderBottom: '1px solid var(--border-color)',
+      background: 'rgba(10, 11, 13, 0.95)'
     }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img src="/logo.jpg" alt="NGBHS Logo" style={{ width: '44px', height: '44px', borderRadius: '10px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
-          <h1 style={{ fontSize: '1.25rem', margin: 0 }}>
+          <img src="/logo.jpg" alt="NGBHS Logo" style={{ width: '40px', height: '40px', borderRadius: '10px', objectFit: 'cover' }} />
+          <h1 className="navbar-title" style={{ margin: 0 }}>
             <Link href="/">
-              <span style={{ color: 'white' }}>NGBHS Reunion</span> <span className="text-gradient">Championship</span>
+              <span className="desktop-only">
+                <span style={{ color: 'white' }}>NGBHS Reunion</span> <span className="text-gradient">Championship</span>
+              </span>
+              <span className="mobile-only text-gradient" style={{ fontWeight: '800' }}>NGBHS 2026</span>
             </Link>
           </h1>
         </div>
 
-        <div style={{ display: 'flex', gap: '2rem', fontWeight: '600', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+        {/* Desktop Links */}
+        <div className="desktop-only nav-links">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
             return (
@@ -58,27 +66,75 @@ export default function Navbar({ user }: { user: AppUser | null }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {user ? (
-            <>
-              <div style={{ display: 'flex', gap: '1rem', marginRight: '1rem' }}>
+          <div className="desktop-only nav-auth">
+            {user ? (
+              <>
                 <Link href="/dashboard" style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: '700' }}>Dashboard</Link>
-                <Link href="/profile" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Profile</Link>
-              </div>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Hi, {user.name}</span>
-              <form action={logout}>
-                <button type="submit" className="btn glass" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
-                  Sign Out
-                </button>
-              </form>
-            </>
-          ) : (
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Link href="/register" className="btn glass" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}>Register</Link>
-              <Link href="/login" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Sign In</Link>
-            </div>
-          )}
+                <form action={logout}>
+                  <button type="submit" className="btn glass" style={{ padding: '0.5rem 1rem', fontSize: '0.7rem' }}>Sign Out</button>
+                </form>
+              </>
+            ) : (
+              <Link href="/login" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}>Sign In</Link>
+            )}
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="mobile-only btn glass"
+            style={{ padding: '0.5rem', minWidth: '40px', height: '40px' }}
+          >
+            {isMenuOpen ? '✕' : '☰'}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMenuOpen && (
+        <div 
+          className="no-scrollbar"
+          style={{
+            position: 'fixed',
+            top: 'var(--nav-height)',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            padding: '2rem 1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            zIndex: 999,
+            background: 'rgba(10, 11, 13, 0.98)',
+            backdropFilter: 'blur(10px)',
+            animation: 'fadeIn 0.2s ease',
+            borderTop: '1px solid var(--border-color)'
+          }}
+        >
+          {navLinks.map((link) => (
+            <Link 
+              key={link.href} 
+              href={link.href} 
+              onClick={() => setIsMenuOpen(false)}
+              style={{ padding: '0.75rem', fontSize: '1rem', fontWeight: '700', borderBottom: '1px solid var(--border-color)' }}
+            >
+              {link.name}
+            </Link>
+          ))}
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {user ? (
+              <>
+                <Link href="/dashboard" className="btn btn-primary" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                <form action={logout}>
+                  <button type="submit" className="btn glass" style={{ width: '100%' }}>Sign Out</button>
+                </form>
+              </>
+            ) : (
+              <Link href="/login" className="btn btn-primary" onClick={() => setIsMenuOpen(false)}>Sign In</Link>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

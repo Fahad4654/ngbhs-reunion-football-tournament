@@ -16,8 +16,8 @@ export default async function FeedPage() {
   ]);
 
   return (
-    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', paddingTop: '2rem' }}>
-      <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 600px 1fr', gap: '2rem', alignItems: 'start' }}>
+    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', paddingTop: '2rem', paddingBottom: '4rem' }}>
+      <div className="container feed-grid">
         
         {/* Left Sidebar - Navigation/Shortcuts */}
         <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 2rem)' }}>

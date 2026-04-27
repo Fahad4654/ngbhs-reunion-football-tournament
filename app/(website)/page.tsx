@@ -53,7 +53,7 @@ export default async function Home() {
         
         <div className={`${styles.heroContent} container`}>
           <div className="badge">Official Reunion Championship</div>
-          <h1 className="text-gradient" style={{ fontSize: '4.5rem', marginBottom: '0.5rem', lineHeight: '1.1' }}>
+          <h1 className={`${styles.heroTitle} text-gradient`}>
             NGBHS REUNION <br/>FOOTBALL CHAMPIONSHIP
           </h1>
           <p style={{ 
@@ -126,7 +126,7 @@ export default async function Home() {
       {/* Standings & News Section */}
       <section className={`${styles.section} glass`} style={{ margin: '0 1.5rem', borderRadius: '32px', background: 'rgba(255, 255, 255, 0.01)' }}>
         <div className="container" style={{ padding: '4rem 1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem' }}>
             {/* News Grid */}
             <div>
               <h2 className={styles.sectionTitle} style={{ marginBottom: '2.5rem' }}>Exclusive <span className="text-gradient">News</span></h2>

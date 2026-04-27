@@ -122,7 +122,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
           )}
         </div>
       ) : tab === 'members' ? (
-        <div className="glass" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+        <div className="responsive-table-container glass" style={{ borderRadius: '24px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>

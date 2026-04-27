@@ -19,7 +19,7 @@ export default async function AdminNewsPage() {
         <button className="btn btn-primary">+ Create New Article</button>
       </div>
 
-      <div className="glass" style={{ padding: '0', overflow: 'hidden' }}>
+      <div className="responsive-table-container glass" style={{ padding: '0' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)' }}>

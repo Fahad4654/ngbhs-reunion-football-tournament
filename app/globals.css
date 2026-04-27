@@ -15,8 +15,8 @@
   --accent-danger: #ef4444;
   
   --border-color: rgba(235, 183, 0, 0.2);
-  --glass-bg: rgba(0, 0, 0, 0.4);
-  --glass-blur: blur(16px);
+  --glass-bg: rgba(10, 11, 13, 0.9);
+  --glass-blur: blur(12px);
   
   /* Spacing */
   --max-width: 1280px;
@@ -166,4 +166,146 @@ a {
   0% { opacity: 1; }
   50% { opacity: 0.6; }
   100% { opacity: 1; }
+}
+
+/* Mobile Responsiveness Utilities */
+.sidebar-desktop {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.main-content {
+  margin-left: 280px;
+}
+
+@media (max-width: 1024px) {
+  .sidebar-desktop {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .glass {
+    border-radius: 12px;
+  }
+}
+
+/* Responsive Table Wrapper */
+.responsive-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.responsive-table-container table {
+  min-width: 600px;
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Feed Grid System */
+.feed-grid {
+  display: grid;
+  grid-template-columns: 1fr 650px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .feed-grid {
+    grid-template-columns: 280px 1fr;
+  }
+  .feed-grid aside:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .feed-grid {
+    grid-template-columns: 1fr;
+    max-width: 650px;
+  }
+  .feed-grid aside {
+    display: none;
+  }
+}
+
+/* Navbar Typography Responsive */
+.navbar-badge {
+  font-size: 0.65rem;
+}
+
+.navbar-title {
+  font-size: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .navbar-badge {
+    font-size: 0.6rem;
+  }
+  .navbar-title {
+    font-size: 0.95rem;
+  }
+}
+
+.panel-main-content {
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .panel-main-content {
+    padding: 1.5rem 1rem;
+  }
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .nav-links, .nav-auth {
+    display: none !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
