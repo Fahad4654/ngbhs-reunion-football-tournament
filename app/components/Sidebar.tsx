@@ -133,28 +133,42 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
         </div>
       </div>
 
-      {/* Fixed Footer */}
-      <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', background: 'rgba(10, 11, 13, 0.4)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+      {/* Fixed Bottom Section */}
+      <div style={{ padding: '1.25rem', borderTop: '1px solid var(--border-color)', background: 'rgba(10, 11, 13, 0.4)' }}>
+        <Link 
+          href="/profile"
+          className="btn-profile-sidebar"
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '1rem', 
+            marginBottom: '1.25rem', 
+            padding: '0.5rem',
+            borderRadius: '12px',
+            transition: 'all 0.2s ease',
+            textDecoration: 'none'
+          }}
+        >
           <div style={{ 
             width: '40px', 
+            minWidth: '40px',
             height: '40px', 
             borderRadius: '50%', 
-            background: 'var(--accent-primary)',
-            color: 'black',
-            display: 'flex',
-            alignItems: 'center',
+            background: 'var(--accent-primary)', 
+            display: 'flex', 
+            alignItems: 'center', 
             justifyContent: 'center',
+            color: 'black',
             fontWeight: '800',
-            fontSize: '0.9rem'
+            fontSize: '1.1rem'
           }}>
-            {user.name?.charAt(0)}
+            {(user.name || 'User').charAt(0).toLowerCase()}
           </div>
           <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontWeight: '700', fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{user.role}</div>
+            <div style={{ fontWeight: '700', color: 'white', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
           </div>
-        </div>
+        </Link>
 
         <Link href="/" className="btn glass" style={{ width: '100%', marginBottom: '0.75rem', fontSize: '0.85rem', fontWeight: '800', color: 'var(--accent-primary)', justifyContent: 'center', border: '1px solid rgba(235, 183, 0, 0.2)' }}>
           🏠 EXIT TO WEBSITE
