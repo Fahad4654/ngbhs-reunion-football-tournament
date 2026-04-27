@@ -1,7 +1,6 @@
 import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function ManagerScoresPage() {
   const user = await getServerUser();
@@ -23,7 +22,6 @@ export default async function ManagerScoresPage() {
 
   return (
     <>
-      <PageHeader badge="Manager Tools" title="Update Live Scores" />
 
       <div style={{ display: 'grid', gap: '1.5rem' }}>
         {matches.map((match) => (

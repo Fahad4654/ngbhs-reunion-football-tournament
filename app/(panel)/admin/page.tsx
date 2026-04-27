@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerUser } from "@/lib/server-auth";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export const metadata = {
   title: "Admin Dashboard - NGBHS",
@@ -23,7 +22,6 @@ export default async function AdminDashboard() {
 
   return (
     <>
-      <PageHeader badge="Admin Control Center" title="System Overview" />
 
       <div style={{ 
         display: 'grid', 

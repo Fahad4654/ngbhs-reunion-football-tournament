@@ -19,7 +19,7 @@ export default async function PanelLayout({
       <Sidebar user={user} />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginLeft: '280px', position: 'relative' }}>
-        <div style={{ height: '72px' }}> {/* Navbar placeholder to prevent layout shift */}
+        <div style={{ height: '84px' }}> {/* Adjusted to match new PanelNavbar height */}
           <PanelNavbar userName={user.name} />
         </div>
 

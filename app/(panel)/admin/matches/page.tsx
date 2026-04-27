@@ -1,7 +1,6 @@
 import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function AdminMatchesPage() {
   const user = await getServerUser();
@@ -20,11 +19,9 @@ export default async function AdminMatchesPage() {
 
   return (
     <>
-      <PageHeader 
-        badge="Management" 
-        title="Tournament Matches" 
-        action={<button className="btn btn-primary">+ Create New Match</button>}
-      />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
+        <button className="btn btn-primary">+ Create New Match</button>
+      </div>
 
       <div className="glass" style={{ padding: '0', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>

@@ -3,19 +3,19 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-const PAGE_TITLES: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/dashboard/posts': 'Dashboard',
-  '/dashboard/posts/my-posts': 'Dashboard',
-  '/dashboard/batch-feed': 'Dashboard',
-  '/dashboard/manage-batch': 'Dashboard',
-  '/dashboard/scores': 'Dashboard',
-  '/admin': 'Administration',
-  '/admin/batches': 'Administration',
-  '/admin/matches': 'Administration',
-  '/admin/news': 'Administration',
-  '/admin/posts': 'Administration',
-  '/admin/users': 'Administration',
+const PAGE_INFO: Record<string, { badge: string; title: string }> = {
+  '/dashboard': { badge: 'Overview', title: 'Dashboard Overview' },
+  '/dashboard/posts': { badge: 'Create Post', title: 'Community Sharing' },
+  '/dashboard/posts/my-posts': { badge: 'My Posts', title: 'Your Content' },
+  '/dashboard/batch-feed': { badge: 'Batch Feed', title: 'Our Activity' },
+  '/dashboard/manage-batch': { badge: 'Manage Batch', title: 'Batch Moderation' },
+  '/dashboard/scores': { badge: 'Live Scores', title: 'Update Results' },
+  '/admin': { badge: 'System Overview', title: 'Admin Dashboard' },
+  '/admin/batches': { badge: 'Batch Settings', title: 'Batch Standings' },
+  '/admin/matches': { badge: 'Tournament Matches', title: 'Match Schedule' },
+  '/admin/news': { badge: 'News Manager', title: 'Tournament News' },
+  '/admin/posts': { badge: 'Post Moderation', title: 'User Posts' },
+  '/admin/users': { badge: 'User Management', title: 'Access Control' },
 };
 
 interface PanelNavbarProps {
@@ -25,19 +25,17 @@ interface PanelNavbarProps {
 export default function PanelNavbar({ userName }: PanelNavbarProps) {
   const pathname = usePathname();
   
-  // Find the matching title by checking if the current path starts with any of our keys
-  // Sort keys by length (longest first) to match specific routes before general ones
-  const matchingKey = Object.keys(PAGE_TITLES)
+  const matchingKey = Object.keys(PAGE_INFO)
     .sort((a, b) => b.length - a.length)
     .find(key => pathname.startsWith(key));
     
-  const pageTitle = matchingKey ? PAGE_TITLES[matchingKey] : 'Management';
+  const info = matchingKey ? PAGE_INFO[matchingKey] : { badge: 'Management', title: 'Panel' };
 
   return (
     <nav
       className="glass"
       style={{
-        height: '72px',
+        height: '84px',
         display: 'flex',
         alignItems: 'center',
         padding: '0 2rem',
@@ -54,9 +52,14 @@ export default function PanelNavbar({ userName }: PanelNavbarProps) {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-        <h2 style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0, fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-          {pageTitle}
-        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            {info.badge}
+          </div>
+          <h2 style={{ fontSize: '1.25rem', color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+            {info.title}
+          </h2>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <Link
             href="/feed"

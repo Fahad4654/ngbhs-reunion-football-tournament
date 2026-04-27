@@ -5,7 +5,6 @@ import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
 import PostActions from "@/app/(website)/feed/post-actions";
 import Link from "next/link";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export const metadata = {
   title: 'My Batch Feed - NGBHS Reunion',
@@ -84,10 +83,6 @@ export default async function BatchFeedPage() {
   return (
     <>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-        <PageHeader 
-          badge="Batch Activity" 
-          title={`${dbUser.batch?.name} Feed`} 
-        />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         {posts.length > 0 ? posts.map((post) => (

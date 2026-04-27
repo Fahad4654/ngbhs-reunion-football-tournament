@@ -1,22 +1,17 @@
 import { getMyPosts } from "@/lib/actions";
 import Link from "next/link";
 import PostOptions from "@/app/components/PostOptions";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function MyPostsPage() {
   const posts = await getMyPosts();
 
   return (
     <>
-      <PageHeader 
-        badge="Your Content" 
-        title="My All Posts" 
-        action={
-          <Link href="/dashboard/posts" className="btn btn-primary">
-            ✍️ Create New
-          </Link>
-        }
-      />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
+        <Link href="/dashboard/posts" className="btn btn-primary">
+          ✍️ Create New
+        </Link>
+      </div>
 
       <div style={{ display: 'grid', gap: '1.5rem' }}>
         {posts.length > 0 ? posts.map((post) => (

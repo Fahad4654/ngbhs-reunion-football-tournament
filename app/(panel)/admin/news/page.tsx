@@ -1,7 +1,6 @@
 import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function AdminNewsPage() {
   const user = await getServerUser();
@@ -16,11 +15,9 @@ export default async function AdminNewsPage() {
 
   return (
     <>
-      <PageHeader 
-        badge="Content Management" 
-        title="Tournament News" 
-        action={<button className="btn btn-primary">+ Create New Article</button>}
-      />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
+        <button className="btn btn-primary">+ Create New Article</button>
+      </div>
 
       <div className="glass" style={{ padding: '0', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>

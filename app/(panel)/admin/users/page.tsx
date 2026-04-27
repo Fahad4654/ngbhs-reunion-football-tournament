@@ -2,7 +2,6 @@ import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import UserActions from "./user-actions";
 import { redirect } from "next/navigation";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function AdminUsersPage() {
   const user = await getServerUser();
@@ -17,7 +16,6 @@ export default async function AdminUsersPage() {
 
   return (
     <>
-      <PageHeader badge="Access Control" title="User Management" />
 
       <div className="glass" style={{ padding: '0', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>

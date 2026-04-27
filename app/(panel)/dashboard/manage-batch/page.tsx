@@ -6,7 +6,6 @@ import MediaGallery from "@/app/components/MediaGallery";
 import Link from "next/link";
 import { getPendingPosts, getPendingBatchMembers } from "@/lib/actions";
 import ApprovalActions from "./approval-actions";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export const metadata = {
   title: 'Manage Batch - Dashboard',
@@ -48,10 +47,6 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
 
   return (
     <>
-      <PageHeader 
-        badge="Manager" 
-        title={`Manage ${dbUser.batch?.name}`} 
-      />
 
       {/* Tabs */}
       <div className="glass" style={{ display: 'flex', gap: '0.5rem', padding: '0.5rem', borderRadius: '14px', marginBottom: '2rem', maxWidth: '400px' }}>

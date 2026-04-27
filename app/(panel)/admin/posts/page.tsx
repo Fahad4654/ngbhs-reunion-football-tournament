@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import ModerationActions from "./moderation-actions";
 import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function AdminPostsPage() {
   const user = await getServerUser();
@@ -23,7 +22,6 @@ export default async function AdminPostsPage() {
 
   return (
     <>
-      <PageHeader badge="Moderation Queue" title="User Posts Approval" />
 
       <div style={{ display: 'grid', gap: '2rem' }}>
         {posts.length > 0 ? posts.map((post) => (

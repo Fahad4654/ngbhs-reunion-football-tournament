@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerUser } from "@/lib/server-auth";
 import { getUserActivity } from "@/lib/actions";
-import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function Dashboard() {
   const user = await getServerUser();
@@ -15,10 +14,6 @@ export default async function Dashboard() {
 
   return (
     <>
-      <PageHeader 
-        badge={user.role === 'ADMIN' ? 'System Administrator' : user.role === 'CO_ADMIN' ? 'Tournament Manager' : 'Player Dashboard'} 
-        title={`Welcome, ${user?.name}`} 
-      />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         {/* Main Role-Based Card */}
