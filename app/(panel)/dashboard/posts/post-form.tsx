@@ -184,7 +184,7 @@ export default function PostForm({ user }: PostFormProps) {
                 }}
               >
                 <option value="GLOBAL" style={{ color: 'black' }}>🌍 Global</option>
-                {user.batchId && <option value="BATCH" style={{ color: 'black' }}>🎓 Batch</option>}
+                {user.batchId && <option value="BATCH" style={{ color: 'black' }}>🎓 Batch Only</option>}
               </select>
             </div>
           </div>
