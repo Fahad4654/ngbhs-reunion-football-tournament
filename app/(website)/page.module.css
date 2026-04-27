@@ -165,7 +165,7 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: 6rem 0 3rem;
+    padding: 7rem 0 5rem;
   }
 
   .heroTitle {
@@ -178,7 +178,8 @@
   }
 
   .section {
-    padding: 3rem 0;
+    padding: 4rem 0;
+    margin-top: 1rem;
   }
 
   .sectionHeader {
@@ -193,5 +194,16 @@
   
   .scoreboardGrid {
     grid-template-columns: 1fr;
+  }
+
+  .newsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tableWrapper {
+    overflow-x: auto;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    -webkit-overflow-scrolling: touch;
   }
 }
