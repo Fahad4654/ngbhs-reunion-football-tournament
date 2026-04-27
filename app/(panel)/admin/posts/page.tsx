@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import ModerationActions from "./moderation-actions";
 import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
+import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function AdminPostsPage() {
   const user = await getServerUser();
@@ -21,11 +22,8 @@ export default async function AdminPostsPage() {
   });
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ marginBottom: '3rem' }}>
-        <div className="badge" style={{ marginBottom: '0.5rem' }}>Moderation Queue</div>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>User Posts Approval</h1>
-      </header>
+    <>
+      <PageHeader badge="Moderation Queue" title="User Posts Approval" />
 
       <div style={{ display: 'grid', gap: '2rem' }}>
         {posts.length > 0 ? posts.map((post) => (
@@ -94,6 +92,6 @@ export default async function AdminPostsPage() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

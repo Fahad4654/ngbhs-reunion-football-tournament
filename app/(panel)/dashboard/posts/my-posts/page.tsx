@@ -1,21 +1,22 @@
 import { getMyPosts } from "@/lib/actions";
 import Link from "next/link";
 import PostOptions from "@/app/components/PostOptions";
+import PageHeader from "@/app/components/panel/PageHeader";
 
 export default async function MyPostsPage() {
   const posts = await getMyPosts();
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
-          <div className="badge" style={{ marginBottom: '0.5rem' }}>Your Content</div>
-          <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>My All Posts</h1>
-        </div>
-        <Link href="/dashboard/posts" className="btn btn-primary">
-          ✍️ Create New
-        </Link>
-      </header>
+    <>
+      <PageHeader 
+        badge="Your Content" 
+        title="My All Posts" 
+        action={
+          <Link href="/dashboard/posts" className="btn btn-primary">
+            ✍️ Create New
+          </Link>
+        }
+      />
 
       <div style={{ display: 'grid', gap: '1.5rem' }}>
         {posts.length > 0 ? posts.map((post) => (
@@ -71,6 +72,6 @@ export default async function MyPostsPage() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

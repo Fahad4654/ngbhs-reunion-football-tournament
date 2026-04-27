@@ -5,6 +5,7 @@ import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
 import PostActions from "@/app/(website)/feed/post-actions";
 import Link from "next/link";
+import PageHeader from "@/app/components/panel/PageHeader";
 
 export const metadata = {
   title: 'My Batch Feed - NGBHS Reunion',
@@ -81,17 +82,14 @@ export default async function BatchFeedPage() {
   const posts = await getApprovedPosts(dbUser.batchId);
 
   return (
-    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '1rem' }}>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.5rem' }}>
-          🎓 {dbUser.batch?.name} Feed
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Showing posts exclusively from your batchmates.
-        </p>
-      </header>
+    <>
+      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <PageHeader 
+          badge="Batch Activity" 
+          title={`${dbUser.batch?.name} Feed`} 
+        />
 
-      <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         {posts.length > 0 ? posts.map((post) => (
           <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '24px' }}>
             {/* Post Header */}
@@ -152,7 +150,8 @@ export default async function BatchFeedPage() {
             <Link href="/dashboard/posts" className="btn btn-primary" style={{ marginTop: '2rem' }}>Be the First to Post</Link>
           </div>
         )}
-      </main>
-    </div>
+        </div>
+      </div>
+    </>
   );
 }

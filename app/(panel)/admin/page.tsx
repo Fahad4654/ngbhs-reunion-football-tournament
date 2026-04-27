@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerUser } from "@/lib/server-auth";
+import PageHeader from "@/app/components/panel/PageHeader";
+
+export const metadata = {
+  title: "Admin Dashboard - NGBHS",
+};
 
 export default async function AdminDashboard() {
   const user = await getServerUser();
@@ -17,11 +22,8 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ marginBottom: '3rem' }}>
-        <div className="badge" style={{ marginBottom: '0.5rem' }}>Admin Control Center</div>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>System Overview</h1>
-      </header>
+    <>
+      <PageHeader badge="Admin Control Center" title="System Overview" />
 
       <div style={{ 
         display: 'grid', 
@@ -78,6 +80,6 @@ export default async function AdminDashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

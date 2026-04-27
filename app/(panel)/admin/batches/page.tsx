@@ -1,8 +1,11 @@
 import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
-
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import PageHeader from "@/app/components/panel/PageHeader";
+
+export const metadata = {
+  title: "Batch Settings - Admin",
+};
 
 export default async function AdminBatchesPage() {
   const user = await getServerUser();
@@ -17,14 +20,12 @@ export default async function AdminBatchesPage() {
   });
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <div className="badge" style={{ marginBottom: '0.5rem' }}>Data Management</div>
-          <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>Batch Standings</h1>
-        </div>
-        <button className="btn btn-primary">+ Register New Batch</button>
-      </header>
+    <>
+      <PageHeader
+        badge="Data Management"
+        title="Batch Standings"
+        action={<button className="btn btn-primary">+ Register New Batch</button>}
+      />
 
       <div className="glass" style={{ padding: '0', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
@@ -68,6 +69,6 @@ export default async function AdminBatchesPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }
