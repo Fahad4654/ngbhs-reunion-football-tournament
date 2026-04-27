@@ -182,6 +182,55 @@ export async function rejectUserAction(userId: string) {
   }
 }
 
+export async function handoverBatchManagerAction(targetUserId: string) {
+  try {
+    const manager = await getServerUser();
+    if (!manager || manager.role !== 'BATCH_MANAGER') {
+      return { error: 'Unauthorized. Only the current Batch Manager can handover this role.' };
+    }
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true, batchId: true, role: true }
+    });
+
+    if (!targetUser) return { error: 'Target user not found.' };
+
+    const dbManager = await prisma.user.findUnique({
+      where: { id: manager.uid },
+      select: { batchId: true }
+    });
+
+    if (dbManager?.batchId !== targetUser.batchId) {
+      return { error: 'Target user must be in the same batch.' };
+    }
+
+    if (targetUser.role === 'ADMIN' || targetUser.role === 'CO_ADMIN') {
+      return { error: 'Cannot handover manager role to an Administrator.' };
+    }
+
+    // Perform handover in a transaction
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: targetUserId },
+        data: { role: 'BATCH_MANAGER' }
+      }),
+      prisma.user.update({
+        where: { id: manager.uid },
+        data: { role: 'USER' }
+      })
+    ]);
+
+    revalidatePath('/dashboard/manage-batch');
+    revalidatePath('/profile');
+    
+    return { success: true };
+  } catch (error) {
+    console.error('[handoverBatchManagerAction]', error);
+    return { error: 'Failed to handover batch management.' };
+  }
+}
+
 // ─────────────────────────────────────────
 // User Deletion (Admin / Co-Admin)
 // ─────────────────────────────────────────

@@ -6,6 +6,7 @@ import MediaGallery from "@/app/components/MediaGallery";
 import Link from "next/link";
 import { getPendingPosts, getPendingBatchMembers } from "@/lib/actions";
 import ApprovalActions from "./approval-actions";
+import HandoverAction from "./handover-action";
 
 export const metadata = {
   title: 'Manage Batch - Dashboard',
@@ -47,7 +48,6 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
 
   return (
     <>
-
       {/* Tabs */}
       <div className="glass no-scrollbar" style={{ 
         display: 'flex', 
@@ -165,7 +165,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
               <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
                 <th style={{ padding: '1.25rem', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Member Name</th>
                 <th style={{ padding: '1.25rem', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Occupation</th>
-                <th style={{ padding: '1.25rem', textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Phone</th>
+                <th style={{ padding: '1.25rem', textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -173,11 +173,16 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                 <tr key={member.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '1.25rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '0.8rem' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: member.role === 'BATCH_MANAGER' ? 'var(--accent-secondary)' : 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '0.8rem' }}>
                         {member.name?.charAt(0)}
                       </div>
                       <div>
-                        <div style={{ fontWeight: '700', color: 'white' }}>{member.name}</div>
+                        <div style={{ fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {member.name}
+                          {member.role === 'BATCH_MANAGER' && (
+                            <span style={{ fontSize: '0.6rem', padding: '0.1rem 0.3rem', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)', borderRadius: '4px', textTransform: 'uppercase' }}>Manager</span>
+                          )}
+                        </div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{member.email}</div>
                       </div>
                     </div>
@@ -185,8 +190,13 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                   <td style={{ padding: '1.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                     {member.occupation || '---'}
                   </td>
-                  <td style={{ padding: '1.25rem', textAlign: 'right', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                    {member.phone || '---'}
+                  <td style={{ padding: '1.25rem', textAlign: 'right' }}>
+                    {member.id !== userSession.uid && member.role === 'USER' && (
+                      <HandoverAction userId={member.id} userName={member.name || 'Member'} />
+                    )}
+                    {member.id === userSession.uid && (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>You (Current Manager)</span>
+                    )}
                   </td>
                 </tr>
               )) : (
