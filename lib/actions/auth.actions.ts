@@ -155,12 +155,27 @@ export async function loginWithGoogle(idToken: string) {
 
     if (!user) {
       user = await prisma.user.create({
-        data: { email, name: name || null, image: picture || null, firebaseId: uid, role: 'USER' },
+        data: { 
+          email, 
+          name: name || null, 
+          image: picture || null, 
+          firebaseId: uid, 
+          role: 'USER',
+          status: 'PENDING',
+          emailVerified: new Date(),
+        },
       });
     } else if (!user.firebaseId) {
       user = await prisma.user.update({
         where: { id: user.id },
-        data: { firebaseId: uid, image: user.image || picture },
+        data: { 
+          firebaseId: uid, 
+          image: user.image || picture,
+          // If the user already existed (e.g. invited or manual reg but not verified)
+          // we ensure they are PENDING and verified
+          status: user.status === 'APPROVED' ? 'APPROVED' : 'PENDING',
+          emailVerified: user.emailVerified || new Date(),
+        },
       });
     }
 

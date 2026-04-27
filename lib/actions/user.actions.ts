@@ -5,6 +5,7 @@ import { getServerUser } from '@/lib/server-auth';
 import { setSessionCookie } from '@/lib/auth-utils';
 import { saveFile, deleteFile } from '@/lib/utils/upload';
 import { revalidatePath } from 'next/cache';
+import { adminAuth } from '@/lib/firebase-admin';
 
 // ─────────────────────────────────────────
 // Profile
@@ -37,6 +38,19 @@ export async function updateProfile(prevState: any, formData: FormData) {
       finalImageUrl = await saveFile(profilePicture, 'profiles', `profile-${user.uid}-`);
     }
 
+    const hasBatchChanged = dbUser?.batchId !== (batchId || null);
+    
+    // Batch Locking: Users can set their batch once. 
+    // Subsequent changes are restricted to Admins/Co-Admins.
+    const isBatchAlreadySet = !!dbUser?.batchId;
+    const isUserNotAdmin = user.role !== 'ADMIN' && user.role !== 'CO_ADMIN';
+
+    if (hasBatchChanged && isBatchAlreadySet && isUserNotAdmin) {
+      return { error: 'Your batch is already locked. Please contact an Administrator if you need to change your graduation batch.' };
+    }
+
+    const shouldResetStatus = hasBatchChanged && user.role === 'USER';
+
     await prisma.user.update({
       where: { id: user.uid },
       data: {
@@ -48,6 +62,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
         image: finalImageUrl,
         currentAddress,
         permanentAddress,
+        ...(shouldResetStatus ? { status: 'PENDING' } : {}),
       },
     });
 
@@ -194,6 +209,18 @@ export async function deleteUserAction(userId: string) {
       select: { id: true },
     });
     await Promise.all(userPosts.map((p) => deletePostAction(p.id)));
+
+    // 2. Delete from Firebase if a Firebase ID exists (Google OAuth users)
+    if (target.firebaseId) {
+      try {
+        await adminAuth.deleteUser(target.firebaseId);
+      } catch (fbError: any) {
+        // If the user was already deleted from Firebase or not found, we continue
+        if (fbError.code !== 'auth/user-not-found') {
+          console.error('[deleteUserAction] Firebase Auth deletion error:', fbError);
+        }
+      }
+    }
 
     await prisma.user.delete({ where: { id: userId } });
 
