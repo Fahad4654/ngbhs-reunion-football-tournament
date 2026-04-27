@@ -76,11 +76,11 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
             ☰
           </button>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', minWidth: 0, flex: 1, marginLeft: '0.25rem', width: 0 }}>
-            <div className="navbar-badge" style={{ color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', minWidth: 0, flex: 1, marginLeft: '0.5rem', width: 0 }}>
+            <div className="navbar-badge" style={{ color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.15em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {info.badge}
             </div>
-            <h2 className="navbar-title" style={{ color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <h2 className="navbar-title" style={{ color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', fontSize: '1.25rem', letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {info.title}
             </h2>
           </div>

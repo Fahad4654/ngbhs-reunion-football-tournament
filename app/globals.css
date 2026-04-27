@@ -168,23 +168,14 @@ a {
   100% { opacity: 1; }
 }
 
-/* Mobile Responsiveness Utilities */
+/* Desktop Layout System (Natural Flex) */
 .sidebar-desktop {
-  width: 280px;
-  flex-shrink: 0;
-}
-
-.main-content {
-  margin-left: 280px;
+  display: block;
 }
 
 @media (max-width: 1024px) {
   .sidebar-desktop {
     display: none !important;
-  }
-  
-  .main-content {
-    margin-left: 0 !important;
   }
 }
 

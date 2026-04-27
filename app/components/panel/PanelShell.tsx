@@ -16,19 +16,16 @@ export default function PanelShell({ children, user }: PanelShellProps) {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      {/* Desktop Sidebar */}
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)', overflowX: 'hidden' }}>
+      {/* Desktop Sidebar - Natural Flex */}
       <div className="sidebar-desktop" style={{ 
-        position: 'fixed', 
-        left: 0, 
-        top: 0, 
-        bottom: 0, 
-        zIndex: 1000, 
         width: '280px',
         minWidth: '280px',
         maxWidth: '280px',
-        overflow: 'hidden',
-        borderRight: '1px solid var(--border-color)'
+        borderRight: '1px solid var(--border-color)',
+        height: '100vh',
+        position: 'sticky',
+        top: 0
       }}>
         <Sidebar user={user} />
       </div>
@@ -48,7 +45,7 @@ export default function PanelShell({ children, user }: PanelShellProps) {
         />
       )}
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar - Drawer Style */}
       <div 
         style={{
           position: 'fixed',
@@ -67,12 +64,19 @@ export default function PanelShell({ children, user }: PanelShellProps) {
         <Sidebar user={user} onClose={toggleSidebar} />
       </div>
 
-      <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minWidth: 0, width: '100%', overflowX: 'hidden' }}>
+      {/* Main Content Area */}
+      <div className="main-content" style={{ 
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        minWidth: 0,
+        position: 'relative'
+      }}>
         <div style={{ minHeight: '70px' }}>
           <PanelNavbar userName={user.name} userImage={user.image} onMenuClick={toggleSidebar} />
         </div>
 
-        <main className="main-content" style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '2rem' }} className="panel-main-content">
           <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
             {children}
           </div>
