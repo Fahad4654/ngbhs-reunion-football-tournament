@@ -77,7 +77,7 @@ export default function PanelShell({ children, user }: PanelShellProps) {
         </div>
 
         <main style={{ flex: 1, overflowY: 'auto', padding: '2.963vh 1.667vw' }} className="panel-main-content">
-          <div style={{ maxWidth: '62.5vw', margin: '0 auto', width: '100%' }}>
+          <div className="panel-content-wrapper">
             {children}
           </div>
         </main>

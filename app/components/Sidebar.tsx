@@ -44,18 +44,20 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       borderBottom: 'none'
     }}>
       {/* Fixed Header */}
-      <div style={{ padding: '2.222vh 1.25vw', borderBottom: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.2)', position: 'relative' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
-          <img src="/logo.jpg" alt="NGBHS Logo" style={{ width: '2.292vw', height: '2.292vw', borderRadius: '0.521vw', objectFit: 'cover' }} />
+      <div style={{ padding: '2.222vh 4vw', borderBottom: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.2)', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3vw' }}>
+          <img src="/logo.jpg" alt="NGBHS Logo" className="navbar-logo" />
           <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '1.2vw', margin: 0, color: 'white', fontWeight: '800' }}>NGBHS</h2>
-            <p style={{ fontSize: '0.8vw', color: 'var(--accent-primary)', fontWeight: '700', textTransform: 'uppercase', margin: 0 }}>Management</p>
+            <h2 className="navbar-title" style={{ margin: 0, color: 'white', fontWeight: '800', fontSize: '3.2vw', display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}>
+              <span>NGBHS REUNION</span>
+              <span className="text-gradient">FOOTBALL CHAMPIONSHIP</span>
+            </h2>
+            <p style={{ fontSize: '2.5vw', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', margin: 0, marginTop: '0.5vh' }}>Management Panel</p>
           </div>
           {onClose && (
             <button 
               onClick={onClose}
-              className="mobile-only btn glass"
-              style={{ padding: '0.926vh 1.042vw', minWidth: '8vw', height: '8vw', borderRadius: '50%', color: 'white', fontSize: '3vw', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              className="mobile-nav-toggle btn glass"
             >
               ✕
             </button>
@@ -67,7 +69,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.852vh 1.042vw' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2.222vh' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.37vh' }}>
-            <div style={{ fontSize: '0.8vw', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.593vh', marginLeft: '0.417vw' }}>
+            <div style={{ fontSize: '3.5vw', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.593vh', marginLeft: '0.417vw' }}>
               Main Menu
             </div>
             
@@ -77,21 +79,22 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                 <Link 
                   key={link.href} 
                   href={link.href}
+                  onClick={onClose}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.625vw',
-                    padding: '0.889vh 0.708vw',
-                    borderRadius: '0.521vw',
+                    gap: '3vw',
+                    padding: '1.5vh 3vw',
+                    borderRadius: '1.5vw',
                     color: isActive ? 'white' : 'var(--text-secondary)',
                     background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
                     border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
                     transition: 'all 0.2s ease',
                     fontWeight: isActive ? '700' : '500',
-                    fontSize: '1.0vw'
+                    fontSize: '4.5vw'
                   }}
                 >
-                  <span style={{ fontSize: '0.917vw' }}>{link.icon}</span>
+                  <span style={{ fontSize: '4.5vw' }}>{link.icon}</span>
                   <span>{link.name}</span>
                 </Link>
               );
@@ -149,21 +152,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             textDecoration: 'none'
           }}
         >
-          <div style={{ 
-            width: '2.083vw', 
-            minWidth: '2.083vw',
-            height: '2.083vw', 
-            borderRadius: '50%', 
-            background: user.image ? 'transparent' : 'var(--accent-primary)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            color: 'black',
-            fontWeight: '800',
-            fontSize: '0.917vw',
-            overflow: 'hidden',
-            border: user.image ? '0.104vw solid var(--border-color)' : 'none'
-          }}>
+          <div className="panel-user-avatar">
             {user.image ? (
               <img src={user.image} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
@@ -171,8 +160,8 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             )}
           </div>
           <div style={{ minWidth: 0, overflow: 'hidden', flex: 1 }}>
-            <div style={{ fontWeight: '700', color: 'white', fontSize: '1.0vw', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
-            <div style={{ fontSize: '0.7vw', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
+            <div style={{ fontWeight: '700', color: 'white', fontSize: '4.5vw', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
+            <div style={{ fontSize: '3.5vw', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
           </div>
         </Link>
 

@@ -70,8 +70,7 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
           {/* Hamburger Menu - Mobile Only */}
           <button 
             onClick={onMenuClick}
-            className="mobile-only btn glass"
-            style={{ padding: '0.463vh 0.417vw', minWidth: '4.167vw', height: '4.167vw', fontSize: '1.25vw' }}
+            className="mobile-nav-toggle btn glass"
           >
             ☰
           </button>
@@ -80,7 +79,7 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
             <div className="navbar-badge" style={{ color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.15em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {info.badge}
             </div>
-            <h2 className="navbar-title" style={{ color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', fontSize: '1.25rem', letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <h2 className="navbar-title" style={{ color: 'var(--accent-primary)', margin: 0, fontWeight: '800', textTransform: 'uppercase', fontSize: 'inherit', letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {info.title}
             </h2>
           </div>
@@ -98,6 +97,7 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
 
           <Link href="/profile" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <div
+              className="panel-user-avatar"
               style={{
                 width: '1.667vw',
                 height: '1.667vw',

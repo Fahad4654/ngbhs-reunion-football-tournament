@@ -38,19 +38,22 @@ export default function Navbar({ user }: { user: AppUser | null }) {
     }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
-          <img src="/logo.jpg" alt="NGBHS Logo" style={{ width: '3.125vw', height: '3.125vw', borderRadius: '0.521vw', objectFit: 'cover' }} />
+          <img src="/logo.jpg" alt="NGBHS Logo" className="navbar-logo" />
           <h1 className="navbar-title" style={{ margin: 0 }}>
             <Link href="/">
               <span className="desktop-only">
                 <span style={{ color: 'white' }}>NGBHS Reunion</span> <span className="text-gradient">Championship</span>
               </span>
-              <span className="mobile-only text-gradient" style={{ fontWeight: '800' }}>NGBHS 2026</span>
+              <span className="mobile-only" style={{ fontWeight: '800', fontSize: '3.2vw', display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}>
+                <span style={{ color: 'white' }}>NGBHS REUNION</span>
+                <span className="text-gradient">FOOTBALL CHAMPIONSHIP</span>
+              </span>
             </Link>
           </h1>
         </div>
 
         {/* Desktop Links */}
-        <div className="desktop-only nav-links">
+        <div className="nav-links">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
             return (
@@ -66,7 +69,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
-          <div className="desktop-only nav-auth">
+          <div className="nav-auth">
             {user ? (
               <>
                 <Link href="/dashboard" style={{ fontSize: '1.0vw', color: 'var(--accent-primary)', fontWeight: '700' }}>Dashboard</Link>
@@ -82,8 +85,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           {/* Mobile Menu Toggle */}
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="mobile-only btn glass"
-            style={{ padding: '0.463vh 0.417vw', minWidth: '4.167vw', height: '4.167vw', fontSize: '1.25vw' }}
+            className="mobile-nav-toggle btn glass"
           >
             {isMenuOpen ? '✕' : '☰'}
           </button>
