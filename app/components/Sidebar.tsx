@@ -44,15 +44,15 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       borderBottom: 'none'
     }}>
       {/* Fixed Header */}
-      <div style={{ padding: '2.222vh 4vw', borderBottom: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.2)', position: 'relative' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3vw' }}>
+      <div style={{ padding: 'calc(1.5vh * var(--font-scale)) calc(1vw * var(--font-scale))', borderBottom: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.2)', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'calc(0.75vw * var(--font-scale))' }}>
           <img src="/logo.jpg" alt="NGBHS Logo" className="navbar-logo" />
           <div style={{ flex: 1 }}>
-            <h2 className="navbar-title" style={{ margin: 0, color: 'white', fontWeight: '800', fontSize: '3.2vw', display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}>
+            <h2 className="sidebar-brand-title" style={{ margin: 0, color: 'white' }}>
               <span>NGBHS REUNION</span>
               <span className="text-gradient">FOOTBALL CHAMPIONSHIP</span>
             </h2>
-            <p style={{ fontSize: '2.5vw', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', margin: 0, marginTop: '0.5vh' }}>Management Panel</p>
+            <p style={{ fontSize: 'calc(0.6vw * var(--font-scale))', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', margin: 0, marginTop: '0.5vh' }}>Management Panel</p>
           </div>
           {onClose && (
             <button 
@@ -69,7 +69,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.852vh 1.042vw' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2.222vh' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.37vh' }}>
-            <div style={{ fontSize: '3.5vw', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.593vh', marginLeft: '0.417vw' }}>
+            <div style={{ fontSize: 'calc(0.9vw * var(--font-scale))', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.593vh', marginLeft: '0.417vw' }}>
               Main Menu
             </div>
             
@@ -83,18 +83,18 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '3vw',
-                    padding: '1.5vh 3vw',
-                    borderRadius: '1.5vw',
+                    gap: 'calc(0.75vw * var(--font-scale))',
+                    padding: 'calc(1vh * var(--font-scale)) calc(0.75vw * var(--font-scale))',
+                    borderRadius: 'calc(0.5vw * var(--font-scale))',
                     color: isActive ? 'white' : 'var(--text-secondary)',
                     background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
                     border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
                     transition: 'all 0.2s ease',
                     fontWeight: isActive ? '700' : '500',
-                    fontSize: '4.5vw'
+                    fontSize: 'calc(1vw * var(--font-scale))'
                   }}
                 >
-                  <span style={{ fontSize: '4.5vw' }}>{link.icon}</span>
+                  <span style={{ fontSize: 'calc(1.2vw * var(--font-scale))' }}>{link.icon}</span>
                   <span>{link.name}</span>
                 </Link>
               );
@@ -160,8 +160,8 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             )}
           </div>
           <div style={{ minWidth: 0, overflow: 'hidden', flex: 1 }}>
-            <div style={{ fontWeight: '700', color: 'white', fontSize: '4.5vw', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
-            <div style={{ fontSize: '3.5vw', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
+            <div style={{ fontWeight: '700', color: 'white', fontSize: 'calc(1vw * var(--font-scale))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
+            <div style={{ fontSize: 'calc(0.8vw * var(--font-scale))', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
           </div>
         </Link>
 

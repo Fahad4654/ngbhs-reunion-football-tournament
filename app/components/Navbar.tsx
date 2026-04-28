@@ -42,11 +42,11 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           <h1 className="navbar-title" style={{ margin: 0 }}>
             <Link href="/">
               <span className="desktop-only">
-                <span style={{ color: 'white' }}>NGBHS Reunion</span> <span className="text-gradient">Championship</span>
+                <span style={{ color: 'white' }}>NGBHS REUNION</span> <span className="text-gradient">FOOTBALL CHAMPIONSHIP</span>
               </span>
-              <span className="mobile-only" style={{ fontWeight: '800', fontSize: '3.2vw', display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}>
-                <span style={{ color: 'white' }}>NGBHS REUNION</span>
-                <span className="text-gradient">FOOTBALL CHAMPIONSHIP</span>
+              <span className="navbar-title-mobile">
+                <span style={{ color: 'white', whiteSpace: 'nowrap' }}>NGBHS REUNION</span>
+                <span className="text-gradient" style={{ whiteSpace: 'nowrap' }}>FOOTBALL CHAMPIONSHIP</span>
               </span>
             </Link>
           </h1>
@@ -102,7 +102,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
             left: '0',
             right: '0',
             bottom: '0',
-            padding: '3.704vh 2.604vw',
+            padding: '4vh 8vw',
             display: 'flex',
             flexDirection: 'column',
             gap: '1.852vh',
@@ -118,7 +118,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
               key={link.href} 
               href={link.href} 
               onClick={() => setIsMenuOpen(false)}
-              style={{ padding: '1.389vh', fontSize: '1.458vw', fontWeight: '700', borderBottom: '0.052vw solid var(--border-color)', color: pathname === link.href ? 'var(--accent-primary)' : 'white' }}
+              style={{ padding: '2vh 0', fontSize: '5vw', fontWeight: '700', borderBottom: '0.052vw solid var(--border-color)', color: pathname === link.href ? 'var(--accent-primary)' : 'white', textTransform: 'uppercase' }}
             >
               {link.name}
             </Link>
@@ -126,9 +126,9 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           <div style={{ marginTop: '1.852vh', display: 'flex', flexDirection: 'column', gap: '1.389vh' }}>
             {user ? (
               <>
-                <Link href="/dashboard" className="btn btn-primary" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1.25vw' }}>Dashboard</Link>
-                <form action={logout}>
-                  <button type="submit" className="btn glass" style={{ width: '100%', fontSize: '1.25vw' }}>Sign Out</button>
+                <Link href="/dashboard" className="btn btn-primary" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '4.5vw', width: '100%', padding: '1.5vh' }}>Dashboard</Link>
+                <form action={logout} style={{ width: '100%' }}>
+                  <button type="submit" className="btn glass" style={{ width: '100%', fontSize: '4.5vw', padding: '1.5vh' }}>Sign Out</button>
                 </form>
               </>
             ) : (
