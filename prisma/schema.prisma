@@ -32,7 +32,10 @@ model Batch {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([points(sort: Desc), goalsFor(sort: Desc)])
 }
+
 
 model Match {
   id          String   @id @default(cuid())

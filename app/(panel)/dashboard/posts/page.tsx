@@ -11,7 +11,7 @@ export default async function CreatePostPage() {
       <div style={{ textAlign: 'center' }}>
       </div>
 
-      <div style={{ width: '100%', maxWidth: '550px', margin: '0 auto' }}>
+      <div style={{ width: '100%', maxWidth: 'min(100%, 600px)', margin: '0 auto', padding: '0 0.5rem' }}>
         <PostForm user={user} />
       </div>
     </>

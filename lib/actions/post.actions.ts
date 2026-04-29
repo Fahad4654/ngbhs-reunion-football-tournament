@@ -167,9 +167,17 @@ export async function deletePostAction(postId: string) {
 // Post Moderation
 // ─────────────────────────────────────────
 
-async function isAuthorizedModerator(userId: string, role: string, postAuthorBatchId: string | null) {
-  if (role === 'ADMIN' || role === 'CO_ADMIN') return true;
+/**
+ * Authorization helper for moderating posts.
+ * Admins/Co-Admins -> GLOBAL posts only.
+ * Batch Managers -> BATCH posts from their batch only.
+ */
+async function isAuthorizedModerator(userId: string, role: string, postAuthorBatchId: string | null, postScope: string) {
+  if (role === 'ADMIN' || role === 'CO_ADMIN') {
+    return postScope === 'GLOBAL';
+  }
   if (role === 'BATCH_MANAGER') {
+    if (postScope !== 'BATCH') return false;
     const dbUser = await prisma.user.findUnique({ where: { id: userId } });
     return dbUser?.batchId === postAuthorBatchId;
   }
@@ -184,7 +192,7 @@ export async function approvePost(postId: string) {
     const post = await prisma.post.findUnique({ where: { id: postId }, include: { author: true } });
     if (!post) return { error: 'Post not found.' };
 
-    const authorized = await isAuthorizedModerator(user.uid, user.role, post.author.batchId);
+    const authorized = await isAuthorizedModerator(user.uid, user.role, post.author.batchId, post.scope);
     if (!authorized) return { error: 'Unauthorized.' };
 
     await prisma.post.update({ where: { id: postId }, data: { status: 'APPROVED' } });
@@ -208,7 +216,7 @@ export async function rejectPost(postId: string) {
     const post = await prisma.post.findUnique({ where: { id: postId }, include: { author: true } });
     if (!post) return { error: 'Post not found.' };
 
-    const authorized = await isAuthorizedModerator(user.uid, user.role, post.author.batchId);
+    const authorized = await isAuthorizedModerator(user.uid, user.role, post.author.batchId, post.scope);
     if (!authorized) return { error: 'Unauthorized.' };
 
     await prisma.post.update({ where: { id: postId }, data: { status: 'REJECTED' } });
@@ -318,4 +326,3 @@ export async function getUserActivity() {
   if (!user) return null;
   return _getUserActivity(user.uid);
 }
-

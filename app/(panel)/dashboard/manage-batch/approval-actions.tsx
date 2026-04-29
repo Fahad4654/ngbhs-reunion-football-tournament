@@ -42,8 +42,9 @@ export default function ApprovalActions({ userId }: { userId: string }) {
         style={{ 
           background: 'var(--accent-primary)', 
           color: 'black', 
-          fontSize: '0.75rem', 
-          padding: '0.4rem 0.8rem' 
+          fontSize: '0.85rem', 
+          padding: '0.75rem 1.25rem',
+          fontWeight: '700'
         }}
       >
         Approve
@@ -55,8 +56,9 @@ export default function ApprovalActions({ userId }: { userId: string }) {
         style={{ 
           background: 'var(--accent-danger)', 
           color: 'white', 
-          fontSize: '0.75rem', 
-          padding: '0.4rem 0.8rem' 
+          fontSize: '0.85rem', 
+          padding: '0.75rem 1.25rem',
+          fontWeight: '700'
         }}
       >
         Reject

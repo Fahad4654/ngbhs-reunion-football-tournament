@@ -43,3 +43,21 @@ export async function verifyOTP(email: string, otp: string): Promise<boolean> {
 
   return true;
 }
+
+export async function verifyOTPNoDelete(email: string, otp: string): Promise<boolean> {
+  const verificationToken = await prisma.verificationToken.findFirst({
+    where: {
+      email,
+      token: otp,
+      expires: { gt: new Date() },
+    },
+  });
+
+  return !!verificationToken;
+}
+
+export async function deleteOTP(email: string, otp: string) {
+  await prisma.verificationToken.deleteMany({
+    where: { email, token: otp },
+  });
+}

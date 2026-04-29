@@ -28,7 +28,7 @@ export async function getApprovedPosts(options?: {
   }
 
   const whereClause = batchId
-    ? { status: 'APPROVED' as const, author: { batchId } }
+    ? { status: 'APPROVED' as const, author: { batchId }, scope: 'BATCH' as const }
     : { status: 'APPROVED' as const, scope: 'GLOBAL' as const };
 
   return prisma.post.findMany({
@@ -39,7 +39,9 @@ export async function getApprovedPosts(options?: {
 }
 
 /**
- * Fetches pending posts scoped by role.
+ * Fetches pending posts scoped by role and responsibility.
+ * Admin -> GLOBAL posts only.
+ * Batch Manager -> BATCH posts from their batch only.
  */
 export async function getPendingPosts(options: {
   role: string;
@@ -50,7 +52,7 @@ export async function getPendingPosts(options: {
   if (role === 'BATCH_MANAGER') {
     if (!batchId) return [];
     return prisma.post.findMany({
-      where: { status: 'PENDING', author: { batchId } },
+      where: { status: 'PENDING', author: { batchId }, scope: 'BATCH' },
       include: { author: true, media: true },
       orderBy: { createdAt: 'desc' },
     });
@@ -58,7 +60,7 @@ export async function getPendingPosts(options: {
 
   if (role === 'ADMIN' || role === 'CO_ADMIN') {
     return prisma.post.findMany({
-      where: { status: 'PENDING' },
+      where: { status: 'PENDING', scope: 'GLOBAL' },
       include: { author: true, media: true },
       orderBy: { createdAt: 'desc' },
     });

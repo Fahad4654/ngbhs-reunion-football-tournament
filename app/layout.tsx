@@ -26,8 +26,8 @@ export default function RootLayout({
             style: {
               background: '#333',
               color: '#fff',
-              borderRadius: '12px',
-              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '0.625vw',
+              border: '0.052vw solid rgba(255,255,255,0.1)',
             },
           }}
         />

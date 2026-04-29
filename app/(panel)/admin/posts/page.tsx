@@ -11,6 +11,10 @@ export default async function AdminPostsPage() {
   if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") redirect("/");
 
   const posts = await prisma.post.findMany({
+    where: {
+      status: 'PENDING',
+      scope: 'GLOBAL'
+    },
     include: {
       author: true,
       media: true,
@@ -22,7 +26,6 @@ export default async function AdminPostsPage() {
 
   return (
     <>
-
       <div style={{ display: 'grid', gap: '1rem' }}>
         {posts.length > 0 ? posts.map((post) => (
           <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '24px' }}>

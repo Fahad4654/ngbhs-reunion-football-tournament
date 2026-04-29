@@ -7,8 +7,8 @@ import {
   setSessionCookie,
   deleteSessionCookie,
 } from '@/lib/auth-utils';
-import { generateOTP, storeOTP, verifyOTP } from '@/lib/otp';
-import { sendOTPEmail } from '@/lib/mail';
+import { generateOTP, storeOTP, verifyOTP, verifyOTPNoDelete, deleteOTP } from '@/lib/otp';
+import { sendOTPEmail, sendPasswordResetEmail } from '@/lib/mail';
 import { adminAuth } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
 
@@ -184,5 +184,74 @@ export async function loginWithGoogle(idToken: string) {
   } catch (error) {
     console.error('[loginWithGoogle]', error);
     return { error: 'Failed to authenticate with Google.' };
+  }
+}
+
+// ─────────────────────────────────────────
+// Password Reset
+// ─────────────────────────────────────────
+
+export async function sendPasswordResetOTP(prevState: any, formData: FormData) {
+  const email = formData.get('email') as string;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user || !user.password) {
+      // Return success anyway to avoid email enumeration
+      return { success: true, email };
+    }
+
+    const otp = generateOTP();
+    await storeOTP(email, otp);
+    await sendPasswordResetEmail(email, otp);
+
+    return { success: true, email };
+  } catch (error) {
+    console.error('[sendPasswordResetOTP]', error);
+    return { error: 'Failed to send reset email.' };
+  }
+}
+
+export async function verifyPasswordResetOTP(prevState: any, formData: FormData) {
+  const email = formData.get('email') as string;
+  const otp = formData.get('otp') as string;
+
+  try {
+    const isValid = await verifyOTPNoDelete(email, otp);
+    if (!isValid) {
+      return { error: 'Invalid or expired OTP.' };
+    }
+
+    return { success: true, email, otp };
+  } catch (error) {
+    console.error('[verifyPasswordResetOTP]', error);
+    return { error: 'Verification failed.' };
+  }
+}
+
+export async function resetPassword(prevState: any, formData: FormData) {
+  const email = formData.get('email') as string;
+  const otp = formData.get('otp') as string;
+  const password = formData.get('password') as string;
+
+  try {
+    const isValid = await verifyOTPNoDelete(email, otp);
+    if (!isValid) {
+      return { error: 'Invalid session or expired OTP. Please try again.' };
+    }
+
+    const hashedPassword = await hashPassword(password);
+    await prisma.user.update({
+      where: { email },
+      data: { password: hashedPassword },
+    });
+
+    await deleteOTP(email, otp);
+
+    return { success: true };
+  } catch (error) {
+    console.error('[resetPassword]', error);
+    return { error: 'Failed to reset password.' };
   }
 }

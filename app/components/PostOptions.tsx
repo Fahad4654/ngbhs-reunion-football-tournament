@@ -4,6 +4,12 @@ import { useState, useRef, useEffect } from 'react';
 import { deletePostAction, editPostAction } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
 import MediaRenderer from '@/app/components/MediaRenderer';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
+import ImageIcon from '@mui/icons-material/Image';
+import VideocamIcon from '@mui/icons-material/Videocam';
 
 export interface PostMedia {
   id: string;
@@ -165,9 +171,9 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
       <div style={{ position: 'relative' }} ref={dropdownRef}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.2rem', cursor: 'pointer', padding: '0.25rem 0.5rem' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: '4px' }}
         >
-          ⋯
+          <MoreHorizIcon sx={{ fontSize: '1.5rem' }} />
         </button>
 
         {isOpen && (
@@ -178,27 +184,29 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
             background: 'var(--bg-secondary)',
             border: '1px solid var(--border-color)',
             borderRadius: '12px',
-            padding: '0.5rem',
+            padding: '8px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.25rem',
-            minWidth: '150px',
+            gap: '4px',
+            minWidth: '12rem',
             zIndex: 50,
             boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
           }}>
             <button 
               onClick={() => { setIsEditing(true); setIsOpen(false); }}
               className="btn"
-              style={{ background: 'transparent', color: 'white', justifyContent: 'flex-start', padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+              style={{ background: 'transparent', color: 'white', justifyContent: 'flex-start', padding: '12px', fontSize: '0.9rem', gap: '0.75rem' }}
             >
-              ✏️ Edit Post
+              <EditIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-primary)' }} />
+              <span>Edit Post</span>
             </button>
             <button 
               onClick={handleDelete}
               className="btn"
-              style={{ background: 'transparent', color: '#ef4444', justifyContent: 'flex-start', padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+              style={{ background: 'transparent', color: '#ef4444', justifyContent: 'flex-start', padding: '12px', fontSize: '0.9rem', gap: '0.75rem' }}
             >
-              🗑️ Delete Post
+              <DeleteIcon sx={{ fontSize: '1.2rem' }} />
+              <span>Delete Post</span>
             </button>
           </div>
         )}
@@ -215,59 +223,70 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
           justifyContent: 'center',
           padding: '1rem'
         }}>
-          <div className="glass" style={{ width: '100%', maxWidth: '600px', borderRadius: '24px', padding: '2rem' }}>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'white' }}>Edit Post</h3>
+          <div className="glass" style={{ width: '100%', maxWidth: 'min(95vw, 500px)', borderRadius: '1.25rem', padding: '2rem 1.5rem' }}>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'white', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <EditIcon sx={{ color: 'var(--accent-primary)' }} />
+              Edit Post
+            </h3>
             
             <form onSubmit={handleEdit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Title (Optional)</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Title (Optional)</label>
                 <input 
                   name="title" 
                   defaultValue={title || ''} 
-                  style={{ width: '100%', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'white' }}
+                  style={{ width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'white' }}
                 />
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Content</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Content</label>
                 <textarea 
                   name="content" 
                   defaultValue={content}
                   required
                   rows={4}
-                  style={{ width: '100%', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'white', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'white', resize: 'vertical' }}
                 />
               </div>
 
               {/* Media Section */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', gap: '8px' }}>
                 {media.filter(m => !removedMediaIds.includes(m.id)).map(m => (
                   <div key={m.id} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                     <MediaRenderer url={m.url} type={m.type} style={{ borderRadius: '8px' }} />
-                    <button type="button" onClick={() => removeExistingMedia(m.id)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>✕</button>
+                    <button type="button" onClick={() => removeExistingMedia(m.id)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <CloseIcon sx={{ fontSize: '0.9rem' }} />
+                    </button>
                   </div>
                 ))}
                 {newMediaPreviews.map((m, idx) => (
                   <div key={idx} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', opacity: 0.8 }}>
                     <MediaRenderer url={m.url} type={m.type} style={{ borderRadius: '8px' }} />
-                    <button type="button" onClick={() => removeNewMedia(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>✕</button>
+                    <button type="button" onClick={() => removeNewMedia(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <CloseIcon sx={{ fontSize: '0.9rem' }} />
+                    </button>
                   </div>
                 ))}
               </div>
 
               {/* Attachments Section */}
-              <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'white', fontSize: '0.875rem' }}>Add to your post</span>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'white', fontSize: '0.9rem', fontWeight: '600' }}>Add to your post</span>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                   <input type="file" accept="image/*, .jpg, .jpeg, .png, .webp" multiple ref={fileInputRef} onChange={(e) => handleMediaChange(e, 'IMAGE')} style={{ display: 'none' }} />
-                  <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', padding: '4px' }} title="Add Photo">🖼️</button>
+                  <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }} title="Add Photo">
+                    <ImageIcon sx={{ fontSize: '1.5rem', color: '#45bd62' }} />
+                  </button>
                   
                   <input type="file" accept="video/*, .mp4, .webm" multiple ref={videoInputRef} onChange={(e) => handleMediaChange(e, 'VIDEO')} style={{ display: 'none' }} />
-                  <button type="button" onClick={() => videoInputRef.current?.click()} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', padding: '4px' }} title="Add Video">📹</button>
+                  <button type="button" onClick={() => videoInputRef.current?.click()} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }} title="Add Video">
+                    <VideocamIcon sx={{ fontSize: '1.5rem', color: '#f02849' }} />
+                  </button>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                 <button type="button" onClick={() => setIsEditing(false)} className="btn glass" style={{ flex: 1 }}>
                   Cancel
                 </button>
@@ -289,7 +308,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(8px)',
+            backdropFilter: 'blur(4px)',
             zIndex: 99999,
             animation: 'fadeIn 0.2s ease-out forwards',
           }}
@@ -303,19 +322,20 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
               flexDirection: 'column', 
               gap: '1.5rem', 
               width: '100%',
-              maxWidth: '400px',
-              padding: '2rem',
+              maxWidth: 'min(90vw, 400px)',
+              padding: '2rem 1.5rem',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(235, 183, 0, 0.1)',
               border: '1px solid rgba(235, 183, 0, 0.3)',
               animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
               margin: '0 1rem',
+              borderRadius: '1.25rem'
             }}
           >
             <div style={{ textAlign: 'center' }}>
               <p style={{ 
                 margin: 0, 
                 fontWeight: '600', 
-                fontSize: '1.25rem', 
+                fontSize: '1.2rem', 
                 color: 'var(--text-primary)',
                 fontFamily: 'Outfit, sans-serif'
               }}>
