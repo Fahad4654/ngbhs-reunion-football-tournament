@@ -3,62 +3,69 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.852vh 1.667vw;
+  padding: 2rem 1.25rem;
   position: relative;
   overflow: hidden;
 }
 
 .loginCard {
   width: 100%;
-  max-width: 23.438vw;
-  padding: 4.444vh 2.5vw;
+  max-width: 450px;
+  padding: 3rem 2.5rem;
   z-index: 10;
-  border-radius: 1.667vw;
+  border-radius: 2rem;
+  background: rgba(15, 15, 15, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header {
   text-align: center;
-  margin-bottom: 3.704vh;
+  margin-bottom: 2.5rem;
 }
 
 .logo {
-  width: 3.333vw;
-  height: 3.333vw;
+  width: 4rem;
+  height: 4rem;
   background: var(--accent-primary);
-  border-radius: 0.833vw;
-  margin: 0 auto 2.222vh;
+  border-radius: 1rem;
+  margin: 0 auto 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
   color: #000;
-  font-size: 1.25vw;
+  font-size: 1.5rem;
 }
 
 .title {
-  font-size: 2.2vw;
-  margin-bottom: 0.741vh;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 1.0vw;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 2.222vh;
+  gap: 1.5rem;
 }
 
 .inputGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.741vh;
+  gap: 0.5rem;
 }
 
 .label {
-  font-size: 0.9vw;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -67,55 +74,64 @@
 
 .input {
   background: rgba(255, 255, 255, 0.05);
-  border: 0.052vw solid var(--border-color);
-  padding: 1.111vh 1.042vw;
-  border-radius: 0.625vw;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
   color: white;
-  font-size: 1.1vw;
+  font-size: 1rem;
   outline: none;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .input:focus {
   border-color: var(--accent-primary);
   background: rgba(255, 255, 255, 0.08);
-}
-
-.forgotPassword {
-  text-align: right;
-  font-size: 0.9vw;
-  color: var(--accent-secondary);
-  margin-top: -1.111vh;
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.1);
 }
 
 .submitBtn {
-  margin-top: 1.481vh;
+  margin-top: 1rem;
   width: 100%;
-  padding: 0.926vh 0.833vw;
+  padding: 1rem;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 0.75rem;
 }
 
 .footer {
-  margin-top: 2.963vh;
+  margin-top: 2rem;
   text-align: center;
-  font-size: 1.0vw;
+  font-size: 0.9375rem;
   color: var(--text-secondary);
 }
 
 .bgBlob {
   position: absolute;
-  width: 31.25vw;
-  height: 31.25vw;
-  background: radial-gradient(circle, rgba(57, 255, 20, 0.05) 0%, transparent 70%);
-  filter: blur(5.208vw);
+  width: 40rem;
+  height: 40rem;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%);
+  filter: blur(80px);
   z-index: 1;
 }
 
 @media (max-width: 600px) {
+  .container {
+    padding: 1.5rem 1rem;
+    align-items: flex-start; /* Better for long forms like register */
+    padding-top: 3rem;
+  }
+
   .loginCard {
-    padding: 1.852vh 1.25vw;
+    padding: 2.5rem 1.5rem;
+    border-radius: 1.5rem;
   }
   
   .title {
-    font-size: 1.458vw;
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9375rem;
   }
 }
