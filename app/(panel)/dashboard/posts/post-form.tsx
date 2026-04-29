@@ -134,19 +134,19 @@ export default function PostForm({ user }: PostFormProps) {
   };
 
   return (
-    <div className="glass" style={{ borderRadius: '0.625vw', overflow: 'hidden', background: 'var(--bg-secondary)', border: '0.052vw solid var(--border-color)' }}>
+    <div className="glass" style={{ borderRadius: 'calc(0.625vw * var(--font-scale))', overflow: 'hidden', background: 'var(--bg-secondary)', border: '0.052vw solid var(--border-color)' }}>
       <form ref={formRef} action={handleSubmit}>
         {/* Header */}
-        <div style={{ padding: '1.481vh 0.833vw', borderBottom: '0.052vw solid var(--border-color)', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.042vw', color: 'white', margin: 0, textTransform: 'none' }}>Create Post</h2>
+        <div style={{ padding: 'calc(1.481vh * var(--font-scale)) calc(0.833vw * var(--font-scale))', borderBottom: '0.052vw solid var(--border-color)', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'calc(1.042vw * var(--font-scale))', color: 'white', margin: 0, textTransform: 'none' }}>Create Post</h2>
         </div>
 
         {/* User Info */}
-        <div style={{ padding: '1.481vh 0.833vw', display: 'flex', alignItems: 'center', gap: '0.625vw' }}>
+        <div style={{ padding: 'calc(1.481vh * var(--font-scale)) calc(0.833vw * var(--font-scale))', display: 'flex', alignItems: 'center', gap: 'calc(0.625vw * var(--font-scale))' }}>
           <div style={{ 
-            width: '2.083vw', 
-            minWidth: '2.083vw',
-            height: '2.083vw', 
+            width: 'calc(2.083vw * var(--font-scale))', 
+            minWidth: 'calc(2.083vw * var(--font-scale))',
+            height: 'calc(2.083vw * var(--font-scale))', 
             borderRadius: '50%', 
             background: user.image ? 'transparent' : 'var(--accent-primary)',
             display: 'flex',
@@ -154,6 +154,7 @@ export default function PostForm({ user }: PostFormProps) {
             justifyContent: 'center',
             fontWeight: '800',
             color: 'black',
+            fontSize: 'calc(0.8vw * var(--font-scale))',
             overflow: 'hidden',
             border: user.image ? '0.052vw solid var(--border-color)' : 'none'
           }}>
@@ -164,7 +165,7 @@ export default function PostForm({ user }: PostFormProps) {
             )}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ color: 'white', fontWeight: '700', fontSize: '0.75vw', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
+            <div style={{ color: 'white', fontWeight: '700', fontSize: 'calc(0.85vw * var(--font-scale))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
             <div style={{ marginTop: '0.37vh' }}>
               <select 
                 name="scope"
@@ -173,8 +174,8 @@ export default function PostForm({ user }: PostFormProps) {
                 className="glass"
                 style={{ 
                   padding: '0.37vh 0.417vw', 
-                  borderRadius: '0.313vw', 
-                  fontSize: '0.625vw', 
+                  borderRadius: 'calc(0.313vw * var(--font-scale))', 
+                  fontSize: 'calc(0.7vw * var(--font-scale))', 
                   color: 'white',
                   background: 'rgba(255,255,255,0.1)',
                   border: '0.052vw solid var(--border-color)',
@@ -191,7 +192,7 @@ export default function PostForm({ user }: PostFormProps) {
         </div>
 
         {/* Content Area */}
-        <div style={{ padding: '0 0.833vw' }}>
+        <div style={{ padding: '0 calc(0.833vw * var(--font-scale))' }}>
           <input 
             name="title" 
             type="text" 
@@ -201,8 +202,8 @@ export default function PostForm({ user }: PostFormProps) {
               background: 'transparent', 
               border: 'none', 
               color: 'white', 
-              fontSize: '0.833vw', 
-              padding: '0.741vh 0',
+              fontSize: 'calc(0.9vw * var(--font-scale))', 
+              padding: 'calc(1vh * var(--font-scale)) 0',
               outline: 'none',
               fontWeight: '600'
             }} 
@@ -215,9 +216,9 @@ export default function PostForm({ user }: PostFormProps) {
               background: 'transparent', 
               border: 'none', 
               color: 'white', 
-              fontSize: '1.042vw', 
-              minHeight: '11.111vh',
-              padding: '0.741vh 0',
+              fontSize: 'calc(1.1vw * var(--font-scale))', 
+              minHeight: '15vh',
+              padding: 'calc(1vh * var(--font-scale)) 0',
               outline: 'none',
               resize: 'none',
               lineHeight: '1.4'
@@ -228,19 +229,19 @@ export default function PostForm({ user }: PostFormProps) {
 
         {/* Multi-Media Previews */}
         {mediaPreviews.length > 0 && (
-          <div style={{ padding: '0 0.833vw 1.481vh', display: 'grid', gridTemplateColumns: mediaPreviews.length === 1 ? '1fr' : '1fr 1fr', gap: '0.417vw' }}>
+          <div style={{ padding: '0 calc(0.833vw * var(--font-scale)) calc(1.481vh * var(--font-scale))', display: 'grid', gridTemplateColumns: mediaPreviews.length === 1 ? '1fr' : '1fr 1fr', gap: 'calc(0.417vw * var(--font-scale))' }}>
             {mediaPreviews.map((media, index) => (
-              <div key={index} style={{ position: 'relative', borderRadius: '0.417vw', overflow: 'hidden', border: '0.052vw solid var(--border-color)', aspectRatio: '1/1' }}>
+              <div key={index} style={{ position: 'relative', borderRadius: 'calc(0.417vw * var(--font-scale))', overflow: 'hidden', border: '0.052vw solid var(--border-color)', aspectRatio: '1/1' }}>
                 <MediaRenderer 
                   url={media.url} 
                   type={media.type} 
                   fileName={media.file.name}
-                  style={{ borderRadius: '0.417vw' }}
+                  style={{ borderRadius: 'calc(0.417vw * var(--font-scale))' }}
                 />
                 <button 
                   type="button" 
                   onClick={() => removeMedia(index)}
-                  style={{ position: 'absolute', top: '0.26vw', right: '0.26vw', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '1.25vw', height: '1.25vw', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.625vw' }}
+                  style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '2rem', height: '2rem', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}
                 >
                   ✕
                 </button>
@@ -250,18 +251,18 @@ export default function PostForm({ user }: PostFormProps) {
         )}
 
         {/* Attachments Section */}
-        <div style={{ padding: '0.741vh 0.833vw' }}>
+        <div style={{ padding: 'calc(0.741vh * var(--font-scale)) calc(0.833vw * var(--font-scale))' }}>
           <div style={{ 
             border: '0.052vw solid var(--border-color)', 
-            borderRadius: '0.417vw', 
-            padding: '1.111vh 0.833vw',
+            borderRadius: 'calc(0.417vw * var(--font-scale))', 
+            padding: 'calc(1.111vh * var(--font-scale)) calc(0.833vw * var(--font-scale))',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             position: 'relative'
           }}>
-            <span style={{ color: 'white', fontSize: '0.75vw', fontWeight: '600' }}>Add to your post</span>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <span style={{ color: 'white', fontSize: 'calc(0.75vw * var(--font-scale))', fontWeight: '600' }}>Add to your post</span>
+            <div style={{ display: 'flex', gap: '1rem' }}>
               <input 
                 type="file" 
                 accept="image/*, .jpg, .jpeg, .png, .gif, .webp, .avif, .heic, .heif" 
@@ -273,12 +274,11 @@ export default function PostForm({ user }: PostFormProps) {
               <button 
                 type="button" 
                 onClick={() => fileInputRef.current?.click()}
-                style={{ background: 'none', border: 'none', fontSize: '1.25vw', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}
+                style={{ background: 'none', border: 'none', fontSize: 'calc(1.25vw * var(--font-scale))', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}
                 title="Photo"
               >
                 🖼️
               </button>
-              <div style={{ fontSize: '0.5vw', color: 'var(--text-muted)', position: 'absolute', top: '-1.389vh', right: '5.729vw' }}>All Formats</div>
 
               <input 
                 type="file" 
@@ -291,16 +291,15 @@ export default function PostForm({ user }: PostFormProps) {
               <button 
                 type="button" 
                 onClick={() => videoInputRef.current?.click()}
-                style={{ background: 'none', border: 'none', fontSize: '1.25vw', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}
+                style={{ background: 'none', border: 'none', fontSize: 'calc(1.25vw * var(--font-scale))', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}
                 title="Video"
               >
                 📹
               </button>
-              <div style={{ fontSize: '0.5vw', color: 'var(--text-muted)', position: 'absolute', top: '-1.389vh', right: '3.385vw' }}>All Formats</div>
-              <button type="button" style={{ background: 'none', border: 'none', fontSize: '1.25vw', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}>
+              <button type="button" style={{ background: 'none', border: 'none', fontSize: 'calc(1.25vw * var(--font-scale))', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}>
                 😊
               </button>
-              <button type="button" style={{ background: 'none', border: 'none', fontSize: '1.25vw', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}>
+              <button type="button" style={{ background: 'none', border: 'none', fontSize: 'calc(1.25vw * var(--font-scale))', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}>
                 📍
               </button>
             </div>
@@ -308,14 +307,14 @@ export default function PostForm({ user }: PostFormProps) {
         </div>
 
         {/* Footer / Submit */}
-        <div style={{ padding: '1.481vh 0.833vw' }}>
+        <div style={{ padding: 'calc(1.481vh * var(--font-scale)) calc(0.833vw * var(--font-scale))' }}>
           <button 
             type="submit" 
             className="btn btn-primary" 
             disabled={isPending}
-            style={{ width: '100%', padding: '1.111vh 0.833vw', fontSize: '0.833vw' }}
+            style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', fontWeight: '800' }}
           >
-            {isPending ? 'Posting...' : 'Post'}
+            {isPending ? 'Posting...' : 'POST'}
           </button>
         </div>
       </form>

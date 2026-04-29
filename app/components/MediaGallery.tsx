@@ -65,8 +65,8 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: media.length === 1 ? '1fr' : '1fr 1fr',
-        gap: '0.417vw',
-        padding: '1.481vh 1.25vw',
+        gap: 'calc(0.417vw * var(--font-scale))',
+        padding: 'calc(1.481vh * var(--font-scale)) calc(1.25vw * var(--font-scale))',
       }}>
         {media.map((item, idx) => (
           <div 
@@ -111,19 +111,19 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             onClick={handleClose}
             style={{
               position: 'absolute',
-              top: '1.25vw',
-              right: '1.25vw',
+              top: '1.5rem',
+              right: '1.5rem',
               background: 'rgba(255,255,255,0.1)',
               border: 'none',
               color: 'white',
-              width: '2.292vw',
-              height: '2.292vw',
+              width: '3rem',
+              height: '3rem',
               borderRadius: '50%',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.25vw',
+              fontSize: '1.5rem',
               zIndex: 10,
               transition: 'background 0.2s',
             }}
@@ -140,18 +140,18 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 onClick={handlePrev}
                 style={{
                   position: 'absolute',
-                  left: '1.25vw',
+                  left: '1rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: 'white',
-                  width: '2.917vw',
-                  height: '2.917vw',
+                  width: '3.5rem',
+                  height: '3.5rem',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.667vw',
+                  fontSize: '2rem',
                   zIndex: 10,
                   transition: 'background 0.2s',
                 }}
@@ -164,18 +164,18 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 onClick={handleNext}
                 style={{
                   position: 'absolute',
-                  right: '1.25vw',
+                  right: '1rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: 'white',
-                  width: '2.917vw',
-                  height: '2.917vw',
+                  width: '3.5rem',
+                  height: '3.5rem',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.667vw',
+                  fontSize: '2rem',
                   zIndex: 10,
                   transition: 'background 0.2s',
                 }}
@@ -188,13 +188,13 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               {/* Media Counter */}
               <div style={{
                 position: 'absolute',
-                bottom: '1.667vw',
+                bottom: '2rem',
                 color: 'white',
                 background: 'rgba(0,0,0,0.5)',
-                padding: '0.741vh 0.833vw',
-                borderRadius: '1.042vw',
-                fontSize: '0.729vw',
-                letterSpacing: '0.104vw',
+                padding: '0.5rem 1rem',
+                borderRadius: '1.5rem',
+                fontSize: '0.9rem',
+                letterSpacing: '0.1em',
               }}>
                 {selectedIndex + 1} / {media.length}
               </div>

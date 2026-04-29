@@ -165,7 +165,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
       <div style={{ position: 'relative' }} ref={dropdownRef}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1vw', cursor: 'pointer', padding: '0.37vh 0.417vw' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 'calc(1.2vw * var(--font-scale))', cursor: 'pointer', padding: '0.37vh 0.417vw' }}
         >
           ⋯
         </button>
@@ -182,21 +182,21 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
             display: 'flex',
             flexDirection: 'column',
             gap: '0.37vh',
-            minWidth: '7.813vw',
+            minWidth: '12rem',
             zIndex: 50,
             boxShadow: '0 0.521vw 1.302vw -0.26vw rgba(0, 0, 0, 0.5)'
           }}>
             <button 
               onClick={() => { setIsEditing(true); setIsOpen(false); }}
               className="btn"
-              style={{ background: 'transparent', color: 'white', justifyContent: 'flex-start', padding: '0.741vh 0.833vw', fontSize: '0.75vw' }}
+              style={{ background: 'transparent', color: 'white', justifyContent: 'flex-start', padding: '1rem', fontSize: '0.9rem' }}
             >
               ✏️ Edit Post
             </button>
             <button 
               onClick={handleDelete}
               className="btn"
-              style={{ background: 'transparent', color: '#ef4444', justifyContent: 'flex-start', padding: '0.741vh 0.833vw', fontSize: '0.75vw' }}
+              style={{ background: 'transparent', color: '#ef4444', justifyContent: 'flex-start', padding: '1rem', fontSize: '0.9rem' }}
             >
               🗑️ Delete Post
             </button>
@@ -215,12 +215,12 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
           justifyContent: 'center',
           padding: '1rem'
         }}>
-          <div className="glass" style={{ width: '100%', maxWidth: '31.25vw', borderRadius: '1.25vw', padding: '1.852vh 1.667vw' }}>
-            <h3 style={{ fontSize: '1.25vw', marginBottom: '2.222vh', color: 'white' }}>Edit Post</h3>
+          <div className="glass" style={{ width: '100%', maxWidth: 'min(95vw, 500px)', borderRadius: '1.25vw', padding: '2rem 1.5rem' }}>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'white' }}>Edit Post</h3>
             
             <form onSubmit={handleEdit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.741vh', color: 'var(--text-muted)', fontSize: '0.729vw' }}>Title (Optional)</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Title (Optional)</label>
                 <input 
                   name="title" 
                   defaultValue={title || ''} 
@@ -301,10 +301,10 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
             style={{ 
               display: 'flex', 
               flexDirection: 'column', 
-              gap: '2.222vh', 
+              gap: '1.5rem', 
               width: '100%',
-              maxWidth: '20.833vw',
-              padding: '1.852vh 1.667vw',
+              maxWidth: 'min(90vw, 400px)',
+              padding: '2rem 1.5rem',
               boxShadow: '0 1.302vw 2.604vw -0.625vw rgba(0, 0, 0, 0.8), 0 0 1.563vw rgba(235, 183, 0, 0.1)',
               border: '0.052vw solid rgba(235, 183, 0, 0.3)',
               animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
@@ -315,18 +315,18 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
               <p style={{ 
                 margin: 0, 
                 fontWeight: '600', 
-                fontSize: '1.042vw', 
+                fontSize: '1.2rem', 
                 color: 'var(--text-primary)',
                 fontFamily: 'Outfit, sans-serif'
               }}>
                 {confirmState.message}
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '0.833vw', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button 
                 onClick={closeConfirm}
                 className="btn glass"
-                style={{ flex: 1, padding: '1.111vh 0.833vw' }}
+                style={{ flex: 1, padding: '0.75rem' }}
               >
                 Cancel
               </button>
@@ -336,7 +336,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
                   closeConfirm();
                 }}
                 className="btn"
-                style={{ flex: 1, padding: '1.111vh 0.833vw', background: '#ef4444', color: 'white', border: 'none' }}
+                style={{ flex: 1, padding: '0.75rem', background: '#ef4444', color: 'white', border: 'none' }}
               >
                 Delete
               </button>

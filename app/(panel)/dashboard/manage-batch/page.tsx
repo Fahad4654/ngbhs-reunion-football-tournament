@@ -51,72 +51,88 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
       {/* Tabs */}
       <div className="glass no-scrollbar" style={{ 
         display: 'flex', 
-        gap: '0.292vw', 
-        padding: '0.741vh 0.417vw', 
-        borderRadius: '0.729vw', 
-        marginBottom: '2.963vh', 
+        gap: 'calc(0.4vw * var(--font-scale))', 
+        padding: 'calc(0.5vh * var(--font-scale)) calc(0.4vw * var(--font-scale))', 
+        borderRadius: 'calc(0.5vw * var(--font-scale))', 
+        marginBottom: '2vh', 
         width: '100%', 
-        maxWidth: '31.25vw', 
+        maxWidth: 'min(100%, 600px)', 
         overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch'
+        WebkitOverflowScrolling: 'touch',
+        background: 'rgba(255,255,255,0.02)'
       }}>
         <Link 
           href="/dashboard/manage-batch?tab=posts"
           className="btn"
           style={{ 
-            flex: '1 0 auto', 
-            minWidth: '4.167vw',
+            flex: '1', 
             background: tab === 'posts' ? 'var(--accent-primary)' : 'transparent',
             color: tab === 'posts' ? 'black' : 'white',
-            fontSize: '0.583vw',
-            padding: '0.889vh 0.208vw',
-            whiteSpace: 'nowrap'
+            fontSize: 'calc(0.75vw * var(--font-scale))',
+            padding: 'calc(0.8vh * var(--font-scale)) 0.5rem',
+            whiteSpace: 'nowrap',
+            fontWeight: '800',
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
           }}
         >
-          📝 Posts ({pendingPosts.length})
+          📝 POSTS ({pendingPosts.length})
         </Link>
         <Link 
           href="/dashboard/manage-batch?tab=members"
           className="btn"
           style={{ 
-            flex: '1 0 auto', 
-            minWidth: '4.167vw',
+            flex: '1', 
             background: tab === 'members' ? 'var(--accent-primary)' : 'transparent',
             color: tab === 'members' ? 'black' : 'white',
-            fontSize: '0.583vw',
-            padding: '0.889vh 0.208vw',
-            whiteSpace: 'nowrap'
+            fontSize: 'calc(0.75vw * var(--font-scale))',
+            padding: 'calc(0.8vh * var(--font-scale)) 0.5rem',
+            whiteSpace: 'nowrap',
+            fontWeight: '800',
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
           }}
         >
-          👥 Members ({members.length})
+          👥 MEMBERS ({members.length})
         </Link>
         <Link 
           href="/dashboard/manage-batch?tab=approvals"
           className="btn"
           style={{ 
-            flex: '1 0 auto', 
-            minWidth: '4.167vw',
+            flex: '1', 
             background: tab === 'approvals' ? 'var(--accent-primary)' : 'transparent',
             color: tab === 'approvals' ? 'black' : 'white',
-            fontSize: '0.583vw',
-            padding: '0.889vh 0.208vw',
-            whiteSpace: 'nowrap'
+            fontSize: 'calc(0.75vw * var(--font-scale))',
+            padding: 'calc(0.8vh * var(--font-scale)) 0.5rem',
+            whiteSpace: 'nowrap',
+            fontWeight: '800',
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
           }}
         >
-          ⏳ Pending ({pendingMembers.length})
+          ⏳ PENDING ({pendingMembers.length})
         </Link>
       </div>
 
       {tab === 'posts' ? (
-        <div style={{ display: 'grid', gap: '1.481vh' }}>
+        <div style={{ display: 'grid', gap: '1.481vh', maxWidth: 'min(100%, 600px)', margin: '0 auto' }}>
           {pendingPosts.length > 0 ? pendingPosts.map((post) => (
             <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '1.25vw' }}>
-              <div style={{ padding: '1.259vh 0.417vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.333vw', borderBottom: '0.052vw solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.417vw', minWidth: 0, flex: 1 }}>
+              <div style={{ padding: 'calc(1.259vh * var(--font-scale)) calc(0.833vw * var(--font-scale))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.333vw', borderBottom: '0.052vw solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'calc(0.625vw * var(--font-scale))', minWidth: 0, flex: 1 }}>
                   <div style={{ 
-                    width: '1.875vw', 
-                    minWidth: '1.875vw',
-                    height: '1.875vw', 
+                    width: 'calc(2.5vw * var(--font-scale))', 
+                    minWidth: 'calc(2.5vw * var(--font-scale))',
+                    height: 'calc(2.5vw * var(--font-scale))', 
                     borderRadius: '50%', 
                     background: post.author.image ? 'transparent' : 'var(--accent-primary)',
                     display: 'flex',
@@ -124,7 +140,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                     justifyContent: 'center',
                     fontWeight: '800',
                     color: 'black',
-                    fontSize: '0.708vw',
+                    fontSize: 'calc(1.1vw * var(--font-scale))',
                     overflow: 'hidden',
                     border: post.author.image ? '0.052vw solid var(--border-color)' : 'none',
                     flexShrink: 0
@@ -136,19 +152,19 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                     )}
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '800', fontSize: '0.875vw', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
-                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.542vw', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: 'calc(1.1vw * var(--font-scale))', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'calc(0.7vw * var(--font-scale))', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                       {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
                 </div>
               </div>
-              <div style={{ padding: '2.222vh 1.25vw 0.741vh' }}>
-                <h3 style={{ fontSize: '1.042vw', marginBottom: '1.111vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Post'}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.833vw', lineHeight: '1.6', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.content}</p>
+              <div style={{ padding: 'calc(2.222vh * var(--font-scale)) calc(1.25vw * var(--font-scale)) 0.741vh' }}>
+                <h3 style={{ fontSize: 'calc(1.4vw * var(--font-scale))', marginBottom: '1.111vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Post'}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 'calc(1vw * var(--font-scale))', lineHeight: '1.6', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.content}</p>
               </div>
               <MediaGallery media={post.media} />
-              <div style={{ padding: '2.222vh 1.25vw', borderTop: '0.052vw solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
+              <div style={{ padding: 'calc(2.222vh * var(--font-scale)) calc(1.25vw * var(--font-scale))', borderTop: '0.052vw solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
                 <ModerationActions postId={post.id} />
               </div>
             </article>
@@ -159,43 +175,54 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
           )}
         </div>
       ) : tab === 'members' ? (
-        <div className="responsive-table-container glass" style={{ borderRadius: '1.25vw' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="responsive-table-container glass" style={{ borderRadius: '1.25vw', overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
             <thead>
               <tr style={{ borderBottom: '0.052vw solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
-                <th style={{ padding: '1.852vh 1.042vw', textAlign: 'left', fontSize: '0.667vw', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Member Name</th>
-                <th style={{ padding: '1.852vh 1.042vw', textAlign: 'left', fontSize: '0.667vw', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Occupation</th>
-                <th style={{ padding: '1.852vh 1.042vw', textAlign: 'right', fontSize: '0.667vw', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
+                <th style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', textAlign: 'left', fontSize: 'calc(0.85vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Member Name</th>
+                <th style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', textAlign: 'left', fontSize: 'calc(0.85vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Occupation</th>
+                <th style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', textAlign: 'right', fontSize: 'calc(0.85vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {members.length > 0 ? members.map((member) => (
                 <tr key={member.id} style={{ borderBottom: '0.052vw solid var(--border-color)' }}>
-                  <td style={{ padding: '1.852vh 1.042vw' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
-                      <div style={{ width: '1.667vw', height: '1.667vw', borderRadius: '50%', background: member.role === 'BATCH_MANAGER' ? 'var(--accent-secondary)' : 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '0.667vw' }}>
+                  <td style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'calc(0.833vw * var(--font-scale))' }}>
+                      <div style={{ 
+                        width: 'calc(3vw * var(--font-scale))', 
+                        height: 'calc(3vw * var(--font-scale))', 
+                        borderRadius: '50%', 
+                        background: member.role === 'BATCH_MANAGER' ? 'var(--accent-secondary)' : 'var(--accent-primary)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        color: 'black', 
+                        fontWeight: '800', 
+                        fontSize: 'calc(1.2vw * var(--font-scale))' 
+                      }}>
                         {member.name?.charAt(0)}
                       </div>
                       <div>
-                        <div style={{ fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '0.417vw' }}>
+                        <div style={{ fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: 'calc(0.417vw * var(--font-scale))', fontSize: 'calc(1.2vw * var(--font-scale))' }}>
                           {member.name}
                           {member.role === 'BATCH_MANAGER' && (
-                            <span style={{ fontSize: '0.5vw', padding: '0.148vh 0.25vw', border: '0.052vw solid var(--accent-secondary)', color: 'var(--accent-secondary)', borderRadius: '0.208vw', textTransform: 'uppercase' }}>Manager</span>
+                            <span style={{ fontSize: 'calc(0.6vw * var(--font-scale))', padding: '0.2vh 0.4vw', border: '0.052vw solid var(--accent-secondary)', color: 'var(--accent-secondary)', borderRadius: '0.208vw', textTransform: 'uppercase' }}>Manager</span>
                           )}
                         </div>
-                        <div style={{ fontSize: '0.625vw', color: 'var(--text-muted)' }}>{member.email}</div>
+                        <div style={{ fontSize: 'calc(0.9vw * var(--font-scale))', color: 'var(--text-muted)' }}>{member.email}</div>
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: '1.852vh 1.042vw', color: 'var(--text-secondary)', fontSize: '0.75vw' }}>
+                  <td style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', color: 'var(--text-secondary)', fontSize: 'calc(1.1vw * var(--font-scale))' }}>
                     {member.occupation || '---'}
                   </td>
-                  <td style={{ padding: '1.852vh 1.042vw', textAlign: 'right' }}>
+                  <td style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', textAlign: 'right' }}>
                     {member.id !== userSession.uid && member.role === 'USER' && (
                       <HandoverAction userId={member.id} userName={member.name || 'Member'} />
                     )}
                     {member.id === userSession.uid && (
-                      <span style={{ fontSize: '0.625vw', color: 'var(--text-muted)', fontStyle: 'italic' }}>You (Current Manager)</span>
+                      <span style={{ fontSize: 'calc(1vw * var(--font-scale))', color: 'var(--text-muted)', fontStyle: 'italic' }}>You (Current Manager)</span>
                     )}
                   </td>
                 </tr>
@@ -210,33 +237,44 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
           </table>
         </div>
       ) : (
-        <div className="responsive-table-container glass" style={{ borderRadius: '1.25vw' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="responsive-table-container glass" style={{ borderRadius: '1.25vw', overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
             <thead>
               <tr style={{ borderBottom: '0.052vw solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
-                <th style={{ padding: '1.852vh 1.042vw', textAlign: 'left', fontSize: '0.667vw', color: 'var(--text-muted)', textTransform: 'uppercase' }}>New Applicant</th>
-                <th style={{ padding: '1.852vh 1.042vw', textAlign: 'left', fontSize: '0.667vw', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Joined On</th>
-                <th style={{ padding: '1.852vh 1.042vw', textAlign: 'right', fontSize: '0.667vw', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
+                <th style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', textAlign: 'left', fontSize: 'calc(0.85vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase' }}>New Applicant</th>
+                <th style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', textAlign: 'left', fontSize: 'calc(0.85vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Joined On</th>
+                <th style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', textAlign: 'right', fontSize: 'calc(0.85vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {pendingMembers.length > 0 ? pendingMembers.map((member) => (
                 <tr key={member.id} style={{ borderBottom: '0.052vw solid var(--border-color)' }}>
-                  <td style={{ padding: '1.852vh 1.042vw' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
-                      <div style={{ width: '1.667vw', height: '1.667vw', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '0.667vw' }}>
+                  <td style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'calc(0.833vw * var(--font-scale))' }}>
+                      <div style={{ 
+                        width: 'calc(3vw * var(--font-scale))', 
+                        height: 'calc(3vw * var(--font-scale))', 
+                        borderRadius: '50%', 
+                        background: 'var(--accent-primary)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        color: 'black', 
+                        fontWeight: '800', 
+                        fontSize: 'calc(1.2vw * var(--font-scale))' 
+                      }}>
                         {member.name?.charAt(0)}
                       </div>
                       <div>
-                        <div style={{ fontWeight: '700', color: 'white' }}>{member.name}</div>
-                        <div style={{ fontSize: '0.625vw', color: 'var(--text-muted)' }}>{member.email}</div>
+                        <div style={{ fontWeight: '700', color: 'white', fontSize: 'calc(1.2vw * var(--font-scale))' }}>{member.name}</div>
+                        <div style={{ fontSize: 'calc(0.9vw * var(--font-scale))', color: 'var(--text-muted)' }}>{member.email}</div>
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: '1.852vh 1.042vw', color: 'var(--text-secondary)', fontSize: '0.75vw' }}>
+                  <td style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', color: 'var(--text-secondary)', fontSize: 'calc(1.1vw * var(--font-scale))' }}>
                     {new Date(member.createdAt).toLocaleDateString()}
                   </td>
-                  <td style={{ padding: '1.852vh 1.042vw', textAlign: 'right' }}>
+                  <td style={{ padding: 'calc(1.852vh * var(--font-scale)) calc(1.042vw * var(--font-scale))', textAlign: 'right' }}>
                     <ApprovalActions userId={member.id} />
                   </td>
                 </tr>

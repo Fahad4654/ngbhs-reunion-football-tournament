@@ -462,7 +462,7 @@ a {
 
 .responsive-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15.625vw, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 15.625vw, 100%), 1fr));
   gap: 1.667vw;
 }
 

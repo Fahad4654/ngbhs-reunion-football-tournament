@@ -82,18 +82,18 @@ export default async function BatchFeedPage() {
 
   return (
     <>
-      <div style={{ maxWidth: '36.458vw', width: '100%', margin: '0 auto', padding: '0 0.391vw' }}>
+      <div style={{ maxWidth: 'min(100%, 600px)', width: '100%', margin: '0 auto', padding: '0 0.391vw' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25vw' }}>
         {posts.length > 0 ? posts.map((post) => (
           <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '1.25vw' }}>
             {/* Post Header */}
-            <div style={{ padding: '1.259vh 0.417vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.417vw', borderBottom: '0.052vw solid var(--border-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.542vw', minWidth: 0, flex: 1 }}>
+            <div style={{ padding: '1.259vh 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.417vw', borderBottom: '0.052vw solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625vw', minWidth: 0, flex: 1 }}>
                 <div style={{ 
-                  width: '1.875vw', 
-                  minWidth: '1.875vw',
-                  height: '1.875vw', 
+                  width: 'calc(1.875vw * var(--font-scale))', 
+                  minWidth: 'calc(1.875vw * var(--font-scale))',
+                  height: 'calc(1.875vw * var(--font-scale))', 
                   borderRadius: '50%', 
                   background: post.author.image ? 'transparent' : 'var(--accent-primary)',
                   display: 'flex',
@@ -101,7 +101,7 @@ export default async function BatchFeedPage() {
                   justifyContent: 'center',
                   fontWeight: '800',
                   color: 'black',
-                  fontSize: '0.708vw',
+                  fontSize: 'calc(0.708vw * var(--font-scale))',
                   overflow: 'hidden',
                   border: post.author.image ? '0.052vw solid var(--border-color)' : 'none',
                   flexShrink: 0
@@ -113,8 +113,8 @@ export default async function BatchFeedPage() {
                   )}
                 </div>
                 <div style={{ minWidth: 0, width: 0, flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '800', fontSize: '0.875vw', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
-                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.542vw', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: 'calc(0.875vw * var(--font-scale))', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'calc(0.542vw * var(--font-scale))', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                     {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
@@ -129,9 +129,9 @@ export default async function BatchFeedPage() {
             </div>
 
             {/* Post Content */}
-            <div style={{ padding: '1.481vh 0.417vw 0.741vh' }}>
-              <h3 style={{ fontSize: '0.917vw', marginBottom: '0.741vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.792vw', lineHeight: '1.5', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+            <div style={{ padding: '1.481vh 1.25vw 0.741vh' }}>
+              <h3 style={{ fontSize: 'calc(0.917vw * var(--font-scale))', marginBottom: '0.741vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 'calc(0.792vw * var(--font-scale))', lineHeight: '1.5', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                 {post.content}
               </p>
             </div>
@@ -150,8 +150,8 @@ export default async function BatchFeedPage() {
           </article>
         )) : (
           <div className="glass" style={{ textAlign: 'center', padding: '7.407vh 1.667vw', borderRadius: '1.25vw' }}>
-            <div style={{ fontSize: '2.5vw', marginBottom: '2.222vh' }}>🏟️</div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.917vw', fontWeight: '600' }}>No posts in your batch yet.</p>
+            <div style={{ fontSize: 'calc(2.5vw * var(--font-scale))', marginBottom: '2.222vh' }}>🏟️</div>
+            <p style={{ color: 'var(--text-muted)', fontSize: 'calc(0.917vw * var(--font-scale))', fontWeight: '600' }}>No posts in your batch yet.</p>
             <Link href="/dashboard/posts" className="btn btn-primary" style={{ marginTop: '2.963vh' }}>Be the First to Post</Link>
           </div>
         )}

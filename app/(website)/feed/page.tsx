@@ -43,11 +43,11 @@ export default async function FeedPage() {
             <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '1.25vw' }}>
               {/* Post Header */}
               <div style={{ padding: '1.157vh 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.625vw', borderBottom: '0.052vw solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625vw', minWidth: 0, flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw', minWidth: 0, flex: 1 }}>
                   <div style={{ 
-                    width: '2.5vw', 
-                    minWidth: '2.5vw',
-                    height: '2.5vw', 
+                    width: 'calc(2.5vw * var(--font-scale))', 
+                    minWidth: 'calc(2.5vw * var(--font-scale))',
+                    height: 'calc(2.5vw * var(--font-scale))', 
                     borderRadius: '50%', 
                     background: post.author.image ? 'transparent' : 'var(--accent-primary)',
                     display: 'flex',

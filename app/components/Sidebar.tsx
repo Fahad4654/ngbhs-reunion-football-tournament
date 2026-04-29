@@ -66,10 +66,10 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       </div>
 
       {/* Scrollable Middle Section */}
-      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.852vh 1.042vw' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.222vh' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.37vh' }}>
-            <div style={{ fontSize: 'calc(0.9vw * var(--font-scale))', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.593vh', marginLeft: '0.417vw' }}>
+      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.2vh 1.042vw' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5vh' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2vh' }}>
+            <div style={{ fontSize: 'calc(0.85vw * var(--font-scale))', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.4vh', marginLeft: '0.417vw' }}>
               Main Menu
             </div>
             
@@ -84,17 +84,17 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 'calc(0.75vw * var(--font-scale))',
-                    padding: 'calc(1vh * var(--font-scale)) calc(0.75vw * var(--font-scale))',
+                    padding: 'calc(0.7vh * var(--font-scale)) calc(0.75vw * var(--font-scale))',
                     borderRadius: 'calc(0.5vw * var(--font-scale))',
                     color: isActive ? 'white' : 'var(--text-secondary)',
                     background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
                     border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
                     transition: 'all 0.2s ease',
                     fontWeight: isActive ? '700' : '500',
-                    fontSize: 'calc(1vw * var(--font-scale))'
+                    fontSize: 'calc(0.95vw * var(--font-scale))'
                   }}
                 >
-                  <span style={{ fontSize: 'calc(1.2vw * var(--font-scale))' }}>{link.icon}</span>
+                  <span style={{ fontSize: 'calc(1.1vw * var(--font-scale))' }}>{link.icon}</span>
                   <span>{link.name}</span>
                 </Link>
               );
@@ -102,8 +102,8 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
           </div>
 
           {(user.role === "ADMIN" || user.role === "CO_ADMIN") && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.37vh' }}>
-              <div style={{ fontSize: '0.8vw', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.593vh', marginLeft: '0.417vw' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2vh' }}>
+              <div style={{ fontSize: 'calc(0.8vw * var(--font-scale))', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.4vh', marginLeft: '0.417vw' }}>
                 Administrative
               </div>
               {adminOnlyLinks.map((link) => {
@@ -115,18 +115,18 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.625vw',
-                      padding: '0.889vh 0.708vw',
-                      borderRadius: '0.521vw',
+                      gap: 'calc(0.625vw * var(--font-scale))',
+                      padding: 'calc(0.7vh * var(--font-scale)) calc(0.708vw * var(--font-scale))',
+                      borderRadius: 'calc(0.521vw * var(--font-scale))',
                       color: isActive ? 'white' : 'var(--text-secondary)',
                       background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
                       border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
                       transition: 'all 0.2s ease',
                       fontWeight: isActive ? '700' : '500',
-                      fontSize: '1.0vw'
+                      fontSize: 'calc(0.95vw * var(--font-scale))'
                     }}
                   >
-                    <span style={{ fontSize: '0.917vw' }}>{link.icon}</span>
+                    <span style={{ fontSize: 'calc(0.917vw * var(--font-scale))' }}>{link.icon}</span>
                     <span>{link.name}</span>
                   </Link>
                 );
@@ -145,7 +145,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             display: 'flex', 
             alignItems: 'center', 
             gap: '0.833vw', 
-            marginBottom: '1.852vh', 
+            marginBottom: '1.2vh', 
             padding: '0.741vh 0.417vw',
             borderRadius: '0.625vw',
             transition: 'all 0.2s ease',

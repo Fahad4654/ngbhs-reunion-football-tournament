@@ -33,8 +33,7 @@
 
 .row td {
   padding: 1.389vh 1.25vw;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
+  background: rgba(20, 22, 26, 0.8); /* Solid-ish background for better performance */
   border-top: 0.052vw solid var(--border-color);
   border-bottom: 0.052vw solid var(--border-color);
 }
