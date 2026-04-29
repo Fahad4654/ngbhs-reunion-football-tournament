@@ -89,7 +89,7 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
           <Link
             href="/feed"
             className="btn glass panel-nav-btn"
-            style={{ fontSize: '1.0vw', padding: '0.694vh 1.042vw' }}
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
           >
             <span className="desktop-only">🌐 Community Feed</span>
             <span className="mobile-only">🌐</span>
@@ -99,8 +99,8 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
             <div
               className="panel-user-avatar"
               style={{
-                width: '1.667vw',
-                height: '1.667vw',
+                width: 'clamp(32px, 4vw, 48px)',
+                height: 'clamp(32px, 4vw, 48px)',
                 borderRadius: '50%',
                 background: userImage ? 'transparent' : 'var(--accent-primary)',
                 display: 'flex',
@@ -108,9 +108,9 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
                 justifyContent: 'center',
                 color: 'black',
                 fontWeight: '800',
-                fontSize: '0.833vw',
+                fontSize: '0.875rem',
                 overflow: 'hidden',
-                border: '0.104vw solid var(--border-color)',
+                border: '2px solid var(--border-color)',
                 flexShrink: 0
               }}
             >

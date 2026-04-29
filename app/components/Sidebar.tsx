@@ -165,11 +165,11 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
           </div>
         </Link>
 
-        <Link href="/" className="btn glass" style={{ width: '100%', marginBottom: '1.111vh', fontSize: '0.9vw', fontWeight: '800', color: 'var(--accent-primary)', justifyContent: 'center', border: '0.052vw solid rgba(235, 183, 0, 0.2)' }}>
+        <Link href="/" className="btn glass" style={{ width: '100%', marginBottom: '1.111vh', fontSize: 'calc(0.9vw * var(--font-scale))', fontWeight: '800', color: 'var(--accent-primary)', justifyContent: 'center', border: '0.052vw solid rgba(235, 183, 0, 0.2)' }}>
           🏠 EXIT TO WEBSITE
         </Link>
         <form action={logout}>
-          <button type="submit" className="btn glass" style={{ width: '100%', color: '#ff4444', fontSize: '0.9vw', fontWeight: '700', justifyContent: 'center' }}>
+          <button type="submit" className="btn glass" style={{ width: '100%', color: '#ff4444', fontSize: 'calc(0.9vw * var(--font-scale))', fontWeight: '700', justifyContent: 'center' }}>
             🚪 SIGN OUT
           </button>
         </form>

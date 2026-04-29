@@ -59,26 +59,23 @@ export default function GoogleLoginButton() {
           backgroundColor: 'white',
           color: '#333',
           border: '1px solid #ddd',
-          padding: '0.75rem 1rem',
-          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          borderRadius: '12px',
           fontWeight: '600',
           fontSize: '0.95rem',
           textTransform: 'none',
           cursor: isPending ? 'not-allowed' : 'pointer',
           transition: 'all 0.2s ease',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-          whiteSpace: 'nowrap'
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
         }}
         type="button"
       >
         <img 
           src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
           alt="Google" 
-          style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} 
+          style={{ width: '20px', height: '20px' }} 
         />
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {isPending ? 'Connecting...' : 'Continue with Google'}
-        </span>
+        {isPending ? 'Connecting...' : 'Continue with Google'}
       </button>
       
       {error && (
