@@ -4,150 +4,206 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions";
 import type { AppUser } from "@/lib/server-auth";
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import EditIcon from '@mui/icons-material/Edit';
+import DescriptionIcon from '@mui/icons-material/Description';
+import SchoolIcon from '@mui/icons-material/School';
+import SettingsIcon from '@mui/icons-material/Settings';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
+import ForumIcon from '@mui/icons-material/Forum';
+import SecurityIcon from '@mui/icons-material/Security';
+import GroupIcon from '@mui/icons-material/Group';
+import HomeIcon from '@mui/icons-material/Home';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface SidebarProps {
   user: AppUser;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ user }: SidebarProps) {
+export default function Sidebar({ user, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   const mainLinks = [
-    { name: "Overview", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin" : "/dashboard", icon: "📊" },
-    { name: "Create Post", href: "/dashboard/posts", icon: "✍️", roles: ["USER", "BATCH_MANAGER"] },
-    { name: "My Posts", href: "/dashboard/posts/my-posts", icon: "📝", roles: ["USER", "BATCH_MANAGER"] },
-    { name: "Batch Feed", href: "/dashboard/batch-feed", icon: "🎓", roles: ["USER", "BATCH_MANAGER"] },
-    { name: "Manage Batch", href: "/dashboard/manage-batch", icon: "🛠️", roles: ["BATCH_MANAGER"] },
-    { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: "⚽", roles: ["ADMIN", "CO_ADMIN"] },
-    { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: "📰", roles: ["ADMIN", "CO_ADMIN"] },
-    { name: "Post Moderation", href: "/admin/posts", icon: "💬", roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "Overview", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin" : "/dashboard", icon: <AssessmentIcon /> },
+    { name: "Create Post", href: "/dashboard/posts", icon: <EditIcon />, roles: ["USER", "BATCH_MANAGER"] },
+    { name: "My Posts", href: "/dashboard/posts/my-posts", icon: <DescriptionIcon />, roles: ["USER", "BATCH_MANAGER"] },
+    { name: "Batch Feed", href: "/dashboard/batch-feed", icon: <SchoolIcon />, roles: ["USER", "BATCH_MANAGER"] },
+    { name: "Manage Batch", href: "/dashboard/manage-batch", icon: <SettingsIcon />, roles: ["BATCH_MANAGER"] },
+    { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: <NewspaperIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "Post Moderation", href: "/admin/posts", icon: <ForumIcon />, roles: ["ADMIN", "CO_ADMIN"] },
   ];
 
   const adminOnlyLinks = [
-    { name: "Batch Settings", href: "/admin/batches", icon: "🛡️" },
-    { name: "User Access", href: "/admin/users", icon: "👥" },
+    { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon /> },
+    { name: "User Access", href: "/admin/users", icon: <GroupIcon /> },
   ];
 
   return (
-    <aside className="glass" style={{
-      width: '280px',
-      height: '100vh',
-      position: 'fixed',
-      left: 0,
-      top: 0,
+    <aside className="glass no-scrollbar" style={{
+      width: '100%',
+      height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      padding: '2rem 1.5rem',
-      zIndex: 1000,
+      padding: 0,
       borderRadius: 0,
-      borderRight: '1px solid var(--border-color)',
+      borderRight: '0.052vw solid var(--border-color)',
+      overflow: 'hidden',
       borderTop: 'none',
       borderLeft: 'none',
       borderBottom: 'none'
     }}>
-      {/* Branding */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3rem' }}>
-        <img src="/logo.jpg" alt="Logo" style={{ width: '40px', height: '40px', borderRadius: '10px' }} />
-        <div>
-          <div style={{ fontSize: '0.9rem', fontWeight: '800', letterSpacing: '1px' }}>NGBHS</div>
-          <div className="text-gradient" style={{ fontSize: '0.7rem', fontWeight: '700', textTransform: 'uppercase' }}>Management</div>
+      {/* Fixed Header */}
+      <div style={{ padding: 'calc(1.5vh * var(--font-scale)) calc(1vw * var(--font-scale))', borderBottom: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.2)', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'calc(0.75vw * var(--font-scale))' }}>
+          <img src="/logo.jpg" alt="NGBHS Logo" className="navbar-logo" />
+          <div style={{ flex: 1 }}>
+            <h2 className="sidebar-brand-title" style={{ margin: 0, color: 'white' }}>
+              <span>NGBHS REUNION</span>
+              <span className="text-gradient">FOOTBALL CHAMPIONSHIP</span>
+            </h2>
+            <p style={{ fontSize: 'calc(0.6vw * var(--font-scale))', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', margin: 0, marginTop: '0.5vh' }}>Management Panel</p>
+          </div>
+          {onClose && (
+            <button 
+              onClick={onClose}
+              className="mobile-nav-toggle btn glass"
+              style={{ padding: 0, minWidth: '40px', height: '40px' }}
+            >
+              <CloseIcon sx={{ fontSize: '1.5rem' }} />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Navigation */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-        <div style={{ fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>
-          Main Menu
-        </div>
-        
-        {mainLinks.filter(l => !l.roles || l.roles.includes(user.role)).map((link) => {
-          const isActive = pathname === link.href;
-          return (
-            <Link 
-              key={link.href} 
-              href={link.href}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '0.875rem 1rem',
-                borderRadius: '12px',
-                color: isActive ? 'white' : 'var(--text-secondary)',
-                background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-                border: isActive ? '1px solid var(--border-color)' : '1px solid transparent',
-                transition: 'all 0.2s ease',
-                fontWeight: isActive ? '700' : '500'
-              }}
-            >
-              <span style={{ fontSize: '1.25rem' }}>{link.icon}</span>
-              <span>{link.name}</span>
-            </Link>
-          );
-        })}
-
-        {user.role === "ADMIN" && (
-          <>
-            <div style={{ fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px', marginTop: '2rem', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>
-              Administrative
+      {/* Scrollable Middle Section */}
+      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.2vh 1.042vw' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5vh' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2vh' }}>
+            <div style={{ fontSize: 'calc(0.85vw * var(--font-scale))', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.4vh', marginLeft: '0.417vw' }}>
+              Main Menu
             </div>
-            {adminOnlyLinks.map((link) => {
+            
+            {mainLinks.filter(l => !l.roles || l.roles.includes(user.role)).map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link 
                   key={link.href} 
                   href={link.href}
+                  onClick={onClose}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '1rem',
-                    padding: '0.875rem 1rem',
-                    borderRadius: '12px',
+                    gap: 'calc(0.75vw * var(--font-scale))',
+                    padding: 'calc(0.7vh * var(--font-scale)) calc(0.75vw * var(--font-scale))',
+                    borderRadius: 'calc(0.5vw * var(--font-scale))',
                     color: isActive ? 'white' : 'var(--text-secondary)',
                     background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-                    border: isActive ? '1px solid var(--border-color)' : '1px solid transparent',
+                    border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
                     transition: 'all 0.2s ease',
-                    fontWeight: isActive ? '700' : '500'
+                    fontWeight: isActive ? '700' : '500',
+                    fontSize: 'calc(0.95vw * var(--font-scale))'
                   }}
                 >
-                  <span style={{ fontSize: '1.25rem' }}>{link.icon}</span>
+                  <span style={{ 
+                    fontSize: 'calc(1.1vw * var(--font-scale))', 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    color: isActive ? 'var(--accent-primary)' : 'inherit' 
+                  }}>
+                    {link.icon}
+                  </span>
                   <span>{link.name}</span>
                 </Link>
               );
             })}
-          </>
-        )}
+          </div>
+
+          {(user.role === "ADMIN" || user.role === "CO_ADMIN") && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2vh' }}>
+              <div style={{ fontSize: 'calc(0.8vw * var(--font-scale))', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.4vh', marginLeft: '0.417vw' }}>
+                Administrative
+              </div>
+              {adminOnlyLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link 
+                    key={link.href} 
+                    href={link.href}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'calc(0.625vw * var(--font-scale))',
+                      padding: 'calc(0.7vh * var(--font-scale)) calc(0.708vw * var(--font-scale))',
+                      borderRadius: 'calc(0.521vw * var(--font-scale))',
+                      color: isActive ? 'white' : 'var(--text-secondary)',
+                      background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
+                      border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
+                      transition: 'all 0.2s ease',
+                      fontWeight: isActive ? '700' : '500',
+                      fontSize: 'calc(0.95vw * var(--font-scale))'
+                    }}
+                  >
+                    <span style={{ 
+                      fontSize: 'calc(0.917vw * var(--font-scale))', 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      color: isActive ? 'var(--accent-primary)' : 'inherit' 
+                    }}>
+                      {link.icon}
+                    </span>
+                    <span>{link.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Bottom Profile / Logout */}
-      <div style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-          <div style={{ 
-            width: '40px', 
-            height: '40px', 
-            borderRadius: '50%', 
-            background: 'var(--accent-primary)',
-            color: 'black',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: '800',
-            fontSize: '0.9rem'
-          }}>
-            {user.name?.charAt(0)}
-          </div>
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontWeight: '700', fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{user.role}</div>
-          </div>
-        </div>
-
-        <Link href="/" className="btn glass" style={{ width: '100%', marginBottom: '0.5rem', fontSize: '0.75rem', justifyContent: 'center' }}>
-          🏠 Exit to Website
+      {/* Fixed Bottom Section */}
+      <div style={{ padding: '2vh 1.5vw', borderTop: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.4)', display: 'flex', flexDirection: 'column', gap: '1.25vh' }}>
+        <Link 
+          href="/" 
+          className="btn glass" 
+          style={{ 
+            width: '100%', 
+            fontSize: 'clamp(0.75rem, 0.9vw, 0.9rem)', 
+            fontWeight: '800', 
+            color: 'var(--accent-primary)', 
+            justifyContent: 'center', 
+            border: '1px solid rgba(235, 183, 0, 0.3)', 
+            gap: '0.75rem',
+            padding: '1vh 1.25vw',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <HomeIcon sx={{ fontSize: '1.25rem' }} />
+          <span>EXIT TO WEBSITE</span>
         </Link>
-        
-        <form action={logout}>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', fontSize: '0.75rem', justifyContent: 'center', background: 'rgba(235, 183, 0, 0.1)', color: 'var(--accent-primary)', border: '1px solid var(--accent-primary)' }}>
-            🔒 Sign Out
+
+        <form action={logout} style={{ width: '100%' }}>
+          <button 
+            type="submit" 
+            className="btn glass" 
+            style={{ 
+              width: '100%', 
+              color: '#ff4444', 
+              fontSize: 'clamp(0.75rem, 0.9vw, 0.9rem)', 
+              fontWeight: '700', 
+              justifyContent: 'center', 
+              gap: '0.75rem',
+              padding: '0.75vh 1vw',
+              border: '1px solid rgba(255, 68, 68, 0.2)',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <ExitToAppIcon sx={{ fontSize: '1.25rem' }} />
+            <span style={{ whiteSpace: 'nowrap' }}>SIGN OUT</span>
           </button>
         </form>
       </div>

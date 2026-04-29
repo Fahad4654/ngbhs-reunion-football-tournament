@@ -30,7 +30,6 @@ export default function ModerationActions({ postId }: ModerationActionsProps) {
       const promise = approvePost(postId);
       toast.promise(promise, {
         loading: 'Approving...',
-        success: 'Post approved! 🚀',
         error: 'Failed to approve post.',
       });
       await promise;
@@ -58,18 +57,18 @@ export default function ModerationActions({ postId }: ModerationActionsProps) {
         <button 
           onClick={handleApprove} 
           className="btn btn-primary" 
-          style={{ flex: 1 }} 
+          style={{ flex: 1, padding: '1rem', fontWeight: '800' }} 
           disabled={isPending}
         >
-          {isPending ? 'Processing...' : 'Approve Post'}
+          {isPending ? 'Processing...' : 'APPROVE POST'}
         </button>
         <button 
           onClick={handleReject} 
           className="btn glass" 
-          style={{ flex: 1, color: 'var(--accent-danger)', borderColor: 'var(--accent-danger)' }} 
+          style={{ flex: 1, color: 'var(--accent-danger)', borderColor: 'var(--accent-danger)', padding: '1rem', fontWeight: '800' }} 
           disabled={isPending}
         >
-          {isPending ? 'Processing...' : 'Reject Post'}
+          {isPending ? 'Processing...' : 'REJECT POST'}
         </button>
       </div>
 

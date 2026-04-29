@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import MediaRenderer from './MediaRenderer';
+import CloseIcon from '@mui/icons-material/Close';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 export interface MediaItem {
   id: string;
@@ -65,8 +68,8 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: media.length === 1 ? '1fr' : '1fr 1fr',
-        gap: '8px',
-        padding: '1rem 1.5rem',
+        gap: 'calc(0.417vw * var(--font-scale))',
+        padding: 'calc(1.481vh * var(--font-scale)) calc(1.25vw * var(--font-scale))',
       }}>
         {media.map((item, idx) => (
           <div 
@@ -76,9 +79,9 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               position: 'relative', 
               aspectRatio: media.length === 1 ? '16/9' : (media.length === 3 && idx === 0) ? '16/9' : '1/1',
               gridColumn: (media.length === 3 && idx === 0) ? 'span 2' : 'span 1',
-              borderRadius: '12px',
+              borderRadius: '0.625vw',
               overflow: 'hidden',
-              border: '1px solid var(--border-color)',
+              border: '0.052vw solid var(--border-color)',
               cursor: 'pointer'
             }}
           >
@@ -98,7 +101,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             position: 'fixed',
             inset: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            backdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(0.521vw)',
             zIndex: 999999,
             display: 'flex',
             alignItems: 'center',
@@ -116,21 +119,20 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               background: 'rgba(255,255,255,0.1)',
               border: 'none',
               color: 'white',
-              width: '44px',
-              height: '44px',
+              width: '3.5rem',
+              height: '3.5rem',
               borderRadius: '50%',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.5rem',
               zIndex: 10,
               transition: 'background 0.2s',
             }}
             onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
             onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
           >
-            ✕
+            <CloseIcon sx={{ fontSize: '2rem' }} />
           </button>
 
           {/* Navigation Controls */}
@@ -140,49 +142,47 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 onClick={handlePrev}
                 style={{
                   position: 'absolute',
-                  left: '1.5rem',
+                  left: '1rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: 'white',
-                  width: '56px',
-                  height: '56px',
+                  width: '4rem',
+                  height: '4rem',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2rem',
                   zIndex: 10,
                   transition: 'background 0.2s',
                 }}
                 onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
                 onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
               >
-                ‹
+                <NavigateBeforeIcon sx={{ fontSize: '3rem' }} />
               </button>
               <button 
                 onClick={handleNext}
                 style={{
                   position: 'absolute',
-                  right: '1.5rem',
+                  right: '1rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: 'white',
-                  width: '56px',
-                  height: '56px',
+                  width: '4rem',
+                  height: '4rem',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2rem',
                   zIndex: 10,
                   transition: 'background 0.2s',
                 }}
                 onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
                 onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
               >
-                ›
+                <NavigateNextIcon sx={{ fontSize: '3rem' }} />
               </button>
               
               {/* Media Counter */}
@@ -192,9 +192,9 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 color: 'white',
                 background: 'rgba(0,0,0,0.5)',
                 padding: '0.5rem 1rem',
-                borderRadius: '20px',
-                fontSize: '0.875rem',
-                letterSpacing: '2px',
+                borderRadius: '1.5rem',
+                fontSize: '1rem',
+                letterSpacing: '0.1em',
               }}>
                 {selectedIndex + 1} / {media.length}
               </div>
@@ -221,7 +221,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 maxWidth: '100%',
                 maxHeight: '100%',
                 objectFit: 'contain',
-                borderRadius: '8px',
+                borderRadius: '0.5rem',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
               }}
             />

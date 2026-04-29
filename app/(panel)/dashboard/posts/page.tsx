@@ -7,15 +7,13 @@ export default async function CreatePostPage() {
   if (!user) redirect("/login");
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
-        <div className="badge" style={{ marginBottom: '0.5rem' }}>Community Sharing</div>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>Create a New Post</h1>
-      </header>
+    <>
+      <div style={{ textAlign: 'center' }}>
+      </div>
 
-      <div style={{ width: '100%', maxWidth: '550px' }}>
+      <div style={{ width: '100%', maxWidth: 'min(100%, 600px)', margin: '0 auto', padding: '0 0.5rem' }}>
         <PostForm user={user} />
       </div>
-    </div>
+    </>
   );
 }

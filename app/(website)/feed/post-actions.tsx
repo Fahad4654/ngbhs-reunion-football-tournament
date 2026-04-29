@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { toggleCheer } from '@/lib/actions';
 import CommentSection from './comment-section';
 import { toast } from 'react-hot-toast';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import ForumIcon from '@mui/icons-material/Forum';
+import CampaignIcon from '@mui/icons-material/Campaign';
 
 interface PostActionsProps {
   postId: string;
@@ -49,50 +53,89 @@ export default function PostActions({ postId, initialCheers, initialComments, cu
 
   return (
     <>
-      <div style={{ padding: '0.25rem 1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: '600' }}>
-          <span>🏆 {initialCheers.length} {initialCheers.length === 1 ? 'Cheer' : 'Cheers'}</span>
+      <div className="post-actions-container" style={{ padding: '0.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0.5rem', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '700' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <EmojiEventsIcon sx={{ fontSize: '1rem', color: 'var(--accent-primary)' }} />
+            <span>{initialCheers.length} {initialCheers.length === 1 ? 'Cheer' : 'Cheers'}</span>
+          </div>
           <span style={{ cursor: 'pointer' }} onClick={() => setShowComments(!showComments)}>
             {initialComments.length} {initialComments.length === 1 ? 'Comment' : 'Comments'}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '0.5rem', 
+          paddingTop: '0.75rem', 
+          paddingBottom: '0.75rem',
+          width: '100%'
+        }}>
           <button 
             onClick={handleCheer}
             className="btn glass" 
             style={{ 
-              flex: 1, 
-              padding: '0.6rem', 
-              fontSize: '0.875rem', 
+              flex: 1,
+              padding: '0.75rem 0', 
+              fontSize: '0.85rem', 
               color: hasCheered ? 'var(--accent-primary)' : 'var(--text-muted)',
               borderColor: hasCheered ? 'var(--accent-primary)' : 'var(--border-color)',
               background: hasCheered ? 'rgba(235, 183, 0, 0.1)' : 'transparent',
-              textTransform: 'none'
+              textTransform: 'none',
+              minWidth: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.4rem',
+              letterSpacing: '-0.02em',
+              fontWeight: '700'
             }}
             disabled={isCheering}
           >
-            <span style={{ fontSize: '1.1rem' }}>⚽</span> Cheer
+            <SportsSoccerIcon sx={{ fontSize: '1.25rem' }} />
+            <span>Cheer</span>
           </button>
           <button 
             onClick={() => setShowComments(!showComments)}
             className="btn glass" 
             style={{ 
-              flex: 1, 
-              padding: '0.6rem', 
-              fontSize: '0.875rem', 
+              flex: 1,
+              padding: '0.75rem 0', 
+              fontSize: '0.85rem', 
               color: showComments ? 'white' : 'var(--text-muted)',
               background: showComments ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-              textTransform: 'none'
+              textTransform: 'none',
+              minWidth: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.4rem',
+              letterSpacing: '-0.02em',
+              fontWeight: '700'
             }}
           >
-            <span style={{ fontSize: '1.1rem' }}>💬</span> Comment
+            <ForumIcon sx={{ fontSize: '1.15rem' }} />
+            <span>Comment</span>
           </button>
           <button 
             onClick={handleShare}
             className="btn glass" 
-            style={{ flex: 1, padding: '0.6rem', fontSize: '0.875rem', color: 'var(--text-muted)', textTransform: 'none' }}
+            style={{ 
+              flex: 1,
+              padding: '0.75rem 0', 
+              fontSize: '0.85rem', 
+              color: 'var(--text-muted)', 
+              textTransform: 'none', 
+              minWidth: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.4rem',
+              letterSpacing: '-0.02em',
+              fontWeight: '700'
+            }}
           >
-            <span style={{ fontSize: '1.1rem' }}>📢</span> Share
+            <CampaignIcon sx={{ fontSize: '1.25rem' }} />
+            <span>Share</span>
           </button>
         </div>
       </div>

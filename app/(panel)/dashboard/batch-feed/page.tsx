@@ -5,6 +5,10 @@ import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
 import PostActions from "@/app/(website)/feed/post-actions";
 import Link from "next/link";
+import SchoolIcon from '@mui/icons-material/School';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import CancelIcon from '@mui/icons-material/Cancel';
+import StadiumIcon from '@mui/icons-material/Stadium';
 
 export const metadata = {
   title: 'My Batch Feed - NGBHS Reunion',
@@ -21,11 +25,13 @@ export default async function BatchFeedPage() {
 
   if (!dbUser?.batchId) {
     return (
-      <div style={{ maxWidth: '600px', margin: '4rem auto' }}>
-        <div className="glass" style={{ textAlign: 'center', padding: '4rem 2rem', borderRadius: '24px' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🎓</div>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--accent-primary)' }}>Batch Not Selected</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', lineHeight: '1.6' }}>
+      <div style={{ maxWidth: 'min(100%, 500px)', width: '100%', margin: '5.926vh auto', padding: '0 1rem' }}>
+        <div className="glass" style={{ textAlign: 'center', padding: '5.926vh 1.667vw', borderRadius: '1.25vw' }}>
+          <div style={{ marginBottom: '2.222vh' }}>
+            <SchoolIcon sx={{ fontSize: 'clamp(3rem, 10vw, 4rem)', color: 'var(--accent-primary)' }} />
+          </div>
+          <h2 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.5rem)', marginBottom: '1.481vh', color: 'var(--accent-primary)' }}>Batch Not Selected</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2.963vh', lineHeight: '1.6' }}>
             To see your batch-specific feed, please update your profile and select your graduation batch.
           </p>
           <Link href="/profile" className="btn btn-primary">
@@ -36,42 +42,91 @@ export default async function BatchFeedPage() {
     );
   }
 
+  // Gate: pending or rejected users cannot see batch activity
+  if (userSession.status === 'PENDING') {
+    return (
+      <div style={{ maxWidth: 'min(100%, 500px)', width: '100%', margin: '5.926vh auto', padding: '0 1rem' }}>
+        <div className="glass" style={{ textAlign: 'center', padding: '5.926vh 1.667vw', borderRadius: '1.25vw', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+          <div style={{ marginBottom: '2.222vh' }}>
+            <HourglassEmptyIcon sx={{ fontSize: 'clamp(3rem, 10vw, 4rem)', color: '#f59e0b' }} />
+          </div>
+          <h2 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.5rem)', marginBottom: '1.481vh', color: '#f59e0b' }}>Approval Pending</h2>
+          <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+            Your membership request for <strong style={{ color: 'white' }}>{dbUser.batch?.name}</strong> is awaiting approval by your Batch Manager.
+          </p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1.481vh' }}>
+            You'll gain access to the batch feed and be able to post once your request is approved.
+          </p>
+          <Link href="/feed" className="btn glass" style={{ marginTop: '2.963vh' }}>
+            Browse Global Feed
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (userSession.status === 'REJECTED') {
+    return (
+      <div style={{ maxWidth: 'min(100%, 500px)', width: '100%', margin: '5.926vh auto', padding: '0 1rem' }}>
+        <div className="glass" style={{ textAlign: 'center', padding: '5.926vh 1.667vw', borderRadius: '1.25vw', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+          <div style={{ marginBottom: '2.222vh' }}>
+            <CancelIcon sx={{ fontSize: 'clamp(3rem, 10vw, 4rem)', color: 'var(--accent-danger)' }} />
+          </div>
+          <h2 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.5rem)', marginBottom: '1.481vh', color: 'var(--accent-danger)' }}>Request Rejected</h2>
+          <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+            Your membership request for <strong style={{ color: 'white' }}>{dbUser.batch?.name}</strong> was not approved.
+          </p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1.481vh' }}>
+            Please contact your Batch Manager or update your batch selection in your profile.
+          </p>
+          <div style={{ display: 'flex', gap: '0.833vw', justifyContent: 'center', marginTop: '2.963vh', flexWrap: 'wrap' }}>
+            <Link href="/profile" className="btn btn-primary">Update Profile</Link>
+            <Link href="/feed" className="btn glass">Global Feed</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const posts = await getApprovedPosts(dbUser.batchId);
 
   return (
-    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '1rem' }}>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.5rem' }}>
-          🎓 {dbUser.batch?.name} Feed
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Showing posts exclusively from your batchmates.
-        </p>
-      </header>
+    <>
+      <div style={{ maxWidth: 'min(100%, 600px)', width: '100%', margin: '0 auto', padding: '0 0.5rem' }}>
 
-      <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         {posts.length > 0 ? posts.map((post) => (
-          <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '24px' }}>
+          <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '1rem' }}>
             {/* Post Header */}
-            <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ 
-                width: '44px', 
-                height: '44px', 
-                borderRadius: '50%', 
-                background: 'var(--accent-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '800',
-                color: 'black',
-                fontSize: '1rem'
-              }}>
-                {post.author.name?.charAt(0)}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: 'white', fontWeight: '700', fontSize: '1rem' }}>{post.author.name}</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase' }}>
-                  {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            <div style={{ padding: '1rem 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.417vw', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+                <div style={{ 
+                  width: '40px', 
+                  minWidth: '40px',
+                  height: '40px', 
+                  borderRadius: '50%', 
+                  background: post.author.image ? 'transparent' : 'var(--accent-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '800',
+                  color: 'black',
+                  fontSize: '0.9rem',
+                  overflow: 'hidden',
+                  border: post.author.image ? '1px solid var(--border-color)' : 'none',
+                  flexShrink: 0
+                }}>
+                  {post.author.image ? (
+                    <img src={post.author.image} alt={post.author.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    post.author.name?.charAt(0)
+                  )}
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: '1rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
+                    {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
               </div>
               <PostOptions 
@@ -84,9 +139,9 @@ export default async function BatchFeedPage() {
             </div>
 
             {/* Post Content */}
-            <div style={{ padding: '1.5rem 1.5rem 0.5rem' }}>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--accent-primary)', textTransform: 'none' }}>{post.title}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+            <div style={{ padding: '1.25rem 1rem 0.75rem' }}>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.5', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                 {post.content}
               </p>
             </div>
@@ -104,13 +159,16 @@ export default async function BatchFeedPage() {
             />
           </article>
         )) : (
-          <div className="glass" style={{ textAlign: 'center', padding: '5rem 2rem', borderRadius: '24px' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>🏟️</div>
+          <div className="glass" style={{ textAlign: 'center', padding: '5rem 1.667vw', borderRadius: '1.25vw' }}>
+            <div style={{ marginBottom: '2.222vh' }}>
+              <StadiumIcon sx={{ fontSize: '4rem', color: 'var(--text-muted)' }} />
+            </div>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '600' }}>No posts in your batch yet.</p>
-            <Link href="/dashboard/posts" className="btn btn-primary" style={{ marginTop: '2rem' }}>Be the First to Post</Link>
+            <Link href="/dashboard/posts" className="btn btn-primary" style={{ marginTop: '2.963vh' }}>Be the First to Post</Link>
           </div>
         )}
-      </main>
-    </div>
+        </div>
+      </div>
+    </>
   );
 }

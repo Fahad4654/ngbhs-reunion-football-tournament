@@ -3,7 +3,7 @@
 import { useActionState, useState, useRef, useEffect } from 'react';
 import { updateProfile } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
-import styles from '../login/login.module.css';
+import styles from '@/app/(website)/login/login.module.css';
 
 interface ProfileFormProps {
   user: any;
@@ -60,15 +60,15 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         <div 
           onClick={() => fileInputRef.current?.click()}
           style={{ 
-            width: '120px', 
-            height: '120px', 
+            width: 'clamp(120px, 20vw, 160px)', 
+            height: 'clamp(120px, 20vw, 160px)', 
             borderRadius: '50%', 
             background: previewImage ? 'transparent' : 'var(--accent-primary)',
             margin: '0 auto 1rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '3rem',
+            fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
             color: '#000',
             fontWeight: '800',
             overflow: 'hidden',
@@ -113,12 +113,12 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         <input type="email" value={user.email || ''} className={styles.input} disabled style={{ opacity: 0.6 }} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      <div className="responsive-grid">
         <div className={styles.inputGroup}>
           <label className={styles.label}>Batch</label>
           <select name="batchId" defaultValue={user.batchId || ''} className={styles.input} style={{ appearance: 'none', background: 'rgba(255, 255, 255, 0.05)' }}>
             <option value="" style={{ background: 'var(--bg-secondary)' }}>Select Batch</option>
-            {batches.map((batch) => (
+            {batches.map((batch: any) => (
               <option key={batch.id} value={batch.id} style={{ background: 'var(--bg-secondary)' }}>
                 {batch.name}
               </option>
@@ -131,7 +131,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      <div className="responsive-grid">
         <div className={styles.inputGroup}>
           <label className={styles.label}>Current Position / Job</label>
           <input name="occupation" type="text" defaultValue={user.occupation || ''} placeholder="e.g. Software Engineer" className={styles.input} />
@@ -142,7 +142,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      <div className="responsive-grid">
         <div className={styles.inputGroup}>
           <label className={styles.label}>Current Address</label>
           <textarea name="currentAddress" defaultValue={user.currentAddress || ''} placeholder="City, Country" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
@@ -153,7 +153,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
       </div>
 
-      <button type="submit" className="btn btn-primary" disabled={isPending} style={{ marginTop: '1rem' }}>
+      <button type="submit" className="btn btn-primary" disabled={isPending} style={{ marginTop: '1rem', padding: '1.5vh 2vw', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)' }}>
         {isPending ? 'Saving Changes...' : 'Save Profile Details'}
       </button>
     </form>

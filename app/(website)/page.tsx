@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import styles from "./page.module.css";
+import Link from "next/link";
 
 async function getMatches() {
   return await prisma.match.findMany({
@@ -53,132 +54,138 @@ export default async function Home() {
         
         <div className={`${styles.heroContent} container`}>
           <div className="badge">Official Reunion Championship</div>
-          <h1 className="text-gradient" style={{ fontSize: '4.5rem', marginBottom: '0.5rem', lineHeight: '1.1' }}>
+          <h1 className={`${styles.heroTitle} text-gradient`}>
             NGBHS REUNION <br/>FOOTBALL CHAMPIONSHIP
           </h1>
           <p style={{ 
             color: 'var(--accent-primary)', 
-            fontSize: '1.1rem', 
+            fontSize: 'calc(0.917vw * var(--font-scale))', 
             fontWeight: '700', 
             textTransform: 'uppercase', 
             letterSpacing: '0.2em',
-            marginBottom: '2rem'
+            marginBottom: '1.852vh'
           }}>
             Natore Government Boys&apos; High School
           </p>
           <p className={styles.heroSubtitle}>
             Experience the thrill of the reunion. Tracking live scores, exclusive news, and every memorable goal from all school batches.
           </p>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button className="btn btn-primary">View Fixtures</button>
-            <button className="btn glass">Batch Standings</button>
+          <div style={{ display: 'flex', gap: '0.833vw' }}>
+            <Link href="/matches" className="btn btn-primary">View Fixtures</Link>
+            <Link href="/standings" className="btn glass">Batch Standings</Link>
           </div>
         </div>
       </section>
 
       {/* Live Scoreboard Section */}
-      <section className={`${styles.section} container`}>
-        <div className={styles.sectionHeader}>
-          <div>
-            <div style={{ color: 'var(--accent-primary)', fontWeight: '700', fontSize: '0.8rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Current Action</div>
-            <h2 className={styles.sectionTitle}>Match <span className="text-gradient">Dashboard</span></h2>
-          </div>
-          <a href="/matches" style={{ color: 'var(--accent-secondary)', fontWeight: '600' }}>See all matches →</a>
-        </div>
-
-        <div className={styles.scoreboardGrid}>
-          {matches.length > 0 ? matches.map(match => (
-            <div key={match.id} className={`${styles.matchCard} glass`}>
-              <div className={styles.matchStatus}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: '600' }}>
-                  {match.status === 'LIVE' ? (
-                    <span className="badge badge-live">LIVE</span>
-                  ) : (
-                    <span>{match.status}</span>
-                  )}
-                </span>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{match.venue || 'Main Ground'}</span>
-              </div>
-              
-              <div className={styles.matchTeams}>
-                <div className={styles.teamRow}>
-                  <div className={styles.teamInfo}>
-                    <div className={styles.teamLogo}></div>
-                    <span style={{ fontWeight: '600' }}>{match.homeTeam.name}</span>
-                  </div>
-                  <div className={styles.score}>{match.status === 'SCHEDULED' ? '-' : match.homeScore}</div>
-                </div>
-                <div className={styles.teamRow}>
-                  <div className={styles.teamInfo}>
-                    <div className={styles.teamLogo}></div>
-                    <span style={{ fontWeight: '600' }}>{match.awayTeam.name}</span>
-                  </div>
-                  <div className={styles.score}>{match.status === 'SCHEDULED' ? '-' : match.awayScore}</div>
-                </div>
-              </div>
+      <section className={styles.section}>
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <div>
+              <div style={{ color: 'var(--accent-primary)', fontWeight: '700', fontSize: 'calc(0.667vw * var(--font-scale))', marginBottom: '0.463vh', textTransform: 'uppercase' }}>Current Action</div>
+              <h2 className={styles.sectionTitle}>Match <span className="text-gradient">Dashboard</span></h2>
             </div>
-          )) : (
-            <p style={{ color: 'var(--text-muted)' }}>No matches scheduled yet.</p>
-          )}
+            <Link href="/matches" style={{ color: 'var(--accent-secondary)', fontWeight: '600' }}>See all matches →</Link>
+          </div>
+
+          <div className={styles.scoreboardGrid}>
+            {matches.length > 0 ? matches.map(match => (
+              <div key={match.id} className={`${styles.matchCard} glass`}>
+                <div className={styles.matchStatus}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 'calc(0.667vw * var(--font-scale))', fontWeight: '600' }}>
+                    {match.status === 'LIVE' ? (
+                      <span className="badge badge-live">LIVE</span>
+                    ) : (
+                      <span>{match.status}</span>
+                    )}
+                  </span>
+                  <span style={{ fontSize: 'calc(0.667vw * var(--font-scale))', color: 'var(--text-muted)' }}>{match.venue || 'Main Ground'}</span>
+                </div>
+                
+                <div className={styles.matchTeams}>
+                  <div className={styles.teamRow}>
+                    <div className={styles.teamInfo}>
+                      <div className={styles.teamLogo}></div>
+                      <span style={{ fontWeight: '600' }}>{match.homeTeam.name}</span>
+                    </div>
+                    <div className={styles.score}>{match.status === 'SCHEDULED' ? '-' : match.homeScore}</div>
+                  </div>
+                  <div className={styles.teamRow}>
+                    <div className={styles.teamInfo}>
+                      <div className={styles.teamLogo}></div>
+                      <span style={{ fontWeight: '600' }}>{match.awayTeam.name}</span>
+                    </div>
+                    <div className={styles.score}>{match.status === 'SCHEDULED' ? '-' : match.awayScore}</div>
+                  </div>
+                </div>
+              </div>
+            )) : (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.917vw' }}>No matches scheduled yet.</p>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Standings & News Section */}
-      <section className={`${styles.section} glass`} style={{ margin: '0 1.5rem', borderRadius: '32px', background: 'rgba(255, 255, 255, 0.01)' }}>
-        <div className="container" style={{ padding: '4rem 1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '4rem' }}>
-            {/* News Grid */}
-            <div>
-              <h2 className={styles.sectionTitle} style={{ marginBottom: '2.5rem' }}>Exclusive <span className="text-gradient">News</span></h2>
-              <div className={styles.newsGrid}>
-                {news.length > 0 ? news.map(item => (
-                  <div key={item.id} className={`${styles.newsCard} glass`} style={{ borderRadius: '24px' }}>
-                    <div className={styles.newsImage}></div>
-                    <div className={styles.newsContent}>
-                      <span className={styles.newsDate}>{new Date(item.publishedAt).toLocaleDateString()}</span>
-                      <h3 className={styles.newsTitle}>{item.title}</h3>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>{item.excerpt}</p>
-                    </div>
-                  </div>
-                )) : (
-                  <p style={{ color: 'var(--text-muted)' }}>No news updates yet.</p>
-                )}
+      {/* Exclusive News Section */}
+      <section className={styles.section}>
+        <div className="container">
+          <h2 className={styles.sectionTitle} style={{ marginBottom: '2.963vh' }}>Exclusive <span className="text-gradient">News</span></h2>
+          <div className={styles.newsGrid}>
+            {news.length > 0 ? news.map(item => (
+              <div key={item.id} className={`${styles.newsCard} glass`} style={{ borderRadius: '1.25vw' }}>
+                <div className={styles.newsImage}></div>
+                <div className={styles.newsContent}>
+                  <span className={styles.newsDate}>{new Date(item.publishedAt).toLocaleDateString()}</span>
+                  <h3 className={styles.newsTitle}>{item.title}</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: 'calc(0.75vw * var(--font-scale))', lineHeight: '1.6' }}>{item.excerpt}</p>
+                </div>
               </div>
-            </div>
+            )) : (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.917vw' }}>No news updates yet.</p>
+            )}
+          </div>
+          <div style={{ marginTop: '2.963vh', textAlign: 'center' }}>
+            <Link href="/news" className="btn glass">View All News</Link>
+          </div>
+        </div>
+      </section>
 
-            {/* Quick Standings */}
-            <div>
-              <h2 className={styles.sectionTitle} style={{ marginBottom: '2.5rem' }}>Standings</h2>
-              <div className="glass" style={{ padding: '1.5rem', borderRadius: '24px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                      <th style={{ padding: '1rem' }}>TEAM</th>
-                      <th style={{ padding: '1rem' }}>P</th>
-                      <th style={{ padding: '1rem' }}>GD</th>
-                      <th style={{ padding: '1rem' }}>PTS</th>
+      {/* Standings Section */}
+      <section className="glass" style={{ margin: '1.852vh 1.042vw', borderRadius: '2.083vw', background: 'rgba(255, 255, 255, 0.01)' }}>
+        <div className="container" style={{ padding: '4.444vh 1.042vw' }}>
+          <h2 className={styles.sectionTitle} style={{ marginBottom: '2.963vh', textAlign: 'center' }}>Tournament <span className="text-gradient">Standings</span></h2>
+          <div className="glass" style={{ padding: '1.481vh 1.042vw', borderRadius: '1.563vw', overflow: 'hidden' }}>
+            <div className={styles.tableWrapper}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ color: 'var(--text-muted)', fontSize: '0.729vw', textAlign: 'left', borderBottom: '0.052vw solid var(--border-color)' }}>
+                    <th style={{ padding: '1.481vh 1.042vw' }}>BATCH / TEAM</th>
+                    <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>PLAYED</th>
+                    <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>WINS</th>
+                    <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>GD</th>
+                    <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>POINTS</th>
+                  </tr>
+                </thead>
+                <tbody style={{ fontSize: '0.833vw' }}>
+                  {standings.length > 0 ? standings.map((team, i) => (
+                    <tr key={team.id} style={{ borderBottom: i === standings.length - 1 ? 'none' : '0.052vw solid var(--border-color)' }}>
+                      <td style={{ padding: '1.481vh 1.042vw', fontWeight: '800', color: 'white', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.name}</td>
+                      <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.played}</td>
+                      <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.won}</td>
+                      <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontWeight: '700', color: (team.goalsFor - team.goalsAgainst) >= 0 ? 'var(--accent-primary)' : 'var(--accent-danger)', fontSize: 'calc(0.833vw * var(--font-scale))' }}>
+                        {team.goalsFor - team.goalsAgainst > 0 ? `+${team.goalsFor - team.goalsAgainst}` : team.goalsFor - team.goalsAgainst}
+                      </td>
+                      <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontWeight: '900', fontSize: 'calc(1.042vw * var(--font-scale))', color: 'var(--accent-primary)' }}>{team.points}</td>
                     </tr>
-                  </thead>
-                  <tbody style={{ fontSize: '0.9rem' }}>
-                    {standings.length > 0 ? standings.map((team, i) => (
-                      <tr key={team.id} style={{ borderBottom: i === standings.length - 1 ? 'none' : '1px solid var(--border-color)' }}>
-                        <td style={{ padding: '1rem', fontWeight: '600' }}>{team.name}</td>
-                        <td style={{ padding: '1rem' }}>{team.played}</td>
-                        <td style={{ padding: '1rem', color: (team.goalsFor - team.goalsAgainst) >= 0 ? 'var(--accent-primary)' : 'var(--accent-danger)' }}>
-                          {team.goalsFor - team.goalsAgainst > 0 ? `+${team.goalsFor - team.goalsAgainst}` : team.goalsFor - team.goalsAgainst}
-                        </td>
-                        <td style={{ padding: '1rem', fontWeight: '800' }}>{team.points}</td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No standings data available.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-                <button className="btn glass" style={{ width: '100%', marginTop: '1.5rem' }}>Full Standings</button>
-              </div>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} style={{ padding: '2.963vh', textAlign: 'center', color: 'var(--text-muted)' }}>No standings data available.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
+            <Link href="/standings" className="btn glass" style={{ width: '100%', marginTop: '1.852vh', fontWeight: '700', justifyContent: 'center' }}>VIEW COMPLETE LEAGUE TABLE</Link>
           </div>
         </div>
       </section>

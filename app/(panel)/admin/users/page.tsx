@@ -15,13 +15,8 @@ export default async function AdminUsersPage() {
   });
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ marginBottom: '3rem' }}>
-        <div className="badge" style={{ marginBottom: '0.5rem' }}>Access Control</div>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>User Management</h1>
-      </header>
-
-      <div className="glass" style={{ padding: '0', overflow: 'hidden' }}>
+    <>
+      <div className="responsive-table-container glass" style={{ padding: '0' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)' }}>
@@ -37,8 +32,25 @@ export default async function AdminUsersPage() {
               <tr key={user.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent-primary)', color: 'black', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '0.8rem' }}>
-                      {user.name?.charAt(0)}
+                    <div style={{ 
+                      width: '32px', 
+                      height: '32px', 
+                      borderRadius: '50%', 
+                      background: user.image ? 'transparent' : 'var(--accent-primary)', 
+                      color: 'black', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      fontWeight: '800', 
+                      fontSize: '0.8rem',
+                      overflow: 'hidden',
+                      border: user.image ? '1px solid var(--border-color)' : 'none'
+                    }}>
+                      {user.image ? (
+                        <img src={user.image} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        user.name?.charAt(0)
+                      )}
                     </div>
                     <span style={{ fontWeight: '600' }}>{user.name}</span>
                   </div>
@@ -66,6 +78,6 @@ export default async function AdminUsersPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }

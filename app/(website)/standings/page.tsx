@@ -1,8 +1,21 @@
 import prisma from "@/lib/prisma";
 import styles from "./standings.module.css";
 
+export const revalidate = 60; // Revalidate every minute
+
 async function getStandings() {
   return await prisma.batch.findMany({
+    select: {
+      id: true,
+      name: true,
+      played: true,
+      won: true,
+      drawn: true,
+      lost: true,
+      goalsFor: true,
+      goalsAgainst: true,
+      points: true,
+    },
     orderBy: [
       { points: 'desc' },
       { goalsFor: 'desc' },

@@ -8,6 +8,7 @@ export interface AppUser {
   name: string | null;
   image: string | null;
   role: 'ADMIN' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'USER';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   occupation: string | null;
   workplace: string | null;
   phone: string | null;
@@ -42,6 +43,7 @@ export async function getServerUser(): Promise<AppUser | null> {
       name: user.name,
       image: user.image,
       role: user.role,
+      status: user.status,
       occupation: user.occupation,
       workplace: user.workplace,
       phone: user.phone,

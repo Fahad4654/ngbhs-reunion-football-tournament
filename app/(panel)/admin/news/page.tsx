@@ -1,8 +1,6 @@
 import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
-
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
 export default async function AdminNewsPage() {
   const user = await getServerUser();
@@ -16,16 +14,12 @@ export default async function AdminNewsPage() {
   });
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <div className="badge" style={{ marginBottom: '0.5rem' }}>Content Management</div>
-          <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>Tournament News</h1>
-        </div>
+    <>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
         <button className="btn btn-primary">+ Create New Article</button>
-      </header>
+      </div>
 
-      <div className="glass" style={{ padding: '0', overflow: 'hidden' }}>
+      <div className="responsive-table-container glass" style={{ padding: '0' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)' }}>
@@ -62,6 +56,6 @@ export default async function AdminNewsPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }

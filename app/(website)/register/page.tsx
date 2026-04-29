@@ -2,6 +2,7 @@ import styles from "../login/login.module.css";
 import RegisterForm from "./register-form";
 import { getServerUser } from "@/lib/server-auth";
 import { redirect } from "next/navigation";
+import { getAllBatches } from "@/lib/actions";
 
 export default async function RegisterPage() {
   const user = await getServerUser();
@@ -13,6 +14,8 @@ export default async function RegisterPage() {
       redirect('/dashboard');
     }
   }
+
+  const batches = await getAllBatches();
 
   return (
     <div className={styles.container}>
@@ -38,7 +41,7 @@ export default async function RegisterPage() {
           <p className={styles.subtitle}>Join the Natore Government Boys' High School Reunion community.</p>
         </div>
 
-        <RegisterForm />
+        <RegisterForm batches={batches} />
 
         <div className={styles.footer}>
           Already have an account? <a href="/login" style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>Sign In</a>

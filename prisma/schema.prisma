@@ -32,7 +32,10 @@ model Batch {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([points(sort: Desc), goalsFor(sort: Desc)])
 }
+
 
 model Match {
   id          String   @id @default(cuid())
@@ -174,6 +177,24 @@ model User {
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  emailVerified DateTime?
+  status        UserStatus @default(APPROVED)
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
 }
 
 enum Role {

@@ -1,6 +1,5 @@
 import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
-
 import { redirect } from "next/navigation";
 
 export default async function ManagerScoresPage() {
@@ -22,40 +21,36 @@ export default async function ManagerScoresPage() {
   });
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ marginBottom: '3rem' }}>
-        <div className="badge" style={{ marginBottom: '0.5rem' }}>Manager Tools</div>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem' }}>Update Live Scores</h1>
-      </header>
+    <>
 
-      <div style={{ display: 'grid', gap: '1.5rem' }}>
+      <div className="responsive-grid" style={{ display: 'grid', gap: '1.25vw' }}>
         {matches.map((match) => (
-          <div key={match.id} className="glass" style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+          <div key={match.id} className="glass mobile-stack" style={{ padding: '1.852vh 1.667vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1.667vw' }}>
+            <div style={{ flex: 1, width: '100%' }}>
+               <div style={{ fontSize: '0.667vw', color: 'var(--text-muted)', marginBottom: '1.481vh' }} className="mobile-text-center">
                 {new Date(match.date).toLocaleDateString()} • {match.venue}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                <div style={{ textAlign: 'right', flex: 1 }}>
-                  <div style={{ fontWeight: '800', fontSize: '1.25rem' }}>{match.homeTeam.name}</div>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '1.25vw' }} className="mobile-stack">
+                <div style={{ textAlign: 'right', flex: 1 }} className="mobile-text-center">
+                   <div style={{ fontWeight: '800', fontSize: '0.917vw' }}>{match.homeTeam.name}</div>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <input type="number" defaultValue={match.homeScore} style={{ width: '50px', padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'white', textAlign: 'center', fontSize: '1.25rem', fontWeight: '800' }} />
+                   <div style={{ display: 'flex', gap: '0.417vw', alignItems: 'center', justifyContent: 'center' }}>
+                  <input type="number" defaultValue={match.homeScore} style={{ width: '2.604vw', padding: '0.463vh 0.417vw', borderRadius: '0.417vw', background: 'var(--bg-primary)', border: '0.052vw solid var(--border-color)', color: 'white', textAlign: 'center', fontSize: '1.042vw', fontWeight: '800' }} />
                   <span style={{ fontWeight: '800' }}>-</span>
-                  <input type="number" defaultValue={match.awayScore} style={{ width: '50px', padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'white', textAlign: 'center', fontSize: '1.25rem', fontWeight: '800' }} />
+                  <input type="number" defaultValue={match.awayScore} style={{ width: '2.604vw', padding: '0.463vh 0.417vw', borderRadius: '0.417vw', background: 'var(--bg-primary)', border: '0.052vw solid var(--border-color)', color: 'white', textAlign: 'center', fontSize: '1.042vw', fontWeight: '800' }} />
                 </div>
-                <div style={{ textAlign: 'left', flex: 1 }}>
-                  <div style={{ fontWeight: '800', fontSize: '1.25rem' }}>{match.awayTeam.name}</div>
+                <div style={{ textAlign: 'left', flex: 1 }} className="mobile-text-center">
+                   <div style={{ fontWeight: '800', fontSize: '0.917vw' }}>{match.awayTeam.name}</div>
                 </div>
               </div>
             </div>
-            <div style={{ marginLeft: '4rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <button className="btn btn-primary" style={{ padding: '0.6rem 1.2rem' }}>Update</button>
-              <button className="btn glass" style={{ padding: '0.6rem 1.2rem', fontSize: '0.75rem' }}>Set to Live</button>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.741vh' }} className="mobile-stack">
+              <button className="btn btn-primary" style={{ padding: '0.556vh 1vw' }}>Update</button>
+              <button className="btn glass" style={{ padding: '0.556vh 1vw', fontSize: '0.625vw' }}>Set to Live</button>
             </div>
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 }

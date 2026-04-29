@@ -16,15 +16,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+      </head>
+      <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', overflowX: 'hidden', width: '100vw' }}>
         <Toaster 
           position="top-right"
           toastOptions={{
             style: {
               background: '#333',
               color: '#fff',
-              borderRadius: '12px',
-              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '0.625vw',
+              border: '0.052vw solid rgba(255,255,255,0.1)',
             },
           }}
         />
