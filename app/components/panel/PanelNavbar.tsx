@@ -111,44 +111,68 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
           <Link
             href="/feed"
             className="btn glass"
             style={{ 
-              fontSize: 'clamp(0.7rem, 3vw, 0.875rem)', 
-              padding: '0 0.5rem',
-              height: 'clamp(32px, 9vw, 44px)',
-              borderRadius: '8px',
+              fontSize: 'clamp(0.65rem, 2.5vw, 0.75rem)', 
+              padding: '0 0.4rem',
+              height: '32px',
+              borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.25rem',
+              gap: '0.2rem',
               border: '1px solid var(--border-color)',
-              background: 'rgba(255, 255, 255, 0.05)'
+              background: 'rgba(255, 255, 255, 0.03)',
+              opacity: 0.8
             }}
           >
-            <PublicIcon sx={{ fontSize: 'clamp(0.9rem, 4.5vw, 1.25rem)', color: 'var(--accent-primary)' }} />
+            <PublicIcon sx={{ fontSize: '1rem', color: 'var(--accent-primary)' }} />
             <span className="desktop-only" style={{ fontWeight: '700' }}>Community</span>
           </Link>
 
-          <Link href="/profile" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Link href="/profile" className="btn glass panel-profile-link" style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            textDecoration: 'none', 
+            gap: '0.75rem',
+            padding: '0 0.4rem 0 0.8rem',
+            height: 'clamp(32px, 9vw, 44px)',
+            borderRadius: '100px',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}>
+            <span className="desktop-only" style={{ 
+              fontWeight: '800', 
+              color: 'var(--accent-primary)', 
+              fontSize: '0.8rem',
+              maxWidth: '120px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontFamily: 'Outfit, sans-serif',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              {userName}
+            </span>
             <div
               className="panel-user-avatar"
               style={{
-                width: 'clamp(32px, 9vw, 44px)',
-                height: 'clamp(32px, 9vw, 44px)',
-                borderRadius: '8px',
+                width: 'calc(clamp(32px, 9vw, 44px) - 10px)',
+                height: 'calc(clamp(32px, 9vw, 44px) - 10px)',
+                borderRadius: '50%',
                 background: userImage ? 'transparent' : 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'black',
                 fontWeight: '900',
-                fontSize: 'clamp(0.75rem, 3.5vw, 1rem)',
+                fontSize: 'clamp(0.65rem, 3vw, 0.85rem)',
                 overflow: 'hidden',
-                border: '1px solid var(--border-color)',
+                border: '1px solid var(--accent-primary)',
                 flexShrink: 0,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}
             >
               {userImage ? (

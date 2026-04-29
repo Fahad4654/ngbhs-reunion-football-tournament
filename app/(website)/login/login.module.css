@@ -10,8 +10,8 @@
 
 .loginCard {
   width: 100%;
-  max-width: 23.438vw;
-  padding: 4.444vh 2.5vw;
+  max-width: 450px;
+  padding: clamp(2rem, 5vh, 4.444vh) clamp(1.5rem, 2.5vw, 2.5vw);
   z-index: 10;
   border-radius: 1.667vw;
 }
@@ -22,27 +22,27 @@
 }
 
 .logo {
-  width: 3.333vw;
-  height: 3.333vw;
+  width: 64px;
+  height: 64px;
   background: var(--accent-primary);
-  border-radius: 0.833vw;
+  border-radius: 12px;
   margin: 0 auto 2.222vh;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
   color: #000;
-  font-size: 1.25vw;
+  font-size: 24px;
 }
 
 .title {
-  font-size: 2.2vw;
+  font-size: clamp(1.5rem, 2.2vw, 2.5rem);
   margin-bottom: 0.741vh;
 }
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 1.0vw;
+  font-size: clamp(0.875rem, 1vw, 1.1rem);
 }
 
 .form {
@@ -58,7 +58,7 @@
 }
 
 .label {
-  font-size: 0.9vw;
+  font-size: clamp(0.75rem, 0.9vw, 0.85rem);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -67,13 +67,14 @@
 
 .input {
   background: rgba(255, 255, 255, 0.05);
-  border: 0.052vw solid var(--border-color);
-  padding: 1.111vh 1.042vw;
-  border-radius: 0.625vw;
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: 8px;
   color: white;
-  font-size: 1.1vw;
+  font-size: clamp(0.9rem, 1.1vw, 1.1rem);
   outline: none;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .input:focus {
@@ -83,7 +84,7 @@
 
 .forgotPassword {
   text-align: right;
-  font-size: 0.9vw;
+  font-size: clamp(0.75rem, 0.9vw, 0.9rem);
   color: var(--accent-secondary);
   margin-top: -1.111vh;
 }
@@ -91,13 +92,14 @@
 .submitBtn {
   margin-top: 1.481vh;
   width: 100%;
-  padding: 0.926vh 0.833vw;
+  padding: 12px;
+  font-size: 1rem;
 }
 
 .footer {
   margin-top: 2.963vh;
   text-align: center;
-  font-size: 1.0vw;
+  font-size: clamp(0.875rem, 1vw, 1.1rem);
   color: var(--text-secondary);
 }
 
@@ -106,16 +108,24 @@
   width: 31.25vw;
   height: 31.25vw;
   background: radial-gradient(circle, rgba(57, 255, 20, 0.05) 0%, transparent 70%);
-  filter: blur(5.208vw);
+  filter: blur(100px);
   z-index: 1;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .loginCard {
-    padding: 1.852vh 1.25vw;
+    max-width: 90vw;
+    padding: 2rem 1rem;
+    border-radius: 20px;
   }
   
-  .title {
-    font-size: 1.458vw;
+  .logo {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+
+  .input {
+    padding: 10px 12px;
   }
 }

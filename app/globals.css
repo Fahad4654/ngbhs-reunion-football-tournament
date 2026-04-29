@@ -334,6 +334,25 @@ a {
   }
 }
 
+/* Unique Profile Button Responsive */
+.panel-profile-link {
+  border: 1px solid var(--accent-primary) !important;
+  background: rgba(235, 183, 0, 0.05) !important;
+  box-shadow: 0 0 15px rgba(235, 183, 0, 0.1) !important;
+}
+
+@media (max-width: 768px) {
+  .panel-profile-link {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .panel-profile-link .panel-user-avatar {
+    border: none !important;
+  }
+}
+
 /* Navbar Typography Responsive */
 .navbar-badge {
   font-size: 0.8vw;
