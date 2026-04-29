@@ -86,6 +86,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="mobile-nav-toggle btn glass"
+            style={{ position: 'relative', zIndex: 1100 }}
           >
             {isMenuOpen ? '✕' : '☰'}
           </button>
@@ -93,50 +94,52 @@ export default function Navbar({ user }: { user: AppUser | null }) {
       </div>
 
       {/* Mobile Menu Dropdown */}
-      {isMenuOpen && (
-        <div 
-          className="no-scrollbar"
-          style={{
-            position: 'fixed',
-            top: 'var(--nav-height)',
-            left: '0',
-            right: '0',
-            bottom: '0',
-            padding: '4vh 8vw',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.852vh',
-            zIndex: 999,
-            background: 'rgba(10, 11, 13, 0.98)',
-            backdropFilter: 'blur(1.042vw)',
-            animation: 'fadeIn 0.2s ease',
-            borderTop: '0.052vw solid var(--border-color)'
-          }}
-        >
-          {navLinks.map((link) => (
-            <Link 
-              key={link.href} 
-              href={link.href} 
-              onClick={() => setIsMenuOpen(false)}
-              style={{ padding: '2vh 0', fontSize: '5vw', fontWeight: '700', borderBottom: '0.052vw solid var(--border-color)', color: pathname === link.href ? 'var(--accent-primary)' : 'white', textTransform: 'uppercase' }}
-            >
-              {link.name}
-            </Link>
-          ))}
-          <div style={{ marginTop: '1.852vh', display: 'flex', flexDirection: 'column', gap: '1.389vh' }}>
-            {user ? (
-              <>
-                <Link href="/dashboard" className="btn btn-primary" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '4.5vw', width: '100%', padding: '1.5vh' }}>Dashboard</Link>
-                <form action={logout} style={{ width: '100%' }}>
-                  <button type="submit" className="btn glass" style={{ width: '100%', fontSize: '4.5vw', padding: '1.5vh' }}>Sign Out</button>
-                </form>
-              </>
-            ) : (
-              <Link href="/login" className="btn btn-primary" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1.25vw' }}>Sign In</Link>
-            )}
-          </div>
+      <div 
+        className="no-scrollbar"
+        style={{
+          position: 'fixed',
+          top: 'var(--nav-height)',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          padding: '4vh 8vw',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.852vh',
+          zIndex: 999,
+          background: 'rgba(10, 11, 13, 0.98)',
+          backdropFilter: 'blur(20px)',
+          borderTop: '0.052vw solid var(--border-color)',
+          transform: isMenuOpen ? 'translateY(0)' : 'translateY(-100%)',
+          opacity: isMenuOpen ? 1 : 0,
+          visibility: isMenuOpen ? 'visible' : 'hidden',
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          textAlign: 'center'
+        }}
+      >
+        {navLinks.map((link) => (
+          <Link 
+            key={link.href} 
+            href={link.href} 
+            onClick={() => setIsMenuOpen(false)}
+            style={{ padding: '2vh 0', fontSize: '5vw', fontWeight: '700', borderBottom: '0.052vw solid var(--border-color)', color: pathname === link.href ? 'var(--accent-primary)' : 'white', textTransform: 'uppercase', display: 'block', textAlign: 'center' }}
+          >
+            {link.name}
+          </Link>
+        ))}
+        <div style={{ marginTop: '1.852vh', display: 'flex', flexDirection: 'column', gap: '1.389vh', alignItems: 'center' }}>
+          {user ? (
+            <>
+              <Link href="/dashboard" className="btn btn-primary" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '4.5vw', width: '100%', padding: '1.5vh', justifyContent: 'center' }}>Dashboard</Link>
+              <form action={logout} style={{ width: '100%' }}>
+                <button type="submit" className="btn glass" style={{ width: '100%', fontSize: '4.5vw', padding: '1.5vh', justifyContent: 'center' }}>Sign Out</button>
+              </form>
+            </>
+          ) : (
+            <Link href="/login" className="btn btn-primary" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '4.5vw', width: '100%', padding: '1.5vh', justifyContent: 'center' }}>Sign In</Link>
+          )}
         </div>
-      )}
+      </div>
     </nav>
   );
 }

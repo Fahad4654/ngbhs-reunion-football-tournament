@@ -31,19 +31,20 @@ export default function PanelShell({ children, user }: PanelShellProps) {
       </div>
 
       {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div 
-          onClick={toggleSidebar}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.6)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 1500,
-            cursor: 'pointer'
-          }}
-        />
-      )}
+      <div 
+        onClick={toggleSidebar}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 1500,
+          cursor: 'pointer',
+          opacity: isSidebarOpen ? 1 : 0,
+          visibility: isSidebarOpen ? 'visible' : 'hidden',
+          transition: 'all 0.3s ease'
+        }}
+      />
 
       {/* Mobile Sidebar - Drawer Style */}
       <div 
@@ -51,14 +52,15 @@ export default function PanelShell({ children, user }: PanelShellProps) {
           position: 'fixed',
           top: 0,
           bottom: 0,
-          left: isSidebarOpen ? 0 : '-85vw',
-          display: isSidebarOpen ? 'block' : 'none',
+          left: 0,
           width: '80vw',
           zIndex: 1600,
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           background: 'rgba(10, 11, 13, 0.98)',
           borderRight: '0.052vw solid var(--border-color)',
-          boxShadow: isSidebarOpen ? '5vw 0 10vw rgba(0,0,0,0.5)' : 'none'
+          boxShadow: isSidebarOpen ? '5vw 0 10vw rgba(0,0,0,0.5)' : 'none',
+          visibility: isSidebarOpen ? 'visible' : 'hidden'
         }}
       >
         <Sidebar user={user} onClose={toggleSidebar} />
