@@ -15,9 +15,20 @@ export default async function NewsPage() {
   return (
     <div className="container">
       <section className={styles.section}>
-        <div style={{ marginBottom: '3rem' }}>
-          <h1 className="text-gradient" style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>Latest <br/>Tournament News</h1>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '600px' }}>
+        <div style={{ marginBottom: 'clamp(2rem, 5vw, 4rem)' }}>
+          <h1 className="text-gradient" style={{ 
+            fontSize: 'clamp(2.25rem, 8vw, 4rem)', 
+            marginBottom: '1rem',
+            lineHeight: 1.1
+          }}>
+            LATEST <br/>TOURNAMENT NEWS
+          </h1>
+          <p style={{ 
+            color: 'var(--text-secondary)', 
+            maxWidth: '600px',
+            fontSize: 'clamp(1rem, 1.2vw, 1.1rem)',
+            lineHeight: 1.6
+          }}>
             From match reports to exclusive interviews. Catch up on all the stories happening behind the scenes of the reunion tournament.
           </p>
         </div>
@@ -33,14 +44,20 @@ export default async function NewsPage() {
                     left: '1rem', 
                     background: 'var(--accent-primary)', 
                     color: '#000', 
-                    padding: '0.25rem 0.5rem', 
+                    padding: '0.25rem 0.6rem', 
                     borderRadius: '4px',
-                    fontSize: '0.7rem',
-                    fontWeight: '800',
-                    textTransform: 'uppercase'
+                    fontSize: '0.75rem',
+                    fontWeight: '900',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                    zIndex: 2
                   }}>
                     Exclusive
                   </div>
+                )}
+                {item.image && (
+                  <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 )}
               </div>
               <div className={styles.content}>
