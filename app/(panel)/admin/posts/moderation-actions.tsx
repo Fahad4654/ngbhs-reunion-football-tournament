@@ -30,7 +30,6 @@ export default function ModerationActions({ postId }: ModerationActionsProps) {
       const promise = approvePost(postId);
       toast.promise(promise, {
         loading: 'Approving...',
-        success: 'Post approved! 🚀',
         error: 'Failed to approve post.',
       });
       await promise;

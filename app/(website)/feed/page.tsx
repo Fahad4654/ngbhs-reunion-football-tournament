@@ -3,6 +3,10 @@ import { getServerUser } from "@/lib/server-auth";
 import PostActions from "./post-actions";
 import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
+import StadiumIcon from '@mui/icons-material/Stadium';
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
@@ -20,18 +24,21 @@ export default async function FeedPage() {
       <div className="container feed-grid">
         
         {/* Left Sidebar - Navigation/Shortcuts */}
-        <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.852vh)' }}>
+        <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.852vh)' }} className="desktop-only">
           <div className="glass" style={{ padding: '2.222vh 1.25vw', borderRadius: '1.25vw' }}>
             <h3 style={{ fontSize: 'calc(0.9vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2.222vh' }}>Shortcuts</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.741vh' }}>
-              <a href="/matches" className="btn glass" style={{ justifyContent: 'flex-start', padding: '0.926vh 1.042vw', fontSize: 'calc(0.9vw * var(--font-scale))', textTransform: 'none' }}>
-                <span style={{ fontSize: 'calc(1.25vw * var(--font-scale))' }}>⚽</span> <span>Matches</span>
+              <a href="/matches" className="btn glass" style={{ justifyContent: 'flex-start', padding: '0.926vh 1.042vw', fontSize: 'calc(0.9vw * var(--font-scale))', textTransform: 'none', gap: '0.75rem' }}>
+                <SportsSoccerIcon sx={{ fontSize: '1.5rem', color: 'var(--accent-primary)' }} />
+                <span>Matches</span>
               </a>
-              <a href="/standings" className="btn glass" style={{ justifyContent: 'flex-start', padding: '0.926vh 1.042vw', fontSize: 'calc(0.9vw * var(--font-scale))', textTransform: 'none' }}>
-                <span style={{ fontSize: 'calc(1.25vw * var(--font-scale))' }}>📊</span> <span>Standings</span>
+              <a href="/standings" className="btn glass" style={{ justifyContent: 'flex-start', padding: '0.926vh 1.042vw', fontSize: 'calc(0.9vw * var(--font-scale))', textTransform: 'none', gap: '0.75rem' }}>
+                <AssessmentIcon sx={{ fontSize: '1.5rem', color: 'var(--accent-primary)' }} />
+                <span>Standings</span>
               </a>
-              <a href="/news" className="btn glass" style={{ justifyContent: 'flex-start', padding: '0.926vh 1.042vw', fontSize: 'calc(0.9vw * var(--font-scale))', textTransform: 'none' }}>
-                <span style={{ fontSize: 'calc(1.25vw * var(--font-scale))' }}>📰</span> <span>News</span>
+              <a href="/news" className="btn glass" style={{ justifyContent: 'flex-start', padding: '0.926vh 1.042vw', fontSize: 'calc(0.9vw * var(--font-scale))', textTransform: 'none', gap: '0.75rem' }}>
+                <NewspaperIcon sx={{ fontSize: '1.5rem', color: 'var(--accent-primary)' }} />
+                <span>News</span>
               </a>
             </div>
           </div>
@@ -45,9 +52,8 @@ export default async function FeedPage() {
               <div style={{ padding: '1.157vh 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.625vw', borderBottom: '0.052vw solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw', minWidth: 0, flex: 1 }}>
                   <div style={{ 
-                    width: 'calc(2.5vw * var(--font-scale))', 
-                    minWidth: 'calc(2.5vw * var(--font-scale))',
-                    height: 'calc(2.5vw * var(--font-scale))', 
+                    width: 'clamp(32px, 8vw, 48px)', 
+                    height: 'clamp(32px, 8vw, 48px)', 
                     borderRadius: '50%', 
                     background: post.author.image ? 'transparent' : 'var(--accent-primary)',
                     display: 'flex',
@@ -55,7 +61,7 @@ export default async function FeedPage() {
                     justifyContent: 'center',
                     fontWeight: '800',
                     color: 'black',
-                    fontSize: 'calc(1.1vw * var(--font-scale))',
+                    fontSize: 'clamp(0.9rem, 1vw, 1.2rem)',
                     overflow: 'hidden',
                     border: post.author.image ? '0.052vw solid var(--border-color)' : 'none',
                     flexShrink: 0
@@ -66,9 +72,9 @@ export default async function FeedPage() {
                       post.author.name?.charAt(0)
                     )}
                   </div>
-                  <div style={{ minWidth: 0, width: 0, flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '800', fontSize: 'calc(1.1vw * var(--font-scale))', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
-                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'calc(0.7vw * var(--font-scale))', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: 'clamp(0.9rem, 1.1vw, 1.25rem)', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'clamp(0.65rem, 0.7vw, 0.8rem)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                       {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
@@ -84,8 +90,8 @@ export default async function FeedPage() {
 
               {/* Post Content */}
               <div style={{ padding: '2.222vh 1.25vw 0.741vh' }}>
-                <h3 style={{ fontSize: 'calc(1.5vw * var(--font-scale))', marginBottom: '1.481vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'calc(1.2vw * var(--font-scale))', lineHeight: '1.7', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                <h3 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.75rem)', marginBottom: '1.481vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 1.2vw, 1.35rem)', lineHeight: '1.7', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                   {post.content}
                 </p>
               </div>
@@ -104,15 +110,17 @@ export default async function FeedPage() {
             </article>
           )) : (
             <div className="glass" style={{ textAlign: 'center', padding: '7.407vh 1.667vw', borderRadius: '1.25vw' }}>
-              <div style={{ fontSize: 'calc(2.5vw * var(--font-scale))', marginBottom: '2.222vh' }}>🏟️</div>
-              <p style={{ color: 'var(--text-muted)', fontSize: 'calc(0.917vw * var(--font-scale))', fontWeight: '600' }}>The stadium is quiet... Be the first to post!</p>
+              <div style={{ marginBottom: '2.222vh' }}>
+                <StadiumIcon sx={{ fontSize: '4rem', color: 'var(--text-muted)' }} />
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '600' }}>The stadium is quiet... Be the first to post!</p>
               <a href="/dashboard/posts" className="btn btn-primary" style={{ marginTop: '2.963vh' }}>Create First Post</a>
             </div>
           )}
         </main>
 
         {/* Right Sidebar - Ad/Promo */}
-        <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.852vh)' }}>
+        <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.852vh)' }} className="desktop-only">
           <div className="glass" style={{ padding: '2.222vh 1.25vw', borderRadius: '1.25vw', textAlign: 'center' }}>
             <h3 style={{ fontSize: 'calc(0.667vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2.222vh' }}>Tournament Partner</h3>
             <div style={{ background: 'rgba(255,255,255,0.05)', height: '18.519vh', borderRadius: '0.833vw', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.75vw' }}>

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions";
 import type { AppUser } from "@/lib/server-auth";
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function Navbar({ user }: { user: AppUser | null }) {
   const pathname = usePathname();
@@ -86,9 +88,9 @@ export default function Navbar({ user }: { user: AppUser | null }) {
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="mobile-nav-toggle btn glass"
-            style={{ position: 'relative', zIndex: 1100 }}
+            style={{ position: 'relative', zIndex: 1100, padding: 0, minWidth: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            {isMenuOpen ? '✕' : '☰'}
+            {isMenuOpen ? <CloseIcon sx={{ color: 'white' }} /> : <MenuIcon sx={{ color: 'white' }} />}
           </button>
         </div>
       </div>

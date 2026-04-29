@@ -1,47 +1,98 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getServerUser } from "@/lib/server-auth";
-import { getUserActivity } from "@/lib/actions";
+import Link from 'next/link';
+import { getServerUser } from '@/lib/server-auth';
+import { redirect } from 'next/navigation';
+import prisma from '@/lib/prisma';
 
-export default async function Dashboard() {
+import EditIcon from '@mui/icons-material/Edit';
+import PersonIcon from '@mui/icons-material/Person';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
+
+export const metadata = {
+  title: 'Dashboard - NGBHS Reunion',
+};
+
+export default async function DashboardPage() {
   const user = await getServerUser();
-  
+
   if (!user) {
-    redirect("/login");
+    redirect('/login');
   }
 
-  const activity = await getUserActivity();
+  // Fetch recent activities (posts and news)
+  const [recentPosts, recentNews] = await Promise.all([
+    prisma.post.findMany({
+      where: { 
+        OR: [
+          { authorId: user.uid },
+          { scope: 'GLOBAL' }
+        ],
+        status: 'APPROVED'
+      },
+      take: 3,
+      orderBy: { createdAt: 'desc' },
+      include: { author: true }
+    }),
+    prisma.news.findMany({
+      take: 2,
+      orderBy: { createdAt: 'desc' }
+    })
+  ]);
+
+  const activities = [
+    ...recentPosts.map(p => ({
+      type: 'POST',
+      title: `${p.author.name} shared: ${p.title || 'a story'}`,
+      createdAt: p.createdAt
+    })),
+    ...recentNews.map(n => ({
+      type: 'NEWS',
+      title: `News: ${n.title}`,
+      createdAt: n.createdAt
+    }))
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
     <>
       <div className="responsive-grid" style={{ display: 'grid', gap: '1.25vw' }}>
         {/* Main Role-Based Card */}
         <div className="glass panel-card" style={{ padding: '1.852vh 1.667vw' }}>
-          <h2 style={{ fontSize: 'clamp(1.25rem, 1.5vw, 2rem)', marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: 'clamp(1.25rem, 1.5vw, 2rem)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <AssessmentIcon sx={{ color: 'var(--accent-primary)', fontSize: '2rem' }} />
             {user.role === 'USER' ? 'Your Participation' : 'Management Tasks'}
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.481vh' }}>
             {user.role === 'USER' ? (
               <>
                 <p style={{ color: 'var(--text-secondary)' }}>Welcome to the NGBHS Reunion Football Championship. You can track your batch's progress and update your player profile here.</p>
-                <Link href="/dashboard/posts" className="btn btn-primary" style={{ justifyContent: 'flex-start' }}>
-                  ✍️ Create New Post
-                </Link>
-                <Link href="/profile" className="btn glass" style={{ justifyContent: 'flex-start', border: '0.052vw solid var(--border-color)' }}>
-                  👤 Update My Profile
-                </Link>
-                <Link href="/matches" className="btn glass" style={{ justifyContent: 'flex-start', border: '0.052vw solid var(--border-color)' }}>
-                  ⚽ View My Batch Matches
-                </Link>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                  <Link href="/dashboard/posts" className="btn btn-primary" style={{ justifyContent: 'flex-start', gap: '0.75rem', flex: '1', minWidth: '200px' }}>
+                    <EditIcon />
+                    <span>Create New Post</span>
+                  </Link>
+                  <Link href="/profile" className="btn glass" style={{ justifyContent: 'flex-start', border: '0.052vw solid var(--border-color)', gap: '0.75rem', flex: '1', minWidth: '200px' }}>
+                    <PersonIcon />
+                    <span>Update My Profile</span>
+                  </Link>
+                  <Link href="/matches" className="btn glass" style={{ justifyContent: 'flex-start', border: '0.052vw solid var(--border-color)', gap: '0.75rem', flex: '1', minWidth: '200px' }}>
+                    <SportsSoccerIcon />
+                    <span>View My Batch Matches</span>
+                  </Link>
+                </div>
               </>
             ) : (
               <>
-                <Link href="/dashboard/scores" className="btn btn-primary" style={{ justifyContent: 'flex-start' }}>
-                  Update Live Scores
-                </Link>
-                <Link href="/dashboard/news" className="btn glass" style={{ justifyContent: 'flex-start', border: '0.052vw solid var(--border-color)' }}>
-                  Write News Update
-                </Link>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                  <Link href="/dashboard/scores" className="btn btn-primary" style={{ justifyContent: 'flex-start', gap: '0.75rem', flex: '1', minWidth: '200px' }}>
+                    <SportsSoccerIcon />
+                    <span>Update Live Scores</span>
+                  </Link>
+                  <Link href="/dashboard/news" className="btn glass" style={{ justifyContent: 'flex-start', border: '0.052vw solid var(--border-color)', gap: '0.75rem', flex: '1', minWidth: '200px' }}>
+                    <NewspaperIcon />
+                    <span>Write News Update</span>
+                  </Link>
+                </div>
               </>
             )}
           </div>
@@ -49,79 +100,41 @@ export default async function Dashboard() {
 
         {/* Recent Activity Card */}
         <div className="glass panel-card" style={{ padding: '1.852vh 1.667vw' }}>
-          <h2 style={{ fontSize: 'clamp(1.25rem, 1.5vw, 2rem)', marginBottom: '1.5rem' }}>Your Recent Activity</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.481vh' }}>
-            {activity ? (
-              <>
-                {/* Recent Posts */}
-                {activity.posts.length > 0 && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                      <h3 style={{ fontSize: '0.875rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>My Posts</h3>
-                      <Link href="/dashboard/posts/my-posts" style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: '700', whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem' }}>VIEW ALL</Link>
-                    </div>
-                    {activity.posts.map(post => (
-                      <Link key={post.id} href="/feed" style={{ display: 'block', padding: '0.75rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <div style={{ fontSize: '1rem', color: 'white' }}>{post.title}</div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{post.status} • {new Date(post.createdAt).toLocaleDateString()}</div>
-                      </Link>
-                    ))}
+          <h2 style={{ fontSize: 'clamp(1.25rem, 1.5vw, 2rem)', marginBottom: '1.5rem' }}>Recent Activity</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {activities && activities.length > 0 ? (
+              activities.map((activity, index) => (
+                <div key={index} className="activity-item" style={{ 
+                  padding: '1rem', 
+                  background: 'rgba(255,255,255,0.03)', 
+                  borderRadius: '12px',
+                  border: '1px solid var(--border-color)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
+                }}>
+                  <div style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    borderRadius: '10px', 
+                    background: 'var(--accent-primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'black'
+                  }}>
+                    {activity.type === 'MATCH' ? <SportsSoccerIcon /> : activity.type === 'NEWS' ? <NewspaperIcon /> : <EditIcon />}
                   </div>
-                )}
-
-                {/* Recent Cheers */}
-                {activity.cheers.length > 0 && (
-                  <div>
-                    <h3 style={{ fontSize: '0.875rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem', marginTop: '1rem' }}>Reacted To</h3>
-                    {activity.cheers.map(cheer => (
-                      <div key={cheer.id} style={{ fontSize: '1rem', color: 'var(--text-secondary)', padding: '0.25rem 0' }}>
-                        🏆 Cheered on <span style={{ color: 'white' }}>"{cheer.post.title}"</span>
-                      </div>
-                    ))}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: 'white', fontWeight: '700', fontSize: '1rem' }}>{activity.title}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{new Date(activity.createdAt).toLocaleDateString()}</div>
                   </div>
-                )}
-
-                {/* Recent Comments */}
-                {activity.comments.length > 0 && (
-                  <div>
-                    <h3 style={{ fontSize: '0.875rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem', marginTop: '1rem' }}>Commented On</h3>
-                    {activity.comments.map(comment => (
-                      <div key={comment.id} style={{ fontSize: '1rem', color: 'var(--text-secondary)', padding: '0.25rem 0' }}>
-                        💬 <span style={{ color: 'white' }}>"{comment.post.title}"</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {activity.posts.length === 0 && activity.cheers.length === 0 && activity.comments.length === 0 && (
-                  <p style={{ color: 'var(--text-muted)', fontSize: '1rem', textAlign: 'center', padding: '1rem' }}>No recent activity to show.</p>
-                )}
-              </>
+                </div>
+              ))
             ) : (
-              <p style={{ color: 'var(--text-muted)' }}>Loading activity...</p>
+              <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No recent activity to show.</p>
             )}
           </div>
-        </div>
-
-        {/* Info Card */}
-        <div className="glass panel-card" style={{ padding: '1.852vh 1.667vw' }}>
-          <h2 style={{ fontSize: 'clamp(1.25rem, 1.5vw, 2rem)', marginBottom: '1.5rem' }}>
-            {user.role === 'USER' ? 'Batch Information' : 'Assigned Matches'}
-          </h2>
-          {user.role === 'USER' ? (
-            <div>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.481vh' }}>
-                Batch: <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{user.batchId || 'Not set'}</span>
-              </p>
-              <p style={{ color: 'var(--text-secondary)' }}>
-                Stay tuned for match schedules and batch rankings. Make sure your profile information is complete for the tournament registration.
-              </p>
-            </div>
-          ) : (
-            <div>
-              <p style={{ color: 'var(--text-secondary)' }}>You have access to update scores for all matches in the current session.</p>
-            </div>
-          )}
         </div>
       </div>
     </>

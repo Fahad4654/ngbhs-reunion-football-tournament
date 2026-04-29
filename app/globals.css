@@ -311,8 +311,8 @@ a {
 
 /* Panel Styles */
 .panel-user-avatar {
-  width: calc(2vw * var(--font-scale));
-  height: calc(2vw * var(--font-scale));
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -320,18 +320,17 @@ a {
   background: var(--accent-primary);
   color: black;
   font-weight: 800;
-  font-size: calc(1vw * var(--font-scale));
+  font-size: 14px;
   overflow: hidden;
-  border: 0.1vw solid var(--border-color);
+  border: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
   .panel-user-avatar {
-    width: 10vw !important;
-    height: 10vw !important;
-    font-size: 5vw !important;
-    border-width: 0.5vw !important;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
   }
 }
 

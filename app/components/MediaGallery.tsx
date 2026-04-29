@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import MediaRenderer from './MediaRenderer';
+import CloseIcon from '@mui/icons-material/Close';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 export interface MediaItem {
   id: string;
@@ -116,21 +119,20 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               background: 'rgba(255,255,255,0.1)',
               border: 'none',
               color: 'white',
-              width: '3rem',
-              height: '3rem',
+              width: '3.5rem',
+              height: '3.5rem',
               borderRadius: '50%',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.5rem',
               zIndex: 10,
               transition: 'background 0.2s',
             }}
             onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
             onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
           >
-            ✕
+            <CloseIcon sx={{ fontSize: '2rem' }} />
           </button>
 
           {/* Navigation Controls */}
@@ -144,21 +146,20 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: 'white',
-                  width: '3.5rem',
-                  height: '3.5rem',
+                  width: '4rem',
+                  height: '4rem',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2rem',
                   zIndex: 10,
                   transition: 'background 0.2s',
                 }}
                 onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
                 onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
               >
-                ‹
+                <NavigateBeforeIcon sx={{ fontSize: '3rem' }} />
               </button>
               <button 
                 onClick={handleNext}
@@ -168,21 +169,20 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: 'white',
-                  width: '3.5rem',
-                  height: '3.5rem',
+                  width: '4rem',
+                  height: '4rem',
                   borderRadius: '50%',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2rem',
                   zIndex: 10,
                   transition: 'background 0.2s',
                 }}
                 onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
                 onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
               >
-                ›
+                <NavigateNextIcon sx={{ fontSize: '3rem' }} />
               </button>
               
               {/* Media Counter */}
@@ -193,7 +193,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 background: 'rgba(0,0,0,0.5)',
                 padding: '0.5rem 1rem',
                 borderRadius: '1.5rem',
-                fontSize: '0.9rem',
+                fontSize: '1rem',
                 letterSpacing: '0.1em',
               }}>
                 {selectedIndex + 1} / {media.length}
@@ -221,8 +221,8 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 maxWidth: '100%',
                 maxHeight: '100%',
                 objectFit: 'contain',
-                borderRadius: '0.417vw',
-                boxShadow: '0 1.302vw 2.604vw -0.625vw rgba(0, 0, 0, 0.5)',
+                borderRadius: '0.5rem',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
               }}
             />
           </div>

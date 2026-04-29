@@ -6,6 +6,8 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import styles from '../login/login.module.css';
 import GoogleLoginButton from '@/app/components/auth/GoogleLoginButton';
+import CelebrationIcon from '@mui/icons-material/Celebration';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export default function RegisterForm({ batches }: { batches: any[] }) {
   const [state, formAction, isPending] = useActionState(registerWithEmail, null);
@@ -43,7 +45,10 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
   if (state?.success && !state?.otpSent) {
     return (
       <div style={{ textAlign: 'center', padding: '1.852vh 1.042vw' }}>
-        <h2 style={{ color: 'var(--accent-primary)', marginBottom: '0.926vh' }}>Welcome! 🎉</h2>
+        <div style={{ marginBottom: '1rem' }}>
+          <CelebrationIcon sx={{ fontSize: '3rem', color: 'var(--accent-primary)' }} />
+        </div>
+        <h2 style={{ color: 'var(--accent-primary)', marginBottom: '0.926vh' }}>Welcome!</h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1.852vh' }}>Your account has been created. Redirecting to your dashboard…</p>
         <div style={{ width: '2.083vw', height: '2.083vw', border: '0.156vw solid var(--accent-primary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
       </div>
@@ -53,7 +58,10 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
   if (otpState?.success) {
     return (
       <div style={{ textAlign: 'center', padding: '1.852vh 1.042vw' }}>
-        <h2 style={{ color: 'var(--accent-primary)', marginBottom: '0.926vh' }}>Verified! ✅</h2>
+        <div style={{ marginBottom: '1rem' }}>
+          <CheckCircleIcon sx={{ fontSize: '3rem', color: '#10b981' }} />
+        </div>
+        <h2 style={{ color: 'var(--accent-primary)', marginBottom: '0.926vh' }}>Verified!</h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1.852vh' }}>
           Email verified successfully. Your account is now <strong>pending approval</strong> from your Batch Manager. You will be able to see batch activity once approved.
         </p>

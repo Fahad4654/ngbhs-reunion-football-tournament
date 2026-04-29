@@ -1,6 +1,9 @@
 'use client';
 
 import React from 'react';
+import MovieIcon from '@mui/icons-material/Movie';
+import ImageIcon from '@mui/icons-material/Image';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 interface MediaRendererProps {
   url: string;
@@ -42,7 +45,6 @@ export default function MediaRenderer({ url, type, fileName, className, style }:
     }
   } else {
     // If we can't determine extension (e.g. from blob URL where original file wasn't passed), assume supported and let browser try
-    // Wait, in post-form we have the File object. We should pass the fileName.
   }
 
   if (isSupported) {
@@ -84,10 +86,9 @@ export default function MediaRenderer({ url, type, fileName, className, style }:
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '2rem',
         color: 'var(--accent-primary)'
       }}>
-        {type === 'VIDEO' ? '🎬' : '🖼️'}
+        {type === 'VIDEO' ? <MovieIcon sx={{ fontSize: '2.5rem' }} /> : <ImageIcon sx={{ fontSize: '2.5rem' }} />}
       </div>
       
       <div style={{ textAlign: 'center' }}>
@@ -103,10 +104,11 @@ export default function MediaRenderer({ url, type, fileName, className, style }:
         target="_blank"
         rel="noopener noreferrer"
         className="btn glass"
-        style={{ marginTop: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+        style={{ marginTop: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
         onClick={(e) => e.stopPropagation()} // Prevent triggering parent clicks if any
       >
-        ⬇️ Download File
+        <FileDownloadIcon sx={{ fontSize: '1.1rem' }} />
+        <span>Download File</span>
       </a>
     </div>
   );

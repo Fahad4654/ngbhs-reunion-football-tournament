@@ -2,6 +2,8 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import MenuIcon from '@mui/icons-material/Menu';
+import PublicIcon from '@mui/icons-material/Public';
 
 const PAGE_INFO: Record<string, { badge: string; title: string }> = {
   '/dashboard/posts/my-posts': { badge: 'My Content', title: 'Your Posts' },
@@ -75,13 +77,12 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              fontSize: 'clamp(0.9rem, 4vw, 1.25rem)',
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
               background: 'rgba(255, 255, 255, 0.05)'
             }}
           >
-            ☰
+            <MenuIcon sx={{ fontSize: 'clamp(1.1rem, 5vw, 1.5rem)', color: 'white' }} />
           </button>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0', minWidth: 0, flex: 1 }}>
@@ -126,8 +127,8 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
               background: 'rgba(255, 255, 255, 0.05)'
             }}
           >
-            <span style={{ fontSize: 'clamp(0.8rem, 3.5vw, 1.1rem)' }}>🌐</span>
-            <span className="desktop-only" style={{ fontWeight: '700' }}>Feed</span>
+            <PublicIcon sx={{ fontSize: 'clamp(0.9rem, 4.5vw, 1.25rem)', color: 'var(--accent-primary)' }} />
+            <span className="desktop-only" style={{ fontWeight: '700' }}>Community</span>
           </Link>
 
           <Link href="/profile" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>

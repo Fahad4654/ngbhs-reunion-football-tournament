@@ -3,6 +3,17 @@
 import { useActionState, useState, useRef, useEffect } from 'react';
 import { createPost } from '@/lib/actions';
 import type { AppUser } from '@/lib/server-auth';
+import { toast } from 'react-hot-toast';
+import MediaRenderer from '@/app/components/MediaRenderer';
+
+import EditIcon from '@mui/icons-material/Edit';
+import PublicIcon from '@mui/icons-material/Public';
+import SchoolIcon from '@mui/icons-material/School';
+import ImageIcon from '@mui/icons-material/Image';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface PostFormProps {
   user: AppUser;
@@ -13,9 +24,6 @@ interface MediaPreview {
   type: 'IMAGE' | 'VIDEO';
   file: File;
 }
-
-import { toast } from 'react-hot-toast';
-import MediaRenderer from '@/app/components/MediaRenderer';
 
 export default function PostForm({ user }: PostFormProps) {
   const [isPending, setIsPending] = useState(false);
@@ -181,26 +189,32 @@ export default function PostForm({ user }: PostFormProps) {
           <div style={{ minWidth: 0 }}>
             <div style={{ color: 'white', fontWeight: '700', fontSize: 'calc(0.85vw * var(--font-scale))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
             <div style={{ marginTop: '0.37vh' }}>
-              <select 
-                name="scope"
-                value={scope}
-                onChange={(e) => setScope(e.target.value as 'GLOBAL' | 'BATCH')}
-                className="glass"
-                style={{ 
-                  padding: '0.37vh 0.417vw', 
-                  borderRadius: 'calc(0.313vw * var(--font-scale))', 
-                  fontSize: 'calc(0.7vw * var(--font-scale))', 
-                  color: 'white',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.052vw solid var(--border-color)',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  fontWeight: '600'
-                }}
-              >
-                <option value="GLOBAL" style={{ color: 'black' }}>🌍 Global</option>
-                {user.batchId && <option value="BATCH" style={{ color: 'black' }}>🎓 Batch Only</option>}
-              </select>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <select 
+                  name="scope"
+                  value={scope}
+                  onChange={(e) => setScope(e.target.value as 'GLOBAL' | 'BATCH')}
+                  className="glass"
+                  style={{ 
+                    padding: '0.37vh 0.417vw 0.37vh 1.5rem', 
+                    borderRadius: 'calc(0.313vw * var(--font-scale))', 
+                    fontSize: 'calc(0.7vw * var(--font-scale))', 
+                    color: 'white',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '0.052vw solid var(--border-color)',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    appearance: 'none'
+                  }}
+                >
+                  <option value="GLOBAL" style={{ color: 'black' }}>Global</option>
+                  {user.batchId && <option value="BATCH" style={{ color: 'black' }}>Batch Only</option>}
+                </select>
+                <div style={{ position: 'absolute', left: '0.4rem', top: '50%', transform: 'translateY(-50%)', display: 'flex', pointerEvents: 'none' }}>
+                  {scope === 'GLOBAL' ? <PublicIcon sx={{ fontSize: '0.8rem', color: 'var(--accent-primary)' }} /> : <SchoolIcon sx={{ fontSize: '0.8rem', color: 'var(--accent-primary)' }} />}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -257,7 +271,7 @@ export default function PostForm({ user }: PostFormProps) {
                   onClick={() => removeMedia(index)}
                   style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '2rem', height: '2rem', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}
                 >
-                  ✕
+                  <CloseIcon sx={{ fontSize: '1.2rem' }} />
                 </button>
               </div>
             ))}
@@ -276,7 +290,7 @@ export default function PostForm({ user }: PostFormProps) {
             position: 'relative'
           }}>
             <span style={{ color: 'white', fontSize: 'calc(0.75vw * var(--font-scale))', fontWeight: '600' }}>Add to your post</span>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <input 
                 type="file" 
                 accept="image/*, .jpg, .jpeg, .png, .gif, .webp, .avif, .heic, .heif" 
@@ -288,10 +302,10 @@ export default function PostForm({ user }: PostFormProps) {
               <button 
                 type="button" 
                 onClick={() => fileInputRef.current?.click()}
-                style={{ background: 'none', border: 'none', fontSize: 'calc(1.25vw * var(--font-scale))', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                 title="Photo"
               >
-                🖼️
+                <ImageIcon sx={{ fontSize: 'calc(1.5vw * var(--font-scale))', color: '#45bd62' }} />
               </button>
 
               <input 
@@ -305,16 +319,16 @@ export default function PostForm({ user }: PostFormProps) {
               <button 
                 type="button" 
                 onClick={() => videoInputRef.current?.click()}
-                style={{ background: 'none', border: 'none', fontSize: 'calc(1.25vw * var(--font-scale))', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                 title="Video"
               >
-                📹
+                <VideocamIcon sx={{ fontSize: 'calc(1.5vw * var(--font-scale))', color: '#f02849' }} />
               </button>
-              <button type="button" style={{ background: 'none', border: 'none', fontSize: 'calc(1.25vw * var(--font-scale))', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}>
-                😊
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <SentimentSatisfiedAltIcon sx={{ fontSize: 'calc(1.5vw * var(--font-scale))', color: '#f7b928' }} />
               </button>
-              <button type="button" style={{ background: 'none', border: 'none', fontSize: 'calc(1.25vw * var(--font-scale))', cursor: 'pointer', padding: '0.208vw', borderRadius: '0.208vw' }}>
-                📍
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <LocationOnIcon sx={{ fontSize: 'calc(1.5vw * var(--font-scale))', color: '#f5533d' }} />
               </button>
             </div>
           </div>
@@ -326,7 +340,7 @@ export default function PostForm({ user }: PostFormProps) {
             type="submit" 
             className="btn btn-primary" 
             disabled={isPending}
-            style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', fontWeight: '800' }}
+            style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', fontWeight: '800' }}
           >
             {isPending ? 'Posting...' : 'POST'}
           </button>

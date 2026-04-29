@@ -4,6 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions";
 import type { AppUser } from "@/lib/server-auth";
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import EditIcon from '@mui/icons-material/Edit';
+import DescriptionIcon from '@mui/icons-material/Description';
+import SchoolIcon from '@mui/icons-material/School';
+import SettingsIcon from '@mui/icons-material/Settings';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
+import ForumIcon from '@mui/icons-material/Forum';
+import SecurityIcon from '@mui/icons-material/Security';
+import GroupIcon from '@mui/icons-material/Group';
+import HomeIcon from '@mui/icons-material/Home';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface SidebarProps {
   user: AppUser;
@@ -14,19 +27,19 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   const mainLinks = [
-    { name: "Overview", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin" : "/dashboard", icon: "📊" },
-    { name: "Create Post", href: "/dashboard/posts", icon: "✍️", roles: ["USER", "BATCH_MANAGER"] },
-    { name: "My Posts", href: "/dashboard/posts/my-posts", icon: "📝", roles: ["USER", "BATCH_MANAGER"] },
-    { name: "Batch Feed", href: "/dashboard/batch-feed", icon: "🎓", roles: ["USER", "BATCH_MANAGER"] },
-    { name: "Manage Batch", href: "/dashboard/manage-batch", icon: "🛠️", roles: ["BATCH_MANAGER"] },
-    { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: "⚽", roles: ["ADMIN", "CO_ADMIN"] },
-    { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: "📰", roles: ["ADMIN", "CO_ADMIN"] },
-    { name: "Post Moderation", href: "/admin/posts", icon: "💬", roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "Overview", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin" : "/dashboard", icon: <AssessmentIcon /> },
+    { name: "Create Post", href: "/dashboard/posts", icon: <EditIcon />, roles: ["USER", "BATCH_MANAGER"] },
+    { name: "My Posts", href: "/dashboard/posts/my-posts", icon: <DescriptionIcon />, roles: ["USER", "BATCH_MANAGER"] },
+    { name: "Batch Feed", href: "/dashboard/batch-feed", icon: <SchoolIcon />, roles: ["USER", "BATCH_MANAGER"] },
+    { name: "Manage Batch", href: "/dashboard/manage-batch", icon: <SettingsIcon />, roles: ["BATCH_MANAGER"] },
+    { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: <NewspaperIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "Post Moderation", href: "/admin/posts", icon: <ForumIcon />, roles: ["ADMIN", "CO_ADMIN"] },
   ];
 
   const adminOnlyLinks = [
-    { name: "Batch Settings", href: "/admin/batches", icon: "🛡️" },
-    { name: "User Access", href: "/admin/users", icon: "👥" },
+    { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon /> },
+    { name: "User Access", href: "/admin/users", icon: <GroupIcon /> },
   ];
 
   return (
@@ -58,8 +71,9 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             <button 
               onClick={onClose}
               className="mobile-nav-toggle btn glass"
+              style={{ padding: 0, minWidth: '40px', height: '40px' }}
             >
-              ✕
+              <CloseIcon sx={{ fontSize: '1.5rem' }} />
             </button>
           )}
         </div>
@@ -94,7 +108,14 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                     fontSize: 'calc(0.95vw * var(--font-scale))'
                   }}
                 >
-                  <span style={{ fontSize: 'calc(1.1vw * var(--font-scale))' }}>{link.icon}</span>
+                  <span style={{ 
+                    fontSize: 'calc(1.1vw * var(--font-scale))', 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    color: isActive ? 'var(--accent-primary)' : 'inherit' 
+                  }}>
+                    {link.icon}
+                  </span>
                   <span>{link.name}</span>
                 </Link>
               );
@@ -126,7 +147,14 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                       fontSize: 'calc(0.95vw * var(--font-scale))'
                     }}
                   >
-                    <span style={{ fontSize: 'calc(0.917vw * var(--font-scale))' }}>{link.icon}</span>
+                    <span style={{ 
+                      fontSize: 'calc(0.917vw * var(--font-scale))', 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      color: isActive ? 'var(--accent-primary)' : 'inherit' 
+                    }}>
+                      {link.icon}
+                    </span>
                     <span>{link.name}</span>
                   </Link>
                 );
@@ -137,40 +165,45 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       </div>
 
       {/* Fixed Bottom Section */}
-      <div style={{ padding: '1.852vh 1.042vw', borderTop: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.4)' }}>
+      <div style={{ padding: '2vh 1.5vw', borderTop: '0.052vw solid var(--border-color)', background: 'rgba(10, 11, 13, 0.4)', display: 'flex', flexDirection: 'column', gap: '1.25vh' }}>
         <Link 
-          href="/profile"
-          className="btn-profile-sidebar"
+          href="/" 
+          className="btn glass" 
           style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.833vw', 
-            marginBottom: '1.2vh', 
-            padding: '0.741vh 0.417vw',
-            borderRadius: '0.625vw',
-            transition: 'all 0.2s ease',
-            textDecoration: 'none'
+            width: '100%', 
+            fontSize: 'clamp(0.75rem, 0.9vw, 0.9rem)', 
+            fontWeight: '800', 
+            color: 'var(--accent-primary)', 
+            justifyContent: 'center', 
+            border: '1px solid rgba(235, 183, 0, 0.3)', 
+            gap: '0.75rem',
+            padding: '1vh 1.25vw',
+            whiteSpace: 'nowrap'
           }}
         >
-          <div className="panel-user-avatar">
-            {user.image ? (
-              <img src={user.image} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              (user.name || 'User').charAt(0).toLowerCase()
-            )}
-          </div>
-          <div style={{ minWidth: 0, overflow: 'hidden', flex: 1 }}>
-            <div style={{ fontWeight: '700', color: 'white', fontSize: 'calc(1vw * var(--font-scale))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</div>
-            <div style={{ fontSize: 'calc(0.8vw * var(--font-scale))', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>{user.role}</div>
-          </div>
+          <HomeIcon sx={{ fontSize: '1.25rem' }} />
+          <span>EXIT TO WEBSITE</span>
         </Link>
 
-        <Link href="/" className="btn glass" style={{ width: '100%', marginBottom: '1.111vh', fontSize: 'calc(0.9vw * var(--font-scale))', fontWeight: '800', color: 'var(--accent-primary)', justifyContent: 'center', border: '0.052vw solid rgba(235, 183, 0, 0.2)' }}>
-          🏠 EXIT TO WEBSITE
-        </Link>
-        <form action={logout}>
-          <button type="submit" className="btn glass" style={{ width: '100%', color: '#ff4444', fontSize: 'calc(0.9vw * var(--font-scale))', fontWeight: '700', justifyContent: 'center' }}>
-            🚪 SIGN OUT
+        <form action={logout} style={{ width: '100%' }}>
+          <button 
+            type="submit" 
+            className="btn glass" 
+            style={{ 
+              width: '100%', 
+              color: '#ff4444', 
+              fontSize: 'clamp(0.75rem, 0.9vw, 0.9rem)', 
+              fontWeight: '700', 
+              justifyContent: 'center', 
+              gap: '0.75rem',
+              padding: '0.75vh 1vw',
+              border: '1px solid rgba(255, 68, 68, 0.2)',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <ExitToAppIcon sx={{ fontSize: '1.25rem' }} />
+            <span style={{ whiteSpace: 'nowrap' }}>SIGN OUT</span>
           </button>
         </form>
       </div>
