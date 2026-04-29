@@ -125,6 +125,11 @@ export default function LoginForm() {
         <div className={styles.inputGroup}>
           <label className={styles.label} htmlFor="password">Password</label>
           <input id="password" name="password" type="password" placeholder="••••••••" className={styles.input} required minLength={6} />
+          <div style={{ textAlign: 'right', marginTop: '0.25rem' }}>
+            <a href="/forgot-password" style={{ color: 'var(--accent-primary)', fontSize: '0.8rem', textDecoration: 'none' }}>
+              Forgot Password?
+            </a>
+          </div>
         </div>
         
         {state?.error && (
