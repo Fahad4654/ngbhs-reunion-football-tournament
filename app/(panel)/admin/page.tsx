@@ -15,7 +15,7 @@ export const metadata = {
 export default async function AdminDashboard() {
   const user = await getServerUser();
   
-  if (user?.role !== "ADMIN") {
+  if (!user || (user.role !== "ADMIN" && user.role !== "CO_ADMIN")) {
     redirect("/");
   }
 
