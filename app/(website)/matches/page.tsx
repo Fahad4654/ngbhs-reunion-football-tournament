@@ -44,8 +44,8 @@ export default async function MatchesPage() {
               <div className={`${styles.team} ${styles.teamHome}`}>
                 <span className={styles.teamName}>{match.homeTeam.name}</span>
                 <div className={styles.teamLogo}>
-                  {match.homeTeam.logo && (
-                    <img src={match.homeTeam.logo} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  {match.homeTeam.logoUrl && (
+                    <img src={match.homeTeam.logoUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   )}
                 </div>
               </div>
@@ -74,8 +74,8 @@ export default async function MatchesPage() {
               {/* Away Team */}
               <div className={`${styles.team} ${styles.teamAway}`}>
                 <div className={styles.teamLogo}>
-                  {match.awayTeam.logo && (
-                    <img src={match.awayTeam.logo} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  {match.awayTeam.logoUrl && (
+                    <img src={match.awayTeam.logoUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   )}
                 </div>
                 <span className={styles.teamName}>{match.awayTeam.name}</span>

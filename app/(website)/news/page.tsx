@@ -56,8 +56,8 @@ export default async function NewsPage() {
                     Exclusive
                   </div>
                 )}
-                {item.image && (
-                  <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {item.imageUrl && (
+                  <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 )}
               </div>
               <div className={styles.content}>
