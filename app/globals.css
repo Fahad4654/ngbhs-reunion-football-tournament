@@ -341,7 +341,7 @@ a {
 }
 
 .navbar-title {
-  font-size: 1.4vw;
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
 }
 
 .navbar-logo {
@@ -360,7 +360,7 @@ a {
     font-size: 1.2vw;
   }
   .navbar-title {
-    font-size: 4vw;
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
   }
   .navbar-logo {
     width: 10vw;
@@ -397,6 +397,19 @@ a {
     font-size: 2.5vw;
     line-height: 1.1;
     white-space: normal;
+  }
+}
+
+.panel-navbar {
+  min-height: 80px;
+  background: rgba(10, 11, 13, 0.95) !important;
+}
+
+@media (max-width: 768px) {
+  .panel-navbar {
+    min-height: 56px !important;
+    background: rgba(10, 11, 13, 0.98) !important;
+    border-bottom: 1px solid var(--border-color) !important;
   }
 }
 
@@ -523,9 +536,11 @@ a {
     font-size: 4vw !important;
   }
 
-  h1,
-  .navbar-title {
+  h1 {
     font-size: 7vw !important;
+  }
+  .navbar-title {
+    font-size: clamp(1rem, 5vw, 1.25rem) !important;
   }
 
   .navbar-badge {

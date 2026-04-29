@@ -137,8 +137,22 @@ export default function PostForm({ user }: PostFormProps) {
     <div className="glass" style={{ borderRadius: 'calc(0.625vw * var(--font-scale))', overflow: 'hidden', background: 'var(--bg-secondary)', border: '0.052vw solid var(--border-color)' }}>
       <form ref={formRef} action={handleSubmit}>
         {/* Header */}
-        <div style={{ padding: 'calc(1.481vh * var(--font-scale)) calc(0.833vw * var(--font-scale))', borderBottom: '0.052vw solid var(--border-color)', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'calc(1.042vw * var(--font-scale))', color: 'white', margin: 0, textTransform: 'none' }}>Create Post</h2>
+        <div style={{ 
+          padding: '0.75rem', 
+          background: 'linear-gradient(90deg, rgba(235, 183, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)',
+          borderBottom: '1px solid var(--border-color)', 
+          textAlign: 'center' 
+        }}>
+          <h2 style={{ 
+            fontSize: '1rem', 
+            fontWeight: '900',
+            color: 'var(--accent-primary)', 
+            margin: 0, 
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em'
+          }}>
+            Create Post
+          </h2>
         </div>
 
         {/* User Info */}
@@ -251,7 +265,7 @@ export default function PostForm({ user }: PostFormProps) {
         )}
 
         {/* Attachments Section */}
-        <div style={{ padding: 'calc(0.741vh * var(--font-scale)) calc(0.833vw * var(--font-scale))' }}>
+        <div style={{ padding: '0.5rem 0.833vw' }}>
           <div style={{ 
             border: '0.052vw solid var(--border-color)', 
             borderRadius: 'calc(0.417vw * var(--font-scale))', 
@@ -307,7 +321,7 @@ export default function PostForm({ user }: PostFormProps) {
         </div>
 
         {/* Footer / Submit */}
-        <div style={{ padding: 'calc(1.481vh * var(--font-scale)) calc(0.833vw * var(--font-scale))' }}>
+        <div style={{ padding: '0.5rem 0.833vw 1rem' }}>
           <button 
             type="submit" 
             className="btn btn-primary" 
