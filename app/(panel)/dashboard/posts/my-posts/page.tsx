@@ -8,6 +8,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import ForumIcon from '@mui/icons-material/Forum';
 import DescriptionIcon from '@mui/icons-material/Description';
+import PublicIcon from '@mui/icons-material/Public';
+import SchoolIcon from '@mui/icons-material/School';
 
 export default async function MyPostsPage() {
   const [posts, user] = await Promise.all([
@@ -28,8 +30,8 @@ export default async function MyPostsPage() {
         {posts.length > 0 ? posts.map((post) => (
           <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '1rem' }}>
             {/* Post Header */}
-            <div style={{ padding: '1rem 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.333vw', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+            <div style={{ padding: '1rem 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(90deg, rgba(235, 183, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: '1 1 200px' }}>
                 <div style={{ 
                   width: '40px', 
                   minWidth: '40px',
@@ -59,7 +61,23 @@ export default async function MyPostsPage() {
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end', marginLeft: 'auto' }}>
+                <span className="badge" style={{ 
+                  padding: '0.296vh 0.5rem',
+                  fontSize: '0.7rem',
+                  fontWeight: '800',
+                  letterSpacing: '0.05em',
+                  background: 'rgba(255, 215, 0, 0.1)',
+                  color: 'var(--accent-secondary)',
+                  border: '1px solid currentColor',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}>
+                  {post.scope === 'BATCH' ? <SchoolIcon sx={{ fontSize: '0.9rem' }} /> : <PublicIcon sx={{ fontSize: '0.9rem' }} />}
+                  <span className="desktop-only">{post.scope === 'BATCH' ? 'BATCH ONLY' : 'GLOBAL'}</span>
+                </span>
                 <span className="badge" style={{ 
                   padding: '0.296vh 0.5rem',
                   fontSize: '0.7rem',
@@ -106,7 +124,7 @@ export default async function MyPostsPage() {
                 </div>
               </div>
               {post.status === 'APPROVED' && (
-                <Link href={`/feed#post-${post.id}`} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <Link href={post.scope === 'BATCH' ? `/dashboard/batch-feed#post-${post.id}` : `/feed#post-${post.id}`} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   View on Feed →
                 </Link>
               )}

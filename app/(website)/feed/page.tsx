@@ -49,8 +49,8 @@ export default async function FeedPage() {
           {posts.length > 0 ? posts.map((post) => (
             <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '1.25vw' }}>
               {/* Post Header */}
-              <div style={{ padding: '1.157vh 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.625vw', borderBottom: '0.052vw solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw', minWidth: 0, flex: 1 }}>
+              <div style={{ padding: '1.157vh 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.625vw', flexWrap: 'wrap', borderBottom: '0.052vw solid var(--border-color)', background: 'linear-gradient(90deg, rgba(235, 183, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw', minWidth: 0, flex: '1 1 200px' }}>
                   <div style={{ 
                     width: 'clamp(32px, 8vw, 48px)', 
                     height: 'clamp(32px, 8vw, 48px)', 
@@ -79,13 +79,15 @@ export default async function FeedPage() {
                     </div>
                   </div>
                 </div>
-                <PostOptions 
-                  postId={post.id}
-                  title={post.title}
-                  content={post.content}
-                  isAuthorized={user?.role === 'ADMIN' || user?.role === 'CO_ADMIN' || user?.uid === post.authorId}
-                  media={post.media}
-                />
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end', marginLeft: 'auto' }}>
+                  <PostOptions 
+                    postId={post.id}
+                    title={post.title}
+                    content={post.content}
+                    isAuthorized={user?.role === 'ADMIN' || user?.role === 'CO_ADMIN' || user?.uid === post.authorId}
+                    media={post.media}
+                  />
+                </div>
               </div>
 
               {/* Post Content */}
