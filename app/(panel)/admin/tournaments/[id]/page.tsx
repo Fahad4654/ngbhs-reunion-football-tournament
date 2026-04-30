@@ -19,13 +19,17 @@ export default async function TournamentDetailPage({ params }: { params: Promise
     prisma.tournament.findUnique({
       where: { id },
       include: {
+        groups: { orderBy: { name: "asc" } },
         teams: {
-          include: { batch: true },
+          include: {
+            batch: true,
+            group: { select: { id: true, name: true } },
+          },
           orderBy: [{ points: "desc" }, { goalsFor: "desc" }],
         },
       },
     }),
-    prisma.batch.findMany({ orderBy: { name: "asc" } }),
+    prisma.batch.findMany({ orderBy: { year: "asc" }, select: { id: true, name: true, year: true } }),
   ]);
 
   if (!tournament) notFound();

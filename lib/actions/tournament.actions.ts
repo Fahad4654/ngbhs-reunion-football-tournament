@@ -184,3 +184,79 @@ export async function deleteTournament(id: string) {
     return { success: false, error: "Failed to delete tournament" };
   }
 }
+
+export async function updateTournamentSettings(
+  id: string,
+  data: { description?: string; winPoints: number; drawPoints: number; lossPoints: number }
+) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+  try {
+    const tournament = await prisma.tournament.update({
+      where: { id },
+      data: {
+        description: data.description?.trim() || null,
+        winPoints: data.winPoints,
+        drawPoints: data.drawPoints,
+        lossPoints: data.lossPoints,
+      },
+    });
+    revalidatePath(`/admin/tournaments/${id}`);
+    revalidatePath("/standings");
+    return { success: true, data: tournament };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createTournamentGroup(tournamentId: string, name: string) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+  const trimmed = name.trim();
+  if (!trimmed) return { success: false, error: "Group name is required" };
+  try {
+    const group = await prisma.tournamentGroup.create({
+      data: { tournamentId, name: trimmed },
+    });
+    revalidatePath(`/admin/tournaments/${tournamentId}`);
+    return { success: true, data: group };
+  } catch (error: any) {
+    if (error.code === "P2002") return { success: false, error: "A group with that name already exists" };
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteTournamentGroup(groupId: string, tournamentId: string) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+  try {
+    await prisma.tournamentGroup.delete({ where: { id: groupId } });
+    revalidatePath(`/admin/tournaments/${tournamentId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function assignTeamToGroup(tournamentTeamId: string, groupId: string | null, tournamentId: string) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+  try {
+    const team = await prisma.tournamentTeam.update({
+      where: { id: tournamentTeamId },
+      data: { groupId: groupId || null },
+    });
+    revalidatePath(`/admin/tournaments/${tournamentId}`);
+    return { success: true, data: team };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

@@ -45,20 +45,38 @@ model Tournament {
   id          String   @id @default(cuid())
   name        String   @unique
   isActive    Boolean  @default(false)
+  description String?  // about the tournament
+  winPoints   Int      @default(3)
+  drawPoints  Int      @default(1)
+  lossPoints  Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   teams       TournamentTeam[]
+  groups      TournamentGroup[]
   matches     Match[]
 }
 
-model TournamentTeam {
-  id           String     @id @default(cuid())
+model TournamentGroup {
+  id           String         @id @default(cuid())
   tournamentId String
-  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  tournament   Tournament     @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name         String         // e.g. "Group A"
+  teams        TournamentTeam[]
+  createdAt    DateTime       @default(now())
+
+  @@unique([tournamentId, name])
+}
+
+model TournamentTeam {
+  id           String           @id @default(cuid())
+  tournamentId String
+  tournament   Tournament       @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   batchId      String
-  batch        Batch      @relation(fields: [batchId], references: [id], onDelete: Cascade)
-  
+  batch        Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  groupId      String?
+  group        TournamentGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
   points       Int        @default(0)
   played       Int        @default(0)
   won          Int        @default(0)

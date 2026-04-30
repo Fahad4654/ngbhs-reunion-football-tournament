@@ -15,27 +15,46 @@ async function getTournamentsAndStandings() {
   });
 
   // default to active tournament if present
-  const activeTournament = tournaments.find((t: { id: string; name: string; isActive: boolean }) => t.isActive) ?? tournaments[0] ?? null;
+  const activeTournamentRef = tournaments.find((t: { id: string; name: string; isActive: boolean }) => t.isActive) ?? tournaments[0] ?? null;
 
-  const teamsData = activeTournament
-    ? await prisma.tournamentTeam.findMany({
-        where: { tournamentId: activeTournament.id },
-        include: { batch: { select: { name: true, logoUrl: true } } },
-        orderBy: [{ points: "desc" }, { goalsFor: "desc" }],
-      })
-    : [];
+  let activeTournamentData = null;
+  let teamsData: any[] = [];
 
-  return { tournaments, activeTournamentId: activeTournament?.id ?? null, teamsData };
+  if (activeTournamentRef) {
+    activeTournamentData = await prisma.tournament.findUnique({
+      where: { id: activeTournamentRef.id },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        winPoints: true,
+        drawPoints: true,
+        lossPoints: true,
+        groups: { select: { id: true, name: true } },
+      },
+    });
+
+    teamsData = await prisma.tournamentTeam.findMany({
+      where: { tournamentId: activeTournamentRef.id },
+      include: {
+        batch: { select: { name: true, logoUrl: true } },
+        group: { select: { id: true, name: true } },
+      },
+      orderBy: [{ points: "desc" }, { goalsFor: "desc" }],
+    });
+  }
+
+  return { tournaments, activeTournamentData, teamsData };
 }
 
 export default async function StandingsPage() {
-  const { tournaments, activeTournamentId, teamsData } = await getTournamentsAndStandings();
+  const { tournaments, activeTournamentData, teamsData } = await getTournamentsAndStandings();
 
   return (
     <div className="container">
       <StandingsClient
         tournaments={tournaments}
-        initialTournamentId={activeTournamentId}
+        initialTournamentData={activeTournamentData}
         initialTeams={teamsData}
       />
     </div>
