@@ -81,11 +81,11 @@ export default async function Home() {
       <section className={styles.section}>
         <div className="container">
           <div className={styles.sectionHeader}>
-            <div>
-              <div style={{ color: 'var(--accent-primary)', fontWeight: '700', fontSize: 'calc(0.667vw * var(--font-scale))', marginBottom: '0.463vh', textTransform: 'uppercase' }}>Current Action</div>
+            <div className={styles.sectionHeaderTitle}>
+              <div className={styles.sectionSubtitle}>Current Action</div>
               <h2 className={styles.sectionTitle}>Match <span className="text-gradient">Dashboard</span></h2>
             </div>
-            <Link href="/matches" style={{ color: 'var(--accent-secondary)', fontWeight: '600' }}>See all matches →</Link>
+            <Link href="/matches" className={styles.sectionLink}>See all matches →</Link>
           </div>
 
           <div className={styles.scoreboardGrid}>
