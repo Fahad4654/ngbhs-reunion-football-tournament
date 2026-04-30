@@ -18,6 +18,7 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
   '/admin/news': { badge: 'Announcements', title: 'News Manager' },
   '/admin/posts': { badge: 'Post Moderation', title: 'User Posts' },
   '/admin/users': { badge: 'Users', title: 'Access Control' },
+  '/admin/tournaments': { badge: 'Events', title: 'Tournaments' },
   '/admin': { badge: 'System', title: 'Admin Dashboard' },
   '/profile': { badge: 'Account Settings', title: 'Your Profile' },
 };

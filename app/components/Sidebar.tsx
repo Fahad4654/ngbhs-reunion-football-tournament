@@ -38,6 +38,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
   ];
 
   const adminOnlyLinks = [
+    { name: "Tournaments", href: "/admin/tournaments", icon: <AssessmentIcon /> },
     { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon /> },
     { name: "User Access", href: "/admin/users", icon: <GroupIcon /> },
   ];
