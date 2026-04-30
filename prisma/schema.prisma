@@ -15,6 +15,9 @@ model Batch {
   id          String   @id @default(cuid())
   name        String   @unique // e.g., "Batch 2010"
   slug        String   @unique
+  year        Int      @unique // graduating year, used as primary identifier
+  nickname    String?  // e.g., "The Lions"
+  slogan      String?  // team slogan
   logoUrl     String?
   points      Int      @default(0)
   played      Int      @default(0)

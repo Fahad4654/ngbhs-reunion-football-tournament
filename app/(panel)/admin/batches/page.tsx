@@ -13,7 +13,7 @@ export default async function AdminBatchesPage() {
   if (user?.role !== "ADMIN") redirect("/");
 
   const batches = await prisma.batch.findMany({
-    orderBy: [{ points: "desc" }, { goalsFor: "desc" }],
+    orderBy: [{ year: "asc" }],
     include: { _count: { select: { members: true } } },
   });
 
