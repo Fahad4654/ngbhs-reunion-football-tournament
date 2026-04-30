@@ -157,7 +157,7 @@ export default async function BatchFeedPage() {
               initialCheers={post.cheers}
               initialComments={post.comments}
               currentUserId={userSession.uid}
-              postUrl={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/feed#post-${post.id}`}
+              postUrl={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/dashboard/batch-feed#post-${post.id}`}
             />
           </article>
         )) : (
