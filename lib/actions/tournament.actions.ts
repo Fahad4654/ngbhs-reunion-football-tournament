@@ -137,3 +137,50 @@ export async function updateTournamentTeamStats(
     return { success: false, error: error.message };
   }
 }
+
+export async function renameTournament(id: string, name: string) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const trimmed = name.trim();
+  if (!trimmed) return { success: false, error: "Name is required" };
+
+  try {
+    const tournament = await prisma.tournament.update({
+      where: { id },
+      data: { name: trimmed },
+    });
+
+    revalidatePath("/admin/tournaments");
+    revalidatePath("/standings");
+    revalidatePath("/");
+
+    return { success: true, data: tournament };
+  } catch (error: any) {
+    console.error("Failed to rename tournament:", error);
+    if (error.code === "P2002") return { success: false, error: "A tournament with that name already exists" };
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteTournament(id: string) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    await prisma.tournament.delete({ where: { id } });
+
+    revalidatePath("/admin/tournaments");
+    revalidatePath("/standings");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to delete tournament:", error);
+    return { success: false, error: "Failed to delete tournament" };
+  }
+}
