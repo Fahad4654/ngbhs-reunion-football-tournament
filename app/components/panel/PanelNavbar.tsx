@@ -11,7 +11,7 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
   '/dashboard/batch-feed': { badge: 'Batch Activity', title: 'Batch Feed' },
   '/dashboard/manage-batch': { badge: 'Moderation', title: 'Manage Batch' },
   '/dashboard/scores': { badge: 'Tournament', title: 'Update Scores' },
-  '/dashboard': { badge: 'Overview', title: 'Dashboard Overview' },
+  '/dashboard': { badge: 'Overview', title: 'Overview' },
   '/dashboard/news': { badge: 'News Manager', title: 'Latest Updates' },
   '/admin/batches': { badge: 'Batches', title: 'Batch Standings' },
   '/admin/matches': { badge: 'Matches', title: 'Tournament Schedule' },
