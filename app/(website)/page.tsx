@@ -25,20 +25,26 @@ async function getNews() {
 }
 
 async function getStandings() {
-  const batches = await prisma.batch.findMany({
-    orderBy: [
-      { points: 'desc' },
-      { goalsFor: 'desc' },
-    ],
+  const activeTournament = await prisma.tournament.findFirst({
+    where: { isActive: true },
+  });
+
+  if (!activeTournament) return { teams: [], tournamentName: null };
+
+  const teams = await prisma.tournamentTeam.findMany({
+    where: { tournamentId: activeTournament.id },
+    include: { batch: { select: { name: true } } },
+    orderBy: [{ points: 'desc' }, { goalsFor: 'desc' }],
     take: 5,
   });
-  return batches;
+
+  return { teams, tournamentName: activeTournament.name };
 }
 
 import HeroSlideshow from "../components/HeroSlideshow";
 
 export default async function Home() {
-  const [matches, news, standings] = await Promise.all([
+  const [matches, news, { teams: standings, tournamentName }] = await Promise.all([
     getMatches(),
     getNews(),
     getStandings(),
@@ -81,11 +87,11 @@ export default async function Home() {
       <section className={styles.section}>
         <div className="container">
           <div className={styles.sectionHeader}>
-            <div>
-              <div style={{ color: 'var(--accent-primary)', fontWeight: '700', fontSize: 'calc(0.667vw * var(--font-scale))', marginBottom: '0.463vh', textTransform: 'uppercase' }}>Current Action</div>
+            <div className={styles.sectionHeaderTitle}>
+              <div className={styles.sectionSubtitle}>Current Action</div>
               <h2 className={styles.sectionTitle}>Match <span className="text-gradient">Dashboard</span></h2>
             </div>
-            <Link href="/matches" style={{ color: 'var(--accent-secondary)', fontWeight: '600' }}>See all matches →</Link>
+            <Link href="/matches" className={styles.sectionLink}>See all matches →</Link>
           </div>
 
           <div className={styles.scoreboardGrid}>
@@ -153,7 +159,10 @@ export default async function Home() {
       {/* Standings Section */}
       <section className="glass" style={{ margin: '1.852vh 1.042vw', borderRadius: '2.083vw', background: 'rgba(255, 255, 255, 0.01)' }}>
         <div className="container" style={{ padding: '4.444vh 1.042vw' }}>
-          <h2 className={styles.sectionTitle} style={{ marginBottom: '2.963vh', textAlign: 'center' }}>Tournament <span className="text-gradient">Standings</span></h2>
+          <h2 className={styles.sectionTitle} style={{ marginBottom: '0.5rem', textAlign: 'center' }}>Tournament <span className="text-gradient">Standings</span></h2>
+          {tournamentName && (
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '2.963vh', fontWeight: '700', textTransform: 'uppercase' }}>{tournamentName}</p>
+          )}
           <div className="glass" style={{ padding: '1.481vh 1.042vw', borderRadius: '1.563vw', overflow: 'hidden' }}>
             <div className={styles.tableWrapper}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -169,7 +178,7 @@ export default async function Home() {
                 <tbody style={{ fontSize: '0.833vw' }}>
                   {standings.length > 0 ? standings.map((team, i) => (
                     <tr key={team.id} style={{ borderBottom: i === standings.length - 1 ? 'none' : '0.052vw solid var(--border-color)' }}>
-                      <td style={{ padding: '1.481vh 1.042vw', fontWeight: '800', color: 'white', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.name}</td>
+                      <td style={{ padding: '1.481vh 1.042vw', fontWeight: '800', color: 'white', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.batch.name}</td>
                       <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.played}</td>
                       <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.won}</td>
                       <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontWeight: '700', color: (team.goalsFor - team.goalsAgainst) >= 0 ? 'var(--accent-primary)' : 'var(--accent-danger)', fontSize: 'calc(0.833vw * var(--font-scale))' }}>
@@ -179,7 +188,9 @@ export default async function Home() {
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan={5} style={{ padding: '2.963vh', textAlign: 'center', color: 'var(--text-muted)' }}>No standings data available.</td>
+                      <td colSpan={5} style={{ padding: '2.963vh', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        {tournamentName ? 'No teams enrolled yet.' : 'No active tournament. Set one active in the admin panel.'}
+                      </td>
                     </tr>
                   )}
                 </tbody>

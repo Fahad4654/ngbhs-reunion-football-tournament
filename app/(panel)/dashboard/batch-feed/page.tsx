@@ -98,8 +98,8 @@ export default async function BatchFeedPage() {
         {posts.length > 0 ? posts.map((post) => (
           <article key={post.id} className="glass panel-card" style={{ overflow: 'hidden', borderRadius: '1rem' }}>
             {/* Post Header */}
-            <div style={{ padding: '1rem 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.417vw', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+            <div style={{ padding: '1rem 0.833vw', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(90deg, rgba(235, 183, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: '1 1 200px' }}>
                 <div style={{ 
                   width: '40px', 
                   minWidth: '40px',
@@ -129,13 +129,15 @@ export default async function BatchFeedPage() {
                   </div>
                 </div>
               </div>
-              <PostOptions 
-                postId={post.id}
-                title={post.title}
-                content={post.content}
-                isAuthorized={userSession.role === 'ADMIN' || userSession.role === 'CO_ADMIN' || userSession.uid === post.authorId}
-                media={post.media}
-              />
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end', marginLeft: 'auto' }}>
+                <PostOptions 
+                  postId={post.id}
+                  title={post.title}
+                  content={post.content}
+                  isAuthorized={userSession.role === 'ADMIN' || userSession.role === 'CO_ADMIN' || userSession.uid === post.authorId}
+                  media={post.media}
+                />
+              </div>
             </div>
 
             {/* Post Content */}
@@ -155,7 +157,7 @@ export default async function BatchFeedPage() {
               initialCheers={post.cheers}
               initialComments={post.comments}
               currentUserId={userSession.uid}
-              postUrl={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/feed#post-${post.id}`}
+              postUrl={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/dashboard/batch-feed#post-${post.id}`}
             />
           </article>
         )) : (

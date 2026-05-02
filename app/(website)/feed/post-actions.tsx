@@ -35,19 +35,60 @@ export default function PostActions({ postId, initialCheers, initialComments, cu
   };
 
   const handleShare = async () => {
+    // Ensure the URL is absolute
+    const absoluteUrl = postUrl.startsWith('http') ? postUrl : `${window.location.origin}${postUrl}`;
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: 'NGBHS Reunion Feed Post',
-          url: postUrl,
+          url: absoluteUrl,
         });
+        return;
       } catch (err) {
         console.error('Error sharing:', err);
       }
+    }
+    
+    // Fallback: Copy to clipboard
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(absoluteUrl);
+        toast.success('Post link copied to clipboard!');
+      } catch (err) {
+        console.error('Clipboard API failed:', err);
+        fallbackCopyTextToClipboard(absoluteUrl);
+      }
     } else {
-      // Fallback: Copy to clipboard
-      await navigator.clipboard.writeText(postUrl);
-      toast.success('Post link copied to clipboard!');
+      fallbackCopyTextToClipboard(absoluteUrl);
+    }
+  };
+
+  const fallbackCopyTextToClipboard = (text: string) => {
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      
+      // Prevent scrolling to bottom
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+      
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        toast.success('Post link copied to clipboard!');
+      } else {
+        toast.error('Failed to copy link');
+      }
+    } catch (err) {
+      console.error('Fallback clipboard failed:', err);
+      toast.error('Failed to copy link. Please copy manually.');
     }
   };
 

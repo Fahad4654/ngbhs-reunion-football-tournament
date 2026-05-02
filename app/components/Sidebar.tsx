@@ -38,6 +38,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
   ];
 
   const adminOnlyLinks = [
+    { name: "Tournaments", href: "/admin/tournaments", icon: <AssessmentIcon /> },
     { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon /> },
     { name: "User Access", href: "/admin/users", icon: <GroupIcon /> },
   ];
@@ -97,19 +98,19 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 'calc(0.75vw * var(--font-scale))',
-                    padding: 'calc(0.7vh * var(--font-scale)) calc(0.75vw * var(--font-scale))',
-                    borderRadius: 'calc(0.5vw * var(--font-scale))',
+                    gap: 'clamp(0.5rem, 0.75vw * var(--font-scale), 1rem)',
+                    padding: 'clamp(0.5rem, 0.5vh * var(--font-scale), 0.7rem) clamp(0.75rem, 0.75vw * var(--font-scale), 1rem)',
+                    borderRadius: 'clamp(0.4rem, 0.5vw * var(--font-scale), 0.8rem)',
                     color: isActive ? 'white' : 'var(--text-secondary)',
                     background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-                    border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
+                    border: isActive ? '1px solid var(--border-color)' : '1px solid transparent',
                     transition: 'all 0.2s ease',
                     fontWeight: isActive ? '700' : '500',
-                    fontSize: 'calc(0.95vw * var(--font-scale))'
+                    fontSize: 'clamp(1.05rem, 1vw * var(--font-scale), 1.15rem)'
                   }}
                 >
                   <span style={{ 
-                    fontSize: 'calc(1.1vw * var(--font-scale))', 
+                    fontSize: 'clamp(1.2rem, 1.2vw * var(--font-scale), 1.4rem)', 
                     display: 'flex', 
                     alignItems: 'center',
                     color: isActive ? 'var(--accent-primary)' : 'inherit' 
@@ -136,19 +137,19 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 'calc(0.625vw * var(--font-scale))',
-                      padding: 'calc(0.7vh * var(--font-scale)) calc(0.708vw * var(--font-scale))',
-                      borderRadius: 'calc(0.521vw * var(--font-scale))',
+                      gap: 'clamp(0.5rem, 0.625vw * var(--font-scale), 1rem)',
+                      padding: 'clamp(0.5rem, 0.5vh * var(--font-scale), 0.7rem) clamp(0.75rem, 0.708vw * var(--font-scale), 1rem)',
+                      borderRadius: 'clamp(0.4rem, 0.521vw * var(--font-scale), 0.8rem)',
                       color: isActive ? 'white' : 'var(--text-secondary)',
                       background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-                      border: isActive ? '0.052vw solid var(--border-color)' : '0.052vw solid transparent',
+                      border: isActive ? '1px solid var(--border-color)' : '1px solid transparent',
                       transition: 'all 0.2s ease',
                       fontWeight: isActive ? '700' : '500',
-                      fontSize: 'calc(0.95vw * var(--font-scale))'
+                      fontSize: 'clamp(1.05rem, 1vw * var(--font-scale), 1.15rem)'
                     }}
                   >
                     <span style={{ 
-                      fontSize: 'calc(0.917vw * var(--font-scale))', 
+                      fontSize: 'clamp(1.2rem, 1.1vw * var(--font-scale), 1.3rem)', 
                       display: 'flex', 
                       alignItems: 'center',
                       color: isActive ? 'var(--accent-primary)' : 'inherit' 
