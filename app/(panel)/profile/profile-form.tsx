@@ -134,7 +134,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
       <div className="responsive-grid">
         <div className={styles.inputGroup}>
           <label className={styles.label}>Current Position / Job</label>
-          <input name="occupation" type="text" defaultValue={user.occupation || ''} placeholder="e.g. Software Engineer" className={styles.input} />
+          <input name="occupation" type="text" defaultValue={user.occupation || ''} placeholder="e.g. Engineer" className={styles.input} />
         </div>
         <div className={styles.inputGroup}>
           <label className={styles.label}>Organization / Workplace</label>
@@ -145,7 +145,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
       <div className="responsive-grid">
         <div className={styles.inputGroup}>
           <label className={styles.label}>Current Address</label>
-          <textarea name="currentAddress" defaultValue={user.currentAddress || ''} placeholder="City, Country" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
+          <textarea name="currentAddress" defaultValue={user.currentAddress || ''} placeholder="Natore, Bangladesh" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
         </div>
         <div className={styles.inputGroup}>
           <label className={styles.label}>Permanent Address</label>

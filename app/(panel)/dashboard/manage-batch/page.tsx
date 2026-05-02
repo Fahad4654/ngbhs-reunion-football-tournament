@@ -7,10 +7,12 @@ import Link from "next/link";
 import { getPendingPosts, getPendingBatchMembers } from "@/lib/actions";
 import ApprovalActions from "./approval-actions";
 import HandoverAction from "./handover-action";
+import BatchProfileForm from "./BatchProfileForm";
 
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import EditIcon from '@mui/icons-material/Edit';
 
 export const metadata = {
   title: 'Manage Batch - Dashboard',
@@ -68,21 +70,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
         <Link 
           href="/dashboard/manage-batch?tab=posts"
           className="btn"
-          style={{ 
-            flex: '1', 
-            background: tab === 'posts' ? 'var(--accent-primary)' : 'transparent',
-            color: tab === 'posts' ? 'black' : 'white',
-            fontSize: '0.85rem',
-            padding: '0.75rem 0.5rem',
-            whiteSpace: 'nowrap',
-            fontWeight: '800',
-            textAlign: 'center',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            borderRadius: '8px'
-          }}
+          style={{ flex: '1', background: tab === 'posts' ? 'var(--accent-primary)' : 'transparent', color: tab === 'posts' ? 'black' : 'white', fontSize: '0.85rem', padding: '0.75rem 0.5rem', whiteSpace: 'nowrap', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '8px' }}
         >
           <DescriptionIcon sx={{ fontSize: '1.1rem' }} />
           <span>POSTS ({pendingPosts.length})</span>
@@ -90,21 +78,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
         <Link 
           href="/dashboard/manage-batch?tab=members"
           className="btn"
-          style={{ 
-            flex: '1', 
-            background: tab === 'members' ? 'var(--accent-primary)' : 'transparent',
-            color: tab === 'members' ? 'black' : 'white',
-            fontSize: '0.85rem',
-            padding: '0.75rem 0.5rem',
-            whiteSpace: 'nowrap',
-            fontWeight: '800',
-            textAlign: 'center',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            borderRadius: '8px'
-          }}
+          style={{ flex: '1', background: tab === 'members' ? 'var(--accent-primary)' : 'transparent', color: tab === 'members' ? 'black' : 'white', fontSize: '0.85rem', padding: '0.75rem 0.5rem', whiteSpace: 'nowrap', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '8px' }}
         >
           <GroupIcon sx={{ fontSize: '1.1rem' }} />
           <span>MEMBERS ({members.length})</span>
@@ -112,24 +86,18 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
         <Link 
           href="/dashboard/manage-batch?tab=approvals"
           className="btn"
-          style={{ 
-            flex: '1', 
-            background: tab === 'approvals' ? 'var(--accent-primary)' : 'transparent',
-            color: tab === 'approvals' ? 'black' : 'white',
-            fontSize: '0.85rem',
-            padding: '0.75rem 0.5rem',
-            whiteSpace: 'nowrap',
-            fontWeight: '800',
-            textAlign: 'center',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            borderRadius: '8px'
-          }}
+          style={{ flex: '1', background: tab === 'approvals' ? 'var(--accent-primary)' : 'transparent', color: tab === 'approvals' ? 'black' : 'white', fontSize: '0.85rem', padding: '0.75rem 0.5rem', whiteSpace: 'nowrap', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '8px' }}
         >
           <HourglassEmptyIcon sx={{ fontSize: '1.1rem' }} />
           <span>PENDING ({pendingMembers.length})</span>
+        </Link>
+        <Link 
+          href="/dashboard/manage-batch?tab=profile"
+          className="btn"
+          style={{ flex: '1', background: tab === 'profile' ? 'var(--accent-primary)' : 'transparent', color: tab === 'profile' ? 'black' : 'white', fontSize: '0.85rem', padding: '0.75rem 0.5rem', whiteSpace: 'nowrap', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '8px' }}
+        >
+          <EditIcon sx={{ fontSize: '1.1rem' }} />
+          <span>PROFILE</span>
         </Link>
       </div>
 
@@ -246,6 +214,8 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
             </tbody>
           </table>
         </div>
+      ) : tab === 'profile' ? (
+        <BatchProfileForm batch={dbUser.batch!} />
       ) : (
         <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
@@ -261,18 +231,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                 <tr key={member.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <div style={{ 
-                        width: '40px', 
-                        height: '40px', 
-                        borderRadius: '50%', 
-                        background: 'var(--accent-primary)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        color: 'black', 
-                        fontWeight: '800', 
-                        fontSize: '1rem' 
-                      }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '1rem' }}>
                         {member.name?.charAt(0)}
                       </div>
                       <div>

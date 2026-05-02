@@ -15,6 +15,9 @@ model Batch {
   id          String   @id @default(cuid())
   name        String   @unique // e.g., "Batch 2010"
   slug        String   @unique
+  year        Int      @unique // graduating year, used as primary identifier
+  nickname    String?  // e.g., "The Lions"
+  slogan      String?  // team slogan
   logoUrl     String?
   points      Int      @default(0)
   played      Int      @default(0)
@@ -27,12 +30,65 @@ model Batch {
   homeMatches Match[]  @relation("HomeTeam")
   awayMatches Match[]  @relation("AwayTeam")
   
+  tournamentTeams TournamentTeam[]
+  
   members     User[]   @relation("BatchMembers")
   followers   User[]   @relation("UserFollows")
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([points(sort: Desc), goalsFor(sort: Desc)])
+}
+
+model Tournament {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  isActive    Boolean  @default(false)
+  description String?  // about the tournament
+  winPoints   Int      @default(3)
+  drawPoints  Int      @default(1)
+  lossPoints  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teams       TournamentTeam[]
+  groups      TournamentGroup[]
+  matches     Match[]
+}
+
+model TournamentGroup {
+  id           String         @id @default(cuid())
+  tournamentId String
+  tournament   Tournament     @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name         String         // e.g. "Group A"
+  teams        TournamentTeam[]
+  createdAt    DateTime       @default(now())
+
+  @@unique([tournamentId, name])
+}
+
+model TournamentTeam {
+  id           String           @id @default(cuid())
+  tournamentId String
+  tournament   Tournament       @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  batchId      String
+  batch        Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  groupId      String?
+  group        TournamentGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  points       Int        @default(0)
+  played       Int        @default(0)
+  won          Int        @default(0)
+  drawn        Int        @default(0)
+  lost         Int        @default(0)
+  goalsFor     Int        @default(0)
+  goalsAgainst Int        @default(0)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([tournamentId, batchId])
   @@index([points(sort: Desc), goalsFor(sort: Desc)])
 }
 
@@ -52,6 +108,9 @@ model Match {
   
   venue       String?
   isFeatured  Boolean  @default(false)
+  
+  tournamentId String?
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

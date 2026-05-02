@@ -40,12 +40,12 @@ async function main() {
 
   // Create Batches
   const batches = [
-    { name: 'Batch 2005', slug: 'batch-2005' },
-    { name: 'Batch 2008', slug: 'batch-2008' },
-    { name: 'Batch 2010', slug: 'batch-2010' },
-    { name: 'Batch 2012', slug: 'batch-2012' },
-    { name: 'Batch 2015', slug: 'batch-2015' },
-    { name: 'Batch 2018', slug: 'batch-2018' },
+    { name: 'Batch 2005', slug: 'batch-2005', year: 2005 },
+    { name: 'Batch 2008', slug: 'batch-2008', year: 2008 },
+    { name: 'Batch 2010', slug: 'batch-2010', year: 2010 },
+    { name: 'Batch 2012', slug: 'batch-2012', year: 2012 },
+    { name: 'Batch 2015', slug: 'batch-2015', year: 2015 },
+    { name: 'Batch 2018', slug: 'batch-2018', year: 2018 },
   ]
 
   const createdBatches = await Promise.all(
