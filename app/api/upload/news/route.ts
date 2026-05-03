@@ -3,7 +3,7 @@ import { getServerUser } from "@/lib/server-auth";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
-const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
+const MAX_SIZE = 1024 * 1024 * 1024; // 1 GB
 
 export async function POST(req: NextRequest) {
   const user = await getServerUser();

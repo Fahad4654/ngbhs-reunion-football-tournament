@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createNews, updateNews } from "@/lib/actions/news.actions";
+import MediaRenderer from "@/app/components/MediaRenderer";
 
 export default function NewsForm({ initialData, newsId }: {
   initialData?: {
@@ -19,6 +20,16 @@ export default function NewsForm({ initialData, newsId }: {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [localPreview, setLocalPreview] = useState<{ url: string; type: "IMAGE" | "VIDEO" } | null>(null);
+
+  // Cleanup local preview URL
+  useEffect(() => {
+    return () => {
+      if (localPreview?.url.startsWith("blob:")) {
+        URL.revokeObjectURL(localPreview.url);
+      }
+    };
+  }, [localPreview]);
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
@@ -32,6 +43,13 @@ export default function NewsForm({ initialData, newsId }: {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Show local preview immediately
+    if (localPreview?.url.startsWith("blob:")) {
+      URL.revokeObjectURL(localPreview.url);
+    }
+    const type = file.type.startsWith("video/") ? "VIDEO" : "IMAGE";
+    setLocalPreview({ url: URL.createObjectURL(file), type });
 
     setUploading(true);
     setError("");
@@ -48,11 +66,16 @@ export default function NewsForm({ initialData, newsId }: {
 
       if (res.ok && json.url) {
         setFormData(prev => ({ ...prev, imageUrl: json.url }));
+        // We keep the local blob URL in localPreview for the UI
+        // so the user doesn't see a flicker or 'vanish' while the 
+        // server URL becomes available.
       } else {
         setError(json.error || "Upload failed");
+        setLocalPreview(null);
       }
     } catch (err) {
       setError("An error occurred during upload.");
+      setLocalPreview(null);
     } finally {
       setUploading(false);
     }
@@ -142,21 +165,46 @@ export default function NewsForm({ initialData, newsId }: {
           />
           {uploading && <span style={{ fontSize: "0.9rem", color: "var(--accent-primary)" }}>Uploading...</span>}
         </div>
-        {formData.imageUrl && (
+        {(localPreview || formData.imageUrl) && (
           <div style={{ marginTop: "1rem" }}>
-            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>Uploaded URL: {formData.imageUrl}</p>
-            {formData.imageUrl.match(/\.(mp4|webm|mov)$/i) ? (
-              <video src={formData.imageUrl} controls style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "8px" }} />
-            ) : (
-              <img src={formData.imageUrl} alt="Uploaded preview" style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "8px", objectFit: "cover" }} />
+            <div style={{ position: "relative", maxWidth: "400px", borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border-color)" }}>
+              <MediaRenderer 
+                url={localPreview?.url || formData.imageUrl} 
+                type={localPreview?.type || (formData.imageUrl.match(/\.(mp4|webm|mov)$/i) ? "VIDEO" : "IMAGE")} 
+                style={{ maxHeight: "300px", width: "100%", height: "auto" }}
+              />
+              <button 
+                type="button" 
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, imageUrl: "" }));
+                  setLocalPreview(null);
+                }}
+                style={{ 
+                  position: "absolute", 
+                  top: "0.5rem", 
+                  right: "0.5rem", 
+                  background: "rgba(0,0,0,0.6)", 
+                  color: "white", 
+                  border: "none", 
+                  borderRadius: "50%", 
+                  width: "30px", 
+                  height: "30px", 
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "bold"
+                }}
+                title="Remove Media"
+              >
+                ✕
+              </button>
+            </div>
+            {formData.imageUrl && !localPreview && (
+              <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.5rem" }}>
+                Stored URL: {formData.imageUrl}
+              </p>
             )}
-            <button 
-              type="button" 
-              onClick={() => setFormData(prev => ({ ...prev, imageUrl: "" }))}
-              style={{ display: "block", marginTop: "0.5rem", color: "var(--accent-danger)", fontSize: "0.85rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-            >
-              Remove Media
-            </button>
           </div>
         )}
       </div>
