@@ -8,6 +8,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import StadiumIcon from '@mui/icons-material/Stadium';
 import UserLink from "@/app/components/UserLink";
+import prisma from "@/lib/prisma";
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
@@ -93,7 +94,7 @@ export default async function FeedPage() {
                     postId={post.id}
                     title={post.title}
                     content={post.content}
-                    isAuthorized={user?.role === 'ADMIN' || user?.role === 'CO_ADMIN' || user?.uid === post.authorId}
+                    isAuthorized={userSession?.role === 'ADMIN' || userSession?.role === 'CO_ADMIN' || userSession?.uid === post.authorId}
                     media={post.media}
                   />
                 </div>
@@ -122,7 +123,7 @@ export default async function FeedPage() {
                 postId={post.id}
                 initialCheers={post.cheers}
                 initialComments={post.comments}
-                currentUserId={user?.uid}
+                currentUserId={userSession?.uid}
                 postUrl={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/feed#post-${post.id}`}
               />
             </article>
