@@ -41,14 +41,14 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         )}
 
-        <div style={{ 
-          color: 'var(--text-secondary)', 
-          fontSize: '1.1rem', 
-          lineHeight: '1.8',
-          whiteSpace: 'pre-wrap'
-        }}>
-          {article.content}
-        </div>
+        <div 
+          className="rich-text-content"
+          dangerouslySetInnerHTML={{ __html: article.content }}
+          style={{ 
+            color: 'var(--text-secondary)', 
+            fontSize: '1.1rem', 
+          }}
+        />
 
         <footer style={{ marginTop: '6rem', padding: '3rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
           <a href="/news" className="btn glass">← Back to News Feed</a>

@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createNews, updateNews } from "@/lib/actions/news.actions";
 import MediaRenderer from "@/app/components/MediaRenderer";
+import RichTextEditor from "@/app/components/RichTextEditor";
 
 export default function NewsForm({ initialData, newsId }: {
   initialData?: {
@@ -145,11 +146,10 @@ export default function NewsForm({ initialData, newsId }: {
 
       <div>
         <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Content (Supports basic text)</label>
-        <textarea 
+        <RichTextEditor 
           value={formData.content}
-          onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-          style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", color: "white", minHeight: "200px", outline: "none" }}
-          required
+          onChange={(val) => setFormData(prev => ({ ...prev, content: val }))}
+          minHeight="300px"
         />
       </div>
 

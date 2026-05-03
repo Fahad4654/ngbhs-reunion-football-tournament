@@ -93,9 +93,16 @@ export default async function FeedPage() {
               {/* Post Content */}
               <div style={{ padding: '2.222vh 1.25vw 0.741vh' }}>
                 <h3 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.75rem)', marginBottom: '1.481vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 1.2vw, 1.35rem)', lineHeight: '1.7', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                  {post.content}
-                </p>
+                <div 
+                  className="rich-text-content"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                  style={{ 
+                    color: 'var(--text-secondary)', 
+                    fontSize: 'clamp(0.95rem, 1.2vw, 1.35rem)', 
+                    overflowWrap: 'break-word', 
+                    wordBreak: 'break-word' 
+                  }}
+                />
               </div>
 
               {/* Post Media Gallery */}

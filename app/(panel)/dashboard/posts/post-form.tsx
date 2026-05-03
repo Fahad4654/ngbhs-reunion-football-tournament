@@ -5,6 +5,7 @@ import { createPost } from '@/lib/actions';
 import type { AppUser } from '@/lib/server-auth';
 import { toast } from 'react-hot-toast';
 import MediaRenderer from '@/app/components/MediaRenderer';
+import RichTextEditor from '@/app/components/RichTextEditor';
 
 import EditIcon from '@mui/icons-material/Edit';
 import PublicIcon from '@mui/icons-material/Public';
@@ -14,6 +15,7 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CloseIcon from '@mui/icons-material/Close';
+import { Select, MenuItem, FormControl } from '@mui/material';
 
 interface PostFormProps {
   user: AppUser;
@@ -29,6 +31,7 @@ export default function PostForm({ user }: PostFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [scope, setScope] = useState<'GLOBAL' | 'BATCH'>('GLOBAL');
   const [mediaPreviews, setMediaPreviews] = useState<MediaPreview[]>([]);
+  const [content, setContent] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -96,10 +99,13 @@ export default function PostForm({ user }: PostFormProps) {
   };
 
   const handleSubmit = (formData: FormData) => {
-    if (mediaPreviews.length === 0 && !formData.get('content')) {
+    if (mediaPreviews.length === 0 && !content) {
       toast.error("Please add some content or media.");
       return;
     }
+
+    // Since RichTextEditor is controlled, we append its value manually
+    formData.set('content', content);
 
     // Block PENDING users from posting to batch scope
     const selectedScope = formData.get('scope') as string;
@@ -126,6 +132,7 @@ export default function PostForm({ user }: PostFormProps) {
         // Success: Clear everything
         mediaPreviews.forEach(m => URL.revokeObjectURL(m.url));
         setMediaPreviews([]);
+        setContent('');
         formRef.current?.reset();
         
         return res;
@@ -189,38 +196,65 @@ export default function PostForm({ user }: PostFormProps) {
           <div style={{ minWidth: 0 }}>
             <div style={{ color: 'white', fontWeight: '700', fontSize: 'calc(0.85vw * var(--font-scale))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
             <div style={{ marginTop: '0.37vh' }}>
-              <div style={{ position: 'relative', display: 'inline-block' }}>
-                <select 
+              <FormControl size="small" variant="standard">
+                <Select
                   name="scope"
                   value={scope}
                   onChange={(e) => setScope(e.target.value as 'GLOBAL' | 'BATCH')}
-                  className="glass"
-                  style={{ 
-                    padding: '0.37vh 0.417vw 0.37vh 1.5rem', 
-                    borderRadius: 'calc(0.313vw * var(--font-scale))', 
-                    fontSize: 'calc(0.7vw * var(--font-scale))', 
-                    color: 'white',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '0.052vw solid var(--border-color)',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    appearance: 'none'
+                  sx={{
+                    color: 'var(--accent-primary)',
+                    fontSize: 'calc(0.7vw * var(--font-scale))',
+                    fontWeight: '800',
+                    '&:before, &:after': { display: 'none' },
+                    '& .MuiSelect-select': {
+                      padding: '0.3vh 0.8vw',
+                      paddingLeft: '1.8vw !important',
+                      background: 'rgba(235, 183, 0, 0.1)',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4vw',
+                      border: '1px solid var(--border-color)',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: 'var(--accent-primary)',
+                      fontSize: '1vw',
+                      right: '0.2vw'
+                    }
+                  }}
+                  renderValue={(selected) => (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4vw' }}>
+                      {selected === 'GLOBAL' ? <PublicIcon sx={{ fontSize: '0.9vw' }} /> : <SchoolIcon sx={{ fontSize: '0.9vw' }} />}
+                      <span>{selected === 'GLOBAL' ? 'Global' : 'Batch Only'}</span>
+                    </div>
+                  )}
+                  MenuProps={{
+                    sx: {
+                      '& .MuiPaper-root': {
+                        bgcolor: '#1a1b1e',
+                        color: 'white',
+                        border: '1px solid var(--border-color)',
+                      }
+                    }
                   }}
                 >
-                  <option value="GLOBAL" style={{ color: 'black' }}>Global</option>
-                  {user.batchId && <option value="BATCH" style={{ color: 'black' }}>Batch Only</option>}
-                </select>
-                <div style={{ position: 'absolute', left: '0.4rem', top: '50%', transform: 'translateY(-50%)', display: 'flex', pointerEvents: 'none' }}>
-                  {scope === 'GLOBAL' ? <PublicIcon sx={{ fontSize: '0.8rem', color: 'var(--accent-primary)' }} /> : <SchoolIcon sx={{ fontSize: '0.8rem', color: 'var(--accent-primary)' }} />}
-                </div>
-              </div>
+                  <MenuItem value="GLOBAL" sx={{ fontSize: '0.8rem', gap: '0.5rem' }}>
+                    <PublicIcon sx={{ fontSize: '1rem', color: 'var(--accent-primary)' }} />
+                    Global
+                  </MenuItem>
+                  {user.batchId && (
+                    <MenuItem value="BATCH" sx={{ fontSize: '0.8rem', gap: '0.5rem' }}>
+                      <SchoolIcon sx={{ fontSize: '1rem', color: 'var(--accent-primary)' }} />
+                      Batch Only
+                    </MenuItem>
+                  )}
+                </Select>
+              </FormControl>
             </div>
           </div>
         </div>
 
-        {/* Content Area */}
-        <div style={{ padding: '0 calc(0.833vw * var(--font-scale))' }}>
+        <div style={{ padding: '0 calc(0.833vw * var(--font-scale))', marginBottom: '1rem' }}>
           <input 
             name="title" 
             type="text" 
@@ -236,22 +270,11 @@ export default function PostForm({ user }: PostFormProps) {
               fontWeight: '600'
             }} 
           />
-          <textarea 
-            name="content" 
-            placeholder={`What's on your mind?`}
-            style={{ 
-              width: '100%', 
-              background: 'transparent', 
-              border: 'none', 
-              color: 'white', 
-              fontSize: 'calc(1.1vw * var(--font-scale))', 
-              minHeight: '15vh',
-              padding: 'calc(1vh * var(--font-scale)) 0',
-              outline: 'none',
-              resize: 'none',
-              lineHeight: '1.4'
-            }}
-            required 
+          <RichTextEditor 
+            value={content}
+            onChange={setContent}
+            placeholder="What's on your mind?"
+            minHeight="150px"
           />
         </div>
 

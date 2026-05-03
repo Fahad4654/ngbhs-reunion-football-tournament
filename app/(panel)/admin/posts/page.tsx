@@ -84,12 +84,18 @@ export default async function AdminPostsPage() {
               </div>
             </div>
 
-            {/* Post Content */}
             <div style={{ padding: '1rem 1rem 0.5rem' }}>
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Story'}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.5', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                {post.content}
-              </p>
+              <div 
+                className="rich-text-content"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+                style={{ 
+                  color: 'var(--text-secondary)', 
+                  fontSize: '0.95rem', 
+                  overflowWrap: 'break-word', 
+                  wordBreak: 'break-word' 
+                }}
+              />
             </div>
 
             {/* Post Media Gallery */}
