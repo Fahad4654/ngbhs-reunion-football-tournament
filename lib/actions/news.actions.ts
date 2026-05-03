@@ -3,8 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { deleteFile } from "@/lib/utils/upload";
 
 const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
 
@@ -62,6 +61,8 @@ export async function updateNews(id: string, data: {
   }
 
   try {
+    const oldNews = await prisma.news.findUnique({ where: { id }, select: { imageUrl: true } });
+
     const news = await prisma.news.update({
       where: { id },
       data: {
@@ -73,6 +74,11 @@ export async function updateNews(id: string, data: {
         isExclusive: data.isExclusive,
       },
     });
+
+    // If image URL changed, delete the old one
+    if (oldNews?.imageUrl && oldNews.imageUrl !== data.imageUrl) {
+      await deleteFile(oldNews.imageUrl);
+    }
 
     revalidatePath("/admin/news");
     revalidatePath("/news");
@@ -94,7 +100,13 @@ export async function deleteNews(id: string) {
   }
 
   try {
-    const news = await prisma.news.delete({
+    const news = await prisma.news.findUnique({ where: { id }, select: { imageUrl: true } });
+    
+    if (news?.imageUrl) {
+      await deleteFile(news.imageUrl);
+    }
+
+    await prisma.news.delete({
       where: { id },
     });
 

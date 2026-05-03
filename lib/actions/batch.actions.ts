@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { getServerUser } from '@/lib/server-auth';
 import { revalidatePath } from 'next/cache';
+import { deleteFile } from '@/lib/utils/upload';
 
 // ─────────────────────────────────────────
 // Batch Queries
@@ -85,6 +86,8 @@ export async function updateBatch(id: string, data: {
   if (user?.role !== 'ADMIN') return { success: false, error: 'Unauthorized' };
 
   try {
+    const oldBatch = await prisma.batch.findUnique({ where: { id }, select: { logoUrl: true } });
+
     const batch = await prisma.batch.update({
       where: { id },
       data: {
@@ -93,6 +96,10 @@ export async function updateBatch(id: string, data: {
         slogan: data.slogan?.trim() || null,
       },
     });
+
+    if (oldBatch?.logoUrl && oldBatch.logoUrl !== data.logoUrl) {
+      await deleteFile(oldBatch.logoUrl);
+    }
     revalidatePath('/admin/batches');
     return { success: true, data: batch };
   } catch (error: any) {
@@ -114,6 +121,8 @@ export async function updateBatchProfile(data: {
   if (!dbUser?.batchId) return { success: false, error: 'No batch assigned' };
 
   try {
+    const oldBatch = await prisma.batch.findUnique({ where: { id: dbUser.batchId }, select: { logoUrl: true } });
+
     const batch = await prisma.batch.update({
       where: { id: dbUser.batchId },
       data: {
@@ -122,6 +131,10 @@ export async function updateBatchProfile(data: {
         slogan: data.slogan?.trim() || null,
       },
     });
+
+    if (oldBatch?.logoUrl && oldBatch.logoUrl !== data.logoUrl) {
+      await deleteFile(oldBatch.logoUrl);
+    }
     revalidatePath('/dashboard/manage-batch');
     return { success: true, data: batch };
   } catch (error: any) {
@@ -135,6 +148,11 @@ export async function deleteBatch(id: string) {
   if (user?.role !== 'ADMIN') return { success: false, error: 'Unauthorized' };
 
   try {
+    const batch = await prisma.batch.findUnique({ where: { id }, select: { logoUrl: true } });
+    if (batch?.logoUrl) {
+      await deleteFile(batch.logoUrl);
+    }
+    
     await prisma.batch.delete({ where: { id } });
     revalidatePath('/admin/batches');
     revalidatePath('/standings');
