@@ -17,7 +17,7 @@ export async function createNews(data: {
   isExclusive?: boolean;
 }) {
   const user = await getServerUser();
-  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") {
     return { success: false, error: "Unauthorized" };
   }
 
@@ -30,8 +30,26 @@ export async function createNews(data: {
         excerpt: data.excerpt,
         imageUrl: data.imageUrl,
         isExclusive: data.isExclusive,
+        authorId: user.uid,
       },
     });
+
+    // Trigger notifications for all users
+    const allUsers = await prisma.user.findMany({
+      where: { status: 'APPROVED' },
+      select: { id: true }
+    });
+
+    if (allUsers.length > 0) {
+      await prisma.notification.createMany({
+        data: allUsers.map(u => ({
+          userId: u.id,
+          title: `New Announcement: ${data.title}`,
+          message: data.excerpt || 'A new announcement has been published.',
+          link: `/news/${data.slug}`,
+        }))
+      });
+    }
 
     revalidatePath("/admin/news");
     revalidatePath("/news");
@@ -45,8 +63,6 @@ export async function createNews(data: {
   }
 }
 
-
-
 export async function updateNews(id: string, data: {
   title: string;
   slug: string;
@@ -56,11 +72,18 @@ export async function updateNews(id: string, data: {
   isExclusive?: boolean;
 }) {
   const user = await getServerUser();
-  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") {
     return { success: false, error: "Unauthorized" };
   }
 
   try {
+    const existingNews = await prisma.news.findUnique({ where: { id } });
+    
+    // If BATCH_MANAGER, they can only update their own news (unless they are admin)
+    if (user.role === "BATCH_MANAGER" && existingNews?.authorId !== user.uid) {
+      return { success: false, error: "Unauthorized to edit this news" };
+    }
+
     const oldNews = await prisma.news.findUnique({ where: { id }, select: { imageUrl: true } });
 
     const news = await prisma.news.update({
@@ -95,15 +118,20 @@ export async function updateNews(id: string, data: {
 
 export async function deleteNews(id: string) {
   const user = await getServerUser();
-  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") {
     return { success: false, error: "Unauthorized" };
   }
 
   try {
-    const news = await prisma.news.findUnique({ where: { id }, select: { imageUrl: true } });
+    const existingNews = await prisma.news.findUnique({ where: { id }, select: { imageUrl: true, authorId: true } });
     
-    if (news?.imageUrl) {
-      await deleteFile(news.imageUrl);
+    // If BATCH_MANAGER, they can only delete their own news
+    if (user.role === "BATCH_MANAGER" && existingNews?.authorId !== user.uid) {
+      return { success: false, error: "Unauthorized to delete this news" };
+    }
+    
+    if (existingNews?.imageUrl) {
+      await deleteFile(existingNews.imageUrl);
     }
 
     await prisma.news.delete({

@@ -7,6 +7,7 @@ import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import StadiumIcon from '@mui/icons-material/Stadium';
+import UserLink from "@/app/components/UserLink";
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
@@ -14,10 +15,12 @@ export const metadata = {
 };
 
 export default async function FeedPage() {
-  const [posts, user] = await Promise.all([
+  const [posts, userSession] = await Promise.all([
     getApprovedPosts(),
     getServerUser()
   ]);
+
+  const dbUser = userSession ? await prisma.user.findUnique({ where: { id: userSession.uid } }) : null;
 
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', paddingTop: '1.852vh', paddingBottom: '3.704vh' }}>
@@ -73,7 +76,13 @@ export default async function FeedPage() {
                     )}
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '800', fontSize: 'clamp(0.9rem, 1.1vw, 1.25rem)', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: 'clamp(0.9rem, 1.1vw, 1.25rem)', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <UserLink 
+                        user={post.author} 
+                        currentUserBatchId={dbUser?.batchId || undefined} 
+                        currentUserRole={userSession?.role}
+                      />
+                    </div>
                     <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'clamp(0.65rem, 0.7vw, 0.8rem)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                       {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </div>

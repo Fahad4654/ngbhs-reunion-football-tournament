@@ -9,6 +9,7 @@ import ApprovalActions from "./approval-actions";
 import HandoverAction from "./handover-action";
 import TeamActions from "./team-actions";
 import BatchProfileForm from "./BatchProfileForm";
+import UserLink from "@/app/components/UserLink";
 
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
@@ -48,6 +49,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
     getPendingPosts(),
     prisma.user.findMany({
       where: { batchId: dbUser.batchId, status: 'APPROVED' },
+      include: { batch: true },
       orderBy: { name: 'asc' }
     }),
     getPendingBatchMembers()
@@ -193,7 +195,10 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                       </div>
                       <div>
                         <div style={{ fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', flexWrap: 'wrap' }}>
-                          {member.name}
+                          <UserLink user={member} currentUserBatchId={dbUser.batchId} />
+                          {member.teamRole && (
+                            <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem', background: 'rgba(235, 183, 0, 0.1)', color: 'var(--accent-primary)', border: '1px solid rgba(235, 183, 0, 0.3)', borderRadius: '4px', textTransform: 'uppercase', fontWeight: '800' }}>{member.teamRole}</span>
+                          )}
                           {member.role === 'BATCH_MANAGER' && (
                             <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)', borderRadius: '4px', textTransform: 'uppercase' }}>Manager</span>
                           )}

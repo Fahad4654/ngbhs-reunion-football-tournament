@@ -133,6 +133,9 @@ model News {
   publishedAt DateTime @default(now())
   isExclusive Boolean  @default(false)
   
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id])
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -212,6 +215,20 @@ enum PostStatus {
   REJECTED
 }
 
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  message     String   @db.Text
+  link        String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, read])
+}
+
 model User {
   id            String    @id @default(cuid())
   firebaseId    String?   @unique
@@ -233,12 +250,15 @@ model User {
   posts         Post[]
   cheers        Cheer[]
   comments      Comment[]
+  notifications Notification[]
+  news          News[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   emailVerified DateTime?
   status        UserStatus @default(APPROVED)
   isPlayer      Boolean    @default(false)
+  teamRole      String?
 }
 
 enum UserStatus {

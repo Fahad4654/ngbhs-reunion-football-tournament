@@ -32,8 +32,10 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
     { name: "My Posts", href: "/dashboard/posts/my-posts", icon: <DescriptionIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Batch Feed", href: "/dashboard/batch-feed", icon: <SchoolIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Manage Batch", href: "/dashboard/manage-batch", icon: <SettingsIcon />, roles: ["BATCH_MANAGER"] },
+    { name: "Team Management", href: "/dashboard/team-management", icon: <GroupIcon />, roles: ["BATCH_MANAGER"] },
     { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN"] },
-    { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: <NewspaperIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: <NewspaperIcon />, roles: ["ADMIN", "CO_ADMIN", "BATCH_MANAGER"] },
+    { name: "Members", href: "/dashboard/members", icon: <GroupIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Post Moderation", href: "/admin/posts", icon: <ForumIcon />, roles: ["ADMIN", "CO_ADMIN"] },
   ];
 

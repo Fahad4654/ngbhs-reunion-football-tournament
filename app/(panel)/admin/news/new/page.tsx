@@ -5,7 +5,7 @@ import NewsForm from "../NewsForm";
 export default async function NewNewsPage() {
   const user = await getServerUser();
   
-  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") redirect("/");
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") redirect("/");
 
   return (
     <div>

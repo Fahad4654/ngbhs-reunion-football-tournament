@@ -5,7 +5,7 @@ import NewsForm from "../../NewsForm";
 
 export default async function EditNewsPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getServerUser();
-  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") redirect("/");
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") redirect("/");
 
   const { id } = await params;
   const article = await prisma.news.findUnique({
@@ -14,6 +14,11 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
 
   if (!article) {
     notFound();
+  }
+
+  // If batch manager, they can only edit their own news
+  if (user.role === "BATCH_MANAGER" && article.authorId !== user.uid) {
+    redirect("/admin/news");
   }
 
   const initialData = {

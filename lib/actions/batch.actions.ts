@@ -188,9 +188,37 @@ export async function toggleTeamMember(userId: string, isPlayer: boolean) {
     });
     
     revalidatePath('/dashboard/manage-batch');
+    revalidatePath('/dashboard/team-management');
     return { success: true };
   } catch (error: any) {
     console.error('[toggleTeamMember]', error);
     return { success: false, error: 'Failed to update team member status' };
+  }
+}
+
+export async function updateMemberRole(userId: string, teamRole: string | null) {
+  const user = await getServerUser();
+  if (user?.role !== 'BATCH_MANAGER') return { success: false, error: 'Unauthorized' };
+
+  const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+  if (!dbUser?.batchId) return { success: false, error: 'No batch assigned' };
+
+  try {
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser || targetUser.batchId !== dbUser.batchId) {
+      return { success: false, error: 'User not found in your batch' };
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { teamRole: teamRole?.trim() || null }
+    });
+    
+    revalidatePath('/dashboard/manage-batch');
+    revalidatePath('/dashboard/team-management');
+    return { success: true };
+  } catch (error: any) {
+    console.error('[updateMemberRole]', error);
+    return { success: false, error: 'Failed to update team role' };
   }
 }
