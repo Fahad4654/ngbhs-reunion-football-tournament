@@ -2,6 +2,7 @@ import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import DeleteNewsAction from "./DeleteNewsAction";
 
 export default async function AdminNewsPage() {
   const user = await getServerUser();
@@ -48,8 +49,8 @@ export default async function AdminNewsPage() {
                 </td>
                 <td style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem' }}>Edit</button>
-                    <button className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', color: 'var(--accent-danger)' }}>Delete</button>
+                    <Link href={`/admin/news/${item.id}/edit`} className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem' }}>Edit</Link>
+                    <DeleteNewsAction newsId={item.id} />
                   </div>
                 </td>
               </tr>

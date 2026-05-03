@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getPendingPosts, getPendingBatchMembers } from "@/lib/actions";
 import ApprovalActions from "./approval-actions";
 import HandoverAction from "./handover-action";
+import TeamActions from "./team-actions";
 import BatchProfileForm from "./BatchProfileForm";
 
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -182,10 +183,13 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                         {member.name?.charAt(0)}
                       </div>
                       <div>
-                        <div style={{ fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}>
+                        <div style={{ fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', flexWrap: 'wrap' }}>
                           {member.name}
                           {member.role === 'BATCH_MANAGER' && (
                             <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)', borderRadius: '4px', textTransform: 'uppercase' }}>Manager</span>
+                          )}
+                          {member.isPlayer && (
+                            <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem', border: '1px solid var(--accent-primary)', color: 'var(--accent-primary)', borderRadius: '4px', textTransform: 'uppercase' }}>Player</span>
                           )}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{member.email}</div>
@@ -196,12 +200,15 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                     {member.occupation || '---'}
                   </td>
                   <td style={{ padding: '1rem', textAlign: 'right' }}>
-                    {member.id !== userSession.uid && member.role === 'USER' && (
-                      <HandoverAction userId={member.id} userName={member.name || 'Member'} />
-                    )}
-                    {member.id === userSession.uid && (
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>You (Current Manager)</span>
-                    )}
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <TeamActions userId={member.id} isPlayer={member.isPlayer} userName={member.name || 'Member'} />
+                      {member.id !== userSession.uid && member.role === 'USER' && (
+                        <HandoverAction userId={member.id} userName={member.name || 'Member'} />
+                      )}
+                      {member.id === userSession.uid && (
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>You (Current Manager)</span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               )) : (

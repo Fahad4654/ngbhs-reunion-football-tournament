@@ -145,3 +145,34 @@ export async function deleteBatch(id: string) {
     return { success: false, error: 'Cannot delete this batch — it may have related matches or members' };
   }
 }
+
+// ─────────────────────────────────────────
+// Batch Manager Actions
+// ─────────────────────────────────────────
+
+export async function toggleTeamMember(userId: string, isPlayer: boolean) {
+  const user = await getServerUser();
+  if (user?.role !== 'BATCH_MANAGER') return { success: false, error: 'Unauthorized' };
+
+  const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+  if (!dbUser?.batchId) return { success: false, error: 'No batch assigned' };
+
+  try {
+    // Ensure the target user actually belongs to this manager's batch
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser || targetUser.batchId !== dbUser.batchId) {
+      return { success: false, error: 'User not found in your batch' };
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isPlayer }
+    });
+    
+    revalidatePath('/dashboard/manage-batch');
+    return { success: true };
+  } catch (error: any) {
+    console.error('[toggleTeamMember]', error);
+    return { success: false, error: 'Failed to update team member status' };
+  }
+}

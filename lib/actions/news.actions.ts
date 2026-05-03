@@ -3,6 +3,11 @@
 import prisma from "@/lib/prisma";
 import { getServerUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+
+const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
+
 
 export async function createNews(data: {
   title: string;
@@ -38,5 +43,66 @@ export async function createNews(data: {
       return { success: false, error: "A news article with this slug already exists." };
     }
     return { success: false, error: error.message || "Failed to create news" };
+  }
+}
+
+
+
+export async function updateNews(id: string, data: {
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  imageUrl?: string;
+  isExclusive?: boolean;
+}) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const news = await prisma.news.update({
+      where: { id },
+      data: {
+        title: data.title,
+        slug: data.slug,
+        content: data.content,
+        excerpt: data.excerpt,
+        imageUrl: data.imageUrl,
+        isExclusive: data.isExclusive,
+      },
+    });
+
+    revalidatePath("/admin/news");
+    revalidatePath("/news");
+    revalidatePath(`/news/${news.slug}`);
+    return { success: true, data: news };
+  } catch (error: any) {
+    console.error("Failed to update news:", error);
+    if (error.code === 'P2002' && error.meta?.target?.includes('slug')) {
+      return { success: false, error: "A news article with this slug already exists." };
+    }
+    return { success: false, error: error.message || "Failed to update news" };
+  }
+}
+
+export async function deleteNews(id: string) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const news = await prisma.news.delete({
+      where: { id },
+    });
+
+    revalidatePath("/admin/news");
+    revalidatePath("/news");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to delete news:", error);
+    return { success: false, error: "Failed to delete news" };
   }
 }

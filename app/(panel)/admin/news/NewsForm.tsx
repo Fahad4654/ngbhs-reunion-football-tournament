@@ -2,21 +2,61 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createNews } from "@/lib/actions/news.actions";
+import { createNews, updateNews } from "@/lib/actions/news.actions";
 
-export default function NewsForm() {
+export default function NewsForm({ initialData, newsId }: {
+  initialData?: {
+    title: string;
+    slug: string;
+    content: string;
+    excerpt: string | null;
+    imageUrl: string | null;
+    isExclusive: boolean;
+  };
+  newsId?: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
-    title: "",
-    slug: "",
-    content: "",
-    excerpt: "",
-    imageUrl: "",
-    isExclusive: false,
+    title: initialData?.title || "",
+    slug: initialData?.slug || "",
+    content: initialData?.content || "",
+    excerpt: initialData?.excerpt || "",
+    imageUrl: initialData?.imageUrl || "",
+    isExclusive: initialData?.isExclusive || false,
   });
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError("");
+
+    const data = new FormData();
+    data.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload/news", {
+        method: "POST",
+        body: data,
+      });
+      const json = await res.json();
+
+      if (res.ok && json.url) {
+        setFormData(prev => ({ ...prev, imageUrl: json.url }));
+      } else {
+        setError(json.error || "Upload failed");
+      }
+    } catch (err) {
+      setError("An error occurred during upload.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,11 +70,17 @@ export default function NewsForm() {
     startTransition(async () => {
       const finalSlug = formData.slug.trim() || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       
-      const res = await createNews({ ...formData, slug: finalSlug });
+      let res;
+      if (newsId) {
+        res = await updateNews(newsId, { ...formData, slug: finalSlug });
+      } else {
+        res = await createNews({ ...formData, slug: finalSlug });
+      }
+
       if (res.success) {
         router.push("/admin/news");
       } else {
-        setError(res.error || "Failed to create news");
+        setError(res.error || `Failed to ${newsId ? "update" : "create"} news`);
       }
     });
   };
@@ -85,13 +131,34 @@ export default function NewsForm() {
       </div>
 
       <div>
-        <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Image URL</label>
-        <input 
-          type="text" 
-          value={formData.imageUrl}
-          onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-          style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", color: "white", outline: "none" }}
-        />
+        <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Media (Image or Video)</label>
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          <input 
+            type="file" 
+            accept="image/*,video/*"
+            onChange={handleUpload}
+            disabled={uploading}
+            style={{ flex: 1, padding: "0.75rem", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", color: "white", outline: "none" }}
+          />
+          {uploading && <span style={{ fontSize: "0.9rem", color: "var(--accent-primary)" }}>Uploading...</span>}
+        </div>
+        {formData.imageUrl && (
+          <div style={{ marginTop: "1rem" }}>
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>Uploaded URL: {formData.imageUrl}</p>
+            {formData.imageUrl.match(/\.(mp4|webm|mov)$/i) ? (
+              <video src={formData.imageUrl} controls style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "8px" }} />
+            ) : (
+              <img src={formData.imageUrl} alt="Uploaded preview" style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "8px", objectFit: "cover" }} />
+            )}
+            <button 
+              type="button" 
+              onClick={() => setFormData(prev => ({ ...prev, imageUrl: "" }))}
+              style={{ display: "block", marginTop: "0.5rem", color: "var(--accent-danger)", fontSize: "0.85rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            >
+              Remove Media
+            </button>
+          </div>
+        )}
       </div>
 
       <div>
@@ -109,7 +176,7 @@ export default function NewsForm() {
       <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "1rem" }}>
         <button type="button" onClick={() => router.back()} className="btn glass">Cancel</button>
         <button type="submit" className="btn btn-primary" disabled={isPending}>
-          {isPending ? "Saving..." : "Create Article"}
+          {isPending ? "Saving..." : newsId ? "Update Article" : "Create Article"}
         </button>
       </div>
     </form>

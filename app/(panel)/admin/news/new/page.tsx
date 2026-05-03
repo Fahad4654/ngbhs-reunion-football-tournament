@@ -1,6 +1,6 @@
 import { getServerUser } from "@/lib/server-auth";
 import { redirect } from "next/navigation";
-import NewsForm from "./NewsForm";
+import NewsForm from "../NewsForm";
 
 export default async function NewNewsPage() {
   const user = await getServerUser();
