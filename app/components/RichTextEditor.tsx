@@ -7,6 +7,7 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import React from 'react';
 
 import { Select, MenuItem, FormControl } from '@mui/material';
+import { Extension } from '@tiptap/core';
 
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
@@ -16,6 +17,44 @@ import CodeIcon from '@mui/icons-material/Code';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import TitleIcon from '@mui/icons-material/Title';
 import FontDownloadIcon from '@mui/icons-material/FontDownload';
+import FormatSizeIcon from '@mui/icons-material/FormatSize';
+
+// Custom Font Size Extension
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: element => element.style.fontSize?.replace(/['"]+/g, ''),
+            renderHTML: attributes => {
+              if (!attributes.fontSize) return {};
+              return { style: `font-size: ${attributes.fontSize}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize: (fontSize: string) => ({ chain }: any) => {
+        return chain().setMark('textStyle', { fontSize }).run();
+      },
+      unsetFontSize: () => ({ chain }: any) => {
+        return chain().setMark('textStyle', { fontSize: null }).run();
+      },
+    } as any;
+  },
+});
 
 interface RichTextEditorProps {
   value: string;
@@ -33,6 +72,15 @@ const FONTS = [
   { name: 'Handwriting', value: 'cursive' },
 ];
 
+const SIZES = [
+  { name: 'Small', value: '12px' },
+  { name: 'Normal', value: '16px' },
+  { name: 'Medium', value: '20px' },
+  { name: 'Large', value: '24px' },
+  { name: 'Extra Large', value: '32px' },
+  { name: 'Huge', value: '48px' }
+];
+
 export default function RichTextEditor({ value, onChange, placeholder, minHeight = '200px' }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -48,6 +96,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minHeight
       }),
       TextStyle,
       FontFamily,
+      FontSize,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -237,13 +286,76 @@ export default function RichTextEditor({ value, onChange, placeholder, minHeight
               <MenuItem value="">
                 <em>Default Font</em>
               </MenuItem>
-              {FONTS.slice(1).map((font) => (
+              {FONTS.map((font) => (
                 <MenuItem 
                   key={font.value} 
                   value={font.value}
                   style={{ fontFamily: font.value }}
                 >
                   {font.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+
+        {/* Size Picker */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '0.5rem' }}>
+          <FormatSizeIcon sx={{ fontSize: '1.1rem', color: 'var(--accent-primary)' }} />
+          <FormControl size="small" variant="outlined">
+            <Select
+              value={editor.getAttributes('textStyle').fontSize || ''}
+              onChange={(e) => {
+                const size = e.target.value;
+                if (size) {
+                  (editor.chain().focus() as any).setFontSize(size).run();
+                } else {
+                  (editor.chain().focus() as any).unsetFontSize().run();
+                }
+              }}
+              displayEmpty
+              sx={{
+                height: '32px',
+                color: 'white',
+                background: 'rgba(255,255,255,0.05)',
+                fontSize: '0.8rem',
+                minWidth: '100px',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'var(--border-color)',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'var(--accent-primary)',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'var(--accent-primary)',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: 'var(--accent-primary)',
+                },
+              }}
+              MenuProps={{
+                sx: {
+                  '& .MuiPaper-root': {
+                    bgcolor: '#1a1b1e',
+                    color: 'white',
+                    border: '1px solid var(--border-color)',
+                  },
+                  '& .MuiMenuItem-root': {
+                    fontSize: '0.9rem',
+                  },
+                },
+              }}
+            >
+              <MenuItem value="">
+                <em>Normal</em>
+              </MenuItem>
+              {SIZES.map((size) => (
+                <MenuItem 
+                  key={size.value} 
+                  value={size.value}
+                  style={{ fontSize: size.value }}
+                >
+                  {size.name}
                 </MenuItem>
               ))}
             </Select>
