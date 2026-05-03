@@ -213,12 +213,23 @@ export async function rejectPost(postId: string) {
     const user = await getServerUser();
     if (!user) return { error: 'Unauthorized.' };
 
-    const post = await prisma.post.findUnique({ where: { id: postId }, include: { author: true } });
+    const post = await prisma.post.findUnique({ 
+      where: { id: postId }, 
+      include: { author: true, media: true } 
+    });
     if (!post) return { error: 'Post not found.' };
 
     const authorized = await isAuthorizedModerator(user.uid, user.role, post.author.batchId, post.scope);
     if (!authorized) return { error: 'Unauthorized.' };
 
+    // 1. Delete physical media files from disk
+    if (post.media.length > 0) {
+      await Promise.all(post.media.map(m => deleteFile(m.url)));
+      // 2. Remove media records from DB
+      await prisma.media.deleteMany({ where: { postId } });
+    }
+
+    // 3. Update status to REJECTED
     await prisma.post.update({ where: { id: postId }, data: { status: 'REJECTED' } });
 
     revalidatePath('/admin/posts');
