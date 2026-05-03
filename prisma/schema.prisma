@@ -238,6 +238,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   emailVerified DateTime?
   status        UserStatus @default(APPROVED)
+  isPlayer      Boolean    @default(false)
 }
 
 enum UserStatus {

@@ -1,6 +1,7 @@
 import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default async function AdminNewsPage() {
   const user = await getServerUser();
@@ -16,7 +17,7 @@ export default async function AdminNewsPage() {
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
-        <button className="btn btn-primary">+ Create New Article</button>
+        <Link href="/admin/news/new" className="btn btn-primary">+ Create New Article</Link>
       </div>
 
       <div className="responsive-table-container glass" style={{ padding: '0' }}>

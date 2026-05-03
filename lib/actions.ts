@@ -20,3 +20,4 @@ export * from './actions/auth.actions';
 export * from './actions/post.actions';
 export * from './actions/user.actions';
 export * from './actions/batch.actions';
+export * from './actions/news.actions';
