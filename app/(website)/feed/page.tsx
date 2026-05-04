@@ -7,6 +7,8 @@ import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import StadiumIcon from '@mui/icons-material/Stadium';
+import UserLink from "@/app/components/UserLink";
+import prisma from "@/lib/prisma";
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
@@ -14,10 +16,12 @@ export const metadata = {
 };
 
 export default async function FeedPage() {
-  const [posts, user] = await Promise.all([
+  const [posts, userSession] = await Promise.all([
     getApprovedPosts(),
     getServerUser()
   ]);
+
+  const dbUser = userSession ? await prisma.user.findUnique({ where: { id: userSession.uid } }) : null;
 
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', paddingTop: '1.852vh', paddingBottom: '3.704vh' }}>
@@ -73,7 +77,13 @@ export default async function FeedPage() {
                     )}
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '800', fontSize: 'clamp(0.9rem, 1.1vw, 1.25rem)', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: 'clamp(0.9rem, 1.1vw, 1.25rem)', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <UserLink 
+                        user={post.author} 
+                        currentUserBatchId={dbUser?.batchId || undefined} 
+                        currentUserRole={userSession?.role}
+                      />
+                    </div>
                     <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'clamp(0.65rem, 0.7vw, 0.8rem)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                       {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </div>
@@ -84,7 +94,7 @@ export default async function FeedPage() {
                     postId={post.id}
                     title={post.title}
                     content={post.content}
-                    isAuthorized={user?.role === 'ADMIN' || user?.role === 'CO_ADMIN' || user?.uid === post.authorId}
+                    isAuthorized={userSession?.role === 'ADMIN' || userSession?.role === 'CO_ADMIN' || userSession?.uid === post.authorId}
                     media={post.media}
                   />
                 </div>
@@ -93,9 +103,16 @@ export default async function FeedPage() {
               {/* Post Content */}
               <div style={{ padding: '2.222vh 1.25vw 0.741vh' }}>
                 <h3 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.75rem)', marginBottom: '1.481vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 1.2vw, 1.35rem)', lineHeight: '1.7', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                  {post.content}
-                </p>
+                <div 
+                  className="rich-text-content"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                  style={{ 
+                    color: 'var(--text-secondary)', 
+                    fontSize: 'clamp(0.95rem, 1.2vw, 1.35rem)', 
+                    overflowWrap: 'break-word', 
+                    wordBreak: 'break-word' 
+                  }}
+                />
               </div>
 
               {/* Post Media Gallery */}
@@ -106,7 +123,7 @@ export default async function FeedPage() {
                 postId={post.id}
                 initialCheers={post.cheers}
                 initialComments={post.comments}
-                currentUserId={user?.uid}
+                currentUserId={userSession?.uid}
                 postUrl={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/feed#post-${post.id}`}
               />
             </article>

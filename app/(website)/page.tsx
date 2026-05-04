@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "./page.module.css";
 import Link from "next/link";
 
@@ -139,7 +140,15 @@ export default async function Home() {
           <div className={styles.newsGrid}>
             {news.length > 0 ? news.map(item => (
               <div key={item.id} className={`${styles.newsCard} glass`} style={{ borderRadius: '1.25vw' }}>
-                <div className={styles.newsImage}></div>
+                <div className={styles.newsImage}>
+                  {item.imageUrl && (
+                    <MediaRenderer 
+                      url={item.imageUrl} 
+                      type={item.imageUrl.match(/\.(mp4|webm|mov)$/i) ? 'VIDEO' : 'IMAGE'} 
+                      style={{ width: '100%', height: '100%' }}
+                    />
+                  )}
+                </div>
                 <div className={styles.newsContent}>
                   <span className={styles.newsDate}>{new Date(item.publishedAt).toLocaleDateString()}</span>
                   <h3 className={styles.newsTitle}>{item.title}</h3>

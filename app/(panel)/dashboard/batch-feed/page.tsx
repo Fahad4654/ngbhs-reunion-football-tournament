@@ -9,6 +9,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import CancelIcon from '@mui/icons-material/Cancel';
 import StadiumIcon from '@mui/icons-material/Stadium';
+import UserLink from "@/app/components/UserLink";
 
 export const metadata = {
   title: 'My Batch Feed - NGBHS Reunion',
@@ -123,7 +124,9 @@ export default async function BatchFeedPage() {
                   )}
                 </div>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '800', fontSize: '1rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: '1rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <UserLink user={post.author} currentUserBatchId={dbUser.batchId!} />
+                    </div>
                   <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                     {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </div>
@@ -140,12 +143,18 @@ export default async function BatchFeedPage() {
               </div>
             </div>
 
-            {/* Post Content */}
             <div style={{ padding: '1.25rem 1rem 0.75rem' }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.5', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                {post.content}
-              </p>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Story'}</h3>
+              <div 
+                className="rich-text-content"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+                style={{ 
+                  color: 'var(--text-secondary)', 
+                  fontSize: '0.95rem', 
+                  overflowWrap: 'break-word', 
+                  wordBreak: 'break-word' 
+                }}
+              />
             </div>
 
             {/* Post Media Gallery */}
