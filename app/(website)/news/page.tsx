@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "./news.module.css";
 
 async function getNews() {
@@ -57,7 +58,10 @@ export default async function NewsPage() {
                   </div>
                 )}
                 {item.imageUrl && (
-                  <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <MediaRenderer 
+                    url={item.imageUrl} 
+                    type={item.imageUrl.match(/\.(mp4|webm|mov)$/i) ? 'VIDEO' : 'IMAGE'} 
+                  />
                 )}
               </div>
               <div className={styles.content}>

@@ -271,6 +271,11 @@ export async function deleteUserAction(userId: string) {
       }
     }
 
+    // Delete profile picture from disk
+    if (target.image) {
+      await deleteFile(target.image);
+    }
+
     await prisma.user.delete({ where: { id: userId } });
 
     revalidatePath('/admin/users');

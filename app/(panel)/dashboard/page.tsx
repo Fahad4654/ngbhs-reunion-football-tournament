@@ -7,10 +7,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import PersonIcon from '@mui/icons-material/Person';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import NewspaperIcon from '@mui/icons-material/Newspaper';
 import GroupsIcon from '@mui/icons-material/Groups';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ForumIcon from '@mui/icons-material/Forum';
 
 export const metadata = {
   title: 'Dashboard - NGBHS Reunion',
@@ -29,40 +29,48 @@ export default async function DashboardPage() {
   }
 
   // Fetch data for stats and activities
-  const [recentPosts, recentNews, matchCount] = await Promise.all([
+  const [myPosts, myCheers, myComments, matchCount] = await Promise.all([
     prisma.post.findMany({
-      where: { 
-        OR: [
-          { authorId: user.uid },
-          { scope: 'GLOBAL' }
-        ],
-        status: 'APPROVED'
-      },
-      take: 4,
-      orderBy: { createdAt: 'desc' },
-      include: { author: true }
-    }),
-    prisma.news.findMany({
-      take: 3,
+      where: { authorId: user.uid },
+      take: 5,
       orderBy: { createdAt: 'desc' }
+    }),
+    prisma.cheer.findMany({
+      where: { userId: user.uid },
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      include: { post: true }
+    }),
+    prisma.comment.findMany({
+      where: { authorId: user.uid },
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      include: { post: true }
     }),
     prisma.match.count({ where: { status: 'LIVE' } })
   ]);
 
   const activities = [
-    ...recentPosts.map(p => ({
+    ...myPosts.map(p => ({
       type: 'POST',
       title: p.title || 'Shared a new story',
-      user: p.author.name,
+      user: 'You',
       createdAt: p.createdAt
     })),
-    ...recentNews.map(n => ({
-      type: 'NEWS',
-      title: n.title,
-      user: 'Official News',
-      createdAt: n.createdAt
+    ...myCheers.map(c => ({
+      type: 'REACTION',
+      title: `Reacted to post: ${c.post.title || 'Post'}`,
+      user: 'You',
+      createdAt: c.createdAt
+    })),
+    ...myComments.map(c => ({
+      type: 'COMMENT',
+      title: `Commented on: ${c.post.title || 'Post'}`,
+      user: 'You',
+      createdAt: c.createdAt
     }))
-  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+   .slice(0, 5);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1rem, 3vw, 2rem)', maxWidth: '100%', overflow: 'hidden' }}>
@@ -141,7 +149,7 @@ export default async function DashboardPage() {
               <AssessmentIcon sx={{ color: 'var(--accent-primary)', fontSize: '1.25rem' }} />
               RECENT ACTIVITY
             </h2>
-            <Link href="/dashboard/posts/my-posts" style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <Link href="/dashboard/activity" style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               View All
             </Link>
           </div>
@@ -164,15 +172,21 @@ export default async function DashboardPage() {
                     width: '38px', 
                     height: '38px', 
                     borderRadius: '10px', 
-                    background: activity.type === 'NEWS' ? 'rgba(235, 183, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                    background: activity.type === 'POST' ? 'rgba(59, 130, 246, 0.1)' : 
+                               activity.type === 'REACTION' ? 'rgba(235, 183, 0, 0.1)' : 
+                               'rgba(16, 185, 129, 0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: activity.type === 'NEWS' ? 'var(--accent-primary)' : 'white',
+                    color: activity.type === 'POST' ? '#3b82f6' : 
+                           activity.type === 'REACTION' ? 'var(--accent-primary)' : 
+                           '#10b981',
                     border: '1px solid rgba(255,255,255,0.1)',
                     flexShrink: 0
                   }}>
-                    {activity.type === 'NEWS' ? <NewspaperIcon sx={{ fontSize: '1rem' }} /> : <EditIcon sx={{ fontSize: '1rem' }} />}
+                    {activity.type === 'POST' ? <EditIcon sx={{ fontSize: '1rem' }} /> : 
+                     activity.type === 'REACTION' ? <SportsSoccerIcon sx={{ fontSize: '1rem' }} /> :
+                     <ForumIcon sx={{ fontSize: '1rem' }} />}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ 

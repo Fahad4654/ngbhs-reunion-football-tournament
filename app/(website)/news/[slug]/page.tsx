@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "../news.module.css";
 
 export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -30,16 +31,24 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         </header>
 
-        <div className="glass" style={{ width: '100%', height: '400px', borderRadius: '32px', marginBottom: '4rem' }}></div>
+        {article.imageUrl && (
+          <div className="glass" style={{ width: '100%', borderRadius: '32px', marginBottom: '4rem', overflow: 'hidden' }}>
+            <MediaRenderer 
+              url={article.imageUrl} 
+              type={article.imageUrl.match(/\.(mp4|webm|mov)$/i) ? 'VIDEO' : 'IMAGE'} 
+              style={{ maxHeight: '600px' }}
+            />
+          </div>
+        )}
 
-        <div style={{ 
-          color: 'var(--text-secondary)', 
-          fontSize: '1.1rem', 
-          lineHeight: '1.8',
-          whiteSpace: 'pre-wrap'
-        }}>
-          {article.content}
-        </div>
+        <div 
+          className="rich-text-content"
+          dangerouslySetInnerHTML={{ __html: article.content }}
+          style={{ 
+            color: 'var(--text-secondary)', 
+            fontSize: '1.1rem', 
+          }}
+        />
 
         <footer style={{ marginTop: '6rem', padding: '3rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
           <a href="/news" className="btn glass">← Back to News Feed</a>

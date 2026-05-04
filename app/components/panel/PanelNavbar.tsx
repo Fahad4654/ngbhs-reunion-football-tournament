@@ -4,12 +4,15 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import MenuIcon from '@mui/icons-material/Menu';
 import PublicIcon from '@mui/icons-material/Public';
+import NotificationBell from '../NotificationBell';
 
 const PAGE_INFO: Record<string, { badge: string; title: string }> = {
   '/dashboard/posts/my-posts': { badge: 'My Content', title: 'Your Posts' },
   '/dashboard/posts': { badge: 'Create Post', title: 'Community Sharing' },
   '/dashboard/batch-feed': { badge: 'Batch Activity', title: 'Batch Feed' },
   '/dashboard/manage-batch': { badge: 'Moderation', title: 'Manage Batch' },
+  '/dashboard/team-management': { badge: 'Team', title: 'Team Management' },
+  '/dashboard/members': { badge: 'Community', title: 'Member Directory' },
   '/dashboard/scores': { badge: 'Tournament', title: 'Update Scores' },
   '/dashboard': { badge: 'Overview', title: 'Overview' },
   '/dashboard/news': { badge: 'News Manager', title: 'Latest Updates' },
@@ -132,6 +135,8 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
             <PublicIcon sx={{ fontSize: '1rem', color: 'var(--accent-primary)' }} />
             <span className="desktop-only" style={{ fontWeight: '700' }}>Community</span>
           </Link>
+
+          <NotificationBell />
 
           <Link href="/profile" className="btn glass panel-profile-link" style={{ 
             display: 'flex', 

@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 import ImageIcon from '@mui/icons-material/Image';
 import VideocamIcon from '@mui/icons-material/Videocam';
+import RichTextEditor from '@/app/components/RichTextEditor';
 
 export interface PostMedia {
   id: string;
@@ -34,6 +35,7 @@ interface PostOptionsProps {
 export default function PostOptions({ postId, title, content, isAuthorized, media = [] }: PostOptionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(content);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [confirmState, setConfirmState] = useState<{
@@ -146,6 +148,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
     const formData = new FormData(e.currentTarget);
     
     removedMediaIds.forEach(id => formData.append('removedMediaIds', id));
+    formData.set('content', editedContent);
     newMediaPreviews.forEach(m => {
       if (m.type === 'IMAGE') formData.append('imageFiles', m.file);
       else formData.append('videoFiles', m.file);
@@ -241,12 +244,11 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
               
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Content</label>
-                <textarea 
-                  name="content" 
-                  defaultValue={content}
-                  required
-                  rows={4}
-                  style={{ width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'white', resize: 'vertical' }}
+                <RichTextEditor 
+                  value={editedContent}
+                  onChange={setEditedContent}
+                  placeholder="What's on your mind?"
+                  minHeight="150px"
                 />
               </div>
 
