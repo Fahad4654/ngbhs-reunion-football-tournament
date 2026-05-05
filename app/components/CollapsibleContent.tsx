@@ -33,26 +33,35 @@ export default function CollapsibleContent({ htmlContent, textContent, isPlainTe
     setIsExpanded(!isExpanded);
   };
 
+  const sharedStyles: React.CSSProperties = {
+    color: 'var(--text-secondary)', 
+    fontSize: 'inherit', 
+    overflowWrap: 'break-word', 
+    wordBreak: 'break-word',
+    maxHeight: isExpanded ? 'none' : `${maxHeight}px`,
+    overflow: 'hidden',
+    transition: 'max-height 0.3s ease-out',
+    position: 'relative',
+    whiteSpace: isPlainText ? 'pre-wrap' : 'normal'
+  };
+
   return (
     <div style={{ position: 'relative' }}>
-      <div 
-        ref={contentRef}
-        className={isPlainText ? "" : "rich-text-content"}
-        dangerouslySetInnerHTML={isPlainText ? undefined : { __html: htmlContent || '' }}
-        style={{ 
-          color: 'var(--text-secondary)', 
-          fontSize: 'inherit', 
-          overflowWrap: 'break-word', 
-          wordBreak: 'break-word',
-          maxHeight: isExpanded ? 'none' : `${maxHeight}px`,
-          overflow: 'hidden',
-          transition: 'max-height 0.3s ease-out',
-          position: 'relative',
-          whiteSpace: isPlainText ? 'pre-wrap' : 'normal'
-        }}
-      >
-        {isPlainText && textContent}
-      </div>
+      {isPlainText ? (
+        <div 
+          ref={contentRef}
+          style={sharedStyles}
+        >
+          {textContent}
+        </div>
+      ) : (
+        <div 
+          ref={contentRef}
+          className="rich-text-content"
+          dangerouslySetInnerHTML={{ __html: htmlContent || '' }}
+          style={sharedStyles}
+        />
+      )}
       
       {isTooLong && !isExpanded && (
         <>
