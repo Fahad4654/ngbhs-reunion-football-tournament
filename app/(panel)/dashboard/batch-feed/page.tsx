@@ -15,6 +15,8 @@ export const metadata = {
   title: 'My Batch Feed - NGBHS Reunion',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function BatchFeedPage() {
   const userSession = await getServerUser();
   if (!userSession) return null;
@@ -143,7 +145,11 @@ export default async function BatchFeedPage() {
               </div>
             </div>
 
-            <div style={{ padding: '1.25rem 1rem 0.75rem' }}>
+            <a 
+              href={`#post-${post.id}`}
+              className="clickable-post"
+              style={{ padding: '1.25rem 1rem 0.75rem' }}
+            >
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Story'}</h3>
               <div 
                 className="rich-text-content"
@@ -155,7 +161,7 @@ export default async function BatchFeedPage() {
                   wordBreak: 'break-word' 
                 }}
               />
-            </div>
+            </a>
 
             {/* Post Media Gallery */}
             <MediaGallery media={post.media} />

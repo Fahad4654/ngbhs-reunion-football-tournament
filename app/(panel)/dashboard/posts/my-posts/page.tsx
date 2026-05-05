@@ -11,6 +11,8 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import PublicIcon from '@mui/icons-material/Public';
 import SchoolIcon from '@mui/icons-material/School';
 
+export const dynamic = 'force-dynamic';
+
 export default async function MyPostsPage() {
   const [posts, user] = await Promise.all([
     getMyPosts(),
@@ -100,7 +102,11 @@ export default async function MyPostsPage() {
               </div>
             </div>
 
-            <div style={{ padding: '1.25rem 1rem 0.75rem' }}>
+            <a 
+              href={post.scope === 'BATCH' ? `/dashboard/batch-feed#post-${post.id}` : `/feed#post-${post.id}`}
+              className="clickable-post"
+              style={{ padding: '1.25rem 1rem 0.75rem' }}
+            >
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Story'}</h3>
               <div 
                 className="rich-text-content"
@@ -112,7 +118,7 @@ export default async function MyPostsPage() {
                   wordBreak: 'break-word' 
                 }}
               />
-            </div>
+            </a>
 
             {/* Media Gallery */}
             <MediaGallery media={post.media} />

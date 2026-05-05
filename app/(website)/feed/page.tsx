@@ -15,6 +15,8 @@ export const metadata = {
   description: 'Live updates and shared memories from the NGBHS Reunion community.',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function FeedPage() {
   const [posts, userSession] = await Promise.all([
     getApprovedPosts(),
@@ -101,7 +103,11 @@ export default async function FeedPage() {
               </div>
 
               {/* Post Content */}
-              <div style={{ padding: '2.222vh 1.25vw 0.741vh' }}>
+              <a 
+                href={`#post-${post.id}`}
+                className="clickable-post"
+                style={{ padding: '2.222vh 1.25vw 0.741vh' }}
+              >
                 <h3 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.75rem)', marginBottom: '1.481vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
                 <div 
                   className="rich-text-content"
@@ -113,7 +119,7 @@ export default async function FeedPage() {
                     wordBreak: 'break-word' 
                   }}
                 />
-              </div>
+              </a>
 
               {/* Post Media Gallery */}
               <MediaGallery media={post.media} />

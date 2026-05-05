@@ -5,6 +5,8 @@ import ModerationActions from "./moderation-actions";
 import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPostsPage() {
   const user = await getServerUser();
   
@@ -84,7 +86,11 @@ export default async function AdminPostsPage() {
               </div>
             </div>
 
-            <div style={{ padding: '1rem 1rem 0.5rem' }}>
+            <a 
+              href={`#post-${post.id}`}
+              className="clickable-post"
+              style={{ padding: '1rem 1rem 0.5rem' }}
+            >
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Story'}</h3>
               <div 
                 className="rich-text-content"
@@ -96,7 +102,7 @@ export default async function AdminPostsPage() {
                   wordBreak: 'break-word' 
                 }}
               />
-            </div>
+            </a>
 
             {/* Post Media Gallery */}
             <MediaGallery media={post.media} />

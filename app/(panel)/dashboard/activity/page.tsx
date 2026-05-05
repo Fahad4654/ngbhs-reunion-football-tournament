@@ -3,6 +3,8 @@ import { getServerUser } from '@/lib/server-auth';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 import EditIcon from '@mui/icons-material/Edit';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import ForumIcon from '@mui/icons-material/Forum';

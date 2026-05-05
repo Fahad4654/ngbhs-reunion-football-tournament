@@ -20,6 +20,8 @@ export const metadata = {
   title: 'Manage Batch - Dashboard',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ManageBatchPage(props: { searchParams: Promise<{ tab?: string }> }) {
   const searchParams = await props.searchParams;
   const tab = searchParams?.tab || 'posts';
@@ -140,7 +142,11 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                   </div>
                 </div>
               </div>
-              <div style={{ padding: '1.5rem 1rem 0.75rem' }}>
+              <a 
+                href={`#post-${post.id}`}
+                className="clickable-post"
+                style={{ padding: '1.5rem 1rem 0.75rem' }}
+              >
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Post'}</h3>
                 <div 
                   className="rich-text-content"
@@ -152,7 +158,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                     wordBreak: 'break-word' 
                   }}
                 />
-              </div>
+              </a>
               <MediaGallery media={post.media} />
               <div style={{ padding: '1.5rem 1rem', borderTop: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
                 <ModerationActions postId={post.id} />
