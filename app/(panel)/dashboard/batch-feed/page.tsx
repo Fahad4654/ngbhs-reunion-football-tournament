@@ -10,6 +10,8 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import CancelIcon from '@mui/icons-material/Cancel';
 import StadiumIcon from '@mui/icons-material/Stadium';
 import UserLink from "@/app/components/UserLink";
+import CollapsibleContent from "@/app/components/CollapsibleContent";
+import ClickablePost from "@/app/components/ClickablePost";
 
 export const metadata = {
   title: 'My Batch Feed - NGBHS Reunion',
@@ -145,23 +147,13 @@ export default async function BatchFeedPage() {
               </div>
             </div>
 
-            <a 
-              href={`#post-${post.id}`}
-              className="clickable-post"
+            <ClickablePost 
+              postId={post.id}
               style={{ padding: '1.25rem 1rem 0.75rem' }}
             >
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Story'}</h3>
-              <div 
-                className="rich-text-content"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-                style={{ 
-                  color: 'var(--text-secondary)', 
-                  fontSize: '0.95rem', 
-                  overflowWrap: 'break-word', 
-                  wordBreak: 'break-word' 
-                }}
-              />
-            </a>
+              <CollapsibleContent htmlContent={post.content} maxHeight={250} />
+            </ClickablePost>
 
             {/* Post Media Gallery */}
             <MediaGallery media={post.media} />
