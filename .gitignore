@@ -43,5 +43,5 @@ next-env.d.ts
 /app/generated/prisma
 service.json
 
-uploads
-slides
+# uploads
+# slides
