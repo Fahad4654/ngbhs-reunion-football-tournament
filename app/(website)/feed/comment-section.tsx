@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { addComment } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
+import CollapsibleContent from '@/app/components/CollapsibleContent';
 
 interface CommentSectionProps {
   postId: string;
@@ -61,7 +62,7 @@ export default function CommentSection({ postId, comments, currentUserId }: Comm
                 {comment.author.name}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                {comment.content}
+                <CollapsibleContent textContent={comment.content} isPlainText maxHeight={100} />
               </div>
             </div>
           </div>

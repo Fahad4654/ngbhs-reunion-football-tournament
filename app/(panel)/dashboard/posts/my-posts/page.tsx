@@ -3,6 +3,8 @@ import Link from "next/link";
 import PostOptions from "@/app/components/PostOptions";
 import MediaGallery from "@/app/components/MediaGallery";
 import { getServerUser } from "@/lib/server-auth";
+import CollapsibleContent from "@/app/components/CollapsibleContent";
+import ClickablePost from "@/app/components/ClickablePost";
 
 import EditIcon from '@mui/icons-material/Edit';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -10,6 +12,8 @@ import ForumIcon from '@mui/icons-material/Forum';
 import DescriptionIcon from '@mui/icons-material/Description';
 import PublicIcon from '@mui/icons-material/Public';
 import SchoolIcon from '@mui/icons-material/School';
+
+export const dynamic = 'force-dynamic';
 
 export default async function MyPostsPage() {
   const [posts, user] = await Promise.all([
@@ -100,19 +104,13 @@ export default async function MyPostsPage() {
               </div>
             </div>
 
-            <div style={{ padding: '1.25rem 1rem 0.75rem' }}>
+            <ClickablePost 
+              postId={post.id}
+              style={{ padding: '1.25rem 1rem 0.75rem' }}
+            >
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Story'}</h3>
-              <div 
-                className="rich-text-content"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-                style={{ 
-                  color: 'var(--text-secondary)', 
-                  fontSize: '0.95rem', 
-                  overflowWrap: 'break-word', 
-                  wordBreak: 'break-word' 
-                }}
-              />
-            </div>
+              <CollapsibleContent htmlContent={post.content} maxHeight={250} />
+            </ClickablePost>
 
             {/* Media Gallery */}
             <MediaGallery media={post.media} />

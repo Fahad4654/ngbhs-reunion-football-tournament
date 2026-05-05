@@ -8,12 +8,18 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "react-hot-toast";
+import { getServerUser } from "@/lib/server-auth";
+import PostViewerProvider from "@/app/components/PostViewerProvider";
 
-export default function RootLayout({
+export const dynamic = 'force-dynamic';
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getServerUser();
+
   return (
     <html lang="en">
       <head>
@@ -30,6 +36,11 @@ export default function RootLayout({
               border: '0.052vw solid rgba(255,255,255,0.1)',
             },
           }}
+        />
+        <PostViewerProvider 
+          currentUserId={user?.uid} 
+          currentUserBatchId={user?.batchId || undefined} 
+          currentUserRole={user?.role}
         />
         {children}
       </body>

@@ -368,6 +368,8 @@ export default function RichTextEditor({ value, onChange, placeholder, minHeight
         .ProseMirror {
           padding: 1rem;
           min-height: ${minHeight};
+          max-height: 60vh;
+          overflow-y: auto;
           outline: none;
           color: white;
           font-size: 0.95rem;

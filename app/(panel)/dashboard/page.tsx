@@ -16,6 +16,8 @@ export const metadata = {
   title: 'Dashboard - NGBHS Reunion',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const user = await getServerUser();
 

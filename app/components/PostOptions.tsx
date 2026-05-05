@@ -226,7 +226,17 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
           justifyContent: 'center',
           padding: '1rem'
         }}>
-          <div className="glass" style={{ width: '100%', maxWidth: 'min(95vw, 500px)', borderRadius: '1.25rem', padding: '2rem 1.5rem' }}>
+          <div 
+            className="glass custom-scrollbar" 
+            style={{ 
+              width: '100%', 
+              maxWidth: 'min(95vw, 500px)', 
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              borderRadius: '1.25rem', 
+              padding: '2rem 1.5rem' 
+            }}
+          >
             <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'white', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <EditIcon sx={{ color: 'var(--accent-primary)' }} />
               Edit Post
