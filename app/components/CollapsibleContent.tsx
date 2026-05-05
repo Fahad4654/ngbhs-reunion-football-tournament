@@ -3,23 +3,29 @@
 import { useState, useRef, useEffect } from 'react';
 
 interface CollapsibleContentProps {
-  htmlContent: string;
+  htmlContent?: string;
+  textContent?: string;
+  isPlainText?: boolean;
   maxHeight?: number;
 }
 
-export default function CollapsibleContent({ htmlContent, maxHeight = 300 }: CollapsibleContentProps) {
+export default function CollapsibleContent({ htmlContent, textContent, isPlainText = false, maxHeight = 300 }: CollapsibleContentProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isTooLong, setIsTooLong] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const displayContent = isPlainText ? textContent : htmlContent;
 
   useEffect(() => {
     if (contentRef.current) {
       // Check if content height exceeds max height
       if (contentRef.current.scrollHeight > maxHeight) {
         setIsTooLong(true);
+      } else {
+        setIsTooLong(false);
       }
     }
-  }, [htmlContent, maxHeight]);
+  }, [displayContent, maxHeight]);
 
   const toggleExpand = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -31,19 +37,22 @@ export default function CollapsibleContent({ htmlContent, maxHeight = 300 }: Col
     <div style={{ position: 'relative' }}>
       <div 
         ref={contentRef}
-        className="rich-text-content"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
+        className={isPlainText ? "" : "rich-text-content"}
+        dangerouslySetInnerHTML={isPlainText ? undefined : { __html: htmlContent || '' }}
         style={{ 
           color: 'var(--text-secondary)', 
-          fontSize: 'clamp(0.95rem, 1.2vw, 1.35rem)', 
+          fontSize: 'inherit', 
           overflowWrap: 'break-word', 
           wordBreak: 'break-word',
           maxHeight: isExpanded ? 'none' : `${maxHeight}px`,
           overflow: 'hidden',
           transition: 'max-height 0.3s ease-out',
-          position: 'relative'
+          position: 'relative',
+          whiteSpace: isPlainText ? 'pre-wrap' : 'normal'
         }}
-      />
+      >
+        {isPlainText && textContent}
+      </div>
       
       {isTooLong && !isExpanded && (
         <>
