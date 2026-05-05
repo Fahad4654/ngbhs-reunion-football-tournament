@@ -295,7 +295,15 @@ import {
   getPendingPosts as _getPendingPosts,
   getMyPosts as _getMyPosts,
   getUserActivity as _getUserActivity,
+  getPostById as _getPostById,
 } from '@/lib/db/posts.db';
+
+/**
+ * Returns a single post by ID.
+ */
+export async function getPostByIdAction(postId: string) {
+  return _getPostById(postId);
+}
 
 /**
  * Returns approved posts. Batch activity is gated to APPROVED users only.

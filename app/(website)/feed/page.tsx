@@ -9,11 +9,15 @@ import NewspaperIcon from '@mui/icons-material/Newspaper';
 import StadiumIcon from '@mui/icons-material/Stadium';
 import UserLink from "@/app/components/UserLink";
 import prisma from "@/lib/prisma";
+import CollapsibleContent from "@/app/components/CollapsibleContent";
+import ClickablePost from "@/app/components/ClickablePost";
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
   description: 'Live updates and shared memories from the NGBHS Reunion community.',
 };
+
+export const dynamic = 'force-dynamic';
 
 export default async function FeedPage() {
   const [posts, userSession] = await Promise.all([
@@ -101,19 +105,13 @@ export default async function FeedPage() {
               </div>
 
               {/* Post Content */}
-              <div style={{ padding: '2.222vh 1.25vw 0.741vh' }}>
+              <ClickablePost 
+                postId={post.id}
+                style={{ padding: '2.222vh 1.25vw 0.741vh' }}
+              >
                 <h3 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.75rem)', marginBottom: '1.481vh', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title}</h3>
-                <div 
-                  className="rich-text-content"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                  style={{ 
-                    color: 'var(--text-secondary)', 
-                    fontSize: 'clamp(0.95rem, 1.2vw, 1.35rem)', 
-                    overflowWrap: 'break-word', 
-                    wordBreak: 'break-word' 
-                  }}
-                />
-              </div>
+                <CollapsibleContent htmlContent={post.content} maxHeight={250} />
+              </ClickablePost>
 
               {/* Post Media Gallery */}
               <MediaGallery media={post.media} />

@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import ModerationActions from "./moderation-actions";
 import MediaGallery from "@/app/components/MediaGallery";
 import PostOptions from "@/app/components/PostOptions";
+import CollapsibleContent from "@/app/components/CollapsibleContent";
+import ClickablePost from "@/app/components/ClickablePost";
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminPostsPage() {
   const user = await getServerUser();
@@ -84,19 +88,13 @@ export default async function AdminPostsPage() {
               </div>
             </div>
 
-            <div style={{ padding: '1rem 1rem 0.5rem' }}>
+            <ClickablePost 
+              postId={post.id}
+              style={{ padding: '1rem 1rem 0.5rem' }}
+            >
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Story'}</h3>
-              <div 
-                className="rich-text-content"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-                style={{ 
-                  color: 'var(--text-secondary)', 
-                  fontSize: '0.95rem', 
-                  overflowWrap: 'break-word', 
-                  wordBreak: 'break-word' 
-                }}
-              />
-            </div>
+              <CollapsibleContent htmlContent={post.content} maxHeight={200} />
+            </ClickablePost>
 
             {/* Post Media Gallery */}
             <MediaGallery media={post.media} />

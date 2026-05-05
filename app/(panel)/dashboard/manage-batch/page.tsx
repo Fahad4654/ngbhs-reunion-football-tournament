@@ -10,6 +10,8 @@ import HandoverAction from "./handover-action";
 import TeamActions from "./team-actions";
 import BatchProfileForm from "./BatchProfileForm";
 import UserLink from "@/app/components/UserLink";
+import CollapsibleContent from "@/app/components/CollapsibleContent";
+import ClickablePost from "@/app/components/ClickablePost";
 
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
@@ -19,6 +21,8 @@ import EditIcon from '@mui/icons-material/Edit';
 export const metadata = {
   title: 'Manage Batch - Dashboard',
 };
+
+export const dynamic = 'force-dynamic';
 
 export default async function ManageBatchPage(props: { searchParams: Promise<{ tab?: string }> }) {
   const searchParams = await props.searchParams;
@@ -140,19 +144,13 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                   </div>
                 </div>
               </div>
-              <div style={{ padding: '1.5rem 1rem 0.75rem' }}>
+              <ClickablePost 
+                postId={post.id}
+                style={{ padding: '1.5rem 1rem 0.75rem' }}
+              >
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent-primary)', textTransform: 'none', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{post.title || 'Untitled Post'}</h3>
-                <div 
-                  className="rich-text-content"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                  style={{ 
-                    color: 'var(--text-secondary)', 
-                    fontSize: '0.95rem', 
-                    overflowWrap: 'break-word', 
-                    wordBreak: 'break-word' 
-                  }}
-                />
-              </div>
+                <CollapsibleContent htmlContent={post.content} maxHeight={250} />
+              </ClickablePost>
               <MediaGallery media={post.media} />
               <div style={{ padding: '1.5rem 1rem', borderTop: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
                 <ModerationActions postId={post.id} />

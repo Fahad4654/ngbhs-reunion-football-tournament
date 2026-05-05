@@ -77,18 +77,29 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             onClick={() => setSelectedIndex(idx)}
             style={{ 
               position: 'relative', 
-              aspectRatio: media.length === 1 ? '16/9' : (media.length === 3 && idx === 0) ? '16/9' : '1/1',
+              aspectRatio: media.length === 1 ? 'auto' : (media.length === 3 && idx === 0) ? '16/9' : '1/1',
+              maxHeight: media.length === 1 ? '600px' : 'none',
               gridColumn: (media.length === 3 && idx === 0) ? 'span 2' : 'span 1',
               borderRadius: '0.625vw',
               overflow: 'hidden',
               border: '0.052vw solid var(--border-color)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              background: 'rgba(0,0,0,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
             <MediaRenderer 
               url={item.url} 
               type={item.type} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} 
+              style={{ 
+                width: '100%', 
+                height: media.length === 1 ? 'auto' : '100%', 
+                maxHeight: '100%',
+                objectFit: 'contain', // Enforce no cropping for all views
+                pointerEvents: 'none' 
+              }} 
             />
           </div>
         ))}

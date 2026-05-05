@@ -110,3 +110,13 @@ export async function getUserActivity(userId: string) {
 
   return { posts, cheers, comments };
 }
+
+/**
+ * Fetches a single post by ID with all relations.
+ */
+export async function getPostById(postId: string) {
+  return prisma.post.findUnique({
+    where: { id: postId },
+    include: POST_WITH_FULL_RELATIONS,
+  });
+}
