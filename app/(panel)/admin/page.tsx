@@ -61,14 +61,18 @@ export default async function AdminDashboard() {
               <ForumIcon />
               <span>Moderate User Posts</span>
             </Link>
-            <Link href="/admin/users" className="btn glass" style={{ justifyContent: 'flex-start', border: '1px solid var(--border-color)', gap: '0.75rem' }}>
-              <GroupIcon />
-              <span>Manage Users & Roles</span>
-            </Link>
-            <Link href="/admin/batches" className="btn glass" style={{ justifyContent: 'flex-start', border: '1px solid var(--border-color)', gap: '0.75rem' }}>
-              <SecurityIcon />
-              <span>Edit Batch Standings</span>
-            </Link>
+            {user.role === "ADMIN" && (
+              <>
+                <Link href="/admin/users" className="btn glass" style={{ justifyContent: 'flex-start', border: '1px solid var(--border-color)', gap: '0.75rem' }}>
+                  <GroupIcon />
+                  <span>Manage Users & Roles</span>
+                </Link>
+                <Link href="/admin/batches" className="btn glass" style={{ justifyContent: 'flex-start', border: '1px solid var(--border-color)', gap: '0.75rem' }}>
+                  <SecurityIcon />
+                  <span>Edit Batch Standings</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 

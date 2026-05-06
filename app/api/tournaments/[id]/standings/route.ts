@@ -28,7 +28,16 @@ export async function GET(
     const teams = await prisma.tournamentTeam.findMany({
       where: { tournamentId: id },
       include: {
-        batch: { select: { name: true, logoUrl: true } },
+        batch: { 
+          select: { 
+            name: true, 
+            logoUrl: true,
+            members: {
+              where: { isPlayer: true },
+              select: { id: true, name: true, image: true, teamRole: true, teamDesignation: true }
+            }
+          } 
+        },
         group: { select: { id: true, name: true } },
       },
       orderBy: [{ points: "desc" }, { goalsFor: "desc" }],

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import styles from "./standings.module.css";
+import SquadModal from "./SquadModal";
 
 type TournamentListInfo = { id: string; name: string; isActive: boolean };
 
@@ -18,7 +19,17 @@ type TournamentData = {
 type TournamentTeam = {
   id: string;
   batchId: string;
-  batch: { name: string; logoUrl: string | null };
+  batch: { 
+    name: string; 
+    logoUrl: string | null;
+      members: {
+        id: string;
+        name: string;
+        image: string | null;
+        teamRole: string | null;
+        teamDesignation: string | null;
+      }[];
+  };
   groupId: string | null;
   group: { id: string; name: string } | null;
   points: number;
@@ -49,6 +60,7 @@ export default function StandingsClient({
   const [tournamentData, setTournamentData] = useState<TournamentData | null>(initialTournamentData);
   const [teams, setTeams] = useState<TournamentTeam[]>(initialTeams);
   const [isPending, startTransition] = useTransition();
+  const [selectedSquad, setSelectedSquad] = useState<{ name: string, players: any[] } | null>(null);
 
   function handleTournamentChange(id: string) {
     setSelectedId(id);
@@ -238,6 +250,12 @@ export default function StandingsClient({
                                       <div className={styles.teamLogo} />
                                     )}
                                     <span style={{ fontWeight: "700" }}>{team.batch.name}</span>
+                                    <button 
+                                      className={styles.squadLink}
+                                      onClick={() => setSelectedSquad({ name: team.batch.name, players: team.batch.members })}
+                                    >
+                                      View Squad
+                                    </button>
                                   </div>
                                 </td>
                                 <td>{team.played}</td>
@@ -268,6 +286,14 @@ export default function StandingsClient({
         <div className="glass" style={{ padding: "3rem", textAlign: "center", borderRadius: "12px" }}>
           <p style={{ color: "var(--text-muted)", margin: 0 }}>Select a tournament above to view standings.</p>
         </div>
+      )}
+
+      {selectedSquad && (
+        <SquadModal 
+          teamName={selectedSquad.name}
+          players={selectedSquad.players}
+          onClose={() => setSelectedSquad(null)}
+        />
       )}
     </section>
   );

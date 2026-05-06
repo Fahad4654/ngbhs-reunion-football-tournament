@@ -9,6 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SchoolIcon from '@mui/icons-material/School';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CampaignIcon from '@mui/icons-material/Campaign';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -33,16 +34,18 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
     { name: "Batch Feed", href: "/dashboard/batch-feed", icon: <SchoolIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Manage Batch", href: "/dashboard/manage-batch", icon: <SettingsIcon />, roles: ["BATCH_MANAGER"] },
     { name: "Team Management", href: "/dashboard/team-management", icon: <GroupIcon />, roles: ["BATCH_MANAGER"] },
+    { name: "Match Announcements", href: "/dashboard/announcements", icon: <CampaignIcon />, roles: ["BATCH_MANAGER"] },
     { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN"] },
     { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: <NewspaperIcon />, roles: ["ADMIN", "CO_ADMIN", "BATCH_MANAGER"] },
+    { name: "Update Score", href: "/dashboard/update-score", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN", "SCORER"] },
     { name: "Members", href: "/dashboard/members", icon: <GroupIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Post Moderation", href: "/admin/posts", icon: <ForumIcon />, roles: ["ADMIN", "CO_ADMIN"] },
   ];
 
   const adminOnlyLinks = [
-    { name: "Tournaments", href: "/admin/tournaments", icon: <AssessmentIcon /> },
-    { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon /> },
-    { name: "User Access", href: "/admin/users", icon: <GroupIcon /> },
+    { name: "Tournaments", href: "/admin/tournaments", icon: <AssessmentIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon />, roles: ["ADMIN"] },
+    { name: "User Access", href: "/admin/users", icon: <GroupIcon />, roles: ["ADMIN"] },
   ];
 
   return (
@@ -130,7 +133,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
               <div style={{ fontSize: 'calc(0.8vw * var(--font-scale))', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.4vh', marginLeft: '0.417vw' }}>
                 Administrative
               </div>
-              {adminOnlyLinks.map((link) => {
+              {adminOnlyLinks.filter(l => !l.roles || l.roles.includes(user.role)).map((link) => {
                 const isActive = pathname === link.href;
                 return (
                   <Link 
@@ -209,6 +212,18 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
             <span style={{ whiteSpace: 'nowrap' }}>SIGN OUT</span>
           </button>
         </form>
+      </div>
+
+      {/* Author Credit */}
+      <div style={{ 
+        padding: '1vh 1.5vw', 
+        fontSize: 'calc(0.65vw * var(--font-scale))', 
+        color: 'var(--text-muted)', 
+        textAlign: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.03)',
+        background: 'rgba(10, 11, 13, 0.2)'
+      }}>
+        Developed by <span className="text-gradient" style={{ fontWeight: '700' }}>Fahad</span>
       </div>
     </aside>
   );

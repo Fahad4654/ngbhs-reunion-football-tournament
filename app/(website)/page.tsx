@@ -109,21 +109,25 @@ export default async function Home() {
                   <span style={{ fontSize: 'calc(0.667vw * var(--font-scale))', color: 'var(--text-muted)' }}>{match.venue || 'Main Ground'}</span>
                 </div>
                 
-                <div className={styles.matchTeams}>
-                  <div className={styles.teamRow}>
-                    <div className={styles.teamInfo}>
-                      <div className={styles.teamLogo}></div>
-                      <span style={{ fontWeight: '600' }}>{match.homeTeam.name}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+                  <div style={{ flex: 1, textAlign: 'right' }} className={styles.teamName}>{match.homeTeam.name}</div>
+                  
+                  <div className={styles.scoreBox}>
+                    <div className={styles.score}>
+                      {match.status === 'SCHEDULED' ? 'VS' : `${match.homeScore} - ${match.awayScore}`}
                     </div>
-                    <div className={styles.score}>{match.status === 'SCHEDULED' ? '-' : match.homeScore}</div>
+                    {(match.homePenaltyScore > 0 || match.awayPenaltyScore > 0) && (
+                      <div className={styles.penaltyText}>
+                        ({match.homePenaltyScore}-{match.awayPenaltyScore} Pen)
+                      </div>
+                    )}
                   </div>
-                  <div className={styles.teamRow}>
-                    <div className={styles.teamInfo}>
-                      <div className={styles.teamLogo}></div>
-                      <span style={{ fontWeight: '600' }}>{match.awayTeam.name}</span>
-                    </div>
-                    <div className={styles.score}>{match.status === 'SCHEDULED' ? '-' : match.awayScore}</div>
-                  </div>
+
+                  <div style={{ flex: 1, textAlign: 'left' }} className={styles.teamName}>{match.awayTeam.name}</div>
+                </div>
+
+                <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                  {new Date(match.date).toLocaleDateString([], { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {match.venue || 'TBD'}
                 </div>
               </div>
             )) : (
