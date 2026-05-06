@@ -303,3 +303,56 @@ export async function deleteMatchEvent(eventId: string) {
     return { success: false, error: error.message };
   }
 }
+
+export async function updateMatchEvent(
+  eventId: string,
+  data: {
+    minute?: number;
+    playerId?: string;
+    teamId?: string;
+    note?: string;
+  }
+) {
+  const user = await getServerUser();
+  if (!isScorer(user?.role)) return { success: false, error: "Unauthorized" };
+
+  try {
+    const oldEvent = await prisma.matchEvent.findUnique({ where: { id: eventId } });
+    if (!oldEvent) return { success: false, error: "Event not found" };
+
+    const event = await prisma.matchEvent.update({
+      where: { id: eventId },
+      data: {
+        minute: data.minute ?? oldEvent.minute,
+        playerId: data.playerId ?? oldEvent.playerId,
+        teamId: data.teamId ?? oldEvent.teamId,
+        note: data.note ?? oldEvent.note,
+      }
+    });
+
+    // If teamId changed and it's a goal, we'd need to adjust scores. 
+    // But usually only player/minute changes in an edit.
+    // To keep it simple, if teamId changes, we handle score logic:
+    if (oldEvent.type === 'GOAL' && data.teamId && data.teamId !== oldEvent.teamId) {
+       const match = await prisma.match.findUnique({ where: { id: oldEvent.matchId } });
+       if (match) {
+         // Deduct from old team, add to new team
+         const wasHome = match.homeTeamId === oldEvent.teamId;
+         await prisma.match.update({
+           where: { id: oldEvent.matchId },
+           data: {
+             homeScore: wasHome ? Math.max(0, match.homeScore - 1) : match.homeScore + 1,
+             awayScore: !wasHome ? Math.max(0, match.awayScore - 1) : match.awayScore + 1,
+           }
+         });
+       }
+    }
+
+    revalidatePath(`/matches/${oldEvent.matchId}`);
+    revalidatePath("/dashboard/update-score");
+    return { success: true, data: event };
+  } catch (error: any) {
+    console.error("[updateMatchEvent]", error);
+    return { success: false, error: error.message };
+  }
+}
