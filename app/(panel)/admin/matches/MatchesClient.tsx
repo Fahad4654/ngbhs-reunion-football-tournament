@@ -4,7 +4,13 @@ import { useState, useTransition } from "react";
 import { createMatch, updateMatch, deleteMatch } from "@/lib/actions/match.actions";
 
 type Batch = { id: string; name: string };
-type Tournament = { id: string; name: string; isActive: boolean };
+type Tournament = { 
+  id: string; 
+  name: string; 
+  isActive: boolean;
+  teams: { batchId: string; groupId: string | null }[];
+  groups: { id: string; name: string }[];
+};
 type Match = {
   id: string;
   date: Date;
@@ -134,6 +140,26 @@ export default function MatchesClient({
     e.preventDefault();
     if (!form.homeTeamId || !form.awayTeamId) { setError("Both teams are required"); return; }
     if (form.homeTeamId === form.awayTeamId) { setError("Home and away team cannot be the same"); return; }
+    
+    // Group Validation
+    if (form.tournamentId) {
+      const tournament = tournaments.find(t => t.id === form.tournamentId);
+      if (tournament) {
+        const homeTeam = tournament.teams.find(t => t.batchId === form.homeTeamId);
+        const awayTeam = tournament.teams.find(t => t.batchId === form.awayTeamId);
+        
+        if (!homeTeam || !awayTeam) {
+          setError("One or both teams are not registered for this tournament");
+          return;
+        }
+        
+        if (homeTeam.groupId !== awayTeam.groupId) {
+          setError("Teams must be in the same group for this tournament");
+          return;
+        }
+      }
+    }
+    
     setError("");
 
     startTransition(async () => {
@@ -204,12 +230,26 @@ export default function MatchesClient({
 
           <form onSubmit={handleSubmit}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              {/* Tournament - Now at the Top */}
+              <div style={{ gridColumn: "span 2" }}>
+                <label style={labelStyle}>Tournament</label>
+                <select value={form.tournamentId} onChange={(e) => set("tournamentId", e.target.value)} style={inputStyle}>
+                  <option value="">— Generic Match (No Tournament) —</option>
+                  {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " 🟢" : ""}</option>)}
+                </select>
+                {form.tournamentId && <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--accent-primary)", fontWeight: "600" }}>ℹ️ Team selection below will be restricted to this tournament's groups.</p>}
+              </div>
+
               {/* Home Team */}
               <div>
                 <label style={labelStyle}>Home Team</label>
                 <select value={form.homeTeamId} onChange={(e) => set("homeTeamId", e.target.value)} required style={inputStyle}>
                   <option value="">— Select —</option>
-                  {batches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  {batches.filter(b => {
+                    if (!form.tournamentId) return true;
+                    const tournament = tournaments.find(t => t.id === form.tournamentId);
+                    return tournament?.teams.some(t => t.batchId === b.id);
+                  }).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </div>
 
@@ -218,7 +258,22 @@ export default function MatchesClient({
                 <label style={labelStyle}>Away Team</label>
                 <select value={form.awayTeamId} onChange={(e) => set("awayTeamId", e.target.value)} required style={inputStyle}>
                   <option value="">— Select —</option>
-                  {batches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  {batches.filter(b => {
+                    if (!form.tournamentId) return true;
+                    const tournament = tournaments.find(t => t.id === form.tournamentId);
+                    if (!tournament) return false;
+                    
+                    const isRegistered = tournament.teams.some(t => t.batchId === b.id);
+                    if (!isRegistered) return false;
+
+                    // If home team selected, filter by group
+                    if (form.homeTeamId) {
+                      const homeTeamInfo = tournament.teams.find(t => t.batchId === form.homeTeamId);
+                      const awayTeamInfo = tournament.teams.find(t => t.batchId === b.id);
+                      return homeTeamInfo?.groupId === awayTeamInfo?.groupId;
+                    }
+                    return true;
+                  }).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </div>
 
@@ -232,15 +287,6 @@ export default function MatchesClient({
               <div>
                 <label style={labelStyle}>Venue</label>
                 <input type="text" value={form.venue} onChange={(e) => set("venue", e.target.value)} placeholder="e.g. Main Stadium" style={inputStyle} />
-              </div>
-
-              {/* Tournament */}
-              <div>
-                <label style={labelStyle}>Tournament</label>
-                <select value={form.tournamentId} onChange={(e) => set("tournamentId", e.target.value)} style={inputStyle}>
-                  <option value="">— None —</option>
-                  {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " 🟢" : ""}</option>)}
-                </select>
               </div>
 
               {/* Status */}

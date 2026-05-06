@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateMatchSquad } from '@/lib/actions/match-squad.actions';
 import { toast } from 'react-hot-toast';
 import CloseIcon from '@mui/icons-material/Close';
@@ -29,6 +30,7 @@ export default function MatchAnnouncementsClient({ batchId, matches, allPlayers 
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [squad, setSquad] = useState<{ userId: string, status: 'STARTER' | 'SUBSTITUTE' }[]>([]);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function openModal(match: Match) {
     setSelectedMatch(match);
@@ -53,13 +55,18 @@ export default function MatchAnnouncementsClient({ batchId, matches, allPlayers 
   function handleSave() {
     if (!selectedMatch) return;
     startTransition(async () => {
-      const res = await updateMatchSquad(selectedMatch.id, batchId, squad);
-      if (res.success) {
-        toast.success('Match squad announced successfully!');
-        setSelectedMatch(null);
-        window.location.reload(); // Simple way to refresh the page data
-      } else {
-        toast.error(res.error || 'Failed to update squad');
+      try {
+        const res = await updateMatchSquad(selectedMatch.id, batchId, squad);
+        if (res.success) {
+          toast.success('Match squad announced successfully!');
+          setSelectedMatch(null);
+          router.refresh();
+        } else {
+          toast.error(res.error || 'Failed to update squad');
+        }
+      } catch (err: any) {
+        console.error('Action error:', err);
+        toast.error('An unexpected error occurred. Please try again.');
       }
     });
   }

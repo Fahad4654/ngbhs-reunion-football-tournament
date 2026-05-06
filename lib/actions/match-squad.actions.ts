@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { getServerUser } from '@/lib/server-auth';
 import { revalidatePath } from 'next/cache';
+import { MatchPlayerStatus } from '@prisma/client';
 
 export async function getUpcomingMatchesForBatch(batchId: string) {
   try {
@@ -52,7 +53,7 @@ export async function getMatchSquad(matchId: string, batchId: string) {
 export async function updateMatchSquad(
   matchId: string, 
   batchId: string, 
-  players: { userId: string, status: 'STARTER' | 'SUBSTITUTE' }[]
+  players: { userId: string, status: MatchPlayerStatus }[]
 ) {
   const user = await getServerUser();
   if (!user || (user.role !== 'BATCH_MANAGER' && user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {

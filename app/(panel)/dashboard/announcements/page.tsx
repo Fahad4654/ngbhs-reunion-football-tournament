@@ -44,6 +44,12 @@ export default async function MatchAnnouncementsPage() {
     orderBy: { date: 'asc' }
   });
 
+  // Serialize dates for client component
+  const serializedMatches = upcomingMatches.map(match => ({
+    ...match,
+    date: match.date.toISOString(),
+  }));
+
   const squadMembers = await prisma.user.findMany({
     where: { batchId: dbUser.batchId, isPlayer: true, status: 'APPROVED' },
     select: { id: true, name: true, image: true, teamRole: true, teamDesignation: true }
@@ -72,7 +78,7 @@ export default async function MatchAnnouncementsPage() {
 
       <MatchAnnouncementsClient 
         batchId={dbUser.batchId} 
-        matches={upcomingMatches} 
+        matches={serializedMatches} 
         allPlayers={squadMembers} 
       />
     </div>
