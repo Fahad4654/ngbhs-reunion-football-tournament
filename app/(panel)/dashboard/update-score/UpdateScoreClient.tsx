@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateMatchScore, logMatchEvent, updateMatchClock, updateMatchStats } from '@/lib/actions/match.actions';
+import { updateMatchScore, logMatchEvent, updateMatchClock, updateMatchStats, deleteMatchEvent } from '@/lib/actions/match.actions';
 import { toast } from 'react-hot-toast';
 import SaveIcon from '@mui/icons-material/Save';
 import SensorsIcon from '@mui/icons-material/Sensors';
@@ -38,6 +38,7 @@ type Match = {
   awayCorners: number;
   homeOffsides: number;
   awayOffsides: number;
+  events?: any[];
 };
 
 export default function UpdateScoreClient({ initialMatches }: { initialMatches: Match[] }) {
@@ -106,6 +107,17 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
       if (res.success) {
         toast.success(`${type} logged!`);
         setEventModal(null);
+        router.refresh();
+      } else toast.error(res.error);
+    });
+  }
+
+  async function handleDeleteEvent(eventId: string) {
+    if (!confirm('Are you sure you want to delete this event? This will revert the score if it was a goal.')) return;
+    startTransition(async () => {
+      const res = await deleteMatchEvent(eventId);
+      if (res.success) {
+        toast.success('Event deleted');
         router.refresh();
       } else toast.error(res.error);
     });
@@ -266,6 +278,32 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                          const res = await updateMatchStats(match.id, match);
                          if (res.success) toast.success('Stats updated');
                       })} className="btn glass" style={{ fontSize: '0.7rem' }}>Save Stats</button>
+                   </div>
+                </div>
+
+                {/* Event History Section */}
+                <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+                   <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}>RECENT EVENTS</div>
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {match.events?.length === 0 ? (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>No events logged yet.</div>
+                      ) : (
+                        match.events?.map((event: any) => (
+                          <div key={event.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.5rem 1rem', borderRadius: '8px' }}>
+                             <div style={{ fontSize: '0.8rem', fontWeight: '700' }}>
+                                <span style={{ color: 'var(--accent-primary)', marginRight: '0.5rem' }}>{event.minute}'</span>
+                                {event.type} — {event.player?.name} ({event.team?.name})
+                             </div>
+                             <button 
+                                onClick={() => handleDeleteEvent(event.id)}
+                                className="btn glass"
+                                style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem', color: 'var(--accent-danger)' }}
+                             >
+                                Delete
+                             </button>
+                          </div>
+                        ))
+                      )}
                    </div>
                 </div>
               </div>

@@ -267,3 +267,39 @@ export async function updateMatchStats(
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteMatchEvent(eventId: string) {
+  const user = await getServerUser();
+  if (!isScorer(user?.role)) return { success: false, error: "Unauthorized" };
+
+  try {
+    const event = await prisma.matchEvent.findUnique({ where: { id: eventId } });
+    if (!event) return { success: false, error: "Event not found" };
+
+    // If it was a goal, decrement the score
+    if (event.type === 'GOAL' && event.teamId) {
+      const match = await prisma.match.findUnique({ where: { id: event.matchId } });
+      if (match) {
+        const isHome = match.homeTeamId === event.teamId;
+        await prisma.match.update({
+          where: { id: event.matchId },
+          data: {
+            homeScore: isHome ? Math.max(0, match.homeScore - 1) : match.homeScore,
+            awayScore: !isHome ? Math.max(0, match.awayScore - 1) : match.awayScore,
+          }
+        });
+      }
+    }
+
+    await prisma.matchEvent.delete({ where: { id: eventId } });
+
+    revalidatePath(`/matches/${event.matchId}`);
+    revalidatePath("/dashboard/update-score");
+    revalidatePath("/dashboard/scores");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error: any) {
+    console.error("[deleteMatchEvent]", error);
+    return { success: false, error: error.message };
+  }
+}

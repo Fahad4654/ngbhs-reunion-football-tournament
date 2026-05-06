@@ -36,6 +36,13 @@ export default async function UpdateScorePage() {
         include: { 
           user: { select: { id: true, name: true, teamRole: true, teamDesignation: true } } 
         }
+      },
+      events: {
+        include: {
+          player: { select: { name: true } },
+          team: { select: { name: true } }
+        },
+        orderBy: { minute: 'desc' }
       }
     },
     orderBy: [
