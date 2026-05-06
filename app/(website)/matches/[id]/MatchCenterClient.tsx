@@ -46,7 +46,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
     if (match.status === 'LIVE' || match.status === 'SCHEDULED') {
       const interval = setInterval(async () => {
         try {
-          const res = await fetch(`/api/matches/${match.id}`);
+          const res = await fetch(`/api/matches/${match.id}`, { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
             setMatch(data);
