@@ -73,10 +73,17 @@ export default async function MatchesPage() {
                   {match.status === 'SCHEDULED' ? (
                     <span style={{ fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', color: 'var(--text-muted)' }}>VS</span>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                      <span>{match.homeScore}</span>
-                      <span style={{ opacity: 0.3 }}>-</span>
-                      <span>{match.awayScore}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <span>{match.homeScore}</span>
+                        <span style={{ opacity: 0.3 }}>-</span>
+                        <span>{match.awayScore}</span>
+                      </div>
+                      {(match.homePenaltyScore > 0 || match.awayPenaltyScore > 0) && (
+                        <div style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--accent-primary)', marginTop: '0.2rem' }}>
+                          ({match.homePenaltyScore} - {match.awayPenaltyScore} Pen)
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -115,14 +115,20 @@ export default async function Home() {
                       <div className={styles.teamLogo}></div>
                       <span style={{ fontWeight: '600' }}>{match.homeTeam.name}</span>
                     </div>
-                    <div className={styles.score}>{match.status === 'SCHEDULED' ? '-' : match.homeScore}</div>
+                    <div className={styles.score}>
+                      {match.status === 'SCHEDULED' ? '-' : match.homeScore}
+                      {match.homePenaltyScore > 0 && <span style={{ fontSize: '0.8em', color: 'var(--accent-primary)', marginLeft: '4px' }}>({match.homePenaltyScore})</span>}
+                    </div>
                   </div>
                   <div className={styles.teamRow}>
                     <div className={styles.teamInfo}>
                       <div className={styles.teamLogo}></div>
                       <span style={{ fontWeight: '600' }}>{match.awayTeam.name}</span>
                     </div>
-                    <div className={styles.score}>{match.status === 'SCHEDULED' ? '-' : match.awayScore}</div>
+                    <div className={styles.score}>
+                      {match.status === 'SCHEDULED' ? '-' : match.awayScore}
+                      {match.awayPenaltyScore > 0 && <span style={{ fontSize: '0.8em', color: 'var(--accent-primary)', marginLeft: '4px' }}>({match.awayPenaltyScore})</span>}
+                    </div>
                   </div>
                 </div>
               </div>
