@@ -36,7 +36,7 @@ export default async function MatchAnnouncementsPage() {
       homeTeam: { select: { id: true, name: true, logoUrl: true } },
       awayTeam: { select: { id: true, name: true, logoUrl: true } },
       tournament: { select: { name: true } },
-      squadMembers: {
+      matchSquads: {
         where: { batchId: dbUser.batchId },
         include: { user: { select: { id: true, name: true, image: true, teamRole: true, teamDesignation: true } } }
       }
@@ -48,6 +48,7 @@ export default async function MatchAnnouncementsPage() {
   const serializedMatches = upcomingMatches.map(match => ({
     ...match,
     date: match.date.toISOString(),
+    squadMembers: (match as any).matchSquads || []
   }));
 
   const squadMembers = await prisma.user.findMany({
