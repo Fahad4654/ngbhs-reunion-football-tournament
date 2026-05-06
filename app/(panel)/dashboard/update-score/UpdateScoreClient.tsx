@@ -82,6 +82,16 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
     setMatches(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
   }
 
+  // New: Auto-save stats
+  async function autoSaveStats(matchId: string) {
+    const match = matches.find(m => m.id === matchId);
+    if (!match) return;
+    startTransition(async () => {
+      await updateMatchStats(matchId, match);
+      // No toast for auto-save to avoid spam
+    });
+  }
+
   function getDisplayMinute(match: Match) {
     if (match.status === 'LIVE' && match.clockRunning && match.clockStartedAt) {
       const elapsedMs = new Date().getTime() - new Date(match.clockStartedAt).getTime();
@@ -294,26 +304,25 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
 
                   {/* Stats Section */}
                   <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}><BarChartIcon fontSize="small" /> LIVE STATS</div>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}><BarChartIcon fontSize="small" /> LIVE STATS (AUTO-SAVES)</div>
                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 150px 1fr', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
                           <div style={{ display: 'flex', justifyContent: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                              <button onClick={() => { const v = Math.max(0, match.homePossession - 1); updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
-                              <input type="number" value={match.homePossession} onChange={(e) => { const v = parseInt(e.target.value) || 0; updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                              <button onClick={() => { const v = Math.max(0, match.homePossession - 1); updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); autoSaveStats(match.id); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+                              <input type="number" value={match.homePossession} onChange={(e) => { const v = parseInt(e.target.value) || 0; updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); autoSaveStats(match.id); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
                               <span>%</span>
-                              <button onClick={() => { const v = Math.min(100, match.homePossession + 1); updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+                              <button onClick={() => { const v = Math.min(100, match.homePossession + 1); updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); autoSaveStats(match.id); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
                             </div>
                           </div>
                           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>POSSESSION</div>
                           <div style={{ fontWeight: '900', color: 'var(--accent-primary)' }}>{match.awayPossession}%</div>
                         </div>
-                        <StatUpdateRow label="TOTAL SHOTS" homeKey="homeShots" awayKey="awayShots" match={match} updateLocal={updateLocal} />
-                        <StatUpdateRow label="SHOTS ON TARGET" homeKey="homeShotsOnTarget" awayKey="awayShotsOnTarget" match={match} updateLocal={updateLocal} />
-                        <StatUpdateRow label="CORNERS" homeKey="homeCorners" awayKey="awayCorners" match={match} updateLocal={updateLocal} />
-                        <StatUpdateRow label="OFFSIDES" homeKey="homeOffsides" awayKey="awayOffsides" match={match} updateLocal={updateLocal} />
+                        <StatUpdateRow label="TOTAL SHOTS" homeKey="homeShots" awayKey="awayShots" match={match} updateLocal={updateLocal} onUpdate={() => autoSaveStats(match.id)} />
+                        <StatUpdateRow label="SHOTS ON TARGET" homeKey="homeShotsOnTarget" awayKey="awayShotsOnTarget" match={match} updateLocal={updateLocal} onUpdate={() => autoSaveStats(match.id)} />
+                        <StatUpdateRow label="CORNERS" homeKey="homeCorners" awayKey="awayCorners" match={match} updateLocal={updateLocal} onUpdate={() => autoSaveStats(match.id)} />
+                        <StatUpdateRow label="OFFSIDES" homeKey="homeOffsides" awayKey="awayOffsides" match={match} updateLocal={updateLocal} onUpdate={() => autoSaveStats(match.id)} />
                      </div>
-                     <div style={{ textAlign: 'center', marginTop: '2rem' }}><button onClick={() => startTransition(async () => { const res = await updateMatchStats(match.id, match); if (res.success) toast.success('All stats updated'); })} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.6rem 2rem' }}>Save All Stats</button></div>
                   </div>
 
                   {/* Event History Section */}
@@ -371,22 +380,22 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   );
 }
 
-function StatUpdateRow({ label, homeKey, awayKey, match, updateLocal }: any) {
+function StatUpdateRow({ label, homeKey, awayKey, match, updateLocal, onUpdate }: any) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 150px 1fr', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-          <button onClick={() => updateLocal(match.id, homeKey, Math.max(0, match[homeKey] - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
-          <input type="number" value={match[homeKey]} onChange={(e) => updateLocal(match.id, homeKey, parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-          <button onClick={() => updateLocal(match.id, homeKey, match[homeKey] + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+          <button onClick={() => { updateLocal(match.id, homeKey, Math.max(0, match[homeKey] - 1)); onUpdate(); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+          <input type="number" value={match[homeKey]} onChange={(e) => { updateLocal(match.id, homeKey, parseInt(e.target.value) || 0); onUpdate(); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+          <button onClick={() => { updateLocal(match.id, homeKey, match[homeKey] + 1); onUpdate(); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
         </div>
       </div>
       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>{label}</div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-          <button onClick={() => updateLocal(match.id, awayKey, Math.max(0, match[awayKey] - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
-          <input type="number" value={match[awayKey]} onChange={(e) => updateLocal(match.id, awayKey, parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-          <button onClick={() => updateLocal(match.id, awayKey, match[awayKey] + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+          <button onClick={() => { updateLocal(match.id, awayKey, Math.max(0, match[awayKey] - 1)); onUpdate(); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+          <input type="number" value={match[awayKey]} onChange={(e) => { updateLocal(match.id, awayKey, parseInt(e.target.value) || 0); onUpdate(); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+          <button onClick={() => { updateLocal(match.id, awayKey, match[awayKey] + 1); onUpdate(); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
         </div>
       </div>
     </div>

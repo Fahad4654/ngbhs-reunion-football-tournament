@@ -54,7 +54,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
         } catch (error) {
           console.error('Failed to fetch match updates', error);
         }
-      }, 15000);
+      }, 5000); // 5 seconds for live matches
       return () => clearInterval(interval);
     }
   }, [match.id, match.status]);
