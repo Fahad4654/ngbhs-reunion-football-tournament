@@ -7,6 +7,7 @@ interface Player {
   name: string;
   image: string | null;
   teamRole: string | null;
+  teamDesignation: string | null;
 }
 
 interface SquadModalProps {
@@ -118,7 +119,24 @@ export default function SquadModal({ teamName, players, onClose }: SquadModalPro
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '700', fontSize: '1.05rem' }}>{player.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <div style={{ color: 'white', fontWeight: '700', fontSize: '1.05rem' }}>{player.name}</div>
+                      {player.teamDesignation && (
+                        <span style={{ 
+                          fontSize: '0.65rem', 
+                          padding: '0.15rem 0.5rem', 
+                          background: 'rgba(56, 189, 248, 0.1)', 
+                          color: '#38bdf8', 
+                          border: '1px solid rgba(56, 189, 248, 0.3)', 
+                          borderRadius: '4px',
+                          fontWeight: '800',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.02em'
+                        }}>
+                          {player.teamDesignation}
+                        </span>
+                      )}
+                    </div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: '700', marginTop: '2px' }}>
                       {player.teamRole || 'Player'}
                     </div>

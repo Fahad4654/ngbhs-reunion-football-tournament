@@ -34,7 +34,7 @@ export async function GET(
             logoUrl: true,
             members: {
               where: { isPlayer: true },
-              select: { id: true, name: true, image: true, teamRole: true }
+              select: { id: true, name: true, image: true, teamRole: true, teamDesignation: true }
             }
           } 
         },

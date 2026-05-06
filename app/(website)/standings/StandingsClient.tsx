@@ -22,12 +22,13 @@ type TournamentTeam = {
   batch: { 
     name: string; 
     logoUrl: string | null;
-    members: {
-      id: string;
-      name: string;
-      image: string | null;
-      teamRole: string | null;
-    }[];
+      members: {
+        id: string;
+        name: string;
+        image: string | null;
+        teamRole: string | null;
+        teamDesignation: string | null;
+      }[];
   };
   groupId: string | null;
   group: { id: string; name: string } | null;
