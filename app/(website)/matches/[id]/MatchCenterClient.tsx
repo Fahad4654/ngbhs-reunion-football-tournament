@@ -43,7 +43,6 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
     return () => clearInterval(interval);
   }, [match.currentMinute, match.clockRunning, match.clockStartedAt, match.status]);
 
-  // Polling for live updates (every 5 seconds for live matches)
   useEffect(() => {
     if (match.status === 'LIVE' || match.status === 'SCHEDULED') {
       const interval = setInterval(async () => {
@@ -70,6 +69,8 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
       default: return <AccessTimeIcon />;
     }
   };
+
+  const hasPenalties = match.penaltySequence && match.penaltySequence.length > 0;
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem' }}>
@@ -103,7 +104,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
             </div>
             
             {/* Penalty Score Display */}
-            {match.matchPeriod === 'PENALTIES' && (
+            {(match.matchPeriod === 'PENALTIES' || hasPenalties) && (
               <div style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)', marginTop: '-1rem', marginBottom: '1rem' }}>
                 ({match.homePenaltyScore}) PEN ({match.awayPenaltyScore})
               </div>
@@ -134,30 +135,37 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
           </div>
         </div>
 
-        {/* Penalty Visual Tracker for Fans */}
-        {match.matchPeriod === 'PENALTIES' && (
-           <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '4rem' }}>
-              <div style={{ textAlign: 'center' }}>
-                 <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{match.homeTeam.name.toUpperCase()}</div>
-                 <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    {(match.penaltySequence || []).filter((p: any) => p.teamId === match.homeTeam.id).map((p: any, i: number) => (
-                       p.scored ? <SportsSoccerIcon key={i} sx={{ color: '#10b981', fontSize: '1.5rem' }} /> : <HighlightOffIcon key={i} sx={{ color: '#ef4444', fontSize: '1.5rem' }} />
-                    ))}
-                    {Array.from({ length: Math.max(0, 5 - (match.penaltySequence || []).filter((p: any) => p.teamId === match.homeTeam.id).length) }).map((_, i) => (
-                       <CircleIcon key={i} sx={{ color: 'rgba(255,255,255,0.05)', fontSize: '1.5rem' }} />
-                    ))}
-                 </div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                 <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{match.awayTeam.name.toUpperCase()}</div>
-                 <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    {(match.penaltySequence || []).filter((p: any) => p.teamId === match.awayTeam.id).map((p: any, i: number) => (
-                       p.scored ? <SportsSoccerIcon key={i} sx={{ color: '#10b981', fontSize: '1.5rem' }} /> : <HighlightOffIcon key={i} sx={{ color: '#ef4444', fontSize: '1.5rem' }} />
-                    ))}
-                    {Array.from({ length: Math.max(0, 5 - (match.penaltySequence || []).filter((p: any) => p.teamId === match.awayTeam.id).length) }).map((_, i) => (
-                       <CircleIcon key={i} sx={{ color: 'rgba(255,255,255,0.05)', fontSize: '1.5rem' }} />
-                    ))}
-                 </div>
+        {/* Penalty Visual Tracker with Player Names */}
+        {(match.matchPeriod === 'PENALTIES' || hasPenalties) && (
+           <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', background: 'rgba(255,255,255,0.02)', padding: '2rem', borderRadius: '20px' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Penalty Shootout Tracker</div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
+                {/* Home Team Penalties */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                   <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)' }}>{match.homeTeam.name.toUpperCase()}</div>
+                   <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {(match.penaltySequence || []).filter((p: any) => p.teamId === match.homeTeam.id).map((p: any, i: number) => (
+                         <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', width: '60px' }}>
+                            {p.scored ? <SportsSoccerIcon sx={{ color: '#10b981', fontSize: '1.8rem' }} /> : <HighlightOffIcon sx={{ color: '#ef4444', fontSize: '1.8rem' }} />}
+                            <div style={{ fontSize: '0.65rem', fontWeight: '700', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.playerName}</div>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+
+                {/* Away Team Penalties */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                   <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)' }}>{match.awayTeam.name.toUpperCase()}</div>
+                   <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {(match.penaltySequence || []).filter((p: any) => p.teamId === match.awayTeam.id).map((p: any, i: number) => (
+                         <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', width: '60px' }}>
+                            {p.scored ? <SportsSoccerIcon sx={{ color: '#10b981', fontSize: '1.8rem' }} /> : <HighlightOffIcon sx={{ color: '#ef4444', fontSize: '1.8rem' }} />}
+                            <div style={{ fontSize: '0.65rem', fontWeight: '700', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.playerName}</div>
+                         </div>
+                      ))}
+                   </div>
+                </div>
               </div>
            </div>
         )}

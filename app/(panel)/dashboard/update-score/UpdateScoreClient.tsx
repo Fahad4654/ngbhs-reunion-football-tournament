@@ -231,6 +231,8 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
       ) : (
         matches.map((match) => {
           const displayMinute = getDisplayMinute(match);
+          const hasPenalties = match.penaltySequence && match.penaltySequence.length > 0;
+          
           return (
             <div key={match.id} className="glass" style={{ 
               padding: '1.5rem', 
@@ -282,12 +284,14 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                 </div>
               </div>
 
-              {/* Penalty Shootout Tracker */}
-              {match.matchPeriod === 'PENALTIES' && (
+              {/* Penalty Shootout Tracker (Visible if Period is Penalties OR if Penalties have been recorded) */}
+              {(match.matchPeriod === 'PENALTIES' || hasPenalties) && (
                 <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '16px', border: '1px solid var(--accent-primary)' }}>
                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                       <div style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--accent-primary)' }}>PENALTY SHOOTOUT</div>
-                      <button onClick={() => setPenaltyModal({ matchId: match.id })} className="btn btn-primary" style={{ fontSize: '0.7rem', padding: '0.4rem 1rem' }}>+ Record Penalty</button>
+                      {match.status !== 'FINISHED' && (
+                        <button onClick={() => setPenaltyModal({ matchId: match.id })} className="btn btn-primary" style={{ fontSize: '0.7rem', padding: '0.4rem 1rem' }}>+ Record Penalty</button>
+                      )}
                    </div>
                    
                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
@@ -297,7 +301,9 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                            {(match.penaltySequence || []).filter(p => p.teamId === match.homeTeam.id).map((p, i) => (
                              <div key={p.id} style={{ position: 'relative' }}>
                                 {p.scored ? <SportsSoccerIcon sx={{ color: '#10b981' }} /> : <HighlightOffIcon sx={{ color: '#ef4444' }} />}
-                                <button onClick={() => handleDeletePenalty(match.id, p.id)} style={{ position: 'absolute', top: -5, right: -5, background: 'black', border: 'none', color: 'white', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer' }}>x</button>
+                                {match.status !== 'FINISHED' && (
+                                  <button onClick={() => handleDeletePenalty(match.id, p.id)} style={{ position: 'absolute', top: -5, right: -5, background: 'black', border: 'none', color: 'white', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer' }}>x</button>
+                                )}
                              </div>
                            ))}
                            {Array.from({ length: Math.max(0, 5 - (match.penaltySequence || []).filter(p => p.teamId === match.homeTeam.id).length) }).map((_, i) => (
@@ -311,7 +317,9 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                            {(match.penaltySequence || []).filter(p => p.teamId === match.awayTeam.id).map((p, i) => (
                              <div key={p.id} style={{ position: 'relative' }}>
                                 {p.scored ? <SportsSoccerIcon sx={{ color: '#10b981' }} /> : <HighlightOffIcon sx={{ color: '#ef4444' }} />}
-                                <button onClick={() => handleDeletePenalty(match.id, p.id)} style={{ position: 'absolute', top: -5, right: -5, background: 'black', border: 'none', color: 'white', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer' }}>x</button>
+                                {match.status !== 'FINISHED' && (
+                                  <button onClick={() => handleDeletePenalty(match.id, p.id)} style={{ position: 'absolute', top: -5, right: -5, background: 'black', border: 'none', color: 'white', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer' }}>x</button>
+                                )}
                              </div>
                            ))}
                            {Array.from({ length: Math.max(0, 5 - (match.penaltySequence || []).filter(p => p.teamId === match.awayTeam.id).length) }).map((_, i) => (
