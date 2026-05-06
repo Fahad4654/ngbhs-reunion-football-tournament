@@ -11,14 +11,23 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 export default function MatchCenterClient({ initialMatch }: { initialMatch: any }) {
   const [match, setMatch] = useState(initialMatch);
 
+  const [displayMinute, setDisplayMinute] = useState(match.currentMinute);
+
   useEffect(() => {
-    if (match.status === 'LIVE' && match.clockRunning) {
-      const interval = setInterval(() => {
-        setMatch((prev: any) => ({ ...prev, currentMinute: prev.currentMinute + 1 }));
-      }, 60000);
-      return () => clearInterval(interval);
-    }
-  }, [match.status, match.clockRunning]);
+    const calculateMinute = () => {
+      if (match.status === 'LIVE' && match.clockRunning && match.clockStartedAt) {
+        const elapsedMs = new Date().getTime() - new Date(match.clockStartedAt).getTime();
+        const elapsedMins = Math.floor(elapsedMs / 60000);
+        setDisplayMinute(match.currentMinute + elapsedMins);
+      } else {
+        setDisplayMinute(match.currentMinute);
+      }
+    };
+
+    calculateMinute();
+    const interval = setInterval(calculateMinute, 10000); // Check every 10s
+    return () => clearInterval(interval);
+  }, [match.currentMinute, match.clockRunning, match.clockStartedAt, match.status]);
 
   // Polling for live updates (every 15 seconds)
   useEffect(() => {
@@ -81,7 +90,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
             {match.status === 'LIVE' ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                 <div style={{ background: 'rgba(239, 68, 68, 0.2)', color: 'var(--accent-danger)', padding: '0.3rem 1rem', borderRadius: '20px', fontWeight: '900', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="live-dot" /> {match.currentMinute}' {match.injuryTime > 0 ? `+${match.injuryTime}` : ''}
+                   <span className="live-dot" /> {displayMinute}' {match.injuryTime > 0 ? `+${match.injuryTime}` : ''}
                 </div>
                 <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Live Match</div>
               </div>
