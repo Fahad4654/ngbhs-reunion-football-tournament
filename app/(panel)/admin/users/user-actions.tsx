@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 
 interface UserActionsProps {
   userId: string;
-  currentRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'ADMIN';
+  currentRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'ADMIN' | 'SCORER';
 }
 
 export default function UserActions({ userId, currentRole }: UserActionsProps) {
@@ -25,7 +25,7 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
     setConfirmState({ isOpen: false, message: '', onConfirm: null });
   };
 
-  const handleRoleChange = async (newRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER') => {
+  const handleRoleChange = async (newRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER') => {
     setIsPending(true);
     const promise = updateUserRoleAction(userId, newRole).then(res => {
       if (res.error) throw new Error(res.error);
@@ -73,7 +73,7 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
         {currentRole !== 'ADMIN' && (
           <select 
             value={currentRole}
-            onChange={(e) => handleRoleChange(e.target.value as 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER')}
+            onChange={(e) => handleRoleChange(e.target.value as 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER')}
             disabled={isPending}
             className="glass"
             style={{ 
@@ -91,6 +91,7 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
           >
             <option value="USER" style={{ color: 'black' }}>Role: User</option>
             <option value="BATCH_MANAGER" style={{ color: 'black' }}>Role: Batch Manager</option>
+            <option value="SCORER" style={{ color: 'black' }}>Role: Scorer</option>
             <option value="CO_ADMIN" style={{ color: 'black' }}>Role: Co-Admin</option>
           </select>
         )}

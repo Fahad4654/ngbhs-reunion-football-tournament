@@ -8,6 +8,10 @@ function isAdmin(role: string | undefined) {
   return role === "ADMIN" || role === "CO_ADMIN";
 }
 
+function isScorer(role: string | undefined) {
+  return role === "ADMIN" || role === "CO_ADMIN" || role === "SCORER";
+}
+
 export async function createMatch(data: {
   homeTeamId: string;
   awayTeamId: string;
@@ -104,6 +108,40 @@ export async function deleteMatch(id: string) {
     return { success: true };
   } catch (error: any) {
     console.error("[deleteMatch]", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateMatchScore(
+  id: string,
+  data: {
+    status: string;
+    homeScore: number;
+    awayScore: number;
+  }
+) {
+  const user = await getServerUser();
+  if (!isScorer(user?.role)) return { success: false, error: "Unauthorized" };
+
+  try {
+    const match = await prisma.match.update({
+      where: { id },
+      data: {
+        status: data.status as any,
+        homeScore: data.homeScore,
+        awayScore: data.awayScore,
+      },
+      include: { homeTeam: true, awayTeam: true, tournament: true },
+    });
+
+    revalidatePath("/dashboard/update-score");
+    revalidatePath("/admin/matches");
+    revalidatePath("/dashboard/scores");
+    revalidatePath("/matches");
+    revalidatePath("/");
+    return { success: true, data: match };
+  } catch (error: any) {
+    console.error("[updateMatchScore]", error);
     return { success: false, error: error.message };
   }
 }

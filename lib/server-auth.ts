@@ -7,7 +7,7 @@ export interface AppUser {
   email: string | null;
   name: string | null;
   image: string | null;
-  role: 'ADMIN' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'USER';
+  role: 'ADMIN' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'USER' | 'SCORER';
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   occupation: string | null;
   workplace: string | null;

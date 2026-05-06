@@ -82,7 +82,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
 export async function updateUserRoleAction(
   userId: string,
-  newRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'ADMIN'
+  newRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'ADMIN' | 'SCORER'
 ) {
   try {
     const requester = await getServerUser();
