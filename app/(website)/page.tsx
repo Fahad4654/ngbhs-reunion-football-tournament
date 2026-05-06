@@ -127,7 +127,7 @@ export default async function Home() {
                 </div>
 
                 <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '600' }}>
-                  {new Date(match.date).toLocaleDateString([], { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(match.date).toLocaleDateString([], { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {match.venue || 'TBD'}
                 </div>
               </div>
             )) : (

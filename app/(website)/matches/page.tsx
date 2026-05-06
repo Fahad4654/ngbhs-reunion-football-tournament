@@ -88,7 +88,7 @@ export default async function MatchesPage() {
                   )}
                 </div>
                 <div className={styles.venue}>
-                  {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {match.venue || 'TBD'}
+                  {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {match.venue || 'TBD'}
                 </div>
               </div>
 
