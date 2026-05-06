@@ -311,17 +311,6 @@ export default function MatchesClient({
                 </select>
               </div>
 
-              {/* Home Score */}
-              <div>
-                <label style={labelStyle}>Home Score</label>
-                <input type="number" min={0} value={form.homeScore} onChange={(e) => set("homeScore", e.target.value)} style={inputStyle} />
-              </div>
-
-              {/* Away Score */}
-              <div>
-                <label style={labelStyle}>Away Score</label>
-                <input type="number" min={0} value={form.awayScore} onChange={(e) => set("awayScore", e.target.value)} style={inputStyle} />
-              </div>
             </div>
 
             {/* Featured toggle */}
