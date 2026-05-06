@@ -12,31 +12,33 @@ datasource db {
 }
 
 model Batch {
-  id          String   @id @default(cuid())
-  name        String   @unique // e.g., "Batch 2010"
-  slug        String   @unique
-  year        Int      @unique // graduating year, used as primary identifier
-  nickname    String?  // e.g., "The Lions"
-  slogan      String?  // team slogan
-  logoUrl     String?
-  points      Int      @default(0)
-  played      Int      @default(0)
-  won         Int      @default(0)
-  drawn       Int      @default(0)
-  lost        Int      @default(0)
-  goalsFor    Int      @default(0)
-  goalsAgainst Int      @default(0)
-  
-  homeMatches Match[]  @relation("HomeTeam")
-  awayMatches Match[]  @relation("AwayTeam")
-  
+  id           String  @id @default(cuid())
+  name         String  @unique // e.g., "Batch 2010"
+  slug         String  @unique
+  year         Int     @unique // graduating year, used as primary identifier
+  nickname     String? // e.g., "The Lions"
+  slogan       String? // team slogan
+  logoUrl      String?
+  points       Int     @default(0)
+  played       Int     @default(0)
+  won          Int     @default(0)
+  drawn        Int     @default(0)
+  lost         Int     @default(0)
+  goalsFor     Int     @default(0)
+  goalsAgainst Int     @default(0)
+
+  homeMatches Match[] @relation("HomeTeam")
+  awayMatches Match[] @relation("AwayTeam")
+
   tournamentTeams TournamentTeam[]
-  
-  members     User[]   @relation("BatchMembers")
-  followers   User[]   @relation("UserFollows")
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  members     User[]             @relation("BatchMembers")
+  followers   User[]             @relation("UserFollows")
+  matchSquads MatchSquadMember[]
+  matchEvents MatchEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([points(sort: Desc), goalsFor(sort: Desc)])
 }
@@ -45,25 +47,25 @@ model Tournament {
   id          String   @id @default(cuid())
   name        String   @unique
   isActive    Boolean  @default(false)
-  description String?  // about the tournament
+  description String? // about the tournament
   winPoints   Int      @default(3)
   drawPoints  Int      @default(1)
   lossPoints  Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  teams       TournamentTeam[]
-  groups      TournamentGroup[]
-  matches     Match[]
+  teams   TournamentTeam[]
+  groups  TournamentGroup[]
+  matches Match[]
 }
 
 model TournamentGroup {
-  id           String         @id @default(cuid())
+  id           String           @id @default(cuid())
   tournamentId String
-  tournament   Tournament     @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  name         String         // e.g. "Group A"
+  tournament   Tournament       @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name         String // e.g. "Group A"
   teams        TournamentTeam[]
-  createdAt    DateTime       @default(now())
+  createdAt    DateTime         @default(now())
 
   @@unique([tournamentId, name])
 }
@@ -77,43 +79,69 @@ model TournamentTeam {
   groupId      String?
   group        TournamentGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
 
-  points       Int        @default(0)
-  played       Int        @default(0)
-  won          Int        @default(0)
-  drawn        Int        @default(0)
-  lost         Int        @default(0)
-  goalsFor     Int        @default(0)
-  goalsAgainst Int        @default(0)
+  points       Int @default(0)
+  played       Int @default(0)
+  won          Int @default(0)
+  drawn        Int @default(0)
+  lost         Int @default(0)
+  goalsFor     Int @default(0)
+  goalsAgainst Int @default(0)
 
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([tournamentId, batchId])
   @@index([points(sort: Desc), goalsFor(sort: Desc)])
 }
 
-
 model Match {
-  id          String   @id @default(cuid())
-  date        DateTime
-  status      MatchStatus @default(SCHEDULED)
-  
-  homeTeamId  String
-  homeTeam    Batch    @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  homeScore   Int      @default(0)
-  
-  awayTeamId  String
-  awayTeam    Batch    @relation("AwayTeam", fields: [awayTeamId], references: [id])
-  awayScore   Int      @default(0)
-  
-  venue       String?
-  isFeatured  Boolean  @default(false)
-  
+  id     String      @id @default(cuid())
+  date   DateTime
+  status MatchStatus @default(SCHEDULED)
+
+  homeTeamId String
+  homeTeam   Batch  @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  homeScore  Int    @default(0)
+
+  awayTeamId String
+  awayTeam   Batch  @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  awayScore  Int    @default(0)
+
+  venue      String?
+  isFeatured Boolean @default(false)
+
   tournamentId String?
-  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  tournament   Tournament?        @relation(fields: [tournamentId], references: [id])
+  matchSquads  MatchSquadMember[]
+
+  // Live Match State
+  currentMinute  Int       @default(0)
+  clockRunning   Boolean   @default(false)
+  clockStartedAt DateTime?
+  injuryTime     Int       @default(0)
+
+  // Stats
+  homePossession    Int @default(50)
+  awayPossession    Int @default(50)
+  homeShots         Int @default(0)
+  awayShots         Int @default(0)
+  homeShotsOnTarget Int @default(0)
+  awayShotsOnTarget Int @default(0)
+  homeCorners       Int @default(0)
+  awayCorners       Int @default(0)
+  homeOffsides      Int @default(0)
+  awayOffsides      Int @default(0)
+
+  // Advanced Match State
+  matchPeriod        MatchPeriod @default(PRE_MATCH)
+  homePenaltyScore   Int         @default(0)
+  awayPenaltyScore   Int         @default(0)
+  penaltySequence    Json?       // [{teamId, playerId, scored, order}]
+
+  events MatchEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum MatchStatus {
@@ -121,6 +149,19 @@ enum MatchStatus {
   LIVE
   FINISHED
   CANCELLED
+}
+
+enum MatchPeriod {
+  PRE_MATCH
+  FIRST_HALF
+  HALF_TIME
+  SECOND_HALF
+  FULL_TIME
+  EXTRA_TIME_1
+  EXTRA_TIME_HALF_TIME
+  EXTRA_TIME_2
+  PENALTIES
+  FINISHED
 }
 
 model News {
@@ -132,41 +173,41 @@ model News {
   imageUrl    String?
   publishedAt DateTime @default(now())
   isExclusive Boolean  @default(false)
-  
-  authorId    String?
-  author      User?    @relation(fields: [authorId], references: [id])
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  authorId String?
+  author   User?   @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Highlight {
-  id          String   @id @default(cuid())
-  title       String
-  videoUrl    String
+  id           String  @id @default(cuid())
+  title        String
+  videoUrl     String
   thumbnailUrl String?
-  description String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Post {
-  id          String   @id @default(cuid())
-  title       String?
-  content     String   @db.Text
-  status      PostStatus @default(PENDING)
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
-  
-  media       Media[]
-  cheers      Cheer[]
-  comments    Comment[]
-  
-  scope       PostScope @default(GLOBAL)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id       String     @id @default(cuid())
+  title    String?
+  content  String     @db.Text
+  status   PostStatus @default(PENDING)
+  authorId String
+  author   User       @relation(fields: [authorId], references: [id])
+
+  media    Media[]
+  cheers   Cheer[]
+  comments Comment[]
+
+  scope PostScope @default(GLOBAL)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum PostScope {
@@ -175,12 +216,12 @@ enum PostScope {
 }
 
 model Media {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   type      MediaType
   url       String
   postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
 }
 
 enum MediaType {
@@ -216,49 +257,54 @@ enum PostStatus {
 }
 
 model Notification {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title       String
-  message     String   @db.Text
-  link        String?
-  read        Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String   @db.Text
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId, read])
 }
 
 model User {
-  id            String    @id @default(cuid())
-  firebaseId    String?   @unique
-  password      String?
-  name          String?
-  email         String    @unique
-  role          Role      @default(USER)
-  image         String?
-  occupation    String?
-  workplace     String?
-  phone         String?
-  currentAddress String?
+  id               String  @id @default(cuid())
+  firebaseId       String? @unique
+  password         String?
+  name             String?
+  email            String  @unique
+  role             Role    @default(USER)
+  image            String?
+  occupation       String?
+  workplace        String?
+  phone            String?
+  currentAddress   String?
   permanentAddress String?
-  
-  batchId       String?
-  batch         Batch?    @relation("BatchMembers", fields: [batchId], references: [id])
-  
-  followedBatches Batch[] @relation("UserFollows")
-  posts         Post[]
-  cheers        Cheer[]
-  comments      Comment[]
-  notifications Notification[]
-  news          News[]
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  emailVerified DateTime?
-  status        UserStatus @default(APPROVED)
-  isPlayer      Boolean    @default(false)
-  teamRole      String?
+
+  batchId String?
+  batch   Batch?  @relation("BatchMembers", fields: [batchId], references: [id])
+
+  followedBatches Batch[]        @relation("UserFollows")
+  posts           Post[]
+  cheers          Cheer[]
+  comments        Comment[]
+  notifications   Notification[]
+  news            News[]
+
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  emailVerified       DateTime?
+  status              UserStatus         @default(APPROVED)
+  isPlayer            Boolean            @default(false)
+  teamRole            String?
+  teamDesignation    String?
+  matchParticipations MatchSquadMember[]
+  matchEvents         MatchEvent[]       @relation("EventPlayer")
+  matchAssists        MatchEvent[]       @relation("EventAssist")
+  matchSubsIn         MatchEvent[]       @relation("EventPlayerIn")
 }
 
 enum UserStatus {
@@ -281,5 +327,67 @@ enum Role {
   ADMIN
   CO_ADMIN
   BATCH_MANAGER
+  SCORER
   USER
+}
+
+model MatchSquadMember {
+  id      String            @id @default(cuid())
+  matchId String
+  match   Match             @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  batchId String
+  batch   Batch             @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status  MatchPlayerStatus @default(STARTER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([matchId, userId])
+}
+
+enum MatchPlayerStatus {
+  STARTER
+  SUBSTITUTE
+}
+
+model MatchEvent {
+  id        String         @id @default(cuid())
+  matchId   String
+  match     Match          @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  type      MatchEventType
+  minute    Int
+  extraTime Int? // e.g. 45+2
+
+  // For Goals/Cards/Subs
+  playerId String?
+  player   User?   @relation("EventPlayer", fields: [playerId], references: [id])
+
+  // For Substitutions
+  playerInId String?
+  playerIn   User?   @relation("EventPlayerIn", fields: [playerInId], references: [id])
+
+  // For Assists
+  assistId String?
+  assist   User?   @relation("EventAssist", fields: [assistId], references: [id])
+
+  teamId String? // Which team the event is for
+  team   Batch?  @relation(fields: [teamId], references: [id])
+
+  note String? // For VAR or commentary
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MatchEventType {
+  GOAL
+  YELLOW_CARD
+  RED_CARD
+  SUBSTITUTION
+  VAR
+  PERIOD_START
+  PERIOD_END
+  COMMENTARY
 }

@@ -2,9 +2,19 @@
 
 import { useState, useTransition } from "react";
 import { createMatch, updateMatch, deleteMatch } from "@/lib/actions/match.actions";
+import { getFullMatchSquads } from "@/lib/actions/match-squad.actions";
+import PrintSquad from "@/app/components/PrintSquad";
+import PrintIcon from "@mui/icons-material/Print";
+import { toast } from "react-hot-toast";
 
 type Batch = { id: string; name: string };
-type Tournament = { id: string; name: string; isActive: boolean };
+type Tournament = { 
+  id: string; 
+  name: string; 
+  isActive: boolean;
+  teams: { batchId: string; groupId: string | null }[];
+  groups: { id: string; name: string }[];
+};
 type Match = {
   id: string;
   date: Date;
@@ -104,6 +114,7 @@ export default function MatchesClient({
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [printingMatch, setPrintingMatch] = useState<{ match: any, squads: any[] } | null>(null);
 
   function openCreate() {
     setEditingId(null);
@@ -134,6 +145,26 @@ export default function MatchesClient({
     e.preventDefault();
     if (!form.homeTeamId || !form.awayTeamId) { setError("Both teams are required"); return; }
     if (form.homeTeamId === form.awayTeamId) { setError("Home and away team cannot be the same"); return; }
+    
+    // Group Validation
+    if (form.tournamentId) {
+      const tournament = tournaments.find(t => t.id === form.tournamentId);
+      if (tournament) {
+        const homeTeam = tournament.teams.find(t => t.batchId === form.homeTeamId);
+        const awayTeam = tournament.teams.find(t => t.batchId === form.awayTeamId);
+        
+        if (!homeTeam || !awayTeam) {
+          setError("One or both teams are not registered for this tournament");
+          return;
+        }
+        
+        if (homeTeam.groupId !== awayTeam.groupId) {
+          setError("Teams must be in the same group for this tournament");
+          return;
+        }
+      }
+    }
+    
     setError("");
 
     startTransition(async () => {
@@ -164,6 +195,15 @@ export default function MatchesClient({
         setError(res.error ?? "Failed to delete match");
       }
     });
+  }
+
+  async function handlePrint(match: any) {
+    const squads = await getFullMatchSquads(match.id);
+    if (squads.length === 0) {
+      toast.error("No squad announced for this match yet.");
+      return;
+    }
+    setPrintingMatch({ match, squads });
   }
 
   const statusColor: Record<string, string> = {
@@ -204,12 +244,26 @@ export default function MatchesClient({
 
           <form onSubmit={handleSubmit}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              {/* Tournament - Now at the Top */}
+              <div style={{ gridColumn: "span 2" }}>
+                <label style={labelStyle}>Tournament</label>
+                <select value={form.tournamentId} onChange={(e) => set("tournamentId", e.target.value)} style={inputStyle}>
+                  <option value="">— Generic Match (No Tournament) —</option>
+                  {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " 🟢" : ""}</option>)}
+                </select>
+                {form.tournamentId && <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--accent-primary)", fontWeight: "600" }}>ℹ️ Team selection below will be restricted to this tournament's groups.</p>}
+              </div>
+
               {/* Home Team */}
               <div>
                 <label style={labelStyle}>Home Team</label>
                 <select value={form.homeTeamId} onChange={(e) => set("homeTeamId", e.target.value)} required style={inputStyle}>
                   <option value="">— Select —</option>
-                  {batches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  {batches.filter(b => {
+                    if (!form.tournamentId) return true;
+                    const tournament = tournaments.find(t => t.id === form.tournamentId);
+                    return tournament?.teams.some(t => t.batchId === b.id);
+                  }).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </div>
 
@@ -218,7 +272,22 @@ export default function MatchesClient({
                 <label style={labelStyle}>Away Team</label>
                 <select value={form.awayTeamId} onChange={(e) => set("awayTeamId", e.target.value)} required style={inputStyle}>
                   <option value="">— Select —</option>
-                  {batches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  {batches.filter(b => {
+                    if (!form.tournamentId) return true;
+                    const tournament = tournaments.find(t => t.id === form.tournamentId);
+                    if (!tournament) return false;
+                    
+                    const isRegistered = tournament.teams.some(t => t.batchId === b.id);
+                    if (!isRegistered) return false;
+
+                    // If home team selected, filter by group
+                    if (form.homeTeamId) {
+                      const homeTeamInfo = tournament.teams.find(t => t.batchId === form.homeTeamId);
+                      const awayTeamInfo = tournament.teams.find(t => t.batchId === b.id);
+                      return homeTeamInfo?.groupId === awayTeamInfo?.groupId;
+                    }
+                    return true;
+                  }).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </div>
 
@@ -234,15 +303,6 @@ export default function MatchesClient({
                 <input type="text" value={form.venue} onChange={(e) => set("venue", e.target.value)} placeholder="e.g. Main Stadium" style={inputStyle} />
               </div>
 
-              {/* Tournament */}
-              <div>
-                <label style={labelStyle}>Tournament</label>
-                <select value={form.tournamentId} onChange={(e) => set("tournamentId", e.target.value)} style={inputStyle}>
-                  <option value="">— None —</option>
-                  {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " 🟢" : ""}</option>)}
-                </select>
-              </div>
-
               {/* Status */}
               <div>
                 <label style={labelStyle}>Status</label>
@@ -251,17 +311,6 @@ export default function MatchesClient({
                 </select>
               </div>
 
-              {/* Home Score */}
-              <div>
-                <label style={labelStyle}>Home Score</label>
-                <input type="number" min={0} value={form.homeScore} onChange={(e) => set("homeScore", e.target.value)} style={inputStyle} />
-              </div>
-
-              {/* Away Score */}
-              <div>
-                <label style={labelStyle}>Away Score</label>
-                <input type="number" min={0} value={form.awayScore} onChange={(e) => set("awayScore", e.target.value)} style={inputStyle} />
-              </div>
             </div>
 
             {/* Featured toggle */}
@@ -337,6 +386,14 @@ export default function MatchesClient({
                     <div style={{ display: "flex", gap: "0.4rem", justifyContent: "flex-end" }}>
                       <button
                         className="btn glass"
+                        onClick={() => handlePrint(match)}
+                        title="Print Squad List"
+                        style={{ padding: "0.35rem 0.7rem", fontSize: "0.72rem" }}
+                      >
+                        <PrintIcon sx={{ fontSize: '1.1rem' }} />
+                      </button>
+                      <button
+                        className="btn glass"
                         onClick={() => openEdit(match)}
                         disabled={isPending}
                         style={{ padding: "0.35rem 0.7rem", fontSize: "0.72rem" }}
@@ -359,6 +416,14 @@ export default function MatchesClient({
           </tbody>
         </table>
       </div>
+      
+      {printingMatch && (
+        <PrintSquad 
+          match={printingMatch.match} 
+          squads={printingMatch.squads} 
+          onClose={() => setPrintingMatch(null)} 
+        />
+      )}
     </>
   );
 }

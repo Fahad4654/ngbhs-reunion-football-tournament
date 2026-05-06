@@ -170,15 +170,20 @@ export async function deleteBatch(id: string) {
 
 export async function toggleTeamMember(userId: string, isPlayer: boolean) {
   const user = await getServerUser();
-  if (user?.role !== 'BATCH_MANAGER') return { success: false, error: 'Unauthorized' };
+  if (!user || (user.role !== 'BATCH_MANAGER' && user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
+    return { success: false, error: 'Unauthorized' };
+  }
 
   const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
   if (!dbUser?.batchId) return { success: false, error: 'No batch assigned' };
 
   try {
-    // Ensure the target user actually belongs to this manager's batch
+    // Ensure the target user actually belongs to the batch being managed
     const targetUser = await prisma.user.findUnique({ where: { id: userId } });
-    if (!targetUser || targetUser.batchId !== dbUser.batchId) {
+    if (!targetUser) return { success: false, error: 'User not found' };
+
+    // Batch Managers can only manage their own batch
+    if (user.role === 'BATCH_MANAGER' && (!dbUser?.batchId || targetUser.batchId !== dbUser.batchId)) {
       return { success: false, error: 'User not found in your batch' };
     }
 
@@ -192,20 +197,25 @@ export async function toggleTeamMember(userId: string, isPlayer: boolean) {
     return { success: true };
   } catch (error: any) {
     console.error('[toggleTeamMember]', error);
-    return { success: false, error: 'Failed to update team member status' };
+    return { success: false, error: error.message || 'Failed to update team member status' };
   }
 }
 
 export async function updateMemberRole(userId: string, teamRole: string | null) {
   const user = await getServerUser();
-  if (user?.role !== 'BATCH_MANAGER') return { success: false, error: 'Unauthorized' };
+  if (!user || (user.role !== 'BATCH_MANAGER' && user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
+    return { success: false, error: 'Unauthorized' };
+  }
 
   const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
   if (!dbUser?.batchId) return { success: false, error: 'No batch assigned' };
 
   try {
     const targetUser = await prisma.user.findUnique({ where: { id: userId } });
-    if (!targetUser || targetUser.batchId !== dbUser.batchId) {
+    if (!targetUser) return { success: false, error: 'User not found' };
+
+    // Batch Managers can only manage their own batch
+    if (user.role === 'BATCH_MANAGER' && (!dbUser?.batchId || targetUser.batchId !== dbUser.batchId)) {
       return { success: false, error: 'User not found in your batch' };
     }
 
@@ -219,6 +229,37 @@ export async function updateMemberRole(userId: string, teamRole: string | null) 
     return { success: true };
   } catch (error: any) {
     console.error('[updateMemberRole]', error);
-    return { success: false, error: 'Failed to update team role' };
+    return { success: false, error: error.message || 'Failed to update team role' };
+  }
+}
+
+export async function updateMemberDesignation(userId: string, teamDesignation: string | null) {
+  const user = await getServerUser();
+  if (!user || (user.role !== 'BATCH_MANAGER' && user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
+  const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
+
+  try {
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser) return { success: false, error: 'User not found' };
+
+    // Batch Managers can only manage their own batch
+    if (user.role === 'BATCH_MANAGER' && (!dbUser?.batchId || targetUser.batchId !== dbUser.batchId)) {
+      return { success: false, error: 'User not found in your batch' };
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { teamDesignation: teamDesignation?.trim() || null }
+    });
+    
+    revalidatePath('/dashboard/manage-batch');
+    revalidatePath('/dashboard/team-management');
+    return { success: true };
+  } catch (error: any) {
+    console.error('[updateMemberDesignation]', error);
+    return { success: false, error: error.message || 'Failed to update team designation' };
   }
 }

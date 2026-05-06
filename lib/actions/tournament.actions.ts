@@ -77,6 +77,9 @@ export async function addTeamToTournament(tournamentId: string, batchId: string)
         tournamentId,
         batchId,
       },
+      include: {
+        batch: { select: { id: true, name: true, year: true } },
+      },
     });
     
     revalidatePath(`/admin/tournaments/${tournamentId}`);

@@ -124,7 +124,10 @@ export default function TournamentDetailClient({
     setError("");
     startTransition(async () => {
       const res = await addTeamToTournament(tournament.id, selectedBatchId);
-      if (res.success) { setSelectedBatchId(""); window.location.reload(); }
+      if (res.success && res.data) { 
+        setSelectedBatchId(""); 
+        setTeams((prev) => [...prev, res.data as any].sort((a, b) => b.points - a.points || b.goalsFor - a.goalsFor));
+      }
       else setError(res.error ?? "Failed to add team");
     });
   }

@@ -56,6 +56,27 @@
   display: flex;
   align-items: center;
   gap: 0.833vw;
+  width: 100%;
+}
+
+.squadLink {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+  background: rgba(235, 183, 0, 0.1);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(235, 183, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.squadLink:hover {
+  background: var(--accent-primary);
+  color: black;
 }
 
 .teamLogo {

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import TeamActions from "../manage-batch/team-actions";
 import RoleAssignment from "./RoleAssignment";
+import DesignationAssignment from "./DesignationAssignment";
 import GroupIcon from '@mui/icons-material/Group';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import UserLink from "@/app/components/UserLink";
@@ -95,14 +96,29 @@ export default async function TeamManagementPage() {
                             {player.teamRole}
                           </span>
                         )}
+                        {player.teamDesignation && (
+                          <span style={{ 
+                            fontSize: '0.6rem', 
+                            padding: '0.1rem 0.4rem', 
+                            background: 'rgba(56, 189, 248, 0.1)', 
+                            color: '#38bdf8', 
+                            border: '1px solid rgba(56, 189, 248, 0.3)', 
+                            borderRadius: '4px',
+                            fontWeight: '800',
+                            textTransform: 'uppercase'
+                          }}>
+                            {player.teamDesignation}
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{player.occupation || 'Player'}</div>
                     </div>
                   </div>
                   <TeamActions userId={player.id} isPlayer={true} userName={player.name || 'Player'} />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
                   <RoleAssignment userId={player.id} currentRole={player.teamRole} userName={player.name || 'Player'} />
+                  <DesignationAssignment userId={player.id} currentDesignation={player.teamDesignation} userName={player.name || 'Player'} />
                 </div>
               </div>
             )) : (
@@ -143,14 +159,29 @@ export default async function TeamManagementPage() {
                             {member.teamRole}
                           </span>
                         )}
+                        {member.teamDesignation && (
+                          <span style={{ 
+                            fontSize: '0.6rem', 
+                            padding: '0.1rem 0.4rem', 
+                            background: 'rgba(56, 189, 248, 0.1)', 
+                            color: '#38bdf8', 
+                            border: '1px solid rgba(56, 189, 248, 0.3)', 
+                            borderRadius: '4px',
+                            fontWeight: '800',
+                            textTransform: 'uppercase'
+                          }}>
+                            {member.teamDesignation}
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{member.occupation || 'Member'}</div>
                     </div>
                   </div>
                   <TeamActions userId={member.id} isPlayer={false} userName={member.name || 'Member'} />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
                   <RoleAssignment userId={member.id} currentRole={member.teamRole} userName={member.name || 'Member'} />
+                  <DesignationAssignment userId={member.id} currentDesignation={member.teamDesignation} userName={member.name || 'Member'} />
                 </div>
               </div>
             )) : (

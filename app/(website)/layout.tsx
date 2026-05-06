@@ -32,9 +32,6 @@ export default async function WebsiteLayout({
           <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 2rem' }}>
             Bringing batches together through the beautiful game. Every goal, every match, every memory matters.
           </p>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            © 2026 NGBHS Reunion Committee. All rights reserved.
-          </div>
         </div>
       </footer>
     </>

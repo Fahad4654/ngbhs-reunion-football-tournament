@@ -15,7 +15,26 @@ export default async function AdminMatchesPage() {
       orderBy: { date: "desc" },
     }),
     prisma.batch.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    prisma.tournament.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, name: true, isActive: true } }),
+    prisma.tournament.findMany({ 
+      orderBy: { createdAt: "desc" }, 
+      select: { 
+        id: true, 
+        name: true, 
+        isActive: true,
+        teams: {
+          select: {
+            batchId: true,
+            groupId: true
+          }
+        },
+        groups: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      } 
+    }),
   ]);
 
   return <MatchesClient matches={matches} batches={batches} tournaments={tournaments} />;
