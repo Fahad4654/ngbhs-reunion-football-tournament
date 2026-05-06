@@ -210,6 +210,18 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
           </button>
         </form>
       </div>
+
+      {/* Author Credit */}
+      <div style={{ 
+        padding: '1vh 1.5vw', 
+        fontSize: 'calc(0.65vw * var(--font-scale))', 
+        color: 'var(--text-muted)', 
+        textAlign: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.03)',
+        background: 'rgba(10, 11, 13, 0.2)'
+      }}>
+        Developed by <span className="text-gradient" style={{ fontWeight: '700' }}>Fahad</span>
+      </div>
     </aside>
   );
 }
