@@ -559,7 +559,6 @@ function PenaltyModal({ isOpen, onClose, onSubmit, match }: any) {
               }} 
               className="btn btn-primary" 
               style={{ flex: 1 }}
-              disabled={!playerId}
             >
               Record
             </button>
