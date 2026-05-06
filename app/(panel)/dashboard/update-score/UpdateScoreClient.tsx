@@ -168,18 +168,14 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3rem' }}>
               <div style={{ flex: 1, textAlign: 'right', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1.5rem' }}>
                 <div style={{ fontWeight: '900', fontSize: '1.2rem', color: 'white' }}>{match.homeTeam.name}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.03)', padding: '0.4rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <button onClick={() => updateLocal(match.id, 'homeScore', Math.max(0, match.homeScore - 1))} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: '900', cursor: 'pointer' }}>-</button>
-                  <input type="number" value={match.homeScore} onChange={(e) => updateLocal(match.id, 'homeScore', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '50px', height: '50px', textAlign: 'center', fontSize: '1.8rem', fontWeight: '950', background: 'transparent', border: 'none', color: 'var(--accent-primary)', outline: 'none' }} />
-                  <button onClick={() => updateLocal(match.id, 'homeScore', match.homeScore + 1)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontWeight: '900', cursor: 'pointer' }}>+</button>
+                <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.8rem 1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', minWidth: '80px', justifyContent: 'center' }}>
+                  <span style={{ fontSize: '2.5rem', fontWeight: '950', color: 'var(--accent-primary)' }}>{match.homeScore}</span>
                 </div>
               </div>
               <div style={{ fontSize: '1.2rem', fontWeight: '950', color: 'var(--text-muted)', opacity: 0.5 }}>VS</div>
               <div style={{ flex: 1, textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.03)', padding: '0.4rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <button onClick={() => updateLocal(match.id, 'awayScore', Math.max(0, match.awayScore - 1))} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: '900', cursor: 'pointer' }}>-</button>
-                  <input type="number" value={match.awayScore} onChange={(e) => updateLocal(match.id, 'awayScore', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '50px', height: '50px', textAlign: 'center', fontSize: '1.8rem', fontWeight: '950', background: 'transparent', border: 'none', color: 'var(--accent-primary)', outline: 'none' }} />
-                  <button onClick={() => updateLocal(match.id, 'awayScore', match.awayScore + 1)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontWeight: '900', cursor: 'pointer' }}>+</button>
+                <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.8rem 1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', minWidth: '80px', justifyContent: 'center' }}>
+                  <span style={{ fontSize: '2.5rem', fontWeight: '950', color: 'var(--accent-primary)' }}>{match.awayScore}</span>
                 </div>
                 <div style={{ fontWeight: '900', fontSize: '1.2rem', color: 'white' }}>{match.awayTeam.name}</div>
               </div>
