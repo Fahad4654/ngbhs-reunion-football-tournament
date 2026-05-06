@@ -213,24 +213,48 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
 
                 <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}><BarChartIcon fontSize="small" /> LIVE STATS</div>
-                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                          <button onClick={() => updateLocal(match.id, 'homeShots', Math.max(0, match.homeShots - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
-                          <input type="number" value={match.homeShots} onChange={(e) => updateLocal(match.id, 'homeShots', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-                          <button onClick={() => updateLocal(match.id, 'homeShots', match.homeShots + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
+                   
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      {/* Possession Row */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 150px 1fr', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                            <button onClick={() => {
+                              const newHome = Math.max(0, match.homePossession - 1);
+                              updateLocal(match.id, 'homePossession', newHome);
+                              updateLocal(match.id, 'awayPossession', 100 - newHome);
+                            }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
+                            <input type="number" value={match.homePossession} onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              updateLocal(match.id, 'homePossession', v);
+                              updateLocal(match.id, 'awayPossession', 100 - v);
+                            }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                            <span>%</span>
+                            <button onClick={() => {
+                              const newHome = Math.min(100, match.homePossession + 1);
+                              updateLocal(match.id, 'homePossession', newHome);
+                              updateLocal(match.id, 'awayPossession', 100 - newHome);
+                            }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
+                          </div>
                         </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>POSSESSION</div>
+                        <div style={{ fontWeight: '900', color: 'var(--accent-primary)' }}>{match.awayPossession}%</div>
                       </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>TOTAL SHOTS</div>
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                          <button onClick={() => updateLocal(match.id, 'awayShots', Math.max(0, match.awayShots - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
-                          <input type="number" value={match.awayShots} onChange={(e) => updateLocal(match.id, 'awayShots', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-                          <button onClick={() => updateLocal(match.id, 'awayShots', match.awayShots + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
-                        </div>
-                      </div>
+
+                      <StatUpdateRow label="TOTAL SHOTS" homeKey="homeShots" awayKey="awayShots" match={match} updateLocal={updateLocal} />
+                      <StatUpdateRow label="SHOTS ON TARGET" homeKey="homeShotsOnTarget" awayKey="awayShotsOnTarget" match={match} updateLocal={updateLocal} />
+                      <StatUpdateRow label="CORNERS" homeKey="homeCorners" awayKey="awayCorners" match={match} updateLocal={updateLocal} />
+                      <StatUpdateRow label="OFFSIDES" homeKey="homeOffsides" awayKey="awayOffsides" match={match} updateLocal={updateLocal} />
                    </div>
-                   <div style={{ textAlign: 'center', marginTop: '1rem' }}><button onClick={() => startTransition(async () => { const res = await updateMatchStats(match.id, match); if (res.success) toast.success('Stats updated'); })} className="btn glass" style={{ fontSize: '0.7rem' }}>Save Stats</button></div>
+
+                   <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                      <button onClick={() => startTransition(async () => { 
+                        const res = await updateMatchStats(match.id, match); 
+                        if (res.success) toast.success('All stats updated'); 
+                      })} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.6rem 2rem' }}>
+                        Save All Stats
+                      </button>
+                   </div>
                 </div>
 
                 <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
@@ -280,6 +304,28 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
         .score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .score-input[type=number] { -moz-appearance: textfield; }
       `}</style>
+    </div>
+  );
+}
+
+function StatUpdateRow({ label, homeKey, awayKey, match, updateLocal }: any) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 150px 1fr', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+          <button onClick={() => updateLocal(match.id, homeKey, Math.max(0, match[homeKey] - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
+          <input type="number" value={match[homeKey]} onChange={(e) => updateLocal(match.id, homeKey, parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+          <button onClick={() => updateLocal(match.id, homeKey, match[homeKey] + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
+        </div>
+      </div>
+      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>{label}</div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+          <button onClick={() => updateLocal(match.id, awayKey, Math.max(0, match[awayKey] - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
+          <input type="number" value={match[awayKey]} onChange={(e) => updateLocal(match.id, awayKey, parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+          <button onClick={() => updateLocal(match.id, awayKey, match[awayKey] + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
+        </div>
+      </div>
     </div>
   );
 }
