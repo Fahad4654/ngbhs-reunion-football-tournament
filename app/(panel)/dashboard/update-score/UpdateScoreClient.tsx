@@ -4,7 +4,6 @@ import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateMatchScore, logMatchEvent, updateMatchClock, updateMatchStats, deleteMatchEvent, updateMatchEvent } from '@/lib/actions/match.actions';
 import { toast } from 'react-hot-toast';
-import SaveIcon from '@mui/icons-material/Save';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import TimerIcon from '@mui/icons-material/Timer';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
@@ -82,15 +81,40 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
     return () => clearInterval(interval);
   }, []);
 
+  function getMatch(id: string) {
+    return matches.find(m => m.id === id);
+  }
+
   function updateLocal(id: string, field: string, value: any) {
     setMatches(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
   }
 
-  async function autoSaveStats(matchId: string) {
-    const match = matches.find(m => m.id === matchId);
+  // Auto-save helpers
+  async function syncMatchState(matchId: string, overrides: Partial<Match> = {}) {
+    const match = getMatch(matchId);
     if (!match) return;
+    const finalMatch = { ...match, ...overrides };
+    
     startTransition(async () => {
-      await updateMatchStats(matchId, match);
+      await updateMatchScore(matchId, {
+        status: finalMatch.status,
+        homeScore: finalMatch.homeScore,
+        awayScore: finalMatch.awayScore,
+        homePenaltyScore: finalMatch.homePenaltyScore,
+        awayPenaltyScore: finalMatch.awayPenaltyScore,
+        penaltySequence: finalMatch.penaltySequence,
+        matchPeriod: finalMatch.matchPeriod
+      });
+      router.refresh();
+    });
+  }
+
+  async function syncMatchStats(matchId: string, overrides: Partial<Match> = {}) {
+    const match = getMatch(matchId);
+    if (!match) return;
+    const finalMatch = { ...match, ...overrides };
+    startTransition(async () => {
+      await updateMatchStats(matchId, finalMatch);
     });
   }
 
@@ -100,24 +124,6 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
       return match.currentMinute + Math.floor(elapsedMs / 60000);
     }
     return match.currentMinute;
-  }
-
-  async function handleSaveScore(match: Match) {
-    startTransition(async () => {
-      const res = await updateMatchScore(match.id, {
-        status: match.status,
-        homeScore: match.homeScore,
-        awayScore: match.awayScore,
-        homePenaltyScore: match.homePenaltyScore,
-        awayPenaltyScore: match.awayPenaltyScore,
-        penaltySequence: match.penaltySequence,
-        matchPeriod: match.matchPeriod
-      });
-      if (res.success) {
-        toast.success(`Match state updated`);
-        router.refresh();
-      } else toast.error(res.error);
-    });
   }
 
   async function handleClockToggle(match: Match) {
@@ -137,7 +143,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   }
 
   async function handleAddPenalty(matchId: string, data: any) {
-    const match = matches.find(m => m.id === matchId);
+    const match = getMatch(matchId);
     if (!match) return;
     
     const newSequence = [...(match.penaltySequence || []), { 
@@ -146,7 +152,6 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
       order: (match.penaltySequence?.length || 0) + 1 
     }];
     
-    // Auto-calculate penalty score
     const homeScore = newSequence.filter(p => p.teamId === match.homeTeam.id && p.scored).length;
     const awayScore = newSequence.filter(p => p.teamId === match.awayTeam.id && p.scored).length;
 
@@ -154,12 +159,13 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
     updateLocal(matchId, 'homePenaltyScore', homeScore);
     updateLocal(matchId, 'awayPenaltyScore', awayScore);
     
+    syncMatchState(matchId, { penaltySequence: newSequence, homePenaltyScore: homeScore, awayPenaltyScore: awayScore });
     setPenaltyModal(null);
     toast.success('Penalty recorded');
   }
 
   async function handleDeletePenalty(matchId: string, penaltyId: string) {
-    const match = matches.find(m => m.id === matchId);
+    const match = getMatch(matchId);
     if (!match) return;
     
     const newSequence = (match.penaltySequence || []).filter(p => p.id !== penaltyId);
@@ -169,11 +175,13 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
     updateLocal(matchId, 'penaltySequence', newSequence);
     updateLocal(matchId, 'homePenaltyScore', homeScore);
     updateLocal(matchId, 'awayPenaltyScore', awayScore);
+    
+    syncMatchState(matchId, { penaltySequence: newSequence, homePenaltyScore: homeScore, awayPenaltyScore: awayScore });
   }
 
   async function handleAddOrUpdateEvent(matchId: string, type: string, data: any, eventId?: string) {
     if (!eventId && type === 'GOAL') {
-       const match = matches.find(m => m.id === matchId);
+       const match = getMatch(matchId);
        if (match) {
          const isHome = match.homeTeam.id === data.teamId;
          updateLocal(matchId, isHome ? 'homeScore' : 'awayScore', (isHome ? match.homeScore : match.awayScore) + 1);
@@ -185,7 +193,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
       if (eventId) {
         res = await updateMatchEvent(eventId, data);
       } else {
-        const match = matches.find(m => m.id === matchId);
+        const match = getMatch(matchId);
         res = await logMatchEvent(matchId, {
           type,
           minute: data.minute || getDisplayMinute(match!),
@@ -274,7 +282,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                 </div>
               </div>
 
-              {/* Penalty Shootout Section (Visual Balls) */}
+              {/* Penalty Shootout Tracker */}
               {match.matchPeriod === 'PENALTIES' && (
                 <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '16px', border: '1px solid var(--accent-primary)' }}>
                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -283,12 +291,11 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                    </div>
                    
                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                      {/* Home Penalties */}
                       <div>
                         <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.8rem' }}>{match.homeTeam.name.toUpperCase()} — {match.homePenaltyScore}</div>
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                            {(match.penaltySequence || []).filter(p => p.teamId === match.homeTeam.id).map((p, i) => (
-                             <div key={p.id} style={{ position: 'relative' }} title={`${p.playerName} - ${p.scored ? 'Scored' : 'Missed'}`}>
+                             <div key={p.id} style={{ position: 'relative' }}>
                                 {p.scored ? <SportsSoccerIcon sx={{ color: '#10b981' }} /> : <HighlightOffIcon sx={{ color: '#ef4444' }} />}
                                 <button onClick={() => handleDeletePenalty(match.id, p.id)} style={{ position: 'absolute', top: -5, right: -5, background: 'black', border: 'none', color: 'white', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer' }}>x</button>
                              </div>
@@ -298,13 +305,11 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                            ))}
                         </div>
                       </div>
-
-                      {/* Away Penalties */}
                       <div>
                         <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.8rem' }}>{match.awayTeam.name.toUpperCase()} — {match.awayPenaltyScore}</div>
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                            {(match.penaltySequence || []).filter(p => p.teamId === match.awayTeam.id).map((p, i) => (
-                             <div key={p.id} style={{ position: 'relative' }} title={`${p.playerName} - ${p.scored ? 'Scored' : 'Missed'}`}>
+                             <div key={p.id} style={{ position: 'relative' }}>
                                 {p.scored ? <SportsSoccerIcon sx={{ color: '#10b981' }} /> : <HighlightOffIcon sx={{ color: '#ef4444' }} />}
                                 <button onClick={() => handleDeletePenalty(match.id, p.id)} style={{ position: 'absolute', top: -5, right: -5, background: 'black', border: 'none', color: 'white', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer' }}>x</button>
                              </div>
@@ -328,16 +333,16 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}><TimerIcon fontSize="small" /> MATCH CLOCK</div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                                <button onClick={() => updateLocal(match.id, 'currentMinute', Math.max(0, match.currentMinute - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
-                                <input type="number" value={displayMinute} onChange={(e) => updateLocal(match.id, 'currentMinute', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-                                <button onClick={() => updateLocal(match.id, 'currentMinute', match.currentMinute + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+                                <button onClick={() => { const v = Math.max(0, match.currentMinute - 1); updateLocal(match.id, 'currentMinute', v); updateMatchClock(match.id, { running: match.clockRunning, minute: v, injuryTime: match.injuryTime, matchPeriod: match.matchPeriod }); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+                                <input type="number" value={displayMinute} onChange={(e) => { const v = parseInt(e.target.value) || 0; updateLocal(match.id, 'currentMinute', v); updateMatchClock(match.id, { running: match.clockRunning, minute: v, injuryTime: match.injuryTime, matchPeriod: match.matchPeriod }); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                                <button onClick={() => { const v = match.currentMinute + 1; updateLocal(match.id, 'currentMinute', v); updateMatchClock(match.id, { running: match.clockRunning, minute: v, injuryTime: match.injuryTime, matchPeriod: match.matchPeriod }); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
                               </div>
                               <button onClick={() => handleClockToggle(match)} className={`btn ${match.clockRunning ? 'btn-danger' : 'btn-primary'}`} style={{ flex: 1 }}>{match.clockRunning ? 'Pause Clock' : 'Start Clock'}</button>
                             </div>
                          </div>
                          <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}><FlagIcon fontSize="small" /> MATCH PERIOD</div>
-                            <select value={match.matchPeriod} onChange={(e) => updateLocal(match.id, 'matchPeriod', e.target.value)} className="glass" style={{ width: '100%', padding: '0.4rem', color: 'white', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                            <select value={match.matchPeriod} onChange={(e) => { const v = e.target.value; updateLocal(match.id, 'matchPeriod', v); syncMatchState(match.id, { matchPeriod: v }); }} className="glass" style={{ width: '100%', padding: '0.4rem', color: 'white', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
                               {PERIODS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                             </select>
                          </div>
@@ -346,9 +351,9 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>INJURY TIME (ADDITIONAL MINS)</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)', width: 'fit-content' }}>
-                          <button onClick={() => updateLocal(match.id, 'injuryTime', Math.max(0, match.injuryTime - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
-                          <input type="number" value={match.injuryTime} onChange={(e) => updateLocal(match.id, 'injuryTime', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-                          <button onClick={() => updateLocal(match.id, 'injuryTime', match.injuryTime + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+                          <button onClick={() => { const v = Math.max(0, match.injuryTime - 1); updateLocal(match.id, 'injuryTime', v); updateMatchClock(match.id, { running: match.clockRunning, minute: match.currentMinute, injuryTime: v, matchPeriod: match.matchPeriod }); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+                          <input type="number" value={match.injuryTime} onChange={(e) => { const v = parseInt(e.target.value) || 0; updateLocal(match.id, 'injuryTime', v); updateMatchClock(match.id, { running: match.clockRunning, minute: match.currentMinute, injuryTime: v, matchPeriod: match.matchPeriod }); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                          <button onClick={() => { const v = match.injuryTime + 1; updateLocal(match.id, 'injuryTime', v); updateMatchClock(match.id, { running: match.clockRunning, minute: match.currentMinute, injuryTime: v, matchPeriod: match.matchPeriod }); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
                         </div>
                       </div>
                     </div>
@@ -371,73 +376,53 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 150px 1fr', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
                           <div style={{ display: 'flex', justifyContent: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                              <button onClick={() => { const v = Math.max(0, match.homePossession - 1); updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); autoSaveStats(match.id); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
-                              <input type="number" value={match.homePossession} onChange={(e) => { const v = parseInt(e.target.value) || 0; updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); autoSaveStats(match.id); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                              <button onClick={() => { const v = Math.max(0, match.homePossession - 1); updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); syncMatchStats(match.id, { homePossession: v, awayPossession: 100 - v }); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+                              <input type="number" value={match.homePossession} onChange={(e) => { const v = parseInt(e.target.value) || 0; updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); syncMatchStats(match.id, { homePossession: v, awayPossession: 100 - v }); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
                               <span>%</span>
-                              <button onClick={() => { const v = Math.min(100, match.homePossession + 1); updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); autoSaveStats(match.id); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+                              <button onClick={() => { const v = Math.min(100, match.homePossession + 1); updateLocal(match.id, 'homePossession', v); updateLocal(match.id, 'awayPossession', 100 - v); syncMatchStats(match.id, { homePossession: v, awayPossession: 100 - v }); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
                             </div>
                           </div>
                           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>POSSESSION</div>
                           <div style={{ fontWeight: '900', color: 'var(--accent-primary)' }}>{match.awayPossession}%</div>
                         </div>
-                        <StatUpdateRow label="TOTAL SHOTS" homeKey="homeShots" awayKey="awayShots" match={match} updateLocal={updateLocal} onUpdate={() => autoSaveStats(match.id)} />
-                        <StatUpdateRow label="SHOTS ON TARGET" homeKey="homeShotsOnTarget" awayKey="awayShotsOnTarget" match={match} updateLocal={updateLocal} onUpdate={() => autoSaveStats(match.id)} />
-                        <StatUpdateRow label="CORNERS" homeKey="homeCorners" awayKey="awayCorners" match={match} updateLocal={updateLocal} onUpdate={() => autoSaveStats(match.id)} />
-                        <StatUpdateRow label="OFFSIDES" homeKey="homeOffsides" awayKey="awayOffsides" match={match} updateLocal={updateLocal} onUpdate={() => autoSaveStats(match.id)} />
-                     </div>
-                  </div>
-
-                  <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-                     <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}>RECENT EVENTS</div>
-                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {match.events?.length === 0 ? (<div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>No events logged yet.</div>) : (
-                          match.events?.map((event: any) => (
-                            <div key={event.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.5rem 1rem', borderRadius: '8px' }}>
-                               <div style={{ fontSize: '0.8rem', fontWeight: '700' }}>
-                                  <span style={{ color: 'var(--accent-primary)', marginRight: '0.5rem' }}>{event.minute}'</span>
-                                  {event.type} — {event.player?.name} ({event.team?.name})
-                               </div>
-                               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                  <button onClick={() => setEventModal({ matchId: match.id, type: event.type, eventId: event.id, defaultData: event })} className="btn glass" style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center' }}><EditIcon sx={{ fontSize: '0.8rem', mr: 0.2 }} /> Edit</button>
-                                  <button onClick={() => handleDeleteEvent(event.id)} className="btn glass" style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem', color: 'var(--accent-danger)', display: 'flex', alignItems: 'center' }}><DeleteIcon sx={{ fontSize: '0.8rem', mr: 0.2 }} /> Delete</button>
-                               </div>
-                            </div>
-                          ))
-                        )}
+                        <StatUpdateRow label="TOTAL SHOTS" homeKey="homeShots" awayKey="awayShots" match={match} updateLocal={updateLocal} onUpdate={(k: string, v: number) => syncMatchStats(match.id, { [k]: v })} />
+                        <StatUpdateRow label="SHOTS ON TARGET" homeKey="homeShotsOnTarget" awayKey="awayShotsOnTarget" match={match} updateLocal={updateLocal} onUpdate={(k: string, v: number) => syncMatchStats(match.id, { [k]: v })} />
+                        <StatUpdateRow label="CORNERS" homeKey="homeCorners" awayKey="awayCorners" match={match} updateLocal={updateLocal} onUpdate={(k: string, v: number) => syncMatchStats(match.id, { [k]: v })} />
+                        <StatUpdateRow label="OFFSIDES" homeKey="homeOffsides" awayKey="awayOffsides" match={match} updateLocal={updateLocal} onUpdate={(k: string, v: number) => syncMatchStats(match.id, { [k]: v })} />
                      </div>
                   </div>
                 </div>
               )}
 
+              {/* Instant Status Switch */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <select value={match.status} onChange={(e) => updateLocal(match.id, 'status', e.target.value)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white', padding: '0.4rem 1rem', borderRadius: '6px', fontWeight: '700' }}><option value="SCHEDULED">Scheduled</option><option value="LIVE">Live 🔴</option><option value="FINISHED">Finished ✅</option><option value="CANCELLED">Cancelled</option></select>
-                <button onClick={() => handleSaveScore(match)} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><SaveIcon fontSize="small" /> Save Match State</button>
+                <select value={match.status} onChange={(e) => { const v = e.target.value as any; updateLocal(match.id, 'status', v); syncMatchState(match.id, { status: v }); }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white', padding: '0.4rem 1rem', borderRadius: '6px', fontWeight: '700' }}><option value="SCHEDULED">Scheduled</option><option value="LIVE">Live 🔴</option><option value="FINISHED">Finished ✅</option><option value="CANCELLED">Cancelled</option></select>
+                <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>All changes saved instantly</div>
               </div>
             </div>
           );
         })
       )}
 
-      {/* Event Modal */}
+      {/* Modals */}
       {eventModal && (
         <EventModal 
           isOpen={!!eventModal} 
           onClose={() => setEventModal(null)} 
           onSubmit={(data: any) => handleAddOrUpdateEvent(eventModal.matchId, eventModal.type, data, eventModal.eventId)}
           type={eventModal.type}
-          match={matches.find(m => m.id === eventModal.matchId)!}
+          match={getMatch(eventModal.matchId)!}
           defaultData={eventModal.defaultData}
-          displayMinute={getDisplayMinute(matches.find(m => m.id === eventModal.matchId)!)}
+          displayMinute={getDisplayMinute(getMatch(eventModal.matchId)!)}
         />
       )}
 
-      {/* Penalty Modal */}
       {penaltyModal && (
         <PenaltyModal
           isOpen={!!penaltyModal}
           onClose={() => setPenaltyModal(null)}
           onSubmit={(data: any) => handleAddPenalty(penaltyModal.matchId, data)}
-          match={matches.find(m => m.id === penaltyModal.matchId)!}
+          match={getMatch(penaltyModal.matchId)!}
         />
       )}
       
@@ -455,17 +440,17 @@ function StatUpdateRow({ label, homeKey, awayKey, match, updateLocal, onUpdate }
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 150px 1fr', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-          <button onClick={() => { updateLocal(match.id, homeKey, Math.max(0, match[homeKey] - 1)); onUpdate(); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
-          <input type="number" value={match[homeKey]} onChange={(e) => { updateLocal(match.id, homeKey, parseInt(e.target.value) || 0); onUpdate(); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-          <button onClick={() => { updateLocal(match.id, homeKey, match[homeKey] + 1); onUpdate(); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+          <button onClick={() => { const v = Math.max(0, match[homeKey] - 1); updateLocal(match.id, homeKey, v); onUpdate(homeKey, v); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+          <input type="number" value={match[homeKey]} onChange={(e) => { const v = parseInt(e.target.value) || 0; updateLocal(match.id, homeKey, v); onUpdate(homeKey, v); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+          <button onClick={() => { const v = match[homeKey] + 1; updateLocal(match.id, homeKey, v); onUpdate(homeKey, v); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
         </div>
       </div>
       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>{label}</div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-          <button onClick={() => { updateLocal(match.id, awayKey, Math.max(0, match[awayKey] - 1)); onUpdate(); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
-          <input type="number" value={match[awayKey]} onChange={(e) => { updateLocal(match.id, awayKey, parseInt(e.target.value) || 0); onUpdate(); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-          <button onClick={() => { updateLocal(match.id, awayKey, match[awayKey] + 1); onUpdate(); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+          <button onClick={() => { const v = Math.max(0, match[awayKey] - 1); updateLocal(match.id, awayKey, v); onUpdate(awayKey, v); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+          <input type="number" value={match[awayKey]} onChange={(e) => { const v = parseInt(e.target.value) || 0; updateLocal(match.id, awayKey, v); onUpdate(awayKey, v); }} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+          <button onClick={() => { const v = match[awayKey] + 1; updateLocal(match.id, awayKey, v); onUpdate(awayKey, v); }} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
         </div>
       </div>
     </div>
