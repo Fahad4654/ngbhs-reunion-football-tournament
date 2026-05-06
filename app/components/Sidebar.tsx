@@ -9,6 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SchoolIcon from '@mui/icons-material/School';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CampaignIcon from '@mui/icons-material/Campaign';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -33,6 +34,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
     { name: "Batch Feed", href: "/dashboard/batch-feed", icon: <SchoolIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Manage Batch", href: "/dashboard/manage-batch", icon: <SettingsIcon />, roles: ["BATCH_MANAGER"] },
     { name: "Team Management", href: "/dashboard/team-management", icon: <GroupIcon />, roles: ["BATCH_MANAGER"] },
+    { name: "Match Announcements", href: "/dashboard/announcements", icon: <CampaignIcon />, roles: ["BATCH_MANAGER"] },
     { name: "Matches", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/matches" : "/dashboard/scores", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN"] },
     { name: "News Manager", href: (user.role === "ADMIN" || user.role === "CO_ADMIN") ? "/admin/news" : "/dashboard/news", icon: <NewspaperIcon />, roles: ["ADMIN", "CO_ADMIN", "BATCH_MANAGER"] },
     { name: "Members", href: "/dashboard/members", icon: <GroupIcon />, roles: ["USER", "BATCH_MANAGER"] },

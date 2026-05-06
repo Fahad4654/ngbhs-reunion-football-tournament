@@ -34,6 +34,7 @@ model Batch {
   
   members     User[]   @relation("BatchMembers")
   followers   User[]   @relation("UserFollows")
+  matchSquads MatchSquadMember[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -111,6 +112,7 @@ model Match {
   
   tournamentId String?
   tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  squadMembers MatchSquadMember[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -259,6 +261,8 @@ model User {
   status        UserStatus @default(APPROVED)
   isPlayer      Boolean    @default(false)
   teamRole      String?
+  teamDesignation String?
+  matchParticipations MatchSquadMember[]
 }
 
 enum UserStatus {
@@ -282,4 +286,25 @@ enum Role {
   CO_ADMIN
   BATCH_MANAGER
   USER
+}
+
+model MatchSquadMember {
+  id        String   @id @default(cuid())
+  matchId   String
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  batchId   String
+  batch     Batch    @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    MatchPlayerStatus @default(STARTER)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([matchId, userId])
+}
+
+enum MatchPlayerStatus {
+  STARTER
+  SUBSTITUTE
 }

@@ -1,55 +1,54 @@
 'use client';
-
+ 
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateMemberRole } from '@/lib/actions/batch.actions';
+import { updateMemberDesignation } from '@/lib/actions/batch.actions';
 import { toast } from 'react-hot-toast';
-import EditIcon from '@mui/icons-material/Edit';
+import StarsIcon from '@mui/icons-material/Stars';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 
-interface RoleAssignmentProps {
+interface DesignationAssignmentProps {
   userId: string;
-  currentRole: string | null;
+  currentDesignation: string | null;
   userName: string;
 }
 
-const FOOTBALL_ROLES = [
-  { group: 'Goalkeeper', roles: ['Goalkeeper (GK)'] },
-  { group: 'Defenders', roles: ['Center-Back (CB)', 'Full-Back (LB/RB)', 'Wing-Back (LWB/RWB)', 'Sweeper (SW)'] },
-  { group: 'Midfielders', roles: ['Central Defensive Midfielder (CDM)', 'Central Midfielder (CM)', 'Central Attacking Midfielder (CAM)', 'Wide Midfielder (LM/RM)', 'Deep-Lying Playmaker (Regista)'] },
-  { group: 'Forwards', roles: ['Winger (LW/RW)', 'Center-Forward (CF)', 'Striker (ST)', 'Second Striker (SS)', 'False 9'] },
+const TEAM_DESIGNATIONS = [
+  'Coach',
+  'Captain',
+  'Vice-Captain',
+  'Substitute',
 ];
 
-export default function RoleAssignment({ userId, currentRole, userName }: RoleAssignmentProps) {
+export default function DesignationAssignment({ userId, currentDesignation, userName }: DesignationAssignmentProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [role, setRole] = useState(currentRole || '');
+  const [designation, setDesignation] = useState(currentDesignation || '');
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  // Update internal state if prop changes from parent
   useEffect(() => {
-    setRole(currentRole || '');
-  }, [currentRole]);
+    setDesignation(currentDesignation || '');
+  }, [currentDesignation]);
 
   const handleSave = () => {
-    if (role === currentRole) {
+    if (designation === currentDesignation) {
       setIsEditing(false);
       return;
     }
 
     startTransition(async () => {
       try {
-        const result = await updateMemberRole(userId, role || null);
+        const result = await updateMemberDesignation(userId, designation || null);
         if (result.success) {
-          toast.success(`Role updated for ${userName}`);
+          toast.success(`Designation updated for ${userName}`);
           setIsEditing(false);
           router.refresh();
         } else {
-          toast.error(result.error || 'Failed to update role');
+          toast.error(result.error || 'Failed to update designation');
         }
       } catch (err: any) {
-        console.error('Role update error:', err);
+        console.error('Designation update error:', err);
         toast.error('Network error. Please try again.');
       }
     });
@@ -59,8 +58,8 @@ export default function RoleAssignment({ userId, currentRole, userName }: RoleAs
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
+          value={designation}
+          onChange={(e) => setDesignation(e.target.value)}
           className="glass"
           style={{ 
             fontSize: '0.75rem', 
@@ -69,20 +68,16 @@ export default function RoleAssignment({ userId, currentRole, userName }: RoleAs
             border: '1px solid var(--border-color)',
             background: 'rgba(255,255,255,0.05)',
             color: 'white',
-            width: '180px',
+            width: '140px',
             outline: 'none',
             appearance: 'none',
             cursor: 'pointer'
           }}
           autoFocus
         >
-          <option value="" style={{ color: 'black' }}>— None —</option>
-          {FOOTBALL_ROLES.map((group) => (
-            <optgroup key={group.group} label={group.group} style={{ color: 'black', fontWeight: 'bold' }}>
-              {group.roles.map((r) => (
-                <option key={r} value={r} style={{ color: 'black' }}>{r}</option>
-              ))}
-            </optgroup>
+          <option value="" style={{ color: 'black' }}>— No Designation —</option>
+          {TEAM_DESIGNATIONS.map((d) => (
+            <option key={d} value={d} style={{ color: 'black' }}>{d}</option>
           ))}
         </select>
         <button 
@@ -94,7 +89,7 @@ export default function RoleAssignment({ userId, currentRole, userName }: RoleAs
           <SaveIcon sx={{ fontSize: '1rem' }} />
         </button>
         <button 
-          onClick={() => { setIsEditing(false); setRole(currentRole || ''); }}
+          onClick={() => { setIsEditing(false); setDesignation(currentDesignation || ''); }}
           className="btn glass"
           style={{ padding: '0.3rem', minWidth: 'auto', color: '#ff4444' }}
         >
@@ -115,11 +110,12 @@ export default function RoleAssignment({ userId, currentRole, userName }: RoleAs
         alignItems: 'center', 
         gap: '0.3rem',
         opacity: 0.8,
-        height: 'auto'
+        height: 'auto',
+        color: currentDesignation ? 'var(--accent-secondary)' : 'inherit'
       }}
     >
-      <EditIcon sx={{ fontSize: '0.9rem' }} />
-      <span>{currentRole ? 'Change Role' : 'Assign Role'}</span>
+      <StarsIcon sx={{ fontSize: '0.9rem' }} />
+      <span>{currentDesignation || 'Add Designation'}</span>
     </button>
   );
 }
