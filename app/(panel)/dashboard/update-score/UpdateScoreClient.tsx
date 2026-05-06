@@ -192,7 +192,11 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)' }}><TimerIcon fontSize="small" /> MATCH CLOCK</div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <input type="number" value={match.currentMinute} onChange={(e) => updateLocal(match.id, 'currentMinute', parseInt(e.target.value) || 0)} style={{ width: '70px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white', textAlign: 'center', borderRadius: '4px' }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                        <button onClick={() => updateLocal(match.id, 'currentMinute', Math.max(0, match.currentMinute - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
+                        <input type="number" value={match.currentMinute} onChange={(e) => updateLocal(match.id, 'currentMinute', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                        <button onClick={() => updateLocal(match.id, 'currentMinute', match.currentMinute + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
+                      </div>
                       <button onClick={() => handleClockToggle(match)} className={`btn ${match.clockRunning ? 'btn-danger' : 'btn-primary'}`} style={{ flex: 1 }}>{match.clockRunning ? 'Stop Clock' : 'Start Clock'}</button>
                     </div>
                   </div>
@@ -210,9 +214,21 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                 <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}><BarChartIcon fontSize="small" /> LIVE STATS</div>
                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
-                      <div><input type="number" value={match.homeShots} onChange={(e) => updateLocal(match.id, 'homeShots', parseInt(e.target.value))} style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', fontWeight: '900', textAlign: 'center' }} /></div>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <button onClick={() => updateLocal(match.id, 'homeShots', Math.max(0, match.homeShots - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
+                          <input type="number" value={match.homeShots} onChange={(e) => updateLocal(match.id, 'homeShots', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                          <button onClick={() => updateLocal(match.id, 'homeShots', match.homeShots + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
+                        </div>
+                      </div>
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>TOTAL SHOTS</div>
-                      <div><input type="number" value={match.awayShots} onChange={(e) => updateLocal(match.id, 'awayShots', parseInt(e.target.value))} style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', fontWeight: '900', textAlign: 'center' }} /></div>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <button onClick={() => updateLocal(match.id, 'awayShots', Math.max(0, match.awayShots - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
+                          <input type="number" value={match.awayShots} onChange={(e) => updateLocal(match.id, 'awayShots', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                          <button onClick={() => updateLocal(match.id, 'awayShots', match.awayShots + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
+                        </div>
+                      </div>
                    </div>
                    <div style={{ textAlign: 'center', marginTop: '1rem' }}><button onClick={() => startTransition(async () => { const res = await updateMatchStats(match.id, match); if (res.success) toast.success('Stats updated'); })} className="btn glass" style={{ fontSize: '0.7rem' }}>Save Stats</button></div>
                 </div>
