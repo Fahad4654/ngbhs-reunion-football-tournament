@@ -132,6 +132,11 @@ model Match {
   homeOffsides      Int @default(0)
   awayOffsides      Int @default(0)
 
+  // Advanced Match State
+  matchPeriod        MatchPeriod @default(PRE_MATCH)
+  homePenaltyScore   Int         @default(0)
+  awayPenaltyScore   Int         @default(0)
+
   events MatchEvent[]
 
   createdAt DateTime @default(now())
@@ -143,6 +148,19 @@ enum MatchStatus {
   LIVE
   FINISHED
   CANCELLED
+}
+
+enum MatchPeriod {
+  PRE_MATCH
+  FIRST_HALF
+  HALF_TIME
+  SECOND_HALF
+  FULL_TIME
+  EXTRA_TIME_1
+  EXTRA_TIME_HALF_TIME
+  EXTRA_TIME_2
+  PENALTIES
+  FINISHED
 }
 
 model News {

@@ -118,6 +118,9 @@ export async function updateMatchScore(
     status: string;
     homeScore: number;
     awayScore: number;
+    homePenaltyScore?: number;
+    awayPenaltyScore?: number;
+    matchPeriod?: string;
   }
 ) {
   const user = await getServerUser();
@@ -130,6 +133,9 @@ export async function updateMatchScore(
         status: data.status as any,
         homeScore: data.homeScore,
         awayScore: data.awayScore,
+        homePenaltyScore: data.homePenaltyScore ?? 0,
+        awayPenaltyScore: data.awayPenaltyScore ?? 0,
+        matchPeriod: data.matchPeriod as any || 'PRE_MATCH',
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
     });
@@ -209,6 +215,7 @@ export async function updateMatchClock(
     running: boolean;
     minute: number;
     injuryTime?: number;
+    matchPeriod?: string;
   }
 ) {
   const user = await getServerUser();
@@ -221,6 +228,7 @@ export async function updateMatchClock(
         clockRunning: data.running,
         currentMinute: data.minute,
         injuryTime: data.injuryTime ?? 0,
+        matchPeriod: data.matchPeriod as any || 'PRE_MATCH',
         clockStartedAt: data.running ? new Date() : null,
       }
     });

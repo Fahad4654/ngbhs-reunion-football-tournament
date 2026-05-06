@@ -8,9 +8,21 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GroupsIcon from '@mui/icons-material/Groups';
 import BarChartIcon from '@mui/icons-material/BarChart';
 
+const PERIODS: Record<string, string> = {
+  'PRE_MATCH': 'Pre-Match',
+  'FIRST_HALF': '1st Half',
+  'HALF_TIME': 'Half Time',
+  'SECOND_HALF': '2nd Half',
+  'FULL_TIME': 'Full Time',
+  'EXTRA_TIME_1': 'Extra Time 1',
+  'EXTRA_TIME_HALF_TIME': 'ET Half Time',
+  'EXTRA_TIME_2': 'Extra Time 2',
+  'PENALTIES': 'Penalties',
+  'FINISHED': 'Finished',
+};
+
 export default function MatchCenterClient({ initialMatch }: { initialMatch: any }) {
   const [match, setMatch] = useState(initialMatch);
-
   const [displayMinute, setDisplayMinute] = useState(match.currentMinute);
 
   useEffect(() => {
@@ -25,7 +37,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
     };
 
     calculateMinute();
-    const interval = setInterval(calculateMinute, 10000); // Check every 10s
+    const interval = setInterval(calculateMinute, 10000);
     return () => clearInterval(interval);
   }, [match.currentMinute, match.clockRunning, match.clockStartedAt, match.status]);
 
@@ -61,7 +73,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem' }}>
       {/* Match Header */}
       <div className="glass" style={{ padding: '3rem', borderRadius: '24px', marginBottom: '2rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '1rem', left: '0', right: '0', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', top: '1rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '1rem' }}>
           <span style={{ background: 'rgba(255,255,255,0.05)', padding: '0.4rem 1.2rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.1em', color: 'var(--accent-primary)', textTransform: 'uppercase' }}>
             {match.tournament?.name}
           </span>
@@ -87,18 +99,24 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
               <span style={{ color: 'var(--text-muted)', fontSize: '2rem' }}>:</span>
               <span>{match.awayScore}</span>
             </div>
-            {match.status === 'LIVE' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            
+            {/* Penalty Score Display */}
+            {match.matchPeriod === 'PENALTIES' && (
+              <div style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)', marginTop: '-1rem', marginBottom: '1rem' }}>
+                ({match.homePenaltyScore}) PEN ({match.awayPenaltyScore})
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                {PERIODS[match.matchPeriod] || match.matchPeriod}
+              </div>
+              {match.status === 'LIVE' && (
                 <div style={{ background: 'rgba(239, 68, 68, 0.2)', color: 'var(--accent-danger)', padding: '0.3rem 1rem', borderRadius: '20px', fontWeight: '900', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                    <span className="live-dot" /> {displayMinute}' {match.injuryTime > 0 ? `+${match.injuryTime}` : ''}
                 </div>
-                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Live Match</div>
-              </div>
-            ) : (
-              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                {match.status}
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Away Team */}

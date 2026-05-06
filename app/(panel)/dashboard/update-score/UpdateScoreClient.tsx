@@ -13,14 +13,18 @@ import SyncIcon from '@mui/icons-material/Sync'; // For Subs
 import BarChartIcon from '@mui/icons-material/BarChart';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FlagIcon from '@mui/icons-material/Flag';
 
 type Player = { id: string, name: string | null };
 
 type Match = {
   id: string;
   status: 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED';
+  matchPeriod: string;
   homeScore: number;
   awayScore: number;
+  homePenaltyScore: number;
+  awayPenaltyScore: number;
   homeTeam: { id: string; name: string; logoUrl: string | null };
   awayTeam: { id: string; name: string; logoUrl: string | null };
   tournament: { name: string } | null;
@@ -43,6 +47,19 @@ type Match = {
   homeOffsides: number;
   awayOffsides: number;
 };
+
+const PERIODS = [
+  { value: 'PRE_MATCH', label: 'Pre-Match' },
+  { value: 'FIRST_HALF', label: '1st Half' },
+  { value: 'HALF_TIME', label: 'Half Time' },
+  { value: 'SECOND_HALF', label: '2nd Half' },
+  { value: 'FULL_TIME', label: 'Full Time (90\')' },
+  { value: 'EXTRA_TIME_1', label: 'Extra Time 1' },
+  { value: 'EXTRA_TIME_HALF_TIME', label: 'ET Half Time' },
+  { value: 'EXTRA_TIME_2', label: 'Extra Time 2' },
+  { value: 'PENALTIES', label: 'Penalties' },
+  { value: 'FINISHED', label: 'Finished' },
+];
 
 export default function UpdateScoreClient({ initialMatches }: { initialMatches: Match[] }) {
   const [matches, setMatches] = useState(initialMatches);
@@ -78,10 +95,13 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
       const res = await updateMatchScore(match.id, {
         status: match.status,
         homeScore: match.homeScore,
-        awayScore: match.awayScore
+        awayScore: match.awayScore,
+        homePenaltyScore: match.homePenaltyScore,
+        awayPenaltyScore: match.awayPenaltyScore,
+        matchPeriod: match.matchPeriod
       });
       if (res.success) {
-        toast.success(`Score updated`);
+        toast.success(`Match state updated`);
         router.refresh();
       } else toast.error(res.error);
     });
@@ -93,18 +113,17 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
       const res = await updateMatchClock(match.id, {
         running: !match.clockRunning,
         minute: displayMin,
-        injuryTime: match.injuryTime
+        injuryTime: match.injuryTime,
+        matchPeriod: match.matchPeriod
       });
       if (res.success) {
-        // We update locally to avoid wait, but the useEffect [initialMatches] will sync correctly
-        toast.success(match.clockRunning ? 'Clock stopped' : 'Clock started');
+        toast.success(match.clockRunning ? 'Clock paused' : 'Clock started');
         router.refresh();
       } else toast.error(res.error);
     });
   }
 
   async function handleAddOrUpdateEvent(matchId: string, type: string, data: any, eventId?: string) {
-    // Optimistic Update for Score if Goal
     if (!eventId && type === 'GOAL') {
        const match = matches.find(m => m.id === matchId);
        if (match) {
@@ -172,6 +191,9 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                   <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--accent-primary)', textTransform: 'uppercase' }}>
                     {match.tournament?.name || 'Match'} — {match.status}
                   </span>
+                  <div style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: '800', fontSize: '0.75rem' }}>
+                    {PERIODS.find(p => p.value === match.matchPeriod)?.label || match.matchPeriod}
+                  </div>
                   {match.status === 'LIVE' && (
                     <div style={{ background: 'rgba(239, 68, 68, 0.2)', color: 'var(--accent-danger)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: '900', fontSize: '0.9rem' }}>
                       {displayMinute}'{match.injuryTime > 0 ? ` +${match.injuryTime}` : ''}
@@ -204,21 +226,61 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                 </div>
               </div>
 
+              {/* Penalty Score (Conditional) */}
+              {match.matchPeriod === 'PENALTIES' && (
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)' }}>PENALTIES:</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => updateLocal(match.id, 'homePenaltyScore', Math.max(0, match.homePenaltyScore - 1))} className="btn glass" style={{ padding: '0.2rem 0.5rem' }}>-</button>
+                    <span style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)' }}>{match.homePenaltyScore}</span>
+                    <button onClick={() => updateLocal(match.id, 'homePenaltyScore', match.homePenaltyScore + 1)} className="btn glass" style={{ padding: '0.2rem 0.5rem' }}>+</button>
+                  </div>
+                  <div style={{ fontWeight: '900' }}>-</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => updateLocal(match.id, 'awayPenaltyScore', Math.max(0, match.awayPenaltyScore - 1))} className="btn glass" style={{ padding: '0.2rem 0.5rem' }}>-</button>
+                    <span style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)' }}>{match.awayPenaltyScore}</span>
+                    <button onClick={() => updateLocal(match.id, 'awayPenaltyScore', match.awayPenaltyScore + 1)} className="btn glass" style={{ padding: '0.2rem 0.5rem' }}>+</button>
+                  </div>
+                </div>
+              )}
+
               {/* Event Console (Expandable) */}
               {activeConsole === match.id && (
                 <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)' }}><TimerIcon fontSize="small" /> MATCH CLOCK</div>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                          <button onClick={() => updateLocal(match.id, 'currentMinute', Math.max(0, match.currentMinute - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem', cursor: 'pointer' }}>-</button>
-                          <input type="number" value={displayMinute} onChange={(e) => updateLocal(match.id, 'currentMinute', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
-                          <button onClick={() => updateLocal(match.id, 'currentMinute', match.currentMinute + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem', cursor: 'pointer' }}>+</button>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
+                    {/* Left: Clock & Period */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                         <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}><TimerIcon fontSize="small" /> MATCH CLOCK</div>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                                <button onClick={() => updateLocal(match.id, 'currentMinute', Math.max(0, match.currentMinute - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+                                <input type="number" value={displayMinute} onChange={(e) => updateLocal(match.id, 'currentMinute', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                                <button onClick={() => updateLocal(match.id, 'currentMinute', match.currentMinute + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
+                              </div>
+                              <button onClick={() => handleClockToggle(match)} className={`btn ${match.clockRunning ? 'btn-danger' : 'btn-primary'}`} style={{ flex: 1 }}>{match.clockRunning ? 'Pause Clock' : 'Start Clock'}</button>
+                            </div>
+                         </div>
+                         <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}><FlagIcon fontSize="small" /> MATCH PERIOD</div>
+                            <select value={match.matchPeriod} onChange={(e) => updateLocal(match.id, 'matchPeriod', e.target.value)} className="glass" style={{ width: '100%', padding: '0.4rem', color: 'white', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                              {PERIODS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                            </select>
+                         </div>
+                      </div>
+                      
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>INJURY TIME (ADDITIONAL MINS)</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.03)', padding: '0.2rem', borderRadius: '8px', border: '1px solid var(--border-color)', width: 'fit-content' }}>
+                          <button onClick={() => updateLocal(match.id, 'injuryTime', Math.max(0, match.injuryTime - 1))} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.7rem' }}>-</button>
+                          <input type="number" value={match.injuryTime} onChange={(e) => updateLocal(match.id, 'injuryTime', parseInt(e.target.value) || 0)} className="score-input" style={{ width: '40px', background: 'transparent', border: 'none', color: 'white', textAlign: 'center', fontWeight: '800' }} />
+                          <button onClick={() => updateLocal(match.id, 'injuryTime', match.injuryTime + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: 'none', background: 'var(--accent-primary)', color: 'black', fontSize: '0.7rem' }}>+</button>
                         </div>
-                        <button onClick={() => handleClockToggle(match)} className={`btn ${match.clockRunning ? 'btn-danger' : 'btn-primary'}`} style={{ flex: 1 }}>{match.clockRunning ? 'Stop Clock' : 'Start Clock'}</button>
                       </div>
                     </div>
+
+                    {/* Right: Quick Actions */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)' }}>QUICK LOG</div>
                       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -230,6 +292,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                     </div>
                   </div>
 
+                  {/* Stats Section */}
                   <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}><BarChartIcon fontSize="small" /> LIVE STATS</div>
                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -253,6 +316,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                      <div style={{ textAlign: 'center', marginTop: '2rem' }}><button onClick={() => startTransition(async () => { const res = await updateMatchStats(match.id, match); if (res.success) toast.success('All stats updated'); })} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.6rem 2rem' }}>Save All Stats</button></div>
                   </div>
 
+                  {/* Event History Section */}
                   <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
                      <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}>RECENT EVENTS</div>
                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -275,9 +339,10 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                 </div>
               )}
 
+              {/* Status Update */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <select value={match.status} onChange={(e) => updateLocal(match.id, 'status', e.target.value)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white', padding: '0.4rem 1rem', borderRadius: '6px', fontWeight: '700' }}><option value="SCHEDULED">Scheduled</option><option value="LIVE">Live 🔴</option><option value="FINISHED">Finished ✅</option><option value="CANCELLED">Cancelled</option></select>
-                <button onClick={() => handleSaveScore(match)} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><SaveIcon fontSize="small" /> Save Match Status</button>
+                <button onClick={() => handleSaveScore(match)} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><SaveIcon fontSize="small" /> Save Match State</button>
               </div>
             </div>
           );
