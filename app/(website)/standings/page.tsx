@@ -37,7 +37,16 @@ async function getTournamentsAndStandings() {
     teamsData = await prisma.tournamentTeam.findMany({
       where: { tournamentId: activeTournamentRef.id },
       include: {
-        batch: { select: { name: true, logoUrl: true } },
+        batch: { 
+          select: { 
+            name: true, 
+            logoUrl: true,
+            members: {
+              where: { isPlayer: true },
+              select: { id: true, name: true, image: true, teamRole: true }
+            }
+          } 
+        },
         group: { select: { id: true, name: true } },
       },
       orderBy: [{ points: "desc" }, { goalsFor: "desc" }],
