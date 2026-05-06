@@ -14,6 +14,8 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FlagIcon from '@mui/icons-material/Flag';
+import CircleIcon from '@mui/icons-material/Circle';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 type Player = { id: string, name: string | null };
 
@@ -25,6 +27,7 @@ type Match = {
   awayScore: number;
   homePenaltyScore: number;
   awayPenaltyScore: number;
+  penaltySequence: any[];
   homeTeam: { id: string; name: string; logoUrl: string | null };
   awayTeam: { id: string; name: string; logoUrl: string | null };
   tournament: { name: string } | null;
@@ -66,6 +69,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   const [isPending, startTransition] = useTransition();
   const [activeConsole, setActiveConsole] = useState<string | null>(null);
   const [eventModal, setEventModal] = useState<{ matchId: string, type: string, eventId?: string, defaultData?: any } | null>(null);
+  const [penaltyModal, setPenaltyModal] = useState<{ matchId: string } | null>(null);
   const [tick, setTick] = useState(0);
   const router = useRouter();
 
@@ -82,13 +86,11 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
     setMatches(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
   }
 
-  // New: Auto-save stats
   async function autoSaveStats(matchId: string) {
     const match = matches.find(m => m.id === matchId);
     if (!match) return;
     startTransition(async () => {
       await updateMatchStats(matchId, match);
-      // No toast for auto-save to avoid spam
     });
   }
 
@@ -108,6 +110,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
         awayScore: match.awayScore,
         homePenaltyScore: match.homePenaltyScore,
         awayPenaltyScore: match.awayPenaltyScore,
+        penaltySequence: match.penaltySequence,
         matchPeriod: match.matchPeriod
       });
       if (res.success) {
@@ -131,6 +134,41 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
         router.refresh();
       } else toast.error(res.error);
     });
+  }
+
+  async function handleAddPenalty(matchId: string, data: any) {
+    const match = matches.find(m => m.id === matchId);
+    if (!match) return;
+    
+    const newSequence = [...(match.penaltySequence || []), { 
+      id: Math.random().toString(36).substr(2, 9),
+      ...data, 
+      order: (match.penaltySequence?.length || 0) + 1 
+    }];
+    
+    // Auto-calculate penalty score
+    const homeScore = newSequence.filter(p => p.teamId === match.homeTeam.id && p.scored).length;
+    const awayScore = newSequence.filter(p => p.teamId === match.awayTeam.id && p.scored).length;
+
+    updateLocal(matchId, 'penaltySequence', newSequence);
+    updateLocal(matchId, 'homePenaltyScore', homeScore);
+    updateLocal(matchId, 'awayPenaltyScore', awayScore);
+    
+    setPenaltyModal(null);
+    toast.success('Penalty recorded');
+  }
+
+  async function handleDeletePenalty(matchId: string, penaltyId: string) {
+    const match = matches.find(m => m.id === matchId);
+    if (!match) return;
+    
+    const newSequence = (match.penaltySequence || []).filter(p => p.id !== penaltyId);
+    const homeScore = newSequence.filter(p => p.teamId === match.homeTeam.id && p.scored).length;
+    const awayScore = newSequence.filter(p => p.teamId === match.awayTeam.id && p.scored).length;
+
+    updateLocal(matchId, 'penaltySequence', newSequence);
+    updateLocal(matchId, 'homePenaltyScore', homeScore);
+    updateLocal(matchId, 'awayPenaltyScore', awayScore);
   }
 
   async function handleAddOrUpdateEvent(matchId: string, type: string, data: any, eventId?: string) {
@@ -236,21 +274,47 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                 </div>
               </div>
 
-              {/* Penalty Score (Conditional) */}
+              {/* Penalty Shootout Section (Visual Balls) */}
               {match.matchPeriod === 'PENALTIES' && (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)' }}>PENALTIES:</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <button onClick={() => updateLocal(match.id, 'homePenaltyScore', Math.max(0, match.homePenaltyScore - 1))} className="btn glass" style={{ padding: '0.2rem 0.5rem' }}>-</button>
-                    <span style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)' }}>{match.homePenaltyScore}</span>
-                    <button onClick={() => updateLocal(match.id, 'homePenaltyScore', match.homePenaltyScore + 1)} className="btn glass" style={{ padding: '0.2rem 0.5rem' }}>+</button>
-                  </div>
-                  <div style={{ fontWeight: '900' }}>-</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <button onClick={() => updateLocal(match.id, 'awayPenaltyScore', Math.max(0, match.awayPenaltyScore - 1))} className="btn glass" style={{ padding: '0.2rem 0.5rem' }}>-</button>
-                    <span style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)' }}>{match.awayPenaltyScore}</span>
-                    <button onClick={() => updateLocal(match.id, 'awayPenaltyScore', match.awayPenaltyScore + 1)} className="btn glass" style={{ padding: '0.2rem 0.5rem' }}>+</button>
-                  </div>
+                <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '16px', border: '1px solid var(--accent-primary)' }}>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--accent-primary)' }}>PENALTY SHOOTOUT</div>
+                      <button onClick={() => setPenaltyModal({ matchId: match.id })} className="btn btn-primary" style={{ fontSize: '0.7rem', padding: '0.4rem 1rem' }}>+ Record Penalty</button>
+                   </div>
+                   
+                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                      {/* Home Penalties */}
+                      <div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.8rem' }}>{match.homeTeam.name.toUpperCase()} — {match.homePenaltyScore}</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                           {(match.penaltySequence || []).filter(p => p.teamId === match.homeTeam.id).map((p, i) => (
+                             <div key={p.id} style={{ position: 'relative' }} title={`${p.playerName} - ${p.scored ? 'Scored' : 'Missed'}`}>
+                                {p.scored ? <SportsSoccerIcon sx={{ color: '#10b981' }} /> : <HighlightOffIcon sx={{ color: '#ef4444' }} />}
+                                <button onClick={() => handleDeletePenalty(match.id, p.id)} style={{ position: 'absolute', top: -5, right: -5, background: 'black', border: 'none', color: 'white', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer' }}>x</button>
+                             </div>
+                           ))}
+                           {Array.from({ length: Math.max(0, 5 - (match.penaltySequence || []).filter(p => p.teamId === match.homeTeam.id).length) }).map((_, i) => (
+                             <CircleIcon key={i} sx={{ color: 'rgba(255,255,255,0.05)' }} />
+                           ))}
+                        </div>
+                      </div>
+
+                      {/* Away Penalties */}
+                      <div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.8rem' }}>{match.awayTeam.name.toUpperCase()} — {match.awayPenaltyScore}</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                           {(match.penaltySequence || []).filter(p => p.teamId === match.awayTeam.id).map((p, i) => (
+                             <div key={p.id} style={{ position: 'relative' }} title={`${p.playerName} - ${p.scored ? 'Scored' : 'Missed'}`}>
+                                {p.scored ? <SportsSoccerIcon sx={{ color: '#10b981' }} /> : <HighlightOffIcon sx={{ color: '#ef4444' }} />}
+                                <button onClick={() => handleDeletePenalty(match.id, p.id)} style={{ position: 'absolute', top: -5, right: -5, background: 'black', border: 'none', color: 'white', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer' }}>x</button>
+                             </div>
+                           ))}
+                           {Array.from({ length: Math.max(0, 5 - (match.penaltySequence || []).filter(p => p.teamId === match.awayTeam.id).length) }).map((_, i) => (
+                             <CircleIcon key={i} sx={{ color: 'rgba(255,255,255,0.05)' }} />
+                           ))}
+                        </div>
+                      </div>
+                   </div>
                 </div>
               )}
 
@@ -258,7 +322,6 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
               {activeConsole === match.id && (
                 <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
-                    {/* Left: Clock & Period */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                          <div>
@@ -290,7 +353,6 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                       </div>
                     </div>
 
-                    {/* Right: Quick Actions */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)' }}>QUICK LOG</div>
                       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -325,7 +387,6 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                      </div>
                   </div>
 
-                  {/* Event History Section */}
                   <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
                      <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '1rem' }}>RECENT EVENTS</div>
                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -348,7 +409,6 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                 </div>
               )}
 
-              {/* Status Update */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <select value={match.status} onChange={(e) => updateLocal(match.id, 'status', e.target.value)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white', padding: '0.4rem 1rem', borderRadius: '6px', fontWeight: '700' }}><option value="SCHEDULED">Scheduled</option><option value="LIVE">Live 🔴</option><option value="FINISHED">Finished ✅</option><option value="CANCELLED">Cancelled</option></select>
                 <button onClick={() => handleSaveScore(match)} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><SaveIcon fontSize="small" /> Save Match State</button>
@@ -368,6 +428,16 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
           match={matches.find(m => m.id === eventModal.matchId)!}
           defaultData={eventModal.defaultData}
           displayMinute={getDisplayMinute(matches.find(m => m.id === eventModal.matchId)!)}
+        />
+      )}
+
+      {/* Penalty Modal */}
+      {penaltyModal && (
+        <PenaltyModal
+          isOpen={!!penaltyModal}
+          onClose={() => setPenaltyModal(null)}
+          onSubmit={(data: any) => handleAddPenalty(penaltyModal.matchId, data)}
+          match={matches.find(m => m.id === penaltyModal.matchId)!}
         />
       )}
       
@@ -440,6 +510,59 @@ function EventModal({ isOpen, onClose, onSubmit, type, match, defaultData, displ
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
             <button onClick={onClose} className="btn glass" style={{ flex: 1 }}>Cancel</button>
             <button onClick={() => onSubmit({ teamId, playerId, minute, note })} className="btn btn-primary" style={{ flex: 1 }}>{defaultData ? 'Update' : 'Log Event'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PenaltyModal({ isOpen, onClose, onSubmit, match }: any) {
+  const [teamId, setTeamId] = useState(match.homeTeam.id);
+  const [playerId, setPlayerId] = useState('');
+  const [scored, setScored] = useState(true);
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="glass" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
+        <h3 style={{ margin: '0 0 1.5rem', fontWeight: '900' }}>RECORD PENALTY</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>TEAM</label>
+            <select value={teamId} onChange={(e) => setTeamId(e.target.value)} className="glass" style={{ width: '100%', padding: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.05)' }}>
+              <option value={match.homeTeam.id}>{match.homeTeam.name}</option>
+              <option value={match.awayTeam.id}>{match.awayTeam.name}</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>PLAYER</label>
+            <select value={playerId} onChange={(e) => setPlayerId(e.target.value)} className="glass" style={{ width: '100%', padding: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.05)' }}>
+              <option value="">Select Player</option>
+              {match.matchSquads.filter((s: any) => s.batchId === teamId).map((s: any) => (
+                <option key={s.user.id} value={s.user.id}>{s.user.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>RESULT</label>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+               <button onClick={() => setScored(true)} className={`btn ${scored ? 'btn-primary' : 'glass'}`} style={{ flex: 1 }}>Scored</button>
+               <button onClick={() => setScored(false)} className={`btn ${!scored ? 'btn-danger' : 'glass'}`} style={{ flex: 1 }}>Missed</button>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            <button onClick={onClose} className="btn glass" style={{ flex: 1 }}>Cancel</button>
+            <button 
+              onClick={() => {
+                const player = match.matchSquads.find((s: any) => s.user.id === playerId);
+                onSubmit({ teamId, playerId, playerName: player?.user.name || 'Unknown', scored });
+              }} 
+              className="btn btn-primary" 
+              style={{ flex: 1 }}
+              disabled={!playerId}
+            >
+              Record
+            </button>
           </div>
         </div>
       </div>

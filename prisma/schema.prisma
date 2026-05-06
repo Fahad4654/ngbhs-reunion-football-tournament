@@ -136,6 +136,7 @@ model Match {
   matchPeriod        MatchPeriod @default(PRE_MATCH)
   homePenaltyScore   Int         @default(0)
   awayPenaltyScore   Int         @default(0)
+  penaltySequence    Json?       // [{teamId, playerId, scored, order}]
 
   events MatchEvent[]
 

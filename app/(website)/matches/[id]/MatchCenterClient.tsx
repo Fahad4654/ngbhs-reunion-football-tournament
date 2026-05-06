@@ -7,6 +7,8 @@ import SyncIcon from '@mui/icons-material/Sync';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GroupsIcon from '@mui/icons-material/Groups';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import CircleIcon from '@mui/icons-material/Circle';
 
 const PERIODS: Record<string, string> = {
   'PRE_MATCH': 'Pre-Match',
@@ -41,7 +43,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
     return () => clearInterval(interval);
   }, [match.currentMinute, match.clockRunning, match.clockStartedAt, match.status]);
 
-  // Polling for live updates (every 15 seconds)
+  // Polling for live updates (every 5 seconds for live matches)
   useEffect(() => {
     if (match.status === 'LIVE' || match.status === 'SCHEDULED') {
       const interval = setInterval(async () => {
@@ -54,7 +56,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
         } catch (error) {
           console.error('Failed to fetch match updates', error);
         }
-      }, 5000); // 5 seconds for live matches
+      }, 5000);
       return () => clearInterval(interval);
     }
   }, [match.id, match.status]);
@@ -131,6 +133,34 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
             <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>{match.awayTeam.name}</h2>
           </div>
         </div>
+
+        {/* Penalty Visual Tracker for Fans */}
+        {match.matchPeriod === 'PENALTIES' && (
+           <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '4rem' }}>
+              <div style={{ textAlign: 'center' }}>
+                 <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{match.homeTeam.name.toUpperCase()}</div>
+                 <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    {(match.penaltySequence || []).filter((p: any) => p.teamId === match.homeTeam.id).map((p: any, i: number) => (
+                       p.scored ? <SportsSoccerIcon key={i} sx={{ color: '#10b981', fontSize: '1.5rem' }} /> : <HighlightOffIcon key={i} sx={{ color: '#ef4444', fontSize: '1.5rem' }} />
+                    ))}
+                    {Array.from({ length: Math.max(0, 5 - (match.penaltySequence || []).filter((p: any) => p.teamId === match.homeTeam.id).length) }).map((_, i) => (
+                       <CircleIcon key={i} sx={{ color: 'rgba(255,255,255,0.05)', fontSize: '1.5rem' }} />
+                    ))}
+                 </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                 <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{match.awayTeam.name.toUpperCase()}</div>
+                 <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    {(match.penaltySequence || []).filter((p: any) => p.teamId === match.awayTeam.id).map((p: any, i: number) => (
+                       p.scored ? <SportsSoccerIcon key={i} sx={{ color: '#10b981', fontSize: '1.5rem' }} /> : <HighlightOffIcon key={i} sx={{ color: '#ef4444', fontSize: '1.5rem' }} />
+                    ))}
+                    {Array.from({ length: Math.max(0, 5 - (match.penaltySequence || []).filter((p: any) => p.teamId === match.awayTeam.id).length) }).map((_, i) => (
+                       <CircleIcon key={i} sx={{ color: 'rgba(255,255,255,0.05)', fontSize: '1.5rem' }} />
+                    ))}
+                 </div>
+              </div>
+           </div>
+        )}
 
         <div style={{ marginTop: '2rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>
           {new Date(match.date).toLocaleString()} • {match.venue || 'Venue TBA'}

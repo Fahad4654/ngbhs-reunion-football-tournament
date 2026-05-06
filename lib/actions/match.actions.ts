@@ -120,6 +120,7 @@ export async function updateMatchScore(
     awayScore: number;
     homePenaltyScore?: number;
     awayPenaltyScore?: number;
+    penaltySequence?: any;
     matchPeriod?: string;
   }
 ) {
@@ -135,6 +136,7 @@ export async function updateMatchScore(
         awayScore: data.awayScore,
         homePenaltyScore: data.homePenaltyScore ?? 0,
         awayPenaltyScore: data.awayPenaltyScore ?? 0,
+        penaltySequence: data.penaltySequence ?? [],
         matchPeriod: data.matchPeriod as any || 'PRE_MATCH',
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
