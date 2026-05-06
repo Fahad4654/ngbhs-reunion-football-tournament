@@ -11,6 +11,15 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 export default function MatchCenterClient({ initialMatch }: { initialMatch: any }) {
   const [match, setMatch] = useState(initialMatch);
 
+  useEffect(() => {
+    if (match.status === 'LIVE' && match.clockRunning) {
+      const interval = setInterval(() => {
+        setMatch((prev: any) => ({ ...prev, currentMinute: prev.currentMinute + 1 }));
+      }, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [match.status, match.clockRunning]);
+
   // Polling for live updates (every 15 seconds)
   useEffect(() => {
     if (match.status === 'LIVE' || match.status === 'SCHEDULED') {

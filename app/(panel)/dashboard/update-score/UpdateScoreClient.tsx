@@ -51,7 +51,15 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   const router = useRouter();
 
   useEffect(() => {
-    // Polling or local increment could go here
+    const interval = setInterval(() => {
+      setMatches(prev => prev.map(m => {
+        if (m.clockRunning && m.status === 'LIVE') {
+          return { ...m, currentMinute: m.currentMinute + 1 };
+        }
+        return m;
+      }));
+    }, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   function updateLocal(id: string, field: string, value: any) {
