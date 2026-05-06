@@ -1,11 +1,16 @@
 import prisma from "@/lib/prisma";
 import styles from "./matches.module.css";
+import Link from "next/link";
 
 async function getMatches() {
   return await prisma.match.findMany({
     include: {
       homeTeam: true,
       awayTeam: true,
+      events: {
+        orderBy: { createdAt: 'desc' },
+        take: 1
+      }
     },
     orderBy: {
       date: 'asc',
@@ -39,7 +44,7 @@ export default async function MatchesPage() {
 
         <div className={styles.matchList}>
           {matches.length > 0 ? matches.map((match) => (
-            <div key={match.id} className={`${styles.matchCard} glass`}>
+            <Link key={match.id} href={`/matches/${match.id}`} className={`${styles.matchCard} glass`} style={{ textDecoration: 'none', color: 'inherit', display: 'grid' }}>
               {/* Home Team */}
               <div className={`${styles.team} ${styles.teamHome}`}>
                 <span className={styles.teamName}>{match.homeTeam.name}</span>
@@ -54,20 +59,29 @@ export default async function MatchesPage() {
               <div className={styles.scoreContainer}>
                 <div className={styles.status}>
                   {match.status === 'LIVE' ? (
-                    <span className="badge badge-live">LIVE</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
+                      <span className="badge badge-live">LIVE</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--accent-danger)' }}>
+                        {match.currentMinute}'{match.injuryTime > 0 ? ` +${match.injuryTime}` : ''}
+                      </span>
+                    </div>
                   ) : (
-                    <span>{match.status}</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>{match.status}</span>
                   )}
                 </div>
-                <div className={styles.scoreBox}>
+                <div className={styles.scoreBox} style={{ fontSize: '2rem', fontWeight: '950', letterSpacing: '-0.02em' }}>
                   {match.status === 'SCHEDULED' ? (
-                    <span style={{ fontSize: 'clamp(1rem, 1.2vw, 1.2rem)' }}>VS</span>
+                    <span style={{ fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', color: 'var(--text-muted)' }}>VS</span>
                   ) : (
-                    `${match.homeScore} - ${match.awayScore}`
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                      <span>{match.homeScore}</span>
+                      <span style={{ opacity: 0.3 }}>-</span>
+                      <span>{match.awayScore}</span>
+                    </div>
                   )}
                 </div>
                 <div className={styles.venue}>
-                  {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {match.venue || 'TBD'}
+                  {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {match.venue || 'TBD'}
                 </div>
               </div>
 
@@ -80,7 +94,7 @@ export default async function MatchesPage() {
                 </div>
                 <span className={styles.teamName}>{match.awayTeam.name}</span>
               </div>
-            </div>
+            </Link>
           )) : (
             <div className="glass" style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>
               No matches have been scheduled yet. Check back soon!
