@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateMatchSquad } from '@/lib/actions/match-squad.actions';
+import { updateMatchSquad, getFullMatchSquads } from '@/lib/actions/match-squad.actions';
 import { toast } from 'react-hot-toast';
+import PrintSquad from '@/app/components/PrintSquad';
 import CloseIcon from '@mui/icons-material/Close';
+import PrintIcon from '@mui/icons-material/Print';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import GroupsIcon from '@mui/icons-material/Groups';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -30,6 +32,7 @@ export default function MatchAnnouncementsClient({ batchId, matches, allPlayers 
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [squad, setSquad] = useState<{ userId: string, status: 'STARTER' | 'SUBSTITUTE' }[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [printingMatch, setPrintingMatch] = useState<{ match: any, squads: any[] } | null>(null);
   const router = useRouter();
 
   function openModal(match: Match) {
@@ -71,6 +74,15 @@ export default function MatchAnnouncementsClient({ batchId, matches, allPlayers 
     });
   }
 
+  async function handlePrint(match: any) {
+    if (match.squadMembers.length === 0) {
+      toast.error('No squad announced for this match yet.');
+      return;
+    }
+    const squads = await getFullMatchSquads(match.id);
+    setPrintingMatch({ match, squads });
+  }
+
   return (
     <div style={{ display: 'grid', gap: '1.5rem' }}>
       {matches.length === 0 ? (
@@ -104,6 +116,14 @@ export default function MatchAnnouncementsClient({ batchId, matches, allPlayers 
                 </div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '800' }}>{match.tournament?.name}</div>
               </div>
+              <button 
+                className="btn glass" 
+                onClick={() => handlePrint(match)}
+                title="Print Squad List"
+                style={{ padding: '0.6rem' }}
+              >
+                <PrintIcon sx={{ fontSize: '1.2rem' }} />
+              </button>
               <button 
                 className="btn btn-primary" 
                 onClick={() => openModal(match)}
@@ -225,6 +245,14 @@ export default function MatchAnnouncementsClient({ batchId, matches, allPlayers 
             </div>
           </div>
         </div>
+      )}
+
+      {printingMatch && (
+        <PrintSquad 
+          match={printingMatch.match} 
+          squads={printingMatch.squads} 
+          onClose={() => setPrintingMatch(null)} 
+        />
       )}
     </div>
   );

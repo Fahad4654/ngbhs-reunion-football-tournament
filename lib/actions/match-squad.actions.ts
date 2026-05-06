@@ -93,3 +93,28 @@ export async function updateMatchSquad(
     return { success: false, error: error.message || 'Failed to update squad' };
   }
 }
+
+export async function getFullMatchSquads(matchId: string) {
+  try {
+    const squads = await prisma.matchSquadMember.findMany({
+      where: { matchId },
+      include: {
+        batch: { select: { name: true, id: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            teamRole: true,
+            teamDesignation: true
+          }
+        }
+      },
+      orderBy: { status: 'asc' } // STARTER then SUBSTITUTE
+    });
+
+    return squads;
+  } catch (error) {
+    console.error('[getFullMatchSquads]', error);
+    return [];
+  }
+}

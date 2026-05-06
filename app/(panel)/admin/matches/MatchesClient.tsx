@@ -2,6 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { createMatch, updateMatch, deleteMatch } from "@/lib/actions/match.actions";
+import { getFullMatchSquads } from "@/lib/actions/match-squad.actions";
+import PrintSquad from "@/app/components/PrintSquad";
+import PrintIcon from "@mui/icons-material/Print";
+import { toast } from "react-hot-toast";
 
 type Batch = { id: string; name: string };
 type Tournament = { 
@@ -110,6 +114,7 @@ export default function MatchesClient({
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [printingMatch, setPrintingMatch] = useState<{ match: any, squads: any[] } | null>(null);
 
   function openCreate() {
     setEditingId(null);
@@ -190,6 +195,15 @@ export default function MatchesClient({
         setError(res.error ?? "Failed to delete match");
       }
     });
+  }
+
+  async function handlePrint(match: any) {
+    const squads = await getFullMatchSquads(match.id);
+    if (squads.length === 0) {
+      toast.error("No squad announced for this match yet.");
+      return;
+    }
+    setPrintingMatch({ match, squads });
   }
 
   const statusColor: Record<string, string> = {
@@ -383,6 +397,14 @@ export default function MatchesClient({
                     <div style={{ display: "flex", gap: "0.4rem", justifyContent: "flex-end" }}>
                       <button
                         className="btn glass"
+                        onClick={() => handlePrint(match)}
+                        title="Print Squad List"
+                        style={{ padding: "0.35rem 0.7rem", fontSize: "0.72rem" }}
+                      >
+                        <PrintIcon sx={{ fontSize: '1.1rem' }} />
+                      </button>
+                      <button
+                        className="btn glass"
                         onClick={() => openEdit(match)}
                         disabled={isPending}
                         style={{ padding: "0.35rem 0.7rem", fontSize: "0.72rem" }}
@@ -405,6 +427,14 @@ export default function MatchesClient({
           </tbody>
         </table>
       </div>
+      
+      {printingMatch && (
+        <PrintSquad 
+          match={printingMatch.match} 
+          squads={printingMatch.squads} 
+          onClose={() => setPrintingMatch(null)} 
+        />
+      )}
     </>
   );
 }
