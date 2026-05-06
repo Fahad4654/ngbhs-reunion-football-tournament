@@ -51,6 +51,10 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   const router = useRouter();
 
   useEffect(() => {
+    setMatches(initialMatches);
+  }, [initialMatches]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setMatches(prev => prev.map(m => {
         if (m.clockRunning && m.status === 'LIVE') {
@@ -95,6 +99,15 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   }
 
   async function handleAddOrUpdateEvent(matchId: string, type: string, data: any, eventId?: string) {
+    // Optimistic Update for Score if Goal
+    if (!eventId && type === 'GOAL') {
+       const match = matches.find(m => m.id === matchId);
+       if (match) {
+         const isHome = match.homeTeam.id === data.teamId;
+         updateLocal(matchId, isHome ? 'homeScore' : 'awayScore', (isHome ? match.homeScore : match.awayScore) + 1);
+       }
+    }
+
     startTransition(async () => {
       let res;
       if (eventId) {
@@ -111,7 +124,13 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
         toast.success(eventId ? 'Event updated' : `${type} logged!`);
         setEventModal(null);
         router.refresh();
-      } else toast.error(res.error);
+      } else {
+        // Revert optimistic update if error
+        if (!eventId && type === 'GOAL') {
+           router.refresh();
+        }
+        toast.error(res.error);
+      }
     });
   }
 
