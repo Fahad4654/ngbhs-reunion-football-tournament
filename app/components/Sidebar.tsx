@@ -40,9 +40,9 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
   ];
 
   const adminOnlyLinks = [
-    { name: "Tournaments", href: "/admin/tournaments", icon: <AssessmentIcon /> },
-    { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon /> },
-    { name: "User Access", href: "/admin/users", icon: <GroupIcon /> },
+    { name: "Tournaments", href: "/admin/tournaments", icon: <AssessmentIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon />, roles: ["ADMIN"] },
+    { name: "User Access", href: "/admin/users", icon: <GroupIcon />, roles: ["ADMIN"] },
   ];
 
   return (
@@ -130,7 +130,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
               <div style={{ fontSize: 'calc(0.8vw * var(--font-scale))', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.078vw', marginBottom: '0.4vh', marginLeft: '0.417vw' }}>
                 Administrative
               </div>
-              {adminOnlyLinks.map((link) => {
+              {adminOnlyLinks.filter(l => !l.roles || l.roles.includes(user.role)).map((link) => {
                 const isActive = pathname === link.href;
                 return (
                   <Link 
