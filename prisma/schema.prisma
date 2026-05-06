@@ -35,6 +35,7 @@ model Batch {
   members     User[]             @relation("BatchMembers")
   followers   User[]             @relation("UserFollows")
   matchSquads MatchSquadMember[]
+  matchEvents MatchEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -112,6 +113,26 @@ model Match {
   tournamentId String?
   tournament   Tournament?        @relation(fields: [tournamentId], references: [id])
   matchSquads  MatchSquadMember[]
+
+  // Live Match State
+  currentMinute  Int       @default(0)
+  clockRunning   Boolean   @default(false)
+  clockStartedAt DateTime?
+  injuryTime     Int       @default(0)
+
+  // Stats
+  homePossession    Int @default(50)
+  awayPossession    Int @default(50)
+  homeShots         Int @default(0)
+  awayShots         Int @default(0)
+  homeShotsOnTarget Int @default(0)
+  awayShotsOnTarget Int @default(0)
+  homeCorners       Int @default(0)
+  awayCorners       Int @default(0)
+  homeOffsides      Int @default(0)
+  awayOffsides      Int @default(0)
+
+  events MatchEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -260,8 +281,11 @@ model User {
   status              UserStatus         @default(APPROVED)
   isPlayer            Boolean            @default(false)
   teamRole            String?
-  teamDesignation     String?
+  teamDesignation    String?
   matchParticipations MatchSquadMember[]
+  matchEvents         MatchEvent[]       @relation("EventPlayer")
+  matchAssists        MatchEvent[]       @relation("EventAssist")
+  matchSubsIn         MatchEvent[]       @relation("EventPlayerIn")
 }
 
 enum UserStatus {
@@ -307,4 +331,44 @@ model MatchSquadMember {
 enum MatchPlayerStatus {
   STARTER
   SUBSTITUTE
+}
+
+model MatchEvent {
+  id        String         @id @default(cuid())
+  matchId   String
+  match     Match          @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  type      MatchEventType
+  minute    Int
+  extraTime Int? // e.g. 45+2
+
+  // For Goals/Cards/Subs
+  playerId String?
+  player   User?   @relation("EventPlayer", fields: [playerId], references: [id])
+
+  // For Substitutions
+  playerInId String?
+  playerIn   User?   @relation("EventPlayerIn", fields: [playerInId], references: [id])
+
+  // For Assists
+  assistId String?
+  assist   User?   @relation("EventAssist", fields: [assistId], references: [id])
+
+  teamId String? // Which team the event is for
+  team   Batch?  @relation(fields: [teamId], references: [id])
+
+  note String? // For VAR or commentary
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MatchEventType {
+  GOAL
+  YELLOW_CARD
+  RED_CARD
+  SUBSTITUTION
+  VAR
+  PERIOD_START
+  PERIOD_END
+  COMMENTARY
 }

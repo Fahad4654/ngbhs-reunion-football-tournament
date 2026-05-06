@@ -31,7 +31,12 @@ export default async function UpdateScorePage() {
     include: {
       homeTeam: { select: { id: true, name: true, logoUrl: true } },
       awayTeam: { select: { id: true, name: true, logoUrl: true } },
-      tournament: { select: { name: true } }
+      tournament: { select: { name: true } },
+      matchSquads: {
+        include: { 
+          user: { select: { id: true, name: true, teamRole: true, teamDesignation: true } } 
+        }
+      }
     },
     orderBy: [
       { status: 'asc' }, // LIVE usually comes first alphabetically? No, we should probably sort manually
