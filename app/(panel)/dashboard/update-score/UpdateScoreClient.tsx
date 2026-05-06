@@ -15,6 +15,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FlagIcon from '@mui/icons-material/Flag';
 import CircleIcon from '@mui/icons-material/Circle';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 type Player = { id: string, name: string | null };
 
@@ -142,6 +143,14 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
     });
   }
 
+  async function handleFinishMatch(matchId: string) {
+    if (!confirm('Are you sure you want to finish this match? This will change status to FINISHED and period to FINISHED.')) return;
+    updateLocal(matchId, 'status', 'FINISHED');
+    updateLocal(matchId, 'matchPeriod', 'FINISHED');
+    await syncMatchState(matchId, { status: 'FINISHED', matchPeriod: 'FINISHED' });
+    toast.success('Match Finished!');
+  }
+
   async function handleAddPenalty(matchId: string, data: any) {
     const match = getMatch(matchId);
     if (!match) return;
@@ -258,13 +267,24 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                     </div>
                   )}
                 </div>
-                <button 
-                  onClick={() => setActiveConsole(activeConsole === match.id ? null : match.id)}
-                  className="btn glass"
-                  style={{ fontSize: '0.75rem', padding: '0.4rem 1rem' }}
-                >
-                  {activeConsole === match.id ? 'Close Console' : 'Open Event Console'}
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {match.status === 'LIVE' && (
+                    <button 
+                      onClick={() => handleFinishMatch(match.id)}
+                      className="btn"
+                      style={{ fontSize: '0.75rem', padding: '0.4rem 1rem', background: '#10b981', color: 'white', fontWeight: '800', border: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                    >
+                      <CheckCircleIcon sx={{ fontSize: '1rem' }} /> Finish Match
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => setActiveConsole(activeConsole === match.id ? null : match.id)}
+                    className="btn glass"
+                    style={{ fontSize: '0.75rem', padding: '0.4rem 1rem' }}
+                  >
+                    {activeConsole === match.id ? 'Close Console' : 'Open Event Console'}
+                  </button>
+                </div>
               </div>
 
               {/* Score & Main Info */}
@@ -284,7 +304,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                 </div>
               </div>
 
-              {/* Penalty Shootout Tracker (Visible if Period is Penalties OR if Penalties have been recorded) */}
+              {/* Penalty Shootout Tracker */}
               {(match.matchPeriod === 'PENALTIES' || hasPenalties) && (
                 <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '16px', border: '1px solid var(--accent-primary)' }}>
                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
