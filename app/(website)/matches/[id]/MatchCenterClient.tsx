@@ -85,14 +85,21 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3rem', marginTop: '1rem' }}>
           {/* Home Team */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-            <div className="glass" style={{ width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="glass" style={{ width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', position: 'relative' }}>
                {match.homeTeam.logoUrl ? (
                  <img src={match.homeTeam.logoUrl} alt={match.homeTeam.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                ) : (
                  <div style={{ fontSize: '2rem', fontWeight: '900' }}>{match.homeTeam.name[0]}</div>
                )}
             </div>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>{match.homeTeam.name}</h2>
+            <div style={{ textAlign: 'center' }}>
+              <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>{match.homeTeam.name}</h2>
+              {match.homeCleanSheet && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '800' }}>
+                  🛡️ Clean Sheet
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Score & Clock */}
@@ -124,14 +131,21 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
 
           {/* Away Team */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-            <div className="glass" style={{ width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="glass" style={{ width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', position: 'relative' }}>
                {match.awayTeam.logoUrl ? (
                  <img src={match.awayTeam.logoUrl} alt={match.awayTeam.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                ) : (
                  <div style={{ fontSize: '2rem', fontWeight: '900' }}>{match.awayTeam.name[0]}</div>
                )}
             </div>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>{match.awayTeam.name}</h2>
+            <div style={{ textAlign: 'center' }}>
+              <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>{match.awayTeam.name}</h2>
+              {match.awayCleanSheet && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '800' }}>
+                  🛡️ Clean Sheet
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -168,6 +182,20 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
                 </div>
               </div>
            </div>
+        )}
+
+        {/* Man of the Match Banner */}
+        {match.manOfTheMatch && (
+          <div className="glass" style={{ marginTop: '2rem', padding: '1.5rem 2rem', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', background: 'linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.02) 100%)', border: '1px solid rgba(255,215,0,0.2)' }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: '900', color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.2rem' }}>🏆 Man of the Match</div>
+              <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900', color: 'white' }}>{match.manOfTheMatch.name}</h3>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{match.manOfTheMatch.teamRole || 'Player'}</div>
+            </div>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', border: '2px solid #fbbf24', padding: '4px', overflow: 'hidden' }}>
+               <img src={match.manOfTheMatch.image || '/default-avatar.png'} alt={match.manOfTheMatch.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            </div>
+          </div>
         )}
 
         <div style={{ marginTop: '2rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>

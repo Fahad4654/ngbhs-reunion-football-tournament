@@ -122,6 +122,9 @@ export async function updateMatchScore(
     awayPenaltyScore?: number;
     penaltySequence?: any;
     matchPeriod?: string;
+    manOfTheMatchId?: string;
+    homeCleanSheet?: boolean;
+    awayCleanSheet?: boolean;
   }
 ) {
   const user = await getServerUser();
@@ -138,6 +141,9 @@ export async function updateMatchScore(
         awayPenaltyScore: data.awayPenaltyScore ?? 0,
         penaltySequence: data.penaltySequence ?? [],
         matchPeriod: data.matchPeriod as any || 'PRE_MATCH',
+        manOfTheMatchId: data.manOfTheMatchId || null,
+        homeCleanSheet: data.homeCleanSheet ?? false,
+        awayCleanSheet: data.awayCleanSheet ?? false,
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
     });

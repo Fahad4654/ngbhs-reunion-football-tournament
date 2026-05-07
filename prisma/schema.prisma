@@ -139,6 +139,13 @@ model Match {
   penaltySequence    Json?       // [{teamId, playerId, scored, order}]
 
   events MatchEvent[]
+  
+  // Post-match awards
+  manOfTheMatchId String?
+  manOfTheMatch   User?   @relation("ManOfTheMatch", fields: [manOfTheMatchId], references: [id])
+  
+  homeCleanSheet Boolean @default(false)
+  awayCleanSheet Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -305,6 +312,7 @@ model User {
   matchEvents         MatchEvent[]       @relation("EventPlayer")
   matchAssists        MatchEvent[]       @relation("EventAssist")
   matchSubsIn         MatchEvent[]       @relation("EventPlayerIn")
+  manOfTheMatchAwards Match[]            @relation("ManOfTheMatch")
 }
 
 enum UserStatus {

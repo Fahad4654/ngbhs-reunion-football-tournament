@@ -49,6 +49,9 @@ type Match = {
   awayCorners: number;
   homeOffsides: number;
   awayOffsides: number;
+  manOfTheMatchId?: string | null;
+  homeCleanSheet: boolean;
+  awayCleanSheet: boolean;
 };
 
 const PERIODS = [
@@ -104,7 +107,10 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
         homePenaltyScore: finalMatch.homePenaltyScore,
         awayPenaltyScore: finalMatch.awayPenaltyScore,
         penaltySequence: finalMatch.penaltySequence,
-        matchPeriod: finalMatch.matchPeriod
+        matchPeriod: finalMatch.matchPeriod,
+        manOfTheMatchId: finalMatch.manOfTheMatchId ?? undefined,
+        homeCleanSheet: finalMatch.homeCleanSheet,
+        awayCleanSheet: finalMatch.awayCleanSheet,
       });
       router.refresh();
     });
@@ -421,6 +427,61 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                   </div>
                 </div>
               )}
+
+              {/* Match Awards & Clean Sheets */}
+              <div className="glass" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    🏆 MAN OF THE MATCH
+                  </div>
+                  <select 
+                    value={match.manOfTheMatchId || ''} 
+                    onChange={(e) => { 
+                      const v = e.target.value; 
+                      updateLocal(match.id, 'manOfTheMatchId', v); 
+                      syncMatchState(match.id, { manOfTheMatchId: v }); 
+                    }}
+                    className="glass" 
+                    style={{ width: '100%', padding: '0.6rem', color: 'white', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }}
+                  >
+                    <option value="">— Select Player —</option>
+                    {match.matchSquads.map((s: any) => (
+                      <option key={s.user.id} value={s.user.id}>{s.user.name} ({s.batchId === match.homeTeam.id ? 'Home' : 'Away'})</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.8rem' }}>
+                   <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Defensive Shutouts</div>
+                   <div style={{ display: 'flex', gap: '2rem' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={match.homeCleanSheet} 
+                          onChange={(e) => { 
+                            const v = e.target.checked; 
+                            updateLocal(match.id, 'homeCleanSheet', v); 
+                            syncMatchState(match.id, { homeCleanSheet: v }); 
+                          }}
+                          style={{ accentColor: 'var(--accent-primary)', width: '18px', height: '18px' }}
+                        />
+                        <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{match.homeTeam.name} Clean Sheet</span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={match.awayCleanSheet} 
+                          onChange={(e) => { 
+                            const v = e.target.checked; 
+                            updateLocal(match.id, 'awayCleanSheet', v); 
+                            syncMatchState(match.id, { awayCleanSheet: v }); 
+                          }}
+                          style={{ accentColor: 'var(--accent-primary)', width: '18px', height: '18px' }}
+                        />
+                        <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>{match.awayTeam.name} Clean Sheet</span>
+                      </label>
+                   </div>
+                </div>
+              </div>
 
               {/* Instant Status Switch */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
