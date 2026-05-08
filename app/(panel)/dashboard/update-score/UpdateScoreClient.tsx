@@ -425,6 +425,69 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                         <StatUpdateRow label="OFFSIDES" homeKey="homeOffsides" awayKey="awayOffsides" match={match} updateLocal={updateLocal} onUpdate={(k: string, v: number) => syncMatchStats(match.id, { [k]: v })} />
                      </div>
                   </div>
+
+                  {/* ─── Events Log ─────────────────────────────── */}
+                  <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)' }}>
+                        <SportsSoccerIcon fontSize="small" /> MATCH EVENTS LOG
+                      </div>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                        {(match.events || []).length} event{(match.events || []).length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    {!match.events || match.events.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.85rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-color)' }}>
+                        No events logged yet. Use Quick Log above.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '300px', overflowY: 'auto' }}>
+                        {(match.events || []).map((ev: any) => {
+                          const evIcon = ev.type === 'GOAL' ? '⚽' : ev.type === 'YELLOW_CARD' ? '🟨' : ev.type === 'RED_CARD' ? '🟥' : ev.type === 'SUBSTITUTION' ? '🔄' : ev.type === 'OWN_GOAL' ? '🙈' : ev.type === 'ASSIST' ? '👟' : '📋';
+                          const isHome = ev.teamId === match.homeTeam.id;
+                          return (
+                            <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <span style={{ fontSize: '1rem', flexShrink: 0 }}>{evIcon}</span>
+                              <span style={{ fontSize: '0.72rem', fontWeight: '900', color: 'var(--accent-primary)', minWidth: '28px' }}>{ev.minute}'</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontWeight: '700', fontSize: '0.82rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {ev.player?.name || '—'}
+                                </div>
+                                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                                  {isHome ? match.homeTeam.name : match.awayTeam.name}
+                                  {ev.note && <span> · {ev.note}</span>}
+                                </div>
+                              </div>
+                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
+                                {ev.type.replace('_', ' ')}
+                              </span>
+                              <div style={{ display: 'flex', gap: '0.3rem', flexShrink: 0 }}>
+                                <button
+                                  onClick={() => setEventModal({
+                                    matchId: match.id,
+                                    type: ev.type,
+                                    eventId: ev.id,
+                                    defaultData: { teamId: ev.teamId, playerId: ev.playerId, minute: ev.minute, note: ev.note || '' }
+                                  })}
+                                  style={{ background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: '4px', color: 'white', cursor: 'pointer', padding: '0.25rem 0.45rem', display: 'flex', alignItems: 'center' }}
+                                  title="Edit event"
+                                >
+                                  <EditIcon sx={{ fontSize: '0.85rem' }} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteEvent(ev.id)}
+                                  style={{ background: 'rgba(239,68,68,0.08)', border: 'none', borderRadius: '4px', color: '#ef4444', cursor: 'pointer', padding: '0.25rem 0.45rem', display: 'flex', alignItems: 'center' }}
+                                  title="Delete event"
+                                >
+                                  <DeleteIcon sx={{ fontSize: '0.85rem' }} />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -560,38 +623,54 @@ function EventModal({ isOpen, onClose, onSubmit, type, match, defaultData, displ
   const [minute, setMinute] = useState(defaultData?.minute || displayMinute);
   const [note, setNote] = useState(defaultData?.note || '');
 
+  // When team changes, reset player selection
+  const handleTeamChange = (newTeamId: string) => {
+    setTeamId(newTeamId);
+    setPlayerId('');
+  };
+
+  // Show players for selected team; fall back to all squad members if filter returns nothing
+  const squadForTeam = match.matchSquads.filter((s: any) => s.batchId === teamId);
+  const playerOptions = squadForTeam.length > 0 ? squadForTeam : match.matchSquads;
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="glass" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-        <h3 style={{ margin: '0 0 1.5rem', fontWeight: '900' }}>{defaultData ? 'EDIT' : 'LOG'} {type}</h3>
+      <div className="glass" style={{ width: '100%', maxWidth: '420px', padding: '2rem', margin: '0 1rem' }}>
+        <h3 style={{ margin: '0 0 1.5rem', fontWeight: '900' }}>{defaultData ? 'EDIT' : 'LOG'} {type.replace('_', ' ')}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>MINUTE</label>
+            <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Minute</label>
             <input type="number" value={minute} onChange={(e) => setMinute(parseInt(e.target.value))} />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>TEAM</label>
-            <select value={teamId} onChange={(e) => setTeamId(e.target.value)}>
-              <option value={match.homeTeam.id}>{match.homeTeam.name}</option>
-              <option value={match.awayTeam.id}>{match.awayTeam.name}</option>
+            <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Team</label>
+            <select value={teamId} onChange={(e) => handleTeamChange(e.target.value)}>
+              <option value={match.homeTeam.id}>{match.homeTeam.name} (Home)</option>
+              <option value={match.awayTeam.id}>{match.awayTeam.name} (Away)</option>
             </select>
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>PLAYER</label>
+            <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Player {squadForTeam.length === 0 && <span style={{ color: '#fbbf24', fontWeight: 600 }}>(showing all — no squad filtered for this team)</span>}
+            </label>
             <select value={playerId} onChange={(e) => setPlayerId(e.target.value)}>
-              <option value="">Select Player</option>
-              {match.matchSquads.filter((s: any) => s.batchId === teamId).map((s: any) => (
-                <option key={s.user.id} value={s.user.id}>{s.user.name}</option>
+              <option value="">— Select Player —</option>
+              {playerOptions.map((s: any) => (
+                <option key={s.user.id} value={s.user.id}>
+                  {s.user.name}{squadForTeam.length === 0 ? ` (${s.batchId === match.homeTeam.id ? 'Home' : 'Away'})` : ''}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>NOTE (OPTIONAL)</label>
-            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Penalty, Own Goal" />
+            <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Note (optional)</label>
+            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Penalty, Own Goal, Header" />
           </div>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
             <button onClick={onClose} className="btn glass" style={{ flex: 1 }}>Cancel</button>
-            <button onClick={() => onSubmit({ teamId, playerId, minute, note })} className="btn btn-primary" style={{ flex: 1 }}>{defaultData ? 'Update' : 'Log Event'}</button>
+            <button onClick={() => onSubmit({ teamId, playerId, minute, note })} className="btn btn-primary" style={{ flex: 1 }}>
+              {defaultData ? 'Update Event' : 'Log Event'}
+            </button>
           </div>
         </div>
       </div>
