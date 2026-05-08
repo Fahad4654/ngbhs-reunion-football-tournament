@@ -29,12 +29,6 @@ type Tournament = {
   teams: TournamentTeam[];
 };
 
-// ── Shared styles ────────────────────────────────────────────────────
-const inp: React.CSSProperties = {
-  width: "100%", padding: "0.65rem 0.9rem",
-  background: "var(--bg-secondary)", border: "1px solid var(--border-color)",
-  borderRadius: "8px", color: "white", fontSize: "0.9rem", outline: "none",
-};
 const lbl: React.CSSProperties = {
   display: "block", fontWeight: "700", fontSize: "0.72rem",
   textTransform: "uppercase", color: "var(--text-muted)",
@@ -220,7 +214,7 @@ export default function TournamentDetailClient({
                 onChange={(e) => setDesc(e.target.value)}
                 rows={5}
                 placeholder="Describe the tournament, its format, rules, etc."
-                style={{ ...inp, resize: "vertical", lineHeight: "1.6" }}
+                style={{ resize: "vertical", lineHeight: "1.6" }}
               />
             </div>
           </div>
@@ -231,17 +225,17 @@ export default function TournamentDetailClient({
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
               <div>
                 <label style={lbl}>Win Points</label>
-                <input type="number" min={0} max={10} value={winPts} onChange={(e) => setWinPts(Number(e.target.value))} style={{ ...inp, border: "1px solid #10b981", textAlign: "center", fontWeight: "800", fontSize: "1.2rem" }} />
+                <input type="number" min={0} max={10} value={winPts} onChange={(e) => setWinPts(Number(e.target.value))} style={{ border: "1px solid #10b981", textAlign: "center", fontWeight: "800", fontSize: "1.2rem" }} />
                 <p style={{ color: "#10b981", fontSize: "0.7rem", textAlign: "center", margin: "0.3rem 0 0" }}>Win</p>
               </div>
               <div>
                 <label style={lbl}>Draw Points</label>
-                <input type="number" min={0} max={10} value={drawPts} onChange={(e) => setDrawPts(Number(e.target.value))} style={{ ...inp, border: "1px solid var(--accent-primary)", textAlign: "center", fontWeight: "800", fontSize: "1.2rem" }} />
+                <input type="number" min={0} max={10} value={drawPts} onChange={(e) => setDrawPts(Number(e.target.value))} style={{ border: "1px solid var(--accent-primary)", textAlign: "center", fontWeight: "800", fontSize: "1.2rem" }} />
                 <p style={{ color: "var(--accent-primary)", fontSize: "0.7rem", textAlign: "center", margin: "0.3rem 0 0" }}>Draw</p>
               </div>
               <div>
                 <label style={lbl}>Loss Points</label>
-                <input type="number" min={0} max={10} value={lossPts} onChange={(e) => setLossPts(Number(e.target.value))} style={{ ...inp, border: "1px solid var(--accent-danger)", textAlign: "center", fontWeight: "800", fontSize: "1.2rem" }} />
+                <input type="number" min={0} max={10} value={lossPts} onChange={(e) => setLossPts(Number(e.target.value))} style={{ border: "1px solid var(--accent-danger)", textAlign: "center", fontWeight: "800", fontSize: "1.2rem" }} />
                 <p style={{ color: "var(--accent-danger)", fontSize: "0.7rem", textAlign: "center", margin: "0.3rem 0 0" }}>Loss</p>
               </div>
             </div>
@@ -272,7 +266,7 @@ export default function TournamentDetailClient({
                 onChange={(e) => setNewGroupName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleCreateGroup()}
                 placeholder='e.g. "Group A" or "Semi-Finals"'
-                style={{ ...inp, flex: 1 }}
+                style={{ flex: 1 }}
               />
               <button className="btn btn-primary" onClick={handleCreateGroup} disabled={isPending || !newGroupName.trim()} style={{ whiteSpace: "nowrap" }}>
                 + Add
@@ -323,7 +317,7 @@ export default function TournamentDetailClient({
                         <select
                           defaultValue=""
                           onChange={(e) => { if (e.target.value) { handleAssignGroup(e.target.value, group.id); e.target.value = ""; } }}
-                          style={{ ...inp, fontSize: "0.82rem", color: "var(--text-muted)" }}
+                          style={{ fontSize: "0.82rem" }}
                         >
                           <option value="">+ Assign an ungrouped team…</option>
                           {ungrouped.map((t) => <option key={t.id} value={t.id}>{t.batch.name}</option>)}
@@ -355,7 +349,7 @@ export default function TournamentDetailClient({
           <div className="glass" style={{ padding: "1.25rem 1.5rem", borderRadius: "12px", marginBottom: "1.5rem", border: "1px solid var(--border-color)" }}>
             <h3 style={{ fontWeight: "800", fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.75rem" }}>Add Team</h3>
             <div style={{ display: "flex", gap: "0.75rem" }}>
-              <select id="add-team-select" value={selectedBatchId} onChange={(e) => setSelectedBatchId(e.target.value)} style={{ ...inp, flex: 1, color: selectedBatchId ? "white" : "var(--text-muted)" }}>
+              <select id="add-team-select" value={selectedBatchId} onChange={(e) => setSelectedBatchId(e.target.value)} style={{ flex: 1 }}>
                 <option value="">— Select a batch —</option>
                 {availableBatches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
@@ -390,7 +384,7 @@ export default function TournamentDetailClient({
                           <select
                             value={team.groupId ?? ""}
                             onChange={(e) => handleAssignGroup(team.id, e.target.value)}
-                            style={{ padding: "0.25rem 0.5rem", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", borderRadius: "6px", color: team.groupId ? "white" : "var(--text-muted)", fontSize: "0.78rem", outline: "none" }}
+                            style={{ width: 'auto', fontSize: "0.8rem" }}
                           >
                             <option value="">—</option>
                             {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}

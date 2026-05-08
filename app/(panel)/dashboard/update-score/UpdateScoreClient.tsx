@@ -376,7 +376,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                          </div>
                          <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}><FlagIcon fontSize="small" /> MATCH PERIOD</div>
-                            <select disabled={match.status === 'FINISHED'} value={match.matchPeriod} onChange={(e) => { const v = e.target.value; updateLocal(match.id, 'matchPeriod', v); syncMatchState(match.id, { matchPeriod: v }); }} className="glass" style={{ width: '100%', padding: '0.4rem', color: 'white', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', opacity: match.status === 'FINISHED' ? 0.5 : 1 }}>
+                            <select disabled={match.status === 'FINISHED'} value={match.matchPeriod} onChange={(e) => { const v = e.target.value; updateLocal(match.id, 'matchPeriod', v); syncMatchState(match.id, { matchPeriod: v }); }} className="glass" style={{ opacity: match.status === 'FINISHED' ? 0.5 : 1 }}>
                               {PERIODS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                             </select>
                          </div>
@@ -441,8 +441,6 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                       updateLocal(match.id, 'manOfTheMatchId', v); 
                       syncMatchState(match.id, { manOfTheMatchId: v }); 
                     }}
-                    className="glass" 
-                    style={{ width: '100%', padding: '0.6rem', color: 'white', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }}
                   >
                     <option value="">— Select Player —</option>
                     {match.matchSquads.map((s: any) => (
@@ -485,7 +483,16 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
 
               {/* Instant Status Switch */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <select value={match.status} onChange={(e) => { const v = e.target.value as any; updateLocal(match.id, 'status', v); syncMatchState(match.id, { status: v }); }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white', padding: '0.4rem 1rem', borderRadius: '6px', fontWeight: '700' }}><option value="SCHEDULED">Scheduled</option><option value="LIVE">Live 🔴</option><option value="FINISHED">Finished ✅</option><option value="CANCELLED">Cancelled</option></select>
+                <select
+                  value={match.status}
+                  onChange={(e) => { const v = e.target.value as any; updateLocal(match.id, 'status', v); syncMatchState(match.id, { status: v }); }}
+                  style={{ width: 'auto' }}
+                >
+                  <option value="SCHEDULED">Scheduled</option>
+                  <option value="LIVE">Live 🔴</option>
+                  <option value="FINISHED">Finished ✅</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
                 <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>All changes saved instantly</div>
               </div>
             </div>
@@ -560,18 +567,18 @@ function EventModal({ isOpen, onClose, onSubmit, type, match, defaultData, displ
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>MINUTE</label>
-            <input type="number" value={minute} onChange={(e) => setMinute(parseInt(e.target.value))} className="glass" style={{ width: '100%', padding: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.05)' }} />
+            <input type="number" value={minute} onChange={(e) => setMinute(parseInt(e.target.value))} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>TEAM</label>
-            <select value={teamId} onChange={(e) => setTeamId(e.target.value)} className="glass" style={{ width: '100%', padding: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.05)' }}>
+            <select value={teamId} onChange={(e) => setTeamId(e.target.value)}>
               <option value={match.homeTeam.id}>{match.homeTeam.name}</option>
               <option value={match.awayTeam.id}>{match.awayTeam.name}</option>
             </select>
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>PLAYER</label>
-            <select value={playerId} onChange={(e) => setPlayerId(e.target.value)} className="glass" style={{ width: '100%', padding: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.05)' }}>
+            <select value={playerId} onChange={(e) => setPlayerId(e.target.value)}>
               <option value="">Select Player</option>
               {match.matchSquads.filter((s: any) => s.batchId === teamId).map((s: any) => (
                 <option key={s.user.id} value={s.user.id}>{s.user.name}</option>
@@ -580,7 +587,7 @@ function EventModal({ isOpen, onClose, onSubmit, type, match, defaultData, displ
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>NOTE (OPTIONAL)</label>
-            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} className="glass" style={{ width: '100%', padding: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.05)' }} placeholder="e.g. Penalty, Own Goal" />
+            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Penalty, Own Goal" />
           </div>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
             <button onClick={onClose} className="btn glass" style={{ flex: 1 }}>Cancel</button>
@@ -604,14 +611,14 @@ function PenaltyModal({ isOpen, onClose, onSubmit, match }: any) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>TEAM</label>
-            <select value={teamId} onChange={(e) => setTeamId(e.target.value)} className="glass" style={{ width: '100%', padding: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.05)' }}>
+            <select value={teamId} onChange={(e) => setTeamId(e.target.value)}>
               <option value={match.homeTeam.id}>{match.homeTeam.name}</option>
               <option value={match.awayTeam.id}>{match.awayTeam.name}</option>
             </select>
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>PLAYER</label>
-            <select value={playerId} onChange={(e) => setPlayerId(e.target.value)} className="glass" style={{ width: '100%', padding: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.05)' }}>
+            <select value={playerId} onChange={(e) => setPlayerId(e.target.value)}>
               <option value="">Select Player</option>
               {match.matchSquads.filter((s: any) => s.batchId === teamId).map((s: any) => (
                 <option key={s.user.id} value={s.user.id}>{s.user.name}</option>

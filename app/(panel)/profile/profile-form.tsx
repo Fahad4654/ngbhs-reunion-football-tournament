@@ -116,7 +116,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
       <div className="responsive-grid">
         <div className={styles.inputGroup}>
           <label className={styles.label}>Batch</label>
-          <select name="batchId" defaultValue={user.batchId || ''} className={styles.input} style={{ appearance: 'none', background: 'rgba(255, 255, 255, 0.05)' }}>
+          <select name="batchId" defaultValue={user.batchId || ''} className={styles.input}>
             <option value="" style={{ background: 'var(--bg-secondary)' }}>Select Batch</option>
             {batches.map((batch: any) => (
               <option key={batch.id} value={batch.id} style={{ background: 'var(--bg-secondary)' }}>

@@ -75,17 +75,10 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
             value={currentRole}
             onChange={(e) => handleRoleChange(e.target.value as 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER')}
             disabled={isPending}
-            className="glass"
             style={{ 
-              padding: '0.4rem 1.5rem 0.4rem 0.8rem', 
-              fontSize: '0.7rem', 
-              background: 'rgba(255,255,255,0.05) url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'%3E%3Cpath d=\'M7 10l5 5 5-5z\'/%3E%3C/svg%3E") no-repeat right 0.25rem center / 1rem', 
-              color: 'white', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: '8px', 
-              cursor: 'pointer',
-              appearance: 'none',
-              outline: 'none',
+              width: 'auto',
+              padding: '0.4rem 2.2rem 0.4rem 0.7rem',
+              fontSize: '0.75rem',
               fontWeight: '600'
             }}
           >

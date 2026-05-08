@@ -60,19 +60,7 @@ export default function DesignationAssignment({ userId, currentDesignation, user
         <select
           value={designation}
           onChange={(e) => setDesignation(e.target.value)}
-          className="glass"
-          style={{ 
-            fontSize: '0.75rem', 
-            padding: '0.3rem 0.6rem', 
-            borderRadius: '4px', 
-            border: '1px solid var(--border-color)',
-            background: 'rgba(255,255,255,0.05)',
-            color: 'white',
-            width: '140px',
-            outline: 'none',
-            appearance: 'none',
-            cursor: 'pointer'
-          }}
+          style={{ width: '140px', fontSize: '0.8rem' }}
           autoFocus
         >
           <option value="" style={{ color: 'black' }}>— No Designation —</option>

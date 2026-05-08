@@ -61,19 +61,7 @@ export default function RoleAssignment({ userId, currentRole, userName }: RoleAs
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="glass"
-          style={{ 
-            fontSize: '0.75rem', 
-            padding: '0.3rem 0.6rem', 
-            borderRadius: '4px', 
-            border: '1px solid var(--border-color)',
-            background: 'rgba(255,255,255,0.05)',
-            color: 'white',
-            width: '180px',
-            outline: 'none',
-            appearance: 'none',
-            cursor: 'pointer'
-          }}
+          style={{ width: '180px', fontSize: '0.8rem' }}
           autoFocus
         >
           <option value="" style={{ color: 'black' }}>— None —</option>
