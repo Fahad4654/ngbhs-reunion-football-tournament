@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { upsertSeasonAward } from "@/lib/actions/stats.actions";
+import { toast } from "react-hot-toast";
 
 // ─── Styled Label ───────────────────────────────────────────────────────────
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -20,28 +21,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.75rem 1rem",
-  background: "var(--bg-secondary)",
-  border: "1px solid var(--border-color)",
-  borderRadius: "8px",
-  color: "white",
-  fontSize: "0.9rem",
-  outline: "none",
-  fontFamily: "Inter, sans-serif",
-  transition: "border-color 0.2s ease",
-};
 
-const selectStyle: React.CSSProperties = {
-  ...inputStyle,
-  appearance: "none",
-  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "right 1rem center",
-  paddingRight: "2.5rem",
-  cursor: "pointer",
-};
 
 // ─── Player chip component ─────────────────────────────────────────────────
 function PlayerChip({ user, onRemove }: { user: any; onRemove: () => void }) {
@@ -98,7 +78,6 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
   const [captainId, setCaptainId] = useState<string>(initialData?.captain?.id || "");
   const [desc, setDesc] = useState(initialData?.description || "");
   const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [search, setSearch] = useState("");
 
   const filteredUsers = users.filter(
@@ -109,8 +88,7 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
 
   const handleSave = async () => {
     setLoading(true);
-    setSaved(false);
-    await upsertSeasonAward({
+    const res = await upsertSeasonAward({
       category,
       title,
       description: desc,
@@ -119,8 +97,11 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
       captainId: captainId || undefined,
     });
     setLoading(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (res?.success === false) {
+      toast.error(res.error || "Failed to save. Please try again.");
+    } else {
+      toast.success(`${title} saved successfully!`);
+    }
   };
 
   const filled = playerIds.length;
@@ -193,7 +174,7 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
             onChange={(e) => setDesc(e.target.value)}
             rows={2}
             placeholder="Optional description or note about this selection..."
-            style={{ ...inputStyle, resize: "vertical" }}
+            style={{ resize: "vertical" }}
           />
         </div>
 
@@ -204,7 +185,6 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
             <select
               value={coachId}
               onChange={(e) => setCoachId(e.target.value)}
-              style={selectStyle}
             >
               <option value="">— Select Coach —</option>
               {users.map((u: any) => (
@@ -219,7 +199,6 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
             <select
               value={captainId}
               onChange={(e) => setCaptainId(e.target.value)}
-              style={selectStyle}
             >
               <option value="">— Select Captain —</option>
               {playerIds.map((id) => {
@@ -263,7 +242,6 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
                 placeholder="🔍  Search and add players..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={inputStyle}
               />
               {search && (
                 <div style={{
@@ -342,11 +320,6 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
           >
             {loading ? "Saving..." : "Save Selection"}
           </button>
-          {saved && (
-            <span style={{ fontSize: "0.85rem", color: "#10b981", fontWeight: 700 }}>
-              ✓ Saved successfully
-            </span>
-          )}
         </div>
       </div>
     </div>
