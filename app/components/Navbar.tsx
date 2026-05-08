@@ -17,6 +17,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
     { name: "Home", href: "/" },
     { name: "Matches", href: "/matches" },
     { name: "Standings", href: "/standings" },
+    { name: "Stats", href: "/stats" },
     { name: "Feed", href: "/feed" },
     { name: "News", href: "/news" },
   ];
