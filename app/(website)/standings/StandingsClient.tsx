@@ -124,41 +124,41 @@ export default function StandingsClient({
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.rankCol}>Pos</th>
-              <th className={styles.teamCol}>Team</th>
-              <th>P</th>
-              <th>W</th>
-              <th>D</th>
-              <th>L</th>
-              <th className={styles.hideMobile}>GF</th>
-              <th className={styles.hideMobile}>GA</th>
-              <th className={styles.hideMobile}>GD</th>
-              <th className={styles.ptsCol}>Pts</th>
+              <th style={{ width: '60px', textAlign: 'center' }}>Pos</th>
+              <th style={{ textAlign: 'left' }}>Team</th>
+              <th style={{ textAlign: 'center' }}>P</th>
+              <th style={{ textAlign: 'center' }}>W</th>
+              <th style={{ textAlign: 'center' }}>D</th>
+              <th style={{ textAlign: 'center' }}>L</th>
+              <th style={{ textAlign: 'center' }}>GF</th>
+              <th style={{ textAlign: 'center' }}>GA</th>
+              <th style={{ textAlign: 'center' }}>GD</th>
+              <th style={{ textAlign: 'center' }}>Pts</th>
             </tr>
           </thead>
           <tbody>
             {teams.map((team, index) => (
-              <tr key={team.id} className={index < 4 ? styles.topRow : ""}>
-                <td className={styles.rankCol}>
-                  <span className={styles.rankNumber}>{index + 1}</span>
+              <tr key={team.id} className={styles.row}>
+                <td style={{ textAlign: 'center' }}>
+                  <span style={{ fontWeight: 800 }}>{index + 1}</span>
                 </td>
-                <td className={styles.teamCol}>
-                  <div className={styles.teamInfo}>
+                <td>
+                  <div className={styles.teamCell}>
                     <img src={team.batch.logoUrl || "/default-team.png"} alt="" className={styles.teamLogo} />
-                    <div>
-                      <div className={styles.teamName}>{team.batch.name}</div>
-                      {team.batch.nickname && <div className={styles.teamNickname}>{team.batch.nickname}</div>}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{team.batch.name}</span>
+                      {team.batch.nickname && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{team.batch.nickname}</span>}
                     </div>
                   </div>
                 </td>
-                <td>{team.played}</td>
-                <td>{team.won}</td>
-                <td>{team.drawn}</td>
-                <td>{team.lost}</td>
-                <td className={styles.hideMobile}>{team.goalsFor}</td>
-                <td className={styles.hideMobile}>{team.goalsAgainst}</td>
-                <td className={styles.hideMobile}>{team.goalsFor - team.goalsAgainst}</td>
-                <td className={styles.ptsCol}><strong>{team.points}</strong></td>
+                <td style={{ textAlign: 'center' }}>{team.played}</td>
+                <td style={{ textAlign: 'center' }}>{team.won}</td>
+                <td style={{ textAlign: 'center' }}>{team.drawn}</td>
+                <td style={{ textAlign: 'center' }}>{team.lost}</td>
+                <td style={{ textAlign: 'center' }}>{team.goalsFor}</td>
+                <td style={{ textAlign: 'center' }}>{team.goalsAgainst}</td>
+                <td style={{ textAlign: 'center' }}>{team.goalsFor - team.goalsAgainst}</td>
+                <td className={styles.points} style={{ textAlign: 'center' }}>{team.points}</td>
               </tr>
             ))}
           </tbody>
