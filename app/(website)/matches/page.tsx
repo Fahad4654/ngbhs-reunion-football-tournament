@@ -7,6 +7,7 @@ async function getMatches() {
     include: {
       homeTeam: true,
       awayTeam: true,
+      manOfTheMatch: { select: { name: true } },
       events: {
         orderBy: { createdAt: 'desc' },
         take: 1
@@ -47,7 +48,10 @@ export default async function MatchesPage() {
             <Link key={match.id} href={`/matches/${match.id}`} className={`${styles.matchCard} glass`} style={{ textDecoration: 'none', color: 'inherit', display: 'grid' }}>
               {/* Home Team */}
               <div className={`${styles.team} ${styles.teamHome}`}>
-                <span className={styles.teamName}>{match.homeTeam.name}</span>
+                <span className={styles.teamName}>
+                  {match.homeTeam.name}
+                  {match.homeCleanSheet && <span title="Clean Sheet" style={{ marginLeft: '0.4rem', fontSize: '0.8rem' }}>🛡️</span>}
+                </span>
                 <div className={styles.teamLogo}>
                   {match.homeTeam.logoUrl && (
                     <img src={match.homeTeam.logoUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
@@ -88,7 +92,14 @@ export default async function MatchesPage() {
                   )}
                 </div>
                 <div className={styles.venue}>
-                  {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {match.venue || 'TBD'}
+                  <div style={{ marginBottom: '0.2rem' }}>
+                    {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {match.venue || 'TBD'}
+                  </div>
+                  {match.manOfTheMatch && (
+                    <div style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.75rem', marginTop: '0.3rem' }}>
+                      🏆 MOTM: {match.manOfTheMatch.name}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -99,7 +110,10 @@ export default async function MatchesPage() {
                     <img src={match.awayTeam.logoUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   )}
                 </div>
-                <span className={styles.teamName}>{match.awayTeam.name}</span>
+                <span className={styles.teamName}>
+                  {match.awayCleanSheet && <span title="Clean Sheet" style={{ marginRight: '0.4rem', fontSize: '0.8rem' }}>🛡️</span>}
+                  {match.awayTeam.name}
+                </span>
               </div>
             </Link>
           )) : (

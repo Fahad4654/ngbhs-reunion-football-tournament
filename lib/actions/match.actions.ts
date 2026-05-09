@@ -122,6 +122,9 @@ export async function updateMatchScore(
     awayPenaltyScore?: number;
     penaltySequence?: any;
     matchPeriod?: string;
+    manOfTheMatchId?: string;
+    homeCleanSheet?: boolean;
+    awayCleanSheet?: boolean;
   }
 ) {
   const user = await getServerUser();
@@ -138,6 +141,9 @@ export async function updateMatchScore(
         awayPenaltyScore: data.awayPenaltyScore ?? 0,
         penaltySequence: data.penaltySequence ?? [],
         matchPeriod: data.matchPeriod as any || 'PRE_MATCH',
+        manOfTheMatchId: data.manOfTheMatchId || null,
+        homeCleanSheet: data.homeCleanSheet ?? false,
+        awayCleanSheet: data.awayCleanSheet ?? false,
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
     });
@@ -147,6 +153,14 @@ export async function updateMatchScore(
     revalidatePath("/dashboard/scores");
     revalidatePath("/matches");
     revalidatePath("/");
+
+    // Recalculate standings if the match is associated with a tournament
+    // This runs for ANY update, ensuring if a match goes from FINISHED -> LIVE or vice versa, standings update.
+    if (match.tournamentId) {
+      await recalculateTournamentStandings(match.tournamentId);
+      revalidatePath("/standings");
+    }
+
     return { success: true, data: match };
   } catch (error: any) {
     console.error("[updateMatchScore]", error);
@@ -197,6 +211,11 @@ export async function logMatchEvent(
             awayScore: !isHome ? match.awayScore + 1 : match.awayScore,
           }
         });
+
+        if (match.tournamentId && match.status === 'FINISHED') {
+          await recalculateTournamentStandings(match.tournamentId);
+          revalidatePath("/standings");
+        }
       }
     }
 
@@ -298,6 +317,11 @@ export async function deleteMatchEvent(eventId: string) {
             awayScore: !isHome ? Math.max(0, match.awayScore - 1) : match.awayScore,
           }
         });
+
+        if (match.tournamentId && match.status === 'FINISHED') {
+          await recalculateTournamentStandings(match.tournamentId);
+          revalidatePath("/standings");
+        }
       }
     }
 
@@ -355,6 +379,11 @@ export async function updateMatchEvent(
              awayScore: !wasHome ? Math.max(0, match.awayScore - 1) : match.awayScore + 1,
            }
          });
+
+         if (match.tournamentId && match.status === 'FINISHED') {
+           await recalculateTournamentStandings(match.tournamentId);
+           revalidatePath("/standings");
+         }
        }
     }
 
@@ -364,5 +393,58 @@ export async function updateMatchEvent(
   } catch (error: any) {
     console.error("[updateMatchEvent]", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function recalculateTournamentStandings(tournamentId: string) {
+  try {
+    const tournament = await prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      select: { winPoints: true, drawPoints: true, lossPoints: true }
+    });
+    if (!tournament) return;
+
+    const winPts = tournament.winPoints || 3;
+    const drawPts = tournament.drawPoints || 1;
+    const lossPts = tournament.lossPoints || 0;
+
+    const finishedMatches = await prisma.match.findMany({
+      where: { tournamentId, status: 'FINISHED' }
+    });
+
+    const teams = await prisma.tournamentTeam.findMany({
+      where: { tournamentId }
+    });
+
+    for (const team of teams) {
+      let played = 0, won = 0, drawn = 0, lost = 0, goalsFor = 0, goalsAgainst = 0;
+
+      for (const match of finishedMatches) {
+        if (match.homeTeamId === team.batchId) {
+          played++;
+          goalsFor += match.homeScore;
+          goalsAgainst += match.awayScore;
+          if (match.homeScore > match.awayScore) won++;
+          else if (match.homeScore === match.awayScore) drawn++;
+          else lost++;
+        } else if (match.awayTeamId === team.batchId) {
+          played++;
+          goalsFor += match.awayScore;
+          goalsAgainst += match.homeScore;
+          if (match.awayScore > match.homeScore) won++;
+          else if (match.awayScore === match.homeScore) drawn++;
+          else lost++;
+        }
+      }
+
+      const points = (won * winPts) + (drawn * drawPts) + (lost * lossPts);
+
+      await prisma.tournamentTeam.update({
+        where: { id: team.id },
+        data: { played, won, drawn, lost, goalsFor, goalsAgainst, points }
+      });
+    }
+  } catch (error) {
+    console.error("[recalculateTournamentStandings]", error);
   }
 }
