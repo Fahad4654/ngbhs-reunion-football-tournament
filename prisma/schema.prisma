@@ -48,6 +48,7 @@ model Tournament {
   groups      TournamentGroup[]
   teams       TournamentTeam[]
   awards      SeasonAward[]
+  ratings     AwardRating[]
 }
 
 model TournamentGroup {
@@ -248,6 +249,8 @@ model User {
   batch               Batch?             @relation("BatchMembers", fields: [batchId], references: [id])
   awardParticipations SeasonAward[]      @relation("AwardPlayers")
   followedBatches     Batch[]            @relation("UserFollows")
+  awardRatings        AwardRating[]      @relation("PlayerRatings")
+  judgeVotes          AwardRating[]      @relation("JudgeVotes")
 }
 
 model VerificationToken {
@@ -311,6 +314,23 @@ model SeasonAward {
   players     User[]   @relation("AwardPlayers")
 
   @@unique([category, tournamentId])
+}
+
+model AwardRating {
+  id           String     @id @default(cuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  category     String     // e.g., "BEST_PLAYER", "BEST_GOALKEEPER", "TOP_SCORER"
+  playerId     String
+  player       User       @relation("PlayerRatings", fields: [playerId], references: [id], onDelete: Cascade)
+  judgeId      String
+  judge        User       @relation("JudgeVotes", fields: [judgeId], references: [id], onDelete: Cascade)
+  rating       Int        // 1-10
+  comment      String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([tournamentId, category, playerId, judgeId])
 }
 
 enum MatchStatus {

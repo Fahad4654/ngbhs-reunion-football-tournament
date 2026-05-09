@@ -21,5 +21,5 @@ export default async function AdminAwardsPage() {
     })
   ]);
 
-  return <AwardsClient users={users} tournaments={tournaments} />;
+  return <AwardsClient users={users} tournaments={tournaments} currentUser={user} />;
 }
