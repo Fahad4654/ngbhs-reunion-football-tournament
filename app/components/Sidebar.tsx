@@ -40,6 +40,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
     { name: "Update Score", href: "/dashboard/update-score", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN", "SCORER"] },
     { name: "Members", href: "/dashboard/members", icon: <GroupIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Post Moderation", href: "/admin/posts", icon: <ForumIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "Awards & Teams", href: "/admin/awards", icon: <SchoolIcon />, roles: ["ADMIN", "CO_ADMIN"] },
   ];
 
   const adminOnlyLinks = [

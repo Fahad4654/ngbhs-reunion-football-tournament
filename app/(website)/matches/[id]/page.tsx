@@ -20,6 +20,9 @@ export default async function MatchCenterPage({ params }: { params: Promise<{ id
       homeTeam: true,
       awayTeam: true,
       tournament: true,
+      manOfTheMatch: {
+        select: { id: true, name: true, image: true, teamRole: true, teamDesignation: true }
+      },
       events: {
         include: {
           player: { select: { name: true } },

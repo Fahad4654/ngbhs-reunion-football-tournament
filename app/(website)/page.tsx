@@ -8,6 +8,7 @@ async function getMatches() {
     include: {
       homeTeam: true,
       awayTeam: true,
+      manOfTheMatch: { select: { name: true } },
     },
     orderBy: {
       date: 'desc',
@@ -110,7 +111,10 @@ export default async function Home() {
                 </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-                  <div style={{ flex: 1, textAlign: 'right' }} className={styles.teamName}>{match.homeTeam.name}</div>
+                  <div style={{ flex: 1, textAlign: 'right' }} className={styles.teamName}>
+                    {match.homeTeam.name}
+                    {match.homeCleanSheet && <span title="Clean Sheet" style={{ marginLeft: '0.4rem', fontSize: '0.8rem' }}>🛡️</span>}
+                  </div>
                   
                   <div className={styles.scoreBox}>
                     <div className={styles.score}>
@@ -123,12 +127,20 @@ export default async function Home() {
                     )}
                   </div>
 
-                  <div style={{ flex: 1, textAlign: 'left' }} className={styles.teamName}>{match.awayTeam.name}</div>
+                  <div style={{ flex: 1, textAlign: 'left' }} className={styles.teamName}>
+                    {match.awayCleanSheet && <span title="Clean Sheet" style={{ marginRight: '0.4rem', fontSize: '0.8rem' }}>🛡️</span>}
+                    {match.awayTeam.name}
+                  </div>
                 </div>
 
                 <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '600' }}>
                   {new Date(match.date).toLocaleDateString([], { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {match.venue || 'TBD'}
                 </div>
+                {match.manOfTheMatch && (
+                  <div style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: '700' }}>
+                    🏆 MOTM: {match.manOfTheMatch.name}
+                  </div>
+                )}
               </div>
             )) : (
               <p style={{ color: 'var(--text-muted)', fontSize: '0.917vw' }}>No matches scheduled yet.</p>

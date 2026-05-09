@@ -78,16 +78,6 @@ function matchToForm(m: Match): FormData {
   };
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.65rem 0.9rem",
-  background: "var(--bg-secondary)",
-  border: "1px solid var(--border-color)",
-  borderRadius: "8px",
-  color: "white",
-  fontSize: "0.9rem",
-  outline: "none",
-};
 
 const labelStyle: React.CSSProperties = {
   display: "block",
@@ -247,7 +237,7 @@ export default function MatchesClient({
               {/* Tournament - Now at the Top */}
               <div style={{ gridColumn: "span 2" }}>
                 <label style={labelStyle}>Tournament</label>
-                <select value={form.tournamentId} onChange={(e) => set("tournamentId", e.target.value)} style={inputStyle}>
+                <select value={form.tournamentId} onChange={(e) => set("tournamentId", e.target.value)}>
                   <option value="">— Generic Match (No Tournament) —</option>
                   {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " 🟢" : ""}</option>)}
                 </select>
@@ -257,7 +247,7 @@ export default function MatchesClient({
               {/* Home Team */}
               <div>
                 <label style={labelStyle}>Home Team</label>
-                <select value={form.homeTeamId} onChange={(e) => set("homeTeamId", e.target.value)} required style={inputStyle}>
+                <select value={form.homeTeamId} onChange={(e) => set("homeTeamId", e.target.value)} required>
                   <option value="">— Select —</option>
                   {batches.filter(b => {
                     if (!form.tournamentId) return true;
@@ -270,7 +260,7 @@ export default function MatchesClient({
               {/* Away Team */}
               <div>
                 <label style={labelStyle}>Away Team</label>
-                <select value={form.awayTeamId} onChange={(e) => set("awayTeamId", e.target.value)} required style={inputStyle}>
+                <select value={form.awayTeamId} onChange={(e) => set("awayTeamId", e.target.value)} required>
                   <option value="">— Select —</option>
                   {batches.filter(b => {
                     if (!form.tournamentId) return true;
@@ -294,19 +284,19 @@ export default function MatchesClient({
               {/* Date & Time */}
               <div>
                 <label style={labelStyle}>Date & Time</label>
-                <input type="datetime-local" value={form.date} onChange={(e) => set("date", e.target.value)} required style={inputStyle} />
+                <input type="datetime-local" value={form.date} onChange={(e) => set("date", e.target.value)} required />
               </div>
 
               {/* Venue */}
               <div>
                 <label style={labelStyle}>Venue</label>
-                <input type="text" value={form.venue} onChange={(e) => set("venue", e.target.value)} placeholder="e.g. Main Stadium" style={inputStyle} />
+                <input type="text" value={form.venue} onChange={(e) => set("venue", e.target.value)} placeholder="e.g. Main Stadium" />
               </div>
 
               {/* Status */}
               <div>
                 <label style={labelStyle}>Status</label>
-                <select value={form.status} onChange={(e) => set("status", e.target.value)} style={inputStyle}>
+                <select value={form.status} onChange={(e) => set("status", e.target.value)}>
                   {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>

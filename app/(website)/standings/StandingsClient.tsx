@@ -130,18 +130,7 @@ export default function StandingsClient({
               id="tournament-select"
               value={selectedId}
               onChange={(e) => handleTournamentChange(e.target.value)}
-              style={{
-                padding: "0.6rem 1.2rem",
-                background: "var(--bg-secondary)",
-                border: "1px solid var(--border-color)",
-                borderRadius: "8px",
-                color: "white",
-                fontSize: "0.95rem",
-                fontWeight: "700",
-                outline: "none",
-                cursor: "pointer",
-                minWidth: "240px",
-              }}
+              style={{ minWidth: "240px", fontWeight: "700" }}
             >
               <option value="">— Select a tournament —</option>
               {tournaments.map((t) => (
