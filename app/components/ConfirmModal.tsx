@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import InfoIcon from '@mui/icons-material/Info';
 
 interface ConfirmModalProps {
   message: string;
@@ -65,7 +67,13 @@ export function ConfirmModal({
         }}
       >
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <div style={{ fontSize: '2rem', lineHeight: 1 }}>{danger ? '⚠️' : 'ℹ️'}</div>
+          <div style={{ fontSize: '2.5rem', lineHeight: 1, display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+            {danger ? (
+              <WarningAmberIcon sx={{ fontSize: '3rem', color: '#ef4444' }} />
+            ) : (
+              <InfoIcon sx={{ fontSize: '3rem', color: 'var(--accent-primary)' }} />
+            )}
+          </div>
           <p style={{ margin: 0, fontWeight: '700', fontSize: '1.1rem', color: 'var(--text-primary)', fontFamily: 'Outfit, sans-serif' }}>
             {message}
           </p>

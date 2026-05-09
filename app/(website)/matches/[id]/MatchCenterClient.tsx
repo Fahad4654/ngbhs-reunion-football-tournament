@@ -9,6 +9,8 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CircleIcon from '@mui/icons-material/Circle';
+import ShieldIcon from '@mui/icons-material/Shield';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 const PERIODS: Record<string, string> = {
   'PRE_MATCH': 'Pre-Match',
@@ -96,7 +98,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
               <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>{match.homeTeam.name}</h2>
               {match.homeCleanSheet && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '800' }}>
-                  🛡️ Clean Sheet
+                  <ShieldIcon sx={{ fontSize: '1rem' }} /> Clean Sheet
                 </div>
               )}
             </div>
@@ -142,7 +144,7 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
               <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>{match.awayTeam.name}</h2>
               {match.awayCleanSheet && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '800' }}>
-                  🛡️ Clean Sheet
+                  <ShieldIcon sx={{ fontSize: '1rem' }} /> Clean Sheet
                 </div>
               )}
             </div>
@@ -188,7 +190,9 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
         {match.manOfTheMatch && (
           <div className="glass" style={{ marginTop: '2rem', padding: '1.5rem 2rem', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', background: 'linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.02) 100%)', border: '1px solid rgba(255,215,0,0.2)' }}>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: '900', color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.2rem' }}>🏆 Man of the Match</div>
+              <div style={{ fontSize: '0.8rem', fontWeight: '900', color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.4rem' }}>
+                <EmojiEventsIcon sx={{ fontSize: '1.2rem' }} /> Man of the Match
+              </div>
               <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900', color: 'white' }}>{match.manOfTheMatch.name}</h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{match.manOfTheMatch.teamRole || 'Player'}</div>
             </div>

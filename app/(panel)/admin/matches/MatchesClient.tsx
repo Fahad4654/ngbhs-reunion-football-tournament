@@ -8,6 +8,9 @@ import PrintIcon from "@mui/icons-material/Print";
 import { toast } from "react-hot-toast";
 import { useConfirm } from "@/app/components/ConfirmModal";
 import CustomSelect from "@/app/components/panel/CustomSelect";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import InfoIcon from "@mui/icons-material/Info";
 
 type Batch = { id: string; name: string };
 type Tournament = { 
@@ -236,7 +239,15 @@ export default function MatchesClient({
         <div id="match-form" className="glass" style={{ padding: "1.75rem", borderRadius: "14px", marginBottom: "2rem", border: "1px solid var(--border-color)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
             <h3 style={{ fontWeight: "900", margin: 0, fontSize: "1.15rem" }}>
-              {editingId ? "✏️ Edit Match" : "➕ New Match"}
+              {editingId ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <EditIcon sx={{ fontSize: '1.2rem' }} /> Edit Match
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <AddIcon sx={{ fontSize: '1.2rem' }} /> New Match
+                </div>
+              )}
             </h3>
             <button className="btn glass" onClick={closeForm} style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>✕ Cancel</button>
           </div>
@@ -251,9 +262,13 @@ export default function MatchesClient({
                   onChange={(e) => set("tournamentId", e.target.value)}
                 >
                   <option value="">— Generic Match (No Tournament) —</option>
-                  {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " 🟢" : ""}</option>)}
+                  {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " (Active)" : ""}</option>)}
                 </CustomSelect>
-                {form.tournamentId && <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--accent-primary)", fontWeight: "600" }}>ℹ️ Team selection below will be restricted to this tournament's groups.</p>}
+                {form.tournamentId && (
+                  <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--accent-primary)", fontWeight: "600", display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <InfoIcon sx={{ fontSize: '0.9rem' }} /> Team selection below will be restricted to this tournament's groups.
+                  </p>
+                )}
               </div>
 
               {/* Home Team */}

@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface CustomSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label?: string;
+  label?: React.ReactNode;
   containerStyle?: React.CSSProperties;
 }
 

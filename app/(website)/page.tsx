@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "./page.module.css";
 import Link from "next/link";
+import ShieldIcon from '@mui/icons-material/Shield';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 async function getMatches() {
   return await prisma.match.findMany({
@@ -132,7 +134,7 @@ export default async function Home() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
                   <div style={{ flex: 1, textAlign: 'right' }} className={styles.teamName}>
                     {match.homeTeam.name}
-                    {match.homeCleanSheet && <span title="Clean Sheet" style={{ marginLeft: '0.4rem', fontSize: '0.8rem' }}>🛡️</span>}
+                    {match.homeCleanSheet && <ShieldIcon sx={{ fontSize: '0.9rem', color: '#60a5fa', verticalAlign: 'middle', ml: 0.5 }} />}
                   </div>
                   
                   <div className={styles.scoreBox}>
@@ -147,7 +149,7 @@ export default async function Home() {
                   </div>
 
                   <div style={{ flex: 1, textAlign: 'left' }} className={styles.teamName}>
-                    {match.awayCleanSheet && <span title="Clean Sheet" style={{ marginRight: '0.4rem', fontSize: '0.8rem' }}>🛡️</span>}
+                    {match.awayCleanSheet && <ShieldIcon sx={{ fontSize: '0.9rem', color: '#60a5fa', verticalAlign: 'middle', mr: 0.5 }} />}
                     {match.awayTeam.name}
                   </div>
                 </div>
@@ -157,7 +159,8 @@ export default async function Home() {
                 </div>
                 {match.manOfTheMatch && (
                   <div style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: '700' }}>
-                    🏆 MOTM: {match.manOfTheMatch.name}
+                    <EmojiEventsIcon sx={{ fontSize: '1rem', color: '#fbbf24', verticalAlign: 'text-bottom', mr: 0.5 }} />
+                    MOTM: {match.manOfTheMatch.name}
                   </div>
                 )}
               </div>

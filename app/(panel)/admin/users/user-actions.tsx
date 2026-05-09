@@ -5,6 +5,9 @@ import { updateUserRoleAction, deleteUserAction, updateCommitteeStatus, updateVo
 import { toast } from 'react-hot-toast';
 import { useConfirm } from '@/app/components/ConfirmModal';
 import CustomSelect from '@/app/components/panel/CustomSelect';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface UserActionsProps {
   userId: string;
@@ -113,13 +116,15 @@ export default function UserActions({
           className="btn glass"
           style={{ 
             padding: '0.4rem', 
-            fontSize: '1rem', 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             background: isCommitteeMember ? 'rgba(235, 183, 0, 0.2)' : 'transparent',
             borderColor: isCommitteeMember ? 'var(--accent-primary)' : 'var(--border-color)',
             color: isCommitteeMember ? 'var(--accent-primary)' : 'var(--text-muted)'
           }}
         >
-          🏛️
+          <AccountBalanceIcon sx={{ fontSize: '1.2rem' }} />
         </button>
 
         {/* Volunteer Toggle */}
@@ -130,13 +135,15 @@ export default function UserActions({
           className="btn glass"
           style={{ 
             padding: '0.4rem', 
-            fontSize: '1rem', 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             background: isVolunteer ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
             borderColor: isVolunteer ? '#22c55e' : 'var(--border-color)',
             color: isVolunteer ? '#22c55e' : 'var(--text-muted)'
           }}
         >
-          🙋‍♂️
+          <VolunteerActivismIcon sx={{ fontSize: '1.2rem' }} />
         </button>
 
         {currentRole !== 'ADMIN' && (
@@ -162,8 +169,9 @@ export default function UserActions({
           onClick={handleDelete}
           disabled={isPending}
           className="btn glass" 
-          style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', color: 'var(--accent-danger)' }}
+          style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', color: 'var(--accent-danger)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
         >
+          <DeleteIcon sx={{ fontSize: '1rem' }} />
           Delete
         </button>
       </div>

@@ -4,6 +4,9 @@ import { useState } from "react";
 import { upsertSeasonAward } from "@/lib/actions/stats.actions";
 import { toast } from "react-hot-toast";
 import CustomSelect from "@/app/components/panel/CustomSelect";
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import StarIcon from '@mui/icons-material/Star';
 
 // ─── Styled Label ───────────────────────────────────────────────────────────
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -216,7 +219,11 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
 
         {/* Players Section */}
         <div style={{ marginBottom: "1.25rem" }}>
-          <FieldLabel>⚽ Players ({filled} / {maxPlayers})</FieldLabel>
+          <FieldLabel>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <SportsSoccerIcon sx={{ fontSize: '0.9rem' }} /> Players ({filled} / {maxPlayers})
+            </div>
+          </FieldLabel>
 
           {/* Chips */}
           {playerIds.length > 0 && (
@@ -344,7 +351,7 @@ export default function AwardsClient({ users, initialTopTeam, initialBestEleven 
       <AwardForm
         category="TOP_TEAM"
         title="Top Team — Best 11"
-        icon="🏆"
+        icon={<EmojiEventsIcon sx={{ color: '#fbbf24' }} />}
         maxPlayers={11}
         initialData={initialTopTeam}
         users={users}
@@ -353,7 +360,7 @@ export default function AwardsClient({ users, initialTopTeam, initialBestEleven 
       <AwardForm
         category="BEST_ELEVEN"
         title="Best Eleven of the Season"
-        icon="⭐"
+        icon={<StarIcon sx={{ color: 'var(--accent-primary)' }} />}
         maxPlayers={15}
         initialData={initialBestEleven}
         users={users}

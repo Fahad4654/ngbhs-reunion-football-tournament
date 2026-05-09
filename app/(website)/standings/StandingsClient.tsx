@@ -3,6 +3,11 @@
 import { useState, useTransition } from "react";
 import styles from "./standings.module.css";
 import SquadModal from "./SquadModal";
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import PanToolIcon from '@mui/icons-material/PanTool';
+import StarIcon from '@mui/icons-material/Star';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 
 type TournamentListInfo = { id: string; name: string; isActive: boolean };
 
@@ -145,7 +150,7 @@ export default function StandingsClient({
               <option value="">— Select a tournament —</option>
               {tournaments.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.name}{t.isActive ? " 🟢" : ""}
+                  {t.name}{t.isActive ? " (Active)" : ""}
                 </option>
               ))}
             </select>
@@ -300,7 +305,7 @@ export default function StandingsClient({
           {/* Top Scorers */}
           <div className={`glass ${styles.card}`}>
             <div className={styles.cardHeader}>
-              <div className={styles.cardIcon}>⚽</div>
+              <div className={styles.cardIcon}><SportsSoccerIcon /></div>
               <div>
                 <h3 className={styles.cardTitle}>Top Scorers</h3>
                 <p className={styles.cardSub}>Ranked by goals scored</p>
@@ -310,7 +315,7 @@ export default function StandingsClient({
               {topScorers.length > 0 ? topScorers.map((item: any, i: number) => (
                 <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
                   <div className={styles.rank}>
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
+                    {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
                   </div>
                   <img src={item.player.image || "/default-avatar.png"} alt={item.player.name || ""} className={styles.avatar} />
                   <div className={styles.info}>
@@ -326,7 +331,7 @@ export default function StandingsClient({
           {/* Best Goalkeepers */}
           <div className={`glass ${styles.card}`}>
             <div className={styles.cardHeader}>
-              <div className={styles.cardIcon}>🧤</div>
+              <div className={styles.cardIcon}><PanToolIcon /></div>
               <div>
                 <h3 className={styles.cardTitle}>Best Goalkeepers</h3>
                 <p className={styles.cardSub}>Ranked by clean sheets</p>
@@ -336,7 +341,7 @@ export default function StandingsClient({
               {bestGKs.length > 0 ? bestGKs.map((item: any, i: number) => (
                 <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
                   <div className={styles.rank}>
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
+                    {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
                   </div>
                   <img src={item.player.image || "/default-avatar.png"} alt={item.player.name || ""} className={styles.avatar} />
                   <div className={styles.info}>
@@ -352,7 +357,7 @@ export default function StandingsClient({
           {/* Best Players */}
           <div className={`glass ${styles.card}`}>
             <div className={styles.cardHeader}>
-              <div className={styles.cardIcon}>⭐</div>
+              <div className={styles.cardIcon}><StarIcon /></div>
               <div>
                 <h3 className={styles.cardTitle}>Best Players</h3>
                 <p className={styles.cardSub}>Goals · Assists · MOTM rating</p>
@@ -362,7 +367,7 @@ export default function StandingsClient({
               {bestPlayers.length > 0 ? bestPlayers.map((item: any, i: number) => (
                 <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
                   <div className={styles.rank}>
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
+                    {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
                   </div>
                   <img src={item.player.image || "/default-avatar.png"} alt={item.player.name || ""} className={styles.avatar} />
                   <div className={styles.info}>
@@ -372,7 +377,7 @@ export default function StandingsClient({
                       <div className={styles.statChips}>
                         <span title="Goals">{item.stats.goals}G</span>
                         <span title="Assists">{item.stats.assists}A</span>
-                        <span title="MOTM">{item.stats.motms}🏆</span>
+                        <span title="MOTM">{item.stats.motms}<EmojiEventsIcon sx={{ fontSize: '0.9rem', verticalAlign: 'text-bottom' }} /></span>
                       </div>
                     </div>
                   </div>
@@ -396,10 +401,10 @@ export default function StandingsClient({
 
           <div className={styles.awardsGrid}>
             {topTeam && topTeam.players.length > 0 && (
-              <AwardCard award={topTeam} icon="🏆" />
+              <AwardCard award={topTeam} icon={<EmojiEventsIcon />} />
             )}
             {bestEleven && bestEleven.players.length > 0 && (
-              <AwardCard award={bestEleven} icon="⭐" />
+              <AwardCard award={bestEleven} icon={<StarIcon />} />
             )}
           </div>
         </div>
@@ -416,7 +421,7 @@ export default function StandingsClient({
   );
 }
 
-function AwardCard({ award, icon }: { award: any; icon: string }) {
+function AwardCard({ award, icon }: { award: any; icon: React.ReactNode }) {
   return (
     <div className={`glass ${styles.awardCard}`}>
       <div className={styles.awardHeader}>

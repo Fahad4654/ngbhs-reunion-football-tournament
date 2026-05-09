@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { updateBatchProfile } from "@/lib/actions/batch.actions";
 import LogoUploader from "@/app/components/LogoUploader";
+import InfoIcon from '@mui/icons-material/Info';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 type Batch = {
   id: string;
@@ -112,12 +114,12 @@ export default function BatchProfileForm({ batch }: { batch: Batch }) {
           />
         </div>
 
-        <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: 0 }}>
-          ⚠ The graduating year cannot be changed. Contact an Admin to correct it.
+        <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <InfoIcon sx={{ fontSize: '0.9rem' }} /> The graduating year cannot be changed. Contact an Admin to correct it.
         </p>
 
         {error && <p style={{ color: "var(--accent-danger)", fontSize: "0.85rem", margin: 0 }}>{error}</p>}
-        {success && <p style={{ color: "#10b981", fontSize: "0.85rem", fontWeight: "700", margin: 0 }}>✓ Profile updated successfully!</p>}
+        {success && <p style={{ color: "#10b981", fontSize: "0.85rem", fontWeight: "700", margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}><CheckCircleIcon sx={{ fontSize: '1rem' }} /> Profile updated successfully!</p>}
 
         <button type="submit" className="btn btn-primary" disabled={isPending} style={{ width: "100%" }}>
           {isPending ? "Saving…" : "Save Profile"}

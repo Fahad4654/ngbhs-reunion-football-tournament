@@ -16,8 +16,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FlagIcon from '@mui/icons-material/Flag';
 import ForumIcon from '@mui/icons-material/Forum';
-import CircleIcon from '@mui/icons-material/Circle';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import CircleIcon from '@mui/icons-material/Circle';
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import ShortcutIcon from '@mui/icons-material/Shortcut';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 type Player = { id: string, name: string | null };
@@ -483,7 +488,13 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                     ) : (
                       <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
                         {(match.events || []).map((ev: any) => {
-                          const evIcon = ev.type === 'GOAL' ? '⚽' : ev.type === 'YELLOW_CARD' ? '🟨' : ev.type === 'RED_CARD' ? '🟥' : ev.type === 'SUBSTITUTION' ? '🔄' : ev.type === 'OWN_GOAL' ? '🙈' : ev.type === 'ASSIST' ? '👟' : '📋';
+                          const evIcon = ev.type === 'GOAL' ? <SportsSoccerIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-primary)' }} /> : 
+                                         ev.type === 'YELLOW_CARD' ? <StyleIcon sx={{ fontSize: '1.2rem', color: '#fbbf24' }} /> : 
+                                         ev.type === 'RED_CARD' ? <StyleIcon sx={{ fontSize: '1.2rem', color: '#ef4444' }} /> : 
+                                         ev.type === 'SUBSTITUTION' ? <SyncIcon sx={{ fontSize: '1.2rem', color: '#10b981' }} /> : 
+                                         ev.type === 'OWN_GOAL' ? <SentimentVeryDissatisfiedIcon sx={{ fontSize: '1.2rem', color: '#ef4444' }} /> : 
+                                         ev.type === 'ASSIST' ? <DirectionsRunIcon sx={{ fontSize: '1.2rem', color: '#60a5fa' }} /> : 
+                                         <AssignmentIcon sx={{ fontSize: '1.2rem', color: 'var(--text-muted)' }} />;
                           const isHome = ev.teamId === match.homeTeam.id;
                           return (
                             <div key={ev.id} className="event-row" style={{ 
@@ -561,7 +572,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
               <div className="glass" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
                  <div style={{ flex: 1 }}>
                   <CustomSelect 
-                    label="🏆 Man of the Match"
+                    label={<div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><EmojiEventsIcon sx={{ fontSize: '1rem', color: '#fbbf24' }} /> Man of the Match</div>}
                     value={match.manOfTheMatchId || ''} 
                     onChange={(e) => { 
                       const v = e.target.value; 
@@ -616,8 +627,8 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                     onChange={(e) => { const v = e.target.value as any; updateLocal(match.id, 'status', v); syncMatchState(match.id, { status: v }); }}
                   >
                     <option value="SCHEDULED">Scheduled</option>
-                    <option value="LIVE">Live 🔴</option>
-                    <option value="FINISHED">Finished ✅</option>
+                    <option value="LIVE">Live</option>
+                    <option value="FINISHED">Finished</option>
                     <option value="CANCELLED">Cancelled</option>
                   </CustomSelect>
                 </div>
