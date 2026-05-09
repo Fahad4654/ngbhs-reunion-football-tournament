@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { updateUserRoleAction, deleteUserAction } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
+import { useConfirm } from '@/app/components/ConfirmModal';
+import CustomSelect from '@/app/components/panel/CustomSelect';
 
 interface UserActionsProps {
   userId: string;
@@ -11,19 +13,9 @@ interface UserActionsProps {
 
 export default function UserActions({ userId, currentRole }: UserActionsProps) {
   const [isPending, setIsPending] = useState(false);
-  const [confirmState, setConfirmState] = useState<{
-    isOpen: boolean;
-    message: string;
-    onConfirm: (() => void) | null;
-  }>({ isOpen: false, message: '', onConfirm: null });
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
-  const confirmAction = (message: string, onConfirm: () => void) => {
-    setConfirmState({ isOpen: true, message, onConfirm });
-  };
 
-  const closeConfirm = () => {
-    setConfirmState({ isOpen: false, message: '', onConfirm: null });
-  };
 
   const handleRoleChange = async (newRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER') => {
     setIsPending(true);
@@ -46,7 +38,7 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
   };
 
   const handleDelete = () => {
-    confirmAction('Are you sure you want to completely delete this user? All their posts and media will be removed. This cannot be undone.', async () => {
+    askConfirm('Are you sure you want to completely delete this user?', async () => {
       setIsPending(true);
       const promise = deleteUserAction(userId).then(res => {
         if (res.error) throw new Error(res.error);
@@ -64,29 +56,30 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
       } finally {
         setIsPending(false);
       }
-    });
+    }, { subMessage: 'All their posts and media will be removed. This cannot be undone.', confirmLabel: 'Delete User' });
   };
 
   return (
     <>
       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
         {currentRole !== 'ADMIN' && (
-          <select 
-            value={currentRole}
-            onChange={(e) => handleRoleChange(e.target.value as 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER')}
-            disabled={isPending}
-            style={{ 
-              width: 'auto',
-              padding: '0.4rem 2.2rem 0.4rem 0.7rem',
-              fontSize: '0.75rem',
-              fontWeight: '600'
-            }}
-          >
-            <option value="USER" style={{ color: 'black' }}>Role: User</option>
-            <option value="BATCH_MANAGER" style={{ color: 'black' }}>Role: Batch Manager</option>
-            <option value="SCORER" style={{ color: 'black' }}>Role: Scorer</option>
-            <option value="CO_ADMIN" style={{ color: 'black' }}>Role: Co-Admin</option>
-          </select>
+          <div style={{ width: '160px' }}>
+            <CustomSelect 
+              value={currentRole}
+              onChange={(e) => handleRoleChange(e.target.value as 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER')}
+              disabled={isPending}
+              style={{ 
+                padding: '0.4rem 2rem 0.4rem 0.7rem',
+                fontSize: '0.75rem',
+                height: 'auto'
+              }}
+            >
+              <option value="USER">User</option>
+              <option value="BATCH_MANAGER">Batch Manager</option>
+              <option value="SCORER">Scorer</option>
+              <option value="CO_ADMIN">Co-Admin</option>
+            </CustomSelect>
+          </div>
         )}
         <button 
           onClick={handleDelete}
@@ -98,71 +91,7 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
         </button>
       </div>
 
-      {confirmState.isOpen && typeof window !== 'undefined' && require('react-dom').createPortal(
-        <div 
-          style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 99999,
-            animation: 'fadeIn 0.2s ease-out forwards',
-          }}
-          onClick={closeConfirm}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="glass"
-            style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '1.5rem', 
-              width: '100%',
-              maxWidth: '450px',
-              padding: '2rem',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(235, 183, 0, 0.1)',
-              border: '1px solid rgba(235, 183, 0, 0.3)',
-              animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-              margin: '0 1rem',
-            }}
-          >
-            <div style={{ textAlign: 'center' }}>
-              <p style={{ 
-                margin: 0, 
-                fontWeight: '600', 
-                fontSize: '1.25rem', 
-                color: 'var(--text-primary)',
-                fontFamily: 'Outfit, sans-serif'
-              }}>
-                {confirmState.message}
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <button 
-                onClick={closeConfirm}
-                className="btn glass"
-                style={{ flex: 1, padding: '0.75rem' }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={() => {
-                  if (confirmState.onConfirm) confirmState.onConfirm();
-                  closeConfirm();
-                }}
-                className="btn"
-                style={{ flex: 1, padding: '0.75rem', background: '#ef4444', color: 'white', border: 'none' }}
-              >
-                Delete User
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      {confirmModal}
     </>
   );
 }

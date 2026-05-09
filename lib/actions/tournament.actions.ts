@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
+import { recalculateTournamentStandings } from "./match.actions";
 
 export async function createTournament(name: string, isActive: boolean = false) {
   const user = await getServerUser();
@@ -206,6 +207,8 @@ export async function updateTournamentSettings(
         lossPoints: data.lossPoints,
       },
     });
+
+    await recalculateTournamentStandings(id);
     revalidatePath(`/admin/tournaments/${id}`);
     revalidatePath("/standings");
     return { success: true, data: tournament };

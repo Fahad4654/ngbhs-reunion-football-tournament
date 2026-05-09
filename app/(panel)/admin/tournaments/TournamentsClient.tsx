@@ -8,6 +8,7 @@ import {
   renameTournament,
   deleteTournament,
 } from "@/lib/actions/tournament.actions";
+import { useConfirm } from "@/app/components/ConfirmModal";
 
 type Tournament = {
   id: string;
@@ -31,6 +32,7 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   // ── Create ───────────────────────────────
   function handleCreate(e: React.FormEvent) {
@@ -84,20 +86,26 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
 
   // ── Delete ───────────────────────────────
   function handleDelete(id: string, tName: string) {
-    if (!confirm(`Delete "${tName}"? This will also remove all team entries for this tournament.`)) return;
-    setError("");
-    startTransition(async () => {
-      const res = await deleteTournament(id);
-      if (res.success) {
-        setTournaments((prev) => prev.filter((t) => t.id !== id));
-      } else {
-        setError(res.error || "Failed to delete tournament");
-      }
-    });
+    askConfirm(
+      `Delete "${tName}"?`,
+      () => {
+        setError("");
+        startTransition(async () => {
+          const res = await deleteTournament(id);
+          if (res.success) {
+            setTournaments((prev) => prev.filter((t) => t.id !== id));
+          } else {
+            setError(res.error || "Failed to delete tournament");
+          }
+        });
+      },
+      { subMessage: 'All team entries for this tournament will also be removed.', confirmLabel: 'Delete Tournament' }
+    );
   }
 
   return (
     <>
+      {confirmModal}
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>

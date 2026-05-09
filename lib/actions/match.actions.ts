@@ -42,6 +42,11 @@ export async function createMatch(data: {
       include: { homeTeam: true, awayTeam: true, tournament: true },
     });
 
+    if (match.tournamentId) {
+      await recalculateTournamentStandings(match.tournamentId);
+      revalidatePath("/standings");
+    }
+
     revalidatePath("/admin/matches");
     revalidatePath("/matches");
     revalidatePath("/");
@@ -86,6 +91,11 @@ export async function updateMatch(
       include: { homeTeam: true, awayTeam: true, tournament: true },
     });
 
+    if (match.tournamentId) {
+      await recalculateTournamentStandings(match.tournamentId);
+      revalidatePath("/standings");
+    }
+
     revalidatePath("/admin/matches");
     revalidatePath("/matches");
     revalidatePath("/");
@@ -101,7 +111,14 @@ export async function deleteMatch(id: string) {
   if (!isAdmin(user?.role)) return { success: false, error: "Unauthorized" };
 
   try {
+    const match = await prisma.match.findUnique({ where: { id }, select: { tournamentId: true } });
     await prisma.match.delete({ where: { id } });
+    
+    if (match?.tournamentId) {
+      await recalculateTournamentStandings(match.tournamentId);
+      revalidatePath("/standings");
+    }
+
     revalidatePath("/admin/matches");
     revalidatePath("/matches");
     revalidatePath("/");

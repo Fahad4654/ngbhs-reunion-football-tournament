@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { upsertSeasonAward } from "@/lib/actions/stats.actions";
 import { toast } from "react-hot-toast";
+import CustomSelect from "@/app/components/panel/CustomSelect";
 
 // ─── Styled Label ───────────────────────────────────────────────────────────
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -181,8 +182,8 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
         {/* Coach & Captain */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
           <div>
-            <FieldLabel>👔 Coach</FieldLabel>
-            <select
+            <CustomSelect
+              label="👔 Coach"
               value={coachId}
               onChange={(e) => setCoachId(e.target.value)}
             >
@@ -192,11 +193,11 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
                   {u.name} ({u.batch?.name || "No Batch"})
                 </option>
               ))}
-            </select>
+            </CustomSelect>
           </div>
           <div>
-            <FieldLabel>🏅 Captain</FieldLabel>
-            <select
+            <CustomSelect
+              label="🏅 Captain"
               value={captainId}
               onChange={(e) => setCaptainId(e.target.value)}
             >
@@ -209,7 +210,7 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
                   </option>
                 ) : null;
               })}
-            </select>
+            </CustomSelect>
           </div>
         </div>
 

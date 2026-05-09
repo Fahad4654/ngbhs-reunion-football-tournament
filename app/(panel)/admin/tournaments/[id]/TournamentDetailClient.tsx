@@ -11,6 +11,8 @@ import {
   deleteTournamentGroup,
   assignTeamToGroup,
 } from "@/lib/actions/tournament.actions";
+import { useConfirm } from "@/app/components/ConfirmModal";
+import CustomSelect from "@/app/components/panel/CustomSelect";
 
 // ── Types ────────────────────────────────────────────────────────────
 type Batch = { id: string; name: string; year: number };
@@ -62,6 +64,7 @@ export default function TournamentDetailClient({
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   // ── Settings ────────────────────────────────────────────────────────
   function handleSaveSettings() {
@@ -89,14 +92,19 @@ export default function TournamentDetailClient({
   }
 
   function handleDeleteGroup(groupId: string, groupName: string) {
-    if (!confirm(`Delete "${groupName}"? Teams in this group will become ungrouped.`)) return;
-    startTransition(async () => {
-      const res = await deleteTournamentGroup(groupId, tournament.id);
-      if (res.success) {
-        setGroups((prev) => prev.filter((g) => g.id !== groupId));
-        setTeams((prev) => prev.map((t) => t.groupId === groupId ? { ...t, groupId: null, group: null } : t));
-      }
-    });
+    askConfirm(
+      `Delete group "${groupName}"?`,
+      () => {
+        startTransition(async () => {
+          const res = await deleteTournamentGroup(groupId, tournament.id);
+          if (res.success) {
+            setGroups((prev) => prev.filter((g) => g.id !== groupId));
+            setTeams((prev) => prev.map((t) => t.groupId === groupId ? { ...t, groupId: null, group: null } : t));
+          }
+        });
+      },
+      { subMessage: 'Teams in this group will become ungrouped.', confirmLabel: 'Delete Group' }
+    );
   }
 
   function handleAssignGroup(teamId: string, groupId: string) {
@@ -127,11 +135,16 @@ export default function TournamentDetailClient({
   }
 
   function handleRemoveTeam(tournamentTeamId: string) {
-    if (!confirm("Remove this team from the tournament?")) return;
-    startTransition(async () => {
-      const res = await removeTeamFromTournament(tournamentTeamId);
-      if (res.success) setTeams((prev) => prev.filter((t) => t.id !== tournamentTeamId));
-    });
+    askConfirm(
+      'Remove this team from the tournament?',
+      () => {
+        startTransition(async () => {
+          const res = await removeTeamFromTournament(tournamentTeamId);
+          if (res.success) setTeams((prev) => prev.filter((t) => t.id !== tournamentTeamId));
+        });
+      },
+      { confirmLabel: 'Remove Team' }
+    );
   }
 
   type NumericStatKey = "played" | "won" | "drawn" | "lost" | "goalsFor" | "goalsAgainst" | "points";
@@ -175,6 +188,7 @@ export default function TournamentDetailClient({
 
   return (
     <>
+      {confirmModal}
       {/* Header */}
       <div style={{ marginBottom: "1.75rem" }}>
         <Link href="/admin/tournaments" style={{ color: "var(--text-muted)", fontSize: "0.78rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -348,12 +362,18 @@ export default function TournamentDetailClient({
           {/* Add team */}
           <div className="glass" style={{ padding: "1.25rem 1.5rem", borderRadius: "12px", marginBottom: "1.5rem", border: "1px solid var(--border-color)" }}>
             <h3 style={{ fontWeight: "800", fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.75rem" }}>Add Team</h3>
-            <div style={{ display: "flex", gap: "0.75rem" }}>
-              <select id="add-team-select" value={selectedBatchId} onChange={(e) => setSelectedBatchId(e.target.value)} style={{ flex: 1 }}>
+            <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end", flex: 1 }}>
+              <CustomSelect 
+                label="Enroll New Batch"
+                id="add-team-select" 
+                value={selectedBatchId} 
+                onChange={(e) => setSelectedBatchId(e.target.value)} 
+                containerStyle={{ flex: 1 }}
+              >
                 <option value="">— Select a batch —</option>
                 {availableBatches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
-              <button className="btn btn-primary" onClick={handleAddTeam} disabled={!selectedBatchId || isPending}>+ Add</button>
+              </CustomSelect>
+              <button className="btn btn-primary" onClick={handleAddTeam} disabled={!selectedBatchId || isPending} style={{ height: '45px' }}>+ Add</button>
             </div>
             {availableBatches.length === 0 && <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginTop: "0.5rem" }}>All batches are already enrolled.</p>}
           </div>
@@ -381,14 +401,14 @@ export default function TournamentDetailClient({
                       <td style={{ padding: "1rem 1.25rem", fontWeight: "700" }}>{team.batch.name}</td>
                       <td style={{ padding: "1rem 0.5rem", textAlign: "center" }}>
                         {groups.length > 0 ? (
-                          <select
+                          <CustomSelect
                             value={team.groupId ?? ""}
                             onChange={(e) => handleAssignGroup(team.id, e.target.value)}
-                            style={{ width: 'auto', fontSize: "0.8rem" }}
+                            style={{ padding: '0.4rem 2rem 0.4rem 0.8rem', fontSize: '0.8rem', height: 'auto', minWidth: '100px' }}
                           >
                             <option value="">—</option>
                             {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-                          </select>
+                          </CustomSelect>
                         ) : <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>—</span>}
                       </td>
                       {statFields.map((f) => (

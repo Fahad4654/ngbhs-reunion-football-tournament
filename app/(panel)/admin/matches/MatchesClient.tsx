@@ -6,6 +6,8 @@ import { getFullMatchSquads } from "@/lib/actions/match-squad.actions";
 import PrintSquad from "@/app/components/PrintSquad";
 import PrintIcon from "@mui/icons-material/Print";
 import { toast } from "react-hot-toast";
+import { useConfirm } from "@/app/components/ConfirmModal";
+import CustomSelect from "@/app/components/panel/CustomSelect";
 
 type Batch = { id: string; name: string };
 type Tournament = { 
@@ -105,6 +107,7 @@ export default function MatchesClient({
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const [printingMatch, setPrintingMatch] = useState<{ match: any, squads: any[] } | null>(null);
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   function openCreate() {
     setEditingId(null);
@@ -175,16 +178,21 @@ export default function MatchesClient({
   }
 
   function handleDelete(id: string, label: string) {
-    if (!confirm(`Delete match "${label}"? This cannot be undone.`)) return;
-    startTransition(async () => {
-      const res = await deleteMatch(id);
-      if (res.success) {
-        setMatches((prev) => prev.filter((m) => m.id !== id));
-        if (editingId === id) closeForm();
-      } else {
-        setError(res.error ?? "Failed to delete match");
-      }
-    });
+    askConfirm(
+      `Delete match "${label}"?`,
+      () => {
+        startTransition(async () => {
+          const res = await deleteMatch(id);
+          if (res.success) {
+            setMatches((prev) => prev.filter((m) => m.id !== id));
+            if (editingId === id) closeForm();
+          } else {
+            setError(res.error ?? "Failed to delete match");
+          }
+        });
+      },
+      { subMessage: 'This cannot be undone.', confirmLabel: 'Delete Match' }
+    );
   }
 
   async function handlePrint(match: any) {
@@ -205,6 +213,7 @@ export default function MatchesClient({
 
   return (
     <>
+      {confirmModal}
       {/* Top bar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
@@ -234,33 +243,44 @@ export default function MatchesClient({
 
           <form onSubmit={handleSubmit}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              {/* Tournament - Now at the Top */}
+              {/* Tournament */}
               <div style={{ gridColumn: "span 2" }}>
-                <label style={labelStyle}>Tournament</label>
-                <select value={form.tournamentId} onChange={(e) => set("tournamentId", e.target.value)}>
+                <CustomSelect 
+                  label="Tournament"
+                  value={form.tournamentId} 
+                  onChange={(e) => set("tournamentId", e.target.value)}
+                >
                   <option value="">— Generic Match (No Tournament) —</option>
                   {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " 🟢" : ""}</option>)}
-                </select>
+                </CustomSelect>
                 {form.tournamentId && <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--accent-primary)", fontWeight: "600" }}>ℹ️ Team selection below will be restricted to this tournament's groups.</p>}
               </div>
 
               {/* Home Team */}
               <div>
-                <label style={labelStyle}>Home Team</label>
-                <select value={form.homeTeamId} onChange={(e) => set("homeTeamId", e.target.value)} required>
+                <CustomSelect 
+                  label="Home Team"
+                  value={form.homeTeamId} 
+                  onChange={(e) => set("homeTeamId", e.target.value)} 
+                  required
+                >
                   <option value="">— Select —</option>
                   {batches.filter(b => {
                     if (!form.tournamentId) return true;
                     const tournament = tournaments.find(t => t.id === form.tournamentId);
                     return tournament?.teams.some(t => t.batchId === b.id);
                   }).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
+                </CustomSelect>
               </div>
 
               {/* Away Team */}
               <div>
-                <label style={labelStyle}>Away Team</label>
-                <select value={form.awayTeamId} onChange={(e) => set("awayTeamId", e.target.value)} required>
+                <CustomSelect 
+                  label="Away Team"
+                  value={form.awayTeamId} 
+                  onChange={(e) => set("awayTeamId", e.target.value)} 
+                  required
+                >
                   <option value="">— Select —</option>
                   {batches.filter(b => {
                     if (!form.tournamentId) return true;
@@ -270,7 +290,6 @@ export default function MatchesClient({
                     const isRegistered = tournament.teams.some(t => t.batchId === b.id);
                     if (!isRegistered) return false;
 
-                    // If home team selected, filter by group
                     if (form.homeTeamId) {
                       const homeTeamInfo = tournament.teams.find(t => t.batchId === form.homeTeamId);
                       const awayTeamInfo = tournament.teams.find(t => t.batchId === b.id);
@@ -278,7 +297,7 @@ export default function MatchesClient({
                     }
                     return true;
                   }).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
+                </CustomSelect>
               </div>
 
               {/* Date & Time */}
@@ -295,10 +314,13 @@ export default function MatchesClient({
 
               {/* Status */}
               <div>
-                <label style={labelStyle}>Status</label>
-                <select value={form.status} onChange={(e) => set("status", e.target.value)}>
+                <CustomSelect 
+                  label="Status"
+                  value={form.status} 
+                  onChange={(e) => set("status", e.target.value)}
+                >
                   {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
+                </CustomSelect>
               </div>
 
             </div>
