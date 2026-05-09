@@ -362,7 +362,6 @@ function AwardForm({ category, tournamentId, title, icon, maxPlayers, initialDat
 
 // ─── Main Page Component ─────────────────────────────────────────────────────
 import { submitAwardRating, getTopScorers, getBestGoalkeepers, getBestPlayers } from "@/lib/actions/stats.actions";
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import GavelIcon from '@mui/icons-material/Gavel';
 
 // ─── Hybrid Award Voting Component ──────────────────────────────────────────

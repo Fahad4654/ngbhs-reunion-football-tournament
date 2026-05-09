@@ -24,6 +24,7 @@ interface TournamentData {
   winPoints: number;
   drawPoints: number;
   lossPoints: number;
+  groups?: { id: string; name: string }[];
 }
 
 interface TeamStats {
@@ -36,6 +37,7 @@ interface TeamStats {
   goalsFor: number;
   goalsAgainst: number;
   points: number;
+  group?: { id: string; name: string } | null;
 }
 
 interface TournamentListInfo {
@@ -120,49 +122,107 @@ export default function StandingsClient({
       </div>
 
       {/* Points Table */}
-      <div className={`glass ${styles.tableContainer}`} style={{ opacity: isPending ? 0.7 : 1 }}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ width: '60px', textAlign: 'center' }}>Pos</th>
-              <th style={{ textAlign: 'left' }}>Team</th>
-              <th style={{ textAlign: 'center' }}>P</th>
-              <th style={{ textAlign: 'center' }}>W</th>
-              <th style={{ textAlign: 'center' }}>D</th>
-              <th style={{ textAlign: 'center' }}>L</th>
-              <th style={{ textAlign: 'center' }}>GF</th>
-              <th style={{ textAlign: 'center' }}>GA</th>
-              <th style={{ textAlign: 'center' }}>GD</th>
-              <th style={{ textAlign: 'center' }}>Pts</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teams.map((team, index) => (
-              <tr key={team.id} className={styles.row}>
-                <td style={{ textAlign: 'center' }}>
-                  <span style={{ fontWeight: 800 }}>{index + 1}</span>
-                </td>
-                <td>
-                  <div className={styles.teamCell}>
-                    <img src={team.batch.logoUrl || "/default-team.png"} alt="" className={styles.teamLogo} />
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{team.batch.name}</span>
-                      {team.batch.nickname && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{team.batch.nickname}</span>}
-                    </div>
-                  </div>
-                </td>
-                <td style={{ textAlign: 'center' }}>{team.played}</td>
-                <td style={{ textAlign: 'center' }}>{team.won}</td>
-                <td style={{ textAlign: 'center' }}>{team.drawn}</td>
-                <td style={{ textAlign: 'center' }}>{team.lost}</td>
-                <td style={{ textAlign: 'center' }}>{team.goalsFor}</td>
-                <td style={{ textAlign: 'center' }}>{team.goalsAgainst}</td>
-                <td style={{ textAlign: 'center' }}>{team.goalsFor - team.goalsAgainst}</td>
-                <td className={styles.points} style={{ textAlign: 'center' }}>{team.points}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div style={{ opacity: isPending ? 0.7 : 1, transition: 'opacity 0.2s' }}>
+        {tournamentData?.groups && tournamentData.groups.length > 0 ? (
+          <div style={{ display: 'grid', gap: '2rem' }}>
+            {tournamentData.groups.map(group => {
+              const groupTeams = teams.filter(t => t.group?.id === group.id);
+              if (groupTeams.length === 0) return null;
+              return (
+                <div key={group.id} className={`glass ${styles.tableContainer}`}>
+                  <h3 style={{ padding: '1rem 1.25vw', margin: 0, borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '1.1rem', fontWeight: 800 }}>{group.name}</h3>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '60px', textAlign: 'center' }}>Pos</th>
+                        <th style={{ textAlign: 'left' }}>Team</th>
+                        <th style={{ textAlign: 'center' }}>P</th>
+                        <th style={{ textAlign: 'center' }}>W</th>
+                        <th style={{ textAlign: 'center' }}>D</th>
+                        <th style={{ textAlign: 'center' }}>L</th>
+                        <th style={{ textAlign: 'center' }}>GF</th>
+                        <th style={{ textAlign: 'center' }}>GA</th>
+                        <th style={{ textAlign: 'center' }}>GD</th>
+                        <th style={{ textAlign: 'center' }}>Pts</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {groupTeams.map((team, index) => (
+                        <tr key={team.id} className={styles.row}>
+                          <td style={{ textAlign: 'center' }}>
+                            <span style={{ fontWeight: 800 }}>{index + 1}</span>
+                          </td>
+                          <td>
+                            <div className={styles.teamCell}>
+                              <img src={team.batch.logoUrl || "/default-team.png"} alt="" className={styles.teamLogo} />
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{team.batch.name}</span>
+                                {team.batch.nickname && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{team.batch.nickname}</span>}
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>{team.played}</td>
+                          <td style={{ textAlign: 'center' }}>{team.won}</td>
+                          <td style={{ textAlign: 'center' }}>{team.drawn}</td>
+                          <td style={{ textAlign: 'center' }}>{team.lost}</td>
+                          <td style={{ textAlign: 'center' }}>{team.goalsFor}</td>
+                          <td style={{ textAlign: 'center' }}>{team.goalsAgainst}</td>
+                          <td style={{ textAlign: 'center' }}>{team.goalsFor - team.goalsAgainst}</td>
+                          <td className={styles.points} style={{ textAlign: 'center' }}>{team.points}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className={`glass ${styles.tableContainer}`}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th style={{ width: '60px', textAlign: 'center' }}>Pos</th>
+                  <th style={{ textAlign: 'left' }}>Team</th>
+                  <th style={{ textAlign: 'center' }}>P</th>
+                  <th style={{ textAlign: 'center' }}>W</th>
+                  <th style={{ textAlign: 'center' }}>D</th>
+                  <th style={{ textAlign: 'center' }}>L</th>
+                  <th style={{ textAlign: 'center' }}>GF</th>
+                  <th style={{ textAlign: 'center' }}>GA</th>
+                  <th style={{ textAlign: 'center' }}>GD</th>
+                  <th style={{ textAlign: 'center' }}>Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teams.map((team, index) => (
+                  <tr key={team.id} className={styles.row}>
+                    <td style={{ textAlign: 'center' }}>
+                      <span style={{ fontWeight: 800 }}>{index + 1}</span>
+                    </td>
+                    <td>
+                      <div className={styles.teamCell}>
+                        <img src={team.batch.logoUrl || "/default-team.png"} alt="" className={styles.teamLogo} />
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{team.batch.name}</span>
+                          {team.batch.nickname && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{team.batch.nickname}</span>}
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{team.played}</td>
+                    <td style={{ textAlign: 'center' }}>{team.won}</td>
+                    <td style={{ textAlign: 'center' }}>{team.drawn}</td>
+                    <td style={{ textAlign: 'center' }}>{team.lost}</td>
+                    <td style={{ textAlign: 'center' }}>{team.goalsFor}</td>
+                    <td style={{ textAlign: 'center' }}>{team.goalsAgainst}</td>
+                    <td style={{ textAlign: 'center' }}>{team.goalsFor - team.goalsAgainst}</td>
+                    <td className={styles.points} style={{ textAlign: 'center' }}>{team.points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* ─── Hybrid Leaderboards ─── */}
@@ -332,11 +392,12 @@ function AwardCard({ award, icon }: { award: any; icon: React.ReactNode }) {
         </div>
       )}
 
-      <div className={styles.squadList}>
+      <div className={styles.squadGrid}>
         {award.players.map((p: any) => (
           <div key={p.id} className={styles.squadPlayer}>
-            <img src={p.image || "/default-avatar.png"} alt="" />
-            <span>{p.name}</span>
+            <img src={p.image || "/default-avatar.png"} alt="" className={styles.squadAvatar} />
+            <span className={styles.squadName}>{p.name}</span>
+            <span className={styles.squadBatch}>{p.batch?.name}</span>
           </div>
         ))}
       </div>
