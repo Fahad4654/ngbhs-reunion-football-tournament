@@ -379,14 +379,20 @@ function AwardCard({ award, icon }: { award: any; icon: React.ReactNode }) {
         <div className={styles.staffRow}>
           {award.coach && (
             <div className={styles.staffItem}>
-              <div className={styles.staffLabel}>Coach</div>
-              <div className={styles.staffValue}>{award.coach.name}</div>
+              <img src={award.coach.image || "/default-avatar.png"} alt="" className={styles.staffAvatar} />
+              <div>
+                <div className={styles.staffLabel}>Coach</div>
+                <div className={styles.staffName}>{award.coach.name}</div>
+              </div>
             </div>
           )}
           {award.captain && (
             <div className={styles.staffItem}>
-              <div className={styles.staffLabel}>Captain</div>
-              <div className={styles.staffValue}>{award.captain.name}</div>
+              <img src={award.captain.image || "/default-avatar.png"} alt="" className={styles.staffAvatar} />
+              <div>
+                <div className={styles.staffLabel}>Captain</div>
+                <div className={styles.staffName}>{award.captain.name}</div>
+              </div>
             </div>
           )}
         </div>
