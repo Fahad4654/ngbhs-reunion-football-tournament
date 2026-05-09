@@ -31,6 +31,7 @@ async function getStandingsData(tournamentId?: string) {
       batch: { 
         select: { 
           name: true, 
+          nickname: true,
           logoUrl: true,
           members: {
             where: { isPlayer: true },
@@ -61,9 +62,6 @@ export default async function StandingsPage() {
     bestPlayers,
     topTeam,
     bestEleven,
-    topScorer,
-    bestGK,
-    bestPlayer
   ] = await Promise.all([
     getStandingsData(activeTournamentRef?.id),
     getTopScorers(activeTournamentRef?.id),
@@ -71,9 +69,6 @@ export default async function StandingsPage() {
     getBestPlayers(activeTournamentRef?.id),
     getSeasonAward("TOP_TEAM", activeTournamentRef?.id),
     getSeasonAward("BEST_ELEVEN", activeTournamentRef?.id),
-    getSeasonAward("TOP_SCORER", activeTournamentRef?.id),
-    getSeasonAward("BEST_GOALKEEPER", activeTournamentRef?.id),
-    getSeasonAward("BEST_PLAYER", activeTournamentRef?.id),
   ]);
 
   return (
@@ -87,9 +82,6 @@ export default async function StandingsPage() {
         bestPlayers={bestPlayers}
         topTeam={topTeam}
         bestEleven={bestEleven}
-        topScorer={topScorer}
-        bestGK={bestGK}
-        bestPlayer={bestPlayer}
       />
     </div>
   );

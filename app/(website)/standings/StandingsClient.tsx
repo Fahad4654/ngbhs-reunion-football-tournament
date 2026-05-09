@@ -1,60 +1,47 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import styles from "./standings.module.css";
-import SquadModal from "./SquadModal";
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
-import PanToolIcon from '@mui/icons-material/PanTool';
-import StarIcon from '@mui/icons-material/Star';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import StarIcon from '@mui/icons-material/Star';
+import PanToolIcon from '@mui/icons-material/PanTool';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import CloseIcon from '@mui/icons-material/Close';
+import CustomSelect from "@/app/components/panel/CustomSelect";
 
-type TournamentListInfo = { id: string; name: string; isActive: boolean };
+interface Player {
+  id: string;
+  name: string | null;
+  image: string | null;
+  teamRole?: string;
+  batch?: { name: string };
+}
 
-type TournamentData = {
+interface TournamentData {
   id: string;
   name: string;
-  description: string | null;
   winPoints: number;
   drawPoints: number;
   lossPoints: number;
-  groups: { id: string; name: string }[];
-};
+}
 
-type TournamentTeam = {
+interface TeamStats {
   id: string;
-  batchId: string;
-  batch: { 
-    name: string; 
-    logoUrl: string | null;
-      members: {
-        id: string;
-        name: string | null;
-        image: string | null;
-        teamRole: string | null;
-        teamDesignation: string | null;
-      }[];
-  };
-  groupId: string | null;
-  group: { id: string; name: string } | null;
-  points: number;
+  batch: { name: string; nickname: string | null; logoUrl: string | null };
   played: number;
   won: number;
   drawn: number;
   lost: number;
   goalsFor: number;
   goalsAgainst: number;
-};
+  points: number;
+}
 
-async function fetchTournamentData(tournamentId: string): Promise<{ 
-  tournament: TournamentData, 
-  teams: TournamentTeam[],
-  stats: { topScorers: any[], bestGKs: any[], bestPlayers: any[] },
-  awards: { topTeam: any, bestEleven: any, topScorer: any, bestGK: any, bestPlayer: any }
-} | null> {
-  const res = await fetch(`/api/tournaments/${tournamentId}/standings`);
-  if (!res.ok) return null;
-  return res.json();
+interface TournamentListInfo {
+  id: string;
+  name: string;
+  isActive: boolean;
 }
 
 export default function StandingsClient({
@@ -66,276 +53,135 @@ export default function StandingsClient({
   bestPlayers,
   topTeam,
   bestEleven,
-  topScorer,
-  bestGK,
-  bestPlayer,
 }: {
   tournaments: TournamentListInfo[];
   initialTournamentData: TournamentData | null;
-  initialTeams: TournamentTeam[];
+  initialTeams: TeamStats[];
   topScorers: any[];
   bestGKs: any[];
   bestPlayers: any[];
   topTeam: any;
   bestEleven: any;
-  topScorer: any;
-  bestGK: any;
-  bestPlayer: any;
 }) {
-  const [selectedId, setSelectedId] = useState(initialTournamentData?.id ?? "");
-  const [tournamentData, setTournamentData] = useState<TournamentData | null>(initialTournamentData);
-  const [teams, setTeams] = useState<TournamentTeam[]>(initialTeams);
-  const [topScorersState, setTopScorers] = useState(topScorers);
-  const [bestGKsState, setBestGKs] = useState(bestGKs);
-  const [bestPlayersState, setBestPlayers] = useState(bestPlayers);
-  const [topTeamState, setTopTeam] = useState(topTeam);
-  const [bestElevenState, setBestEleven] = useState(bestEleven);
-  const [topScorerState, setTopScorer] = useState(topScorer);
-  const [bestGKState, setBestGK] = useState(bestGK);
-  const [bestPlayerState, setBestPlayer] = useState(bestPlayer);
+  const [selectedTournamentId, setSelectedTournamentId] = useState(initialTournamentData?.id || "");
+  const [tournamentData, setTournamentData] = useState(initialTournamentData);
+  const [teams, setTeams] = useState(initialTeams);
+  const [topScorersState, setTopScorersState] = useState(topScorers);
+  const [bestGKsState, setBestGKsState] = useState(bestGKs);
+  const [bestPlayersState, setBestPlayersState] = useState(bestPlayers);
+  const [topTeamState, setTopTeamState] = useState(topTeam);
+  const [bestElevenState, setBestElevenState] = useState(bestEleven);
   const [isPending, startTransition] = useTransition();
-  const [selectedSquad, setSelectedSquad] = useState<{ name: string, players: any[] } | null>(null);
+  const [selectedSquad, setSelectedSquad] = useState<any>(null);
 
-  function handleTournamentChange(id: string) {
-    setSelectedId(id);
-    if (!id) { 
-      setTournamentData(null);
-      setTeams([]); 
-      return; 
-    }
+  const handleTournamentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    setSelectedTournamentId(id);
+    if (!id) return;
+
     startTransition(async () => {
-      const data = await fetchTournamentData(id);
+      const res = await fetch(`/api/tournaments/${id}/standings`);
+      const data = await res.json();
       if (data) {
         setTournamentData(data.tournament);
         setTeams(data.teams);
-        setTopScorers(data.stats.topScorers);
-        setBestGKs(data.stats.bestGKs);
-        setBestPlayers(data.stats.bestPlayers);
-        setTopTeam(data.awards.topTeam);
-        setBestEleven(data.awards.bestEleven);
-        setTopScorer(data.awards.topScorer);
-        setBestGK(data.awards.bestGK);
-        setBestPlayer(data.awards.bestPlayer);
-      } else {
-        setTournamentData(null);
-        setTeams([]);
+        setTopScorersState(data.stats.topScorers);
+        setBestGKsState(data.stats.bestGKs);
+        setBestPlayersState(data.stats.bestPlayers);
+        setTopTeamState(data.awards.topTeam);
+        setBestElevenState(data.awards.bestEleven);
       }
     });
-  }
-
-  const selectedTournamentInfo = tournaments.find((t) => t.id === selectedId);
-
-  // Group teams for display
-  const hasGroups = tournamentData?.groups && tournamentData.groups.length > 0;
-  
-  let groupedTeams: { title: string, teams: TournamentTeam[] }[] = [];
-  
-  if (hasGroups) {
-    // Add groups
-    for (const group of tournamentData!.groups) {
-      groupedTeams.push({
-        title: group.name,
-        teams: teams.filter(t => t.groupId === group.id)
-      });
-    }
-    // Add ungrouped teams if any exist
-    const ungrouped = teams.filter(t => !t.groupId);
-    if (ungrouped.length > 0) {
-      groupedTeams.push({ title: "Other Teams", teams: ungrouped });
-    }
-  } else {
-    // Just one main table
-    groupedTeams = [{ title: "Overall Standings", teams: teams }];
-  }
+  };
 
   return (
-    <section className={styles.section}>
-      {/* Header */}
-      <div style={{ marginBottom: "3rem" }}>
-        <h1 className="text-gradient" style={{ fontSize: "3.5rem", marginBottom: "1rem", lineHeight: 1.1 }}>
-          League <br />Standings
-        </h1>
-        <p style={{ color: "var(--text-secondary)", maxWidth: "600px", marginBottom: "2rem" }}>
-          The race for glory. Track how each batch is performing and who is leading the charge to become the champions.
-        </p>
+    <section className={styles.standingsSection}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Tournament <span className="text-gradient">Standings</span></h1>
+          <p className={styles.subtitle}>Real-time points table and player performance statistics.</p>
+        </div>
 
-        {/* Tournament Dropdown */}
-        {tournaments.length > 0 ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <label
-              htmlFor="tournament-select"
-              style={{ fontWeight: "700", fontSize: "0.8rem", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.08em" }}
+        <div className={styles.controls}>
+          <div className={styles.selectWrapper}>
+            <CustomSelect
+              value={selectedTournamentId}
+              onChange={handleTournamentChange}
+              label="Select Season"
             >
-              Tournament
-            </label>
-            <select
-              id="tournament-select"
-              value={selectedId}
-              onChange={(e) => handleTournamentChange(e.target.value)}
-              style={{ minWidth: "240px", fontWeight: "700" }}
-            >
-              <option value="">— Select a tournament —</option>
               {tournaments.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.name}{t.isActive ? " (Active)" : ""}
+                  {t.name} {t.isActive ? "(Active)" : ""}
                 </option>
               ))}
-            </select>
-            {selectedTournamentInfo?.isActive && (
-              <span className="badge badge-live">ACTIVE</span>
-            )}
-            {isPending && (
-              <span style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>Loading...</span>
-            )}
+            </CustomSelect>
           </div>
-        ) : (
-          <div className="glass" style={{ padding: "1rem 1.5rem", borderRadius: "10px", display: "inline-block" }}>
-            <p style={{ color: "var(--text-muted)", margin: 0 }}>No tournaments have been created yet.</p>
-          </div>
-        )}
-
-        {/* Tournament Info */}
-        {tournamentData && (
-          <div className="glass" style={{ padding: "1.5rem", borderRadius: "12px", border: "1px solid var(--border-color)", opacity: isPending ? 0.5 : 1, transition: "opacity 0.2s" }}>
-            {tournamentData.description && (
-              <div style={{ marginBottom: "1.25rem" }}>
-                <h3 style={{ fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>About</h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
-                  {tournamentData.description}
-                </p>
-              </div>
-            )}
-            
-            <div>
-              <h3 style={{ fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Point System</h3>
-              <div style={{ display: "flex", gap: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <span style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#10b981", display: "inline-block" }}></span>
-                  <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Win: <strong style={{ color: "white" }}>{tournamentData.winPoints} pts</strong></span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <span style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--accent-primary)", display: "inline-block" }}></span>
-                  <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Draw: <strong style={{ color: "white" }}>{tournamentData.drawPoints} pts</strong></span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <span style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--accent-danger)", display: "inline-block" }}></span>
-                  <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Loss: <strong style={{ color: "white" }}>{tournamentData.lossPoints} pts</strong></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Standings Tables */}
-      {selectedId && (
-        <>
-          {teams.length === 0 && !isPending ? (
-            <div className="glass" style={{ padding: "3rem", textAlign: "center", borderRadius: "12px" }}>
-              <p style={{ color: "var(--text-muted)", fontSize: "1rem" }}>
-                No teams have been added to this tournament yet.
-              </p>
-            </div>
-          ) : (
-            <div style={{ opacity: isPending ? 0.5 : 1, transition: "opacity 0.2s", display: "grid", gap: "2rem" }}>
-              {groupedTeams.map((group) => (
-                <div key={group.title}>
-                  {hasGroups && (
-                    <h2 style={{ fontSize: "1.25rem", fontWeight: "900", marginBottom: "1rem", color: "var(--accent-primary)" }}>
-                      {group.title}
-                    </h2>
-                  )}
-                  
-                  {group.teams.length === 0 ? (
-                    <div className="glass" style={{ padding: "2rem", textAlign: "center", borderRadius: "12px" }}>
-                      <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: 0 }}>No teams in this group.</p>
+      {/* Points Table */}
+      <div className={`glass ${styles.tableContainer}`} style={{ opacity: isPending ? 0.7 : 1 }}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.rankCol}>Pos</th>
+              <th className={styles.teamCol}>Team</th>
+              <th>P</th>
+              <th>W</th>
+              <th>D</th>
+              <th>L</th>
+              <th className={styles.hideMobile}>GF</th>
+              <th className={styles.hideMobile}>GA</th>
+              <th className={styles.hideMobile}>GD</th>
+              <th className={styles.ptsCol}>Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            {teams.map((team, index) => (
+              <tr key={team.id} className={index < 4 ? styles.topRow : ""}>
+                <td className={styles.rankCol}>
+                  <span className={styles.rankNumber}>{index + 1}</span>
+                </td>
+                <td className={styles.teamCol}>
+                  <div className={styles.teamInfo}>
+                    <img src={team.batch.logoUrl || "/default-team.png"} alt="" className={styles.teamLogo} />
+                    <div>
+                      <div className={styles.teamName}>{team.batch.name}</div>
+                      {team.batch.nickname && <div className={styles.teamNickname}>{team.batch.nickname}</div>}
                     </div>
-                  ) : (
-                    <div className={styles.tableContainer}>
-                      <table className={styles.table}>
-                        <thead>
-                          <tr>
-                            <th>Pos</th>
-                            <th>Team</th>
-                            <th>P</th>
-                            <th>W</th>
-                            <th>D</th>
-                            <th>L</th>
-                            <th>GF</th>
-                            <th>GA</th>
-                            <th>GD</th>
-                            <th className={styles.points}>PTS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {group.teams.map((team, index) => {
-                            const gd = team.goalsFor - team.goalsAgainst;
-                            return (
-                              <tr key={team.id} className={styles.row}>
-                                <td>{index + 1}</td>
-                                <td>
-                                  <div className={styles.teamCell}>
-                                    {team.batch.logoUrl ? (
-                                      <img src={team.batch.logoUrl} alt={team.batch.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover" }} />
-                                    ) : (
-                                      <div className={styles.teamLogo} />
-                                    )}
-                                    <span style={{ fontWeight: "700" }}>{team.batch.name}</span>
-                                    <button 
-                                      className={styles.squadLink}
-                                      onClick={() => setSelectedSquad({ name: team.batch.name, players: team.batch.members })}
-                                    >
-                                      View Squad
-                                    </button>
-                                  </div>
-                                </td>
-                                <td>{team.played}</td>
-                                <td>{team.won}</td>
-                                <td>{team.drawn}</td>
-                                <td>{team.lost}</td>
-                                <td>{team.goalsFor}</td>
-                                <td>{team.goalsAgainst}</td>
-                                <td className={gd >= 0 ? styles.positive : styles.negative}>
-                                  {gd > 0 ? `+${gd}` : gd}
-                                </td>
-                                <td className={styles.points}>{team.points}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
+                  </div>
+                </td>
+                <td>{team.played}</td>
+                <td>{team.won}</td>
+                <td>{team.drawn}</td>
+                <td>{team.lost}</td>
+                <td className={styles.hideMobile}>{team.goalsFor}</td>
+                <td className={styles.hideMobile}>{team.goalsAgainst}</td>
+                <td className={styles.hideMobile}>{team.goalsFor - team.goalsAgainst}</td>
+                <td className={styles.ptsCol}><strong>{team.points}</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {!selectedId && tournaments.length > 0 && (
-        <div className="glass" style={{ padding: "3rem", textAlign: "center", borderRadius: "12px" }}>
-          <p style={{ color: "var(--text-muted)", margin: 0 }}>Select a tournament above to view standings.</p>
-        </div>
-      )}
-
-      {/* ─── Player Leaderboards ─── */}
-      <div style={{ marginTop: "6rem" }}>
+      {/* ─── Hybrid Leaderboards ─── */}
+      <div style={{ marginTop: "4rem" }}>
         <h2 className={styles.sectionTitle}>
-          Player <span className="text-gradient">Leaderboards</span>
+          Tournament <span className="text-gradient">Leaderboards</span>
         </h2>
         <p className={styles.sectionSubtitle}>
-          Automatically calculated from match events and results.
+          Hybrid rankings combining match statistics and judge ratings.
         </p>
 
-        <div className={styles.leaderboardGrid}>
+        <div className={styles.statsGrid}>
           {/* Top Scorers */}
           <div className={`glass ${styles.card}`}>
             <div className={styles.cardHeader}>
               <div className={styles.cardIcon}><SportsSoccerIcon /></div>
               <div>
                 <h3 className={styles.cardTitle}>Top Scorers</h3>
-                <p className={styles.cardSub}>Ranked by goals scored</p>
+                <p className={styles.cardSub}>95% Stats + 5% Judge Rating</p>
               </div>
             </div>
             <div className={styles.list}>
@@ -349,7 +195,10 @@ export default function StandingsClient({
                     <div className={styles.name}>{item.player.name}</div>
                     <div className={styles.meta}>{item.player.batch?.name || "No Batch"}</div>
                   </div>
-                  <div className={styles.statBadge}>{item.goals} <span>goals</span></div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className={styles.statBadge}>{item.goals} <span>goals</span></div>
+                    <div style={{ fontSize: '0.6rem', color: 'var(--accent-primary)', fontWeight: 800 }}>{item.finalScore.toFixed(1)} PTS</div>
+                  </div>
                 </div>
               )) : <p className={styles.empty}>No goals recorded yet.</p>}
             </div>
@@ -361,7 +210,7 @@ export default function StandingsClient({
               <div className={styles.cardIcon}><PanToolIcon /></div>
               <div>
                 <h3 className={styles.cardTitle}>Best Goalkeepers</h3>
-                <p className={styles.cardSub}>Ranked by clean sheets</p>
+                <p className={styles.cardSub}>70% Stats + 30% Judge Rating</p>
               </div>
             </div>
             <div className={styles.list}>
@@ -375,7 +224,10 @@ export default function StandingsClient({
                     <div className={styles.name}>{item.player.name}</div>
                     <div className={styles.meta}>{item.player.batch?.name || "No Batch"}</div>
                   </div>
-                  <div className={styles.statBadge}>{item.cleanSheets} <span>CS</span></div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className={styles.statBadge}>{item.cleanSheets} <span>CS</span></div>
+                    <div style={{ fontSize: '0.6rem', color: 'var(--accent-primary)', fontWeight: 800 }}>{item.finalScore.toFixed(1)} PTS</div>
+                  </div>
                 </div>
               )) : <p className={styles.empty}>No clean sheets recorded yet.</p>}
             </div>
@@ -386,8 +238,8 @@ export default function StandingsClient({
             <div className={styles.cardHeader}>
               <div className={styles.cardIcon}><StarIcon /></div>
               <div>
-                <h3 className={styles.cardTitle}>Best Players</h3>
-                <p className={styles.cardSub}>Goals · Assists · MOTM rating</p>
+                <h3 className={styles.cardTitle}>Best Players (MVP)</h3>
+                <p className={styles.cardSub}>60% Stats + 40% Judge Rating</p>
               </div>
             </div>
             <div className={styles.list}>
@@ -404,11 +256,13 @@ export default function StandingsClient({
                       <div className={styles.statChips}>
                         <span title="Goals">{item.stats.goals}G</span>
                         <span title="Assists">{item.stats.assists}A</span>
-                        <span title="MOTM">{item.stats.motms}<EmojiEventsIcon sx={{ fontSize: '0.9rem', verticalAlign: 'text-bottom' }} /></span>
+                        <span title="MOTM">{item.stats.motms}<EmojiEventsIcon sx={{ fontSize: '0.7rem', verticalAlign: 'text-bottom' }} /></span>
                       </div>
                     </div>
                   </div>
-                  <div className={styles.statBadge}>{item.stats.total} <span>pts</span></div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className={styles.statBadge}>{item.finalScore.toFixed(1)} <span>pts</span></div>
+                  </div>
                 </div>
               )) : <p className={styles.empty}>No stats recorded yet.</p>}
             </div>
@@ -416,26 +270,17 @@ export default function StandingsClient({
         </div>
       </div>
 
-      {/* ─── Curated Season Awards ─── */}
-      {(topTeamState || bestElevenState || topScorerState || bestGKState || bestPlayerState) && (
-        <div style={{ marginTop: "6rem" }}>
+      {/* ─── Curated Teams ─── */}
+      {(topTeamState || bestElevenState) && (
+        <div style={{ marginTop: "4rem" }}>
           <h2 className={styles.sectionTitle}>
-            Season <span className="text-gradient">Awards</span>
+            Teams of the <span className="text-gradient">Season</span>
           </h2>
           <p className={styles.sectionSubtitle}>
-            Manually selected winners and curated teams.
+            Manually curated teams featuring the best performers.
           </p>
 
           <div className={styles.awardsGrid}>
-            {topScorerState && topScorerState.players.length > 0 && (
-              <AwardCard award={topScorerState} icon={<SportsSoccerIcon />} />
-            )}
-            {bestGKState && bestGKState.players.length > 0 && (
-              <AwardCard award={bestGKState} icon={<PanToolIcon />} />
-            )}
-            {bestPlayerState && bestPlayerState.players.length > 0 && (
-              <AwardCard award={bestPlayerState} icon={<MilitaryTechIcon />} />
-            )}
             {topTeamState && topTeamState.players.length > 0 && (
               <AwardCard award={topTeamState} icon={<EmojiEventsIcon />} />
             )}
@@ -474,34 +319,53 @@ function AwardCard({ award, icon }: { award: any; icon: React.ReactNode }) {
         <div className={styles.staffRow}>
           {award.coach && (
             <div className={styles.staffItem}>
-              <img src={award.coach.image || "/default-avatar.png"} alt={award.coach.name || ""} className={styles.staffAvatar} />
-              <div>
-                <div className={styles.staffLabel}>Coach</div>
-                <div className={styles.staffName}>{award.coach.name}</div>
-              </div>
+              <div className={styles.staffLabel}>Coach</div>
+              <div className={styles.staffValue}>{award.coach.name}</div>
             </div>
           )}
           {award.captain && (
             <div className={styles.staffItem}>
-              <img src={award.captain.image || "/default-avatar.png"} alt={award.captain.name || ""} className={styles.staffAvatar} />
-              <div>
-                <div className={styles.staffLabel}>Captain</div>
-                <div className={styles.staffName}>{award.captain.name}</div>
-              </div>
+              <div className={styles.staffLabel}>Captain</div>
+              <div className={styles.staffValue}>{award.captain.name}</div>
             </div>
           )}
         </div>
       )}
 
-      <div className={styles.squadGrid}>
-        {award.players.map((p: any, i: number) => (
+      <div className={styles.squadList}>
+        {award.players.map((p: any) => (
           <div key={p.id} className={styles.squadPlayer}>
-            <div className={styles.squadNumBadge}>{i + 1}</div>
-            <img src={p.image || "/default-avatar.png"} alt={p.name || ""} className={styles.squadAvatar} />
-            <div className={styles.squadName}>{p.name}</div>
-            <div className={styles.squadBatch}>{p.batch?.name || p.teamRole || "Player"}</div>
+            <img src={p.image || "/default-avatar.png"} alt="" />
+            <span>{p.name}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function SquadModal({ teamName, players, onClose }: { teamName: string; players: any[]; onClose: () => void }) {
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={`glass ${styles.modalContent}`} onClick={e => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>{teamName}</h2>
+          <button onClick={onClose}><CloseIcon /></button>
+        </div>
+        <div className={styles.modalBody}>
+          <div className={styles.modalGrid}>
+            {players.map(p => (
+              <div key={p.id} className={styles.modalPlayer}>
+                <img src={p.image || "/default-avatar.png"} alt="" />
+                <div className={styles.modalPlayerInfo}>
+                  <div className={styles.modalPlayerName}>{p.name}</div>
+                  <div className={styles.modalPlayerBatch}>{p.batch?.name}</div>
+                  <div className={styles.modalPlayerRole}>{p.teamRole}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
