@@ -4,11 +4,15 @@ import prisma from "@/lib/prisma";
 import { getServerUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
 
-export async function getTopScorers(limit = 10) {
+export async function getTopScorers(tournamentId?: string, limit = 10) {
   try {
     const goals = await prisma.matchEvent.groupBy({
       by: ['playerId'],
-      where: { type: 'GOAL', playerId: { not: null } },
+      where: { 
+        type: 'GOAL', 
+        playerId: { not: null },
+        match: tournamentId ? { tournamentId } : undefined
+      },
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: limit,
@@ -32,7 +36,7 @@ export async function getTopScorers(limit = 10) {
   }
 }
 
-export async function getBestGoalkeepers(limit = 10) {
+export async function getBestGoalkeepers(tournamentId?: string, limit = 10) {
   try {
     const gks = await prisma.user.findMany({
       where: { teamRole: { contains: "Goalkeeper", mode: "insensitive" } },
@@ -43,7 +47,10 @@ export async function getBestGoalkeepers(limit = 10) {
 
     const stats = await Promise.all(gks.map(async (gk) => {
       const matchesPlayed = await prisma.matchSquadMember.findMany({
-        where: { userId: gk.id },
+        where: { 
+          userId: gk.id,
+          match: tournamentId ? { tournamentId } : undefined
+        },
         include: {
           match: {
             select: { homeTeamId: true, awayTeamId: true, homeCleanSheet: true, awayCleanSheet: true, status: true }
@@ -70,23 +77,33 @@ export async function getBestGoalkeepers(limit = 10) {
   }
 }
 
-export async function getBestPlayers(limit = 10) {
+export async function getBestPlayers(tournamentId?: string, limit = 10) {
   try {
     const goals = await prisma.matchEvent.groupBy({
       by: ['playerId'],
-      where: { type: 'GOAL', playerId: { not: null } },
+      where: { 
+        type: 'GOAL', 
+        playerId: { not: null },
+        match: tournamentId ? { tournamentId } : undefined
+      },
       _count: { id: true }
     });
     
     const assists = await prisma.matchEvent.groupBy({
       by: ['assistId'],
-      where: { assistId: { not: null } },
+      where: { 
+        assistId: { not: null },
+        match: tournamentId ? { tournamentId } : undefined
+      },
       _count: { id: true }
     });
     
     const motms = await prisma.match.groupBy({
       by: ['manOfTheMatchId'],
-      where: { manOfTheMatchId: { not: null } },
+      where: { 
+        manOfTheMatchId: { not: null },
+        tournamentId: tournamentId || undefined
+      },
       _count: { id: true }
     });
 
@@ -124,10 +141,21 @@ export async function getBestPlayers(limit = 10) {
   }
 }
 
-export async function getSeasonAward(category: string) {
+export async function getSeasonAward(category: string, tournamentId?: string) {
   try {
+    if (!tournamentId) {
+      // If no tournamentId provided, we can't find a unique award anymore
+      // We'll return null or the most recent one? 
+      // User said "tournament wise", so we should ideally always have a tournamentId.
+      return null;
+    }
     return await prisma.seasonAward.findUnique({
-      where: { category },
+      where: { 
+        category_tournamentId: {
+          category,
+          tournamentId
+        }
+      },
       include: {
         players: { select: { id: true, name: true, image: true, teamRole: true, batch: { select: { name: true } } } },
         coach: { select: { id: true, name: true, image: true, batch: { select: { name: true } } } },
@@ -142,6 +170,7 @@ export async function getSeasonAward(category: string) {
 
 export async function upsertSeasonAward(data: {
   category: string;
+  tournamentId: string;
   title: string;
   description?: string;
   playerIds: string[];
@@ -155,7 +184,12 @@ export async function upsertSeasonAward(data: {
     }
 
     const award = await prisma.seasonAward.upsert({
-      where: { category: data.category },
+      where: { 
+        category_tournamentId: {
+          category: data.category,
+          tournamentId: data.tournamentId
+        }
+      },
       update: {
         title: data.title,
         description: data.description,
@@ -165,6 +199,7 @@ export async function upsertSeasonAward(data: {
       },
       create: {
         category: data.category,
+        tournamentId: data.tournamentId,
         title: data.title,
         description: data.description,
         players: { connect: data.playerIds.map(id => ({ id })) },
@@ -173,7 +208,7 @@ export async function upsertSeasonAward(data: {
       }
     });
 
-    revalidatePath("/stats");
+    revalidatePath("/standings");
     revalidatePath("/admin/awards");
     return { success: true, data: award };
   } catch (error: any) {

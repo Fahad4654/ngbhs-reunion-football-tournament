@@ -47,6 +47,7 @@ model Tournament {
   matches     Match[]
   groups      TournamentGroup[]
   teams       TournamentTeam[]
+  awards      SeasonAward[]
 }
 
 model TournamentGroup {
@@ -296,16 +297,20 @@ model MatchEvent {
 
 model SeasonAward {
   id          String   @id @default(cuid())
-  category    String   @unique
+  category    String
   title       String
   description String?
+  tournamentId String
   coachId     String?
   captainId   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  tournament  Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   captain     User?    @relation("AwardCaptain", fields: [captainId], references: [id])
   coach       User?    @relation("AwardCoach", fields: [coachId], references: [id])
   players     User[]   @relation("AwardPlayers")
+
+  @@unique([category, tournamentId])
 }
 
 enum MatchStatus {

@@ -29,7 +29,7 @@ type TournamentTeam = {
     logoUrl: string | null;
       members: {
         id: string;
-        name: string;
+        name: string | null;
         image: string | null;
         teamRole: string | null;
         teamDesignation: string | null;
@@ -46,7 +46,12 @@ type TournamentTeam = {
   goalsAgainst: number;
 };
 
-async function fetchTournamentData(tournamentId: string): Promise<{ tournament: TournamentData, teams: TournamentTeam[] } | null> {
+async function fetchTournamentData(tournamentId: string): Promise<{ 
+  tournament: TournamentData, 
+  teams: TournamentTeam[],
+  stats: { topScorers: any[], bestGKs: any[], bestPlayers: any[] },
+  awards: { topTeam: any, bestEleven: any, topScorer: any, bestGK: any, bestPlayer: any }
+} | null> {
   const res = await fetch(`/api/tournaments/${tournamentId}/standings`);
   if (!res.ok) return null;
   return res.json();
@@ -61,6 +66,9 @@ export default function StandingsClient({
   bestPlayers,
   topTeam,
   bestEleven,
+  topScorer,
+  bestGK,
+  bestPlayer,
 }: {
   tournaments: TournamentListInfo[];
   initialTournamentData: TournamentData | null;
@@ -70,10 +78,21 @@ export default function StandingsClient({
   bestPlayers: any[];
   topTeam: any;
   bestEleven: any;
+  topScorer: any;
+  bestGK: any;
+  bestPlayer: any;
 }) {
   const [selectedId, setSelectedId] = useState(initialTournamentData?.id ?? "");
   const [tournamentData, setTournamentData] = useState<TournamentData | null>(initialTournamentData);
   const [teams, setTeams] = useState<TournamentTeam[]>(initialTeams);
+  const [topScorersState, setTopScorers] = useState(topScorers);
+  const [bestGKsState, setBestGKs] = useState(bestGKs);
+  const [bestPlayersState, setBestPlayers] = useState(bestPlayers);
+  const [topTeamState, setTopTeam] = useState(topTeam);
+  const [bestElevenState, setBestEleven] = useState(bestEleven);
+  const [topScorerState, setTopScorer] = useState(topScorer);
+  const [bestGKState, setBestGK] = useState(bestGK);
+  const [bestPlayerState, setBestPlayer] = useState(bestPlayer);
   const [isPending, startTransition] = useTransition();
   const [selectedSquad, setSelectedSquad] = useState<{ name: string, players: any[] } | null>(null);
 
@@ -89,6 +108,14 @@ export default function StandingsClient({
       if (data) {
         setTournamentData(data.tournament);
         setTeams(data.teams);
+        setTopScorers(data.stats.topScorers);
+        setBestGKs(data.stats.bestGKs);
+        setBestPlayers(data.stats.bestPlayers);
+        setTopTeam(data.awards.topTeam);
+        setBestEleven(data.awards.bestEleven);
+        setTopScorer(data.awards.topScorer);
+        setBestGK(data.awards.bestGK);
+        setBestPlayer(data.awards.bestPlayer);
       } else {
         setTournamentData(null);
         setTeams([]);
@@ -312,7 +339,7 @@ export default function StandingsClient({
               </div>
             </div>
             <div className={styles.list}>
-              {topScorers.length > 0 ? topScorers.map((item: any, i: number) => (
+              {topScorersState.length > 0 ? topScorersState.map((item: any, i: number) => (
                 <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
                   <div className={styles.rank}>
                     {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
@@ -338,7 +365,7 @@ export default function StandingsClient({
               </div>
             </div>
             <div className={styles.list}>
-              {bestGKs.length > 0 ? bestGKs.map((item: any, i: number) => (
+              {bestGKsState.length > 0 ? bestGKsState.map((item: any, i: number) => (
                 <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
                   <div className={styles.rank}>
                     {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
@@ -364,7 +391,7 @@ export default function StandingsClient({
               </div>
             </div>
             <div className={styles.list}>
-              {bestPlayers.length > 0 ? bestPlayers.map((item: any, i: number) => (
+              {bestPlayersState.length > 0 ? bestPlayersState.map((item: any, i: number) => (
                 <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
                   <div className={styles.rank}>
                     {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
@@ -390,21 +417,30 @@ export default function StandingsClient({
       </div>
 
       {/* ─── Curated Season Awards ─── */}
-      {(topTeam || bestEleven) && (
+      {(topTeamState || bestElevenState || topScorerState || bestGKState || bestPlayerState) && (
         <div style={{ marginTop: "6rem" }}>
           <h2 className={styles.sectionTitle}>
-            Teams of the <span className="text-gradient">Season</span>
+            Season <span className="text-gradient">Awards</span>
           </h2>
           <p className={styles.sectionSubtitle}>
-            Curated by match coordinators and batch managers.
+            Manually selected winners and curated teams.
           </p>
 
           <div className={styles.awardsGrid}>
-            {topTeam && topTeam.players.length > 0 && (
-              <AwardCard award={topTeam} icon={<EmojiEventsIcon />} />
+            {topScorerState && topScorerState.players.length > 0 && (
+              <AwardCard award={topScorerState} icon={<SportsSoccerIcon />} />
             )}
-            {bestEleven && bestEleven.players.length > 0 && (
-              <AwardCard award={bestEleven} icon={<StarIcon />} />
+            {bestGKState && bestGKState.players.length > 0 && (
+              <AwardCard award={bestGKState} icon={<PanToolIcon />} />
+            )}
+            {bestPlayerState && bestPlayerState.players.length > 0 && (
+              <AwardCard award={bestPlayerState} icon={<MilitaryTechIcon />} />
+            )}
+            {topTeamState && topTeamState.players.length > 0 && (
+              <AwardCard award={topTeamState} icon={<EmojiEventsIcon />} />
+            )}
+            {bestElevenState && bestElevenState.players.length > 0 && (
+              <AwardCard award={bestElevenState} icon={<StarIcon />} />
             )}
           </div>
         </div>

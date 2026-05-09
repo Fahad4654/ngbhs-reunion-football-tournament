@@ -14,7 +14,6 @@ import SyncIcon from '@mui/icons-material/Sync'; // For Subs
 import BarChartIcon from '@mui/icons-material/BarChart';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FlagIcon from '@mui/icons-material/Flag';
 import ForumIcon from '@mui/icons-material/Forum';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CircleIcon from '@mui/icons-material/Circle';
@@ -22,7 +21,6 @@ import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDiss
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import ShortcutIcon from '@mui/icons-material/Shortcut';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 type Player = { id: string, name: string | null };

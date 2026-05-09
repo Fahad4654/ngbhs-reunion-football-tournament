@@ -7,6 +7,10 @@ import CustomSelect from "@/app/components/panel/CustomSelect";
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import StarIcon from '@mui/icons-material/Star';
+import PanToolIcon from '@mui/icons-material/PanTool';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import { useTransition, useEffect } from "react";
+import { getSeasonAward } from "@/lib/actions/stats.actions";
 
 // ─── Styled Label ───────────────────────────────────────────────────────────
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -74,15 +78,28 @@ function PlayerChip({ user, onRemove }: { user: any; onRemove: () => void }) {
 }
 
 // ─── Award Form ──────────────────────────────────────────────────────────────
-function AwardForm({ category, title, icon, maxPlayers, initialData, users }: any) {
-  const [playerIds, setPlayerIds] = useState<string[]>(
-    initialData?.players.map((p: any) => p.id) || []
-  );
-  const [coachId, setCoachId] = useState<string>(initialData?.coach?.id || "");
-  const [captainId, setCaptainId] = useState<string>(initialData?.captain?.id || "");
-  const [desc, setDesc] = useState(initialData?.description || "");
+function AwardForm({ category, tournamentId, title, icon, maxPlayers, initialData, users }: any) {
+  const [playerIds, setPlayerIds] = useState<string[]>([]);
+  const [coachId, setCoachId] = useState<string>("");
+  const [captainId, setCaptainId] = useState<string>("");
+  const [desc, setDesc] = useState("");
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+
+  // Update internal state when initialData changes (when tournament changes)
+  useEffect(() => {
+    if (initialData) {
+      setPlayerIds(initialData.players?.map((p: any) => p.id) || []);
+      setCoachId(initialData.coach?.id || "");
+      setCaptainId(initialData.captain?.id || "");
+      setDesc(initialData.description || "");
+    } else {
+      setPlayerIds([]);
+      setCoachId("");
+      setCaptainId("");
+      setDesc("");
+    }
+  }, [initialData, tournamentId]);
 
   const filteredUsers = users.filter(
     (u: any) =>
@@ -91,9 +108,14 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
   );
 
   const handleSave = async () => {
+    if (!tournamentId) {
+      toast.error("Please select a tournament first.");
+      return;
+    }
     setLoading(true);
     const res = await upsertSeasonAward({
       category,
+      tournamentId,
       title,
       description: desc,
       playerIds,
@@ -119,6 +141,8 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
         marginBottom: "2rem",
         overflow: "hidden",
         border: "1px solid var(--border-color)",
+        opacity: tournamentId ? 1 : 0.5,
+        pointerEvents: tournamentId ? "auto" : "none",
       }}
     >
       {/* Card Header */}
@@ -186,7 +210,7 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
           <div>
             <CustomSelect
-              label="👔 Coach"
+              label={<><span style={{ marginRight: '0.4rem' }}>👔</span> Coach</>}
               value={coachId}
               onChange={(e) => setCoachId(e.target.value)}
             >
@@ -200,7 +224,7 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
           </div>
           <div>
             <CustomSelect
-              label="🏅 Captain"
+              label={<><span style={{ marginRight: '0.4rem' }}>🏅</span> Captain</>}
               value={captainId}
               onChange={(e) => setCaptainId(e.target.value)}
             >
@@ -335,36 +359,126 @@ function AwardForm({ category, title, icon, maxPlayers, initialData, users }: an
 }
 
 // ─── Main Page Component ─────────────────────────────────────────────────────
-export default function AwardsClient({ users, initialTopTeam, initialBestEleven }: any) {
+export default function AwardsClient({ users, tournaments }: any) {
+  const [selectedTournamentId, setSelectedTournamentId] = useState(
+    tournaments.find((t: any) => t.isActive)?.id || tournaments[0]?.id || ""
+  );
+  const [topTeam, setTopTeam] = useState<any>(null);
+  const [bestEleven, setBestEleven] = useState<any>(null);
+  const [topScorer, setTopScorer] = useState<any>(null);
+  const [bestGK, setBestGK] = useState<any>(null);
+  const [bestPlayer, setBestPlayer] = useState<any>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const fetchAwards = (id: string) => {
+    if (!id) return;
+    startTransition(async () => {
+      const [tt, be, ts, bgk, bp] = await Promise.all([
+        getSeasonAward("TOP_TEAM", id),
+        getSeasonAward("BEST_ELEVEN", id),
+        getSeasonAward("TOP_SCORER", id),
+        getSeasonAward("BEST_GOALKEEPER", id),
+        getSeasonAward("BEST_PLAYER", id)
+      ]);
+      setTopTeam(tt);
+      setBestEleven(be);
+      setTopScorer(ts);
+      setBestGK(bgk);
+      setBestPlayer(bp);
+    });
+  };
+
+  useEffect(() => {
+    fetchAwards(selectedTournamentId);
+  }, [selectedTournamentId]);
+
   return (
     <>
       {/* Header */}
-      <div style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, margin: 0 }}>
-          Teams of the Season
-        </h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "0.25rem" }}>
-          Curate and publish the Top Team and Best Eleven. Changes are immediately reflected on the public stats page.
-        </p>
+      <div style={{ marginBottom: "2rem", display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 800, margin: 0 }}>
+            Curated Season Awards
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+            Manually choose winners for major categories and teams of the season.
+          </p>
+        </div>
+
+        <div style={{ minWidth: '240px' }}>
+          <FieldLabel>Select Tournament</FieldLabel>
+          <CustomSelect 
+            value={selectedTournamentId}
+            onChange={(e) => setSelectedTournamentId(e.target.value)}
+          >
+            <option value="">— Select Tournament —</option>
+            {tournaments.map((t: any) => (
+              <option key={t.id} value={t.id}>{t.name}{t.isActive ? " (Active)" : ""}</option>
+            ))}
+          </CustomSelect>
+        </div>
       </div>
 
-      <AwardForm
-        category="TOP_TEAM"
-        title="Top Team — Best 11"
-        icon={<EmojiEventsIcon sx={{ color: '#fbbf24' }} />}
-        maxPlayers={11}
-        initialData={initialTopTeam}
-        users={users}
-      />
+      <div style={{ opacity: isPending ? 0.6 : 1, transition: 'opacity 0.2s', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <AwardForm
+            key={`top-scorer-${selectedTournamentId}`}
+            category="TOP_SCORER"
+            tournamentId={selectedTournamentId}
+            title="Top Scorer — Golden Boot"
+            icon={<SportsSoccerIcon sx={{ color: '#fbbf24' }} />}
+            maxPlayers={3}
+            initialData={topScorer}
+            users={users}
+          />
 
-      <AwardForm
-        category="BEST_ELEVEN"
-        title="Best Eleven of the Season"
-        icon={<StarIcon sx={{ color: 'var(--accent-primary)' }} />}
-        maxPlayers={15}
-        initialData={initialBestEleven}
-        users={users}
-      />
+          <AwardForm
+            key={`best-gk-${selectedTournamentId}`}
+            category="BEST_GOALKEEPER"
+            tournamentId={selectedTournamentId}
+            title="Best Goalkeeper — Golden Glove"
+            icon={<PanToolIcon sx={{ color: 'white' }} />}
+            maxPlayers={2}
+            initialData={bestGK}
+            users={users}
+          />
+
+          <AwardForm
+            key={`best-player-${selectedTournamentId}`}
+            category="BEST_PLAYER"
+            tournamentId={selectedTournamentId}
+            title="Best Player — Player of the Tournament"
+            icon={<MilitaryTechIcon sx={{ color: '#fbbf24' }} />}
+            maxPlayers={2}
+            initialData={bestPlayer}
+            users={users}
+          />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <AwardForm
+            key={`top-team-${selectedTournamentId}`}
+            category="TOP_TEAM"
+            tournamentId={selectedTournamentId}
+            title="Top Team — Best 11"
+            icon={<EmojiEventsIcon sx={{ color: '#fbbf24' }} />}
+            maxPlayers={11}
+            initialData={topTeam}
+            users={users}
+          />
+
+          <AwardForm
+            key={`best-eleven-${selectedTournamentId}`}
+            category="BEST_ELEVEN"
+            tournamentId={selectedTournamentId}
+            title="Best Eleven of the Season"
+            icon={<StarIcon sx={{ color: 'var(--accent-primary)' }} />}
+            maxPlayers={15}
+            initialData={bestEleven}
+            users={users}
+          />
+        </div>
+      </div>
     </>
   );
 }
