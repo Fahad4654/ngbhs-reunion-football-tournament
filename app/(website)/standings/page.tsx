@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import styles from "./standings.module.css";
 import StandingsClient from "./StandingsClient";
+import { getTopScorers, getBestGoalkeepers, getBestPlayers, getSeasonAward } from "@/lib/actions/stats.actions";
 
 export const revalidate = 60;
 
@@ -57,7 +58,21 @@ async function getTournamentsAndStandings() {
 }
 
 export default async function StandingsPage() {
-  const { tournaments, activeTournamentData, teamsData } = await getTournamentsAndStandings();
+  const [
+    { tournaments, activeTournamentData, teamsData },
+    topScorers,
+    bestGKs,
+    bestPlayers,
+    topTeam,
+    bestEleven
+  ] = await Promise.all([
+    getTournamentsAndStandings(),
+    getTopScorers(10),
+    getBestGoalkeepers(10),
+    getBestPlayers(10),
+    getSeasonAward("TOP_TEAM"),
+    getSeasonAward("BEST_ELEVEN"),
+  ]);
 
   return (
     <div className="container">
@@ -65,6 +80,11 @@ export default async function StandingsPage() {
         tournaments={tournaments}
         initialTournamentData={activeTournamentData}
         initialTeams={teamsData}
+        topScorers={topScorers}
+        bestGKs={bestGKs}
+        bestPlayers={bestPlayers}
+        topTeam={topTeam}
+        bestEleven={bestEleven}
       />
     </div>
   );
