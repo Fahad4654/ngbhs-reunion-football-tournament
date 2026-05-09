@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updateUserRoleAction, deleteUserAction } from '@/lib/actions';
+import { updateUserRoleAction, deleteUserAction, updateCommitteeStatus, updateVolunteerStatus } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
 import { useConfirm } from '@/app/components/ConfirmModal';
 import CustomSelect from '@/app/components/panel/CustomSelect';
@@ -9,13 +9,22 @@ import CustomSelect from '@/app/components/panel/CustomSelect';
 interface UserActionsProps {
   userId: string;
   currentRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'ADMIN' | 'SCORER';
+  isCommitteeMember: boolean;
+  committeeRole: string;
+  isVolunteer: boolean;
 }
 
-export default function UserActions({ userId, currentRole }: UserActionsProps) {
+export default function UserActions({ 
+  userId, 
+  currentRole, 
+  isCommitteeMember, 
+  committeeRole: initialCommitteeRole, 
+  isVolunteer 
+}: UserActionsProps) {
   const [isPending, setIsPending] = useState(false);
+  const [showOrgSettings, setShowOrgSettings] = useState(false);
+  const [committeeRole, setCommitteeRole] = useState(initialCommitteeRole);
   const { ask: askConfirm, modal: confirmModal } = useConfirm();
-
-
 
   const handleRoleChange = async (newRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER') => {
     setIsPending(true);
@@ -34,6 +43,40 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
       await promise;
     } finally {
       setIsPending(false);
+    }
+  };
+
+  const handleToggleCommittee = async () => {
+    const newStatus = !isCommitteeMember;
+    let role = committeeRole;
+    
+    if (newStatus && !role) {
+      const input = window.prompt("Enter Committee Role (e.g. President, Member):");
+      if (input === null) return;
+      role = input;
+      setCommitteeRole(role);
+    }
+
+    setIsPending(true);
+    const res = await updateCommitteeStatus(userId, newStatus, role);
+    setIsPending(false);
+
+    if (res.success) {
+      toast.success(newStatus ? 'Added to Committee' : 'Removed from Committee');
+    } else {
+      toast.error(res.error || 'Failed to update committee status');
+    }
+  };
+
+  const handleToggleVolunteer = async () => {
+    setIsPending(true);
+    const res = await updateVolunteerStatus(userId, !isVolunteer);
+    setIsPending(false);
+
+    if (res.success) {
+      toast.success(!isVolunteer ? 'Designated as Volunteer' : 'Removed Volunteer status');
+    } else {
+      toast.error(res.error || 'Failed to update volunteer status');
     }
   };
 
@@ -62,8 +105,42 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
   return (
     <>
       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+        {/* Committee Toggle */}
+        <button
+          onClick={handleToggleCommittee}
+          disabled={isPending}
+          title={isCommitteeMember ? `Committee Member (${committeeRole})` : "Add to Committee"}
+          className="btn glass"
+          style={{ 
+            padding: '0.4rem', 
+            fontSize: '1rem', 
+            background: isCommitteeMember ? 'rgba(235, 183, 0, 0.2)' : 'transparent',
+            borderColor: isCommitteeMember ? 'var(--accent-primary)' : 'var(--border-color)',
+            color: isCommitteeMember ? 'var(--accent-primary)' : 'var(--text-muted)'
+          }}
+        >
+          🏛️
+        </button>
+
+        {/* Volunteer Toggle */}
+        <button
+          onClick={handleToggleVolunteer}
+          disabled={isPending}
+          title={isVolunteer ? "Volunteer" : "Add as Volunteer"}
+          className="btn glass"
+          style={{ 
+            padding: '0.4rem', 
+            fontSize: '1rem', 
+            background: isVolunteer ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+            borderColor: isVolunteer ? '#22c55e' : 'var(--border-color)',
+            color: isVolunteer ? '#22c55e' : 'var(--text-muted)'
+          }}
+        >
+          🙋‍♂️
+        </button>
+
         {currentRole !== 'ADMIN' && (
-          <div style={{ width: '160px' }}>
+          <div style={{ width: '140px' }}>
             <CustomSelect 
               value={currentRole}
               onChange={(e) => handleRoleChange(e.target.value as 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER')}

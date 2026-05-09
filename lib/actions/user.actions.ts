@@ -285,3 +285,52 @@ export async function deleteUserAction(userId: string) {
     return { error: error.message || 'Failed to delete user.' };
   }
 }
+
+// ─────────────────────────────────────────
+// Committee & Volunteer Management
+// ─────────────────────────────────────────
+
+export async function updateCommitteeStatus(userId: string, isMember: boolean, role?: string) {
+  try {
+    const requester = await getServerUser();
+    if (!requester || (requester.role !== 'ADMIN' && requester.role !== 'CO_ADMIN')) {
+      return { error: 'Unauthorized.' };
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { 
+        isCommitteeMember: isMember,
+        committeeRole: isMember ? (role || null) : null
+      }
+    });
+
+    revalidatePath('/admin/users');
+    revalidatePath('/committee');
+    return { success: true };
+  } catch (error: any) {
+    console.error('[updateCommitteeStatus]', error);
+    return { error: 'Failed to update committee status.' };
+  }
+}
+
+export async function updateVolunteerStatus(userId: string, isVolunteer: boolean) {
+  try {
+    const requester = await getServerUser();
+    if (!requester || (requester.role !== 'ADMIN' && requester.role !== 'CO_ADMIN')) {
+      return { error: 'Unauthorized.' };
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isVolunteer }
+    });
+
+    revalidatePath('/admin/users');
+    revalidatePath('/volunteers');
+    return { success: true };
+  } catch (error: any) {
+    console.error('[updateVolunteerStatus]', error);
+    return { error: 'Failed to update volunteer status.' };
+  }
+}

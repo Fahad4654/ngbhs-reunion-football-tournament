@@ -229,6 +229,9 @@ model User {
   isPlayer            Boolean            @default(false)
   teamRole            String?
   teamDesignation     String?
+  isCommitteeMember   Boolean            @default(false)
+  committeeRole       String?
+  isVolunteer         Boolean            @default(false)
   cheers              Cheer[]
   comments            Comment[]
   manOfTheMatchAwards Match[]            @relation("ManOfTheMatch")
