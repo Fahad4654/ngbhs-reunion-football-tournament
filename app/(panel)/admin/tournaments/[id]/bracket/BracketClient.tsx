@@ -113,7 +113,7 @@ export default function BracketClient({ tournament }: { tournament: any }) {
                   if (confirm("This will manually check the current stage results and generate the next round's matches. Continue?")) {
                     startTransition(async () => {
                       const res = await resolveStageIfComplete(tournament.id, "MANUAL");
-                      if (res?.success) alert("Bracket resolution triggered successfully! Check the Matches list.");
+                      if (res?.success) alert(res.message || "Bracket resolution triggered successfully! Check the Matches list.");
                       else alert("Resolution failed: " + (res?.error || "Unknown error"));
                     });
                   }

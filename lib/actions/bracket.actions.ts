@@ -20,32 +20,47 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
       }
     });
 
-    if (!tournament || !tournament.bracketConfig) {
-      console.log("[BRACKET ENGINE] No tournament or bracket config found");
-      return;
+    if (!tournament) {
+      console.log("[BRACKET ENGINE] Tournament not found");
+      return { success: false, error: "Tournament not found" };
+    }
+
+    if (!tournament.bracketConfig || !Array.isArray(tournament.bracketConfig)) {
+      console.log("[BRACKET ENGINE] No bracket config found");
+      return { success: false, error: "Bracket configuration is empty. Please set up the bracket first." };
     }
 
     // Manual sort because Prisma orderBy on joined fields can be tricky
     const sortedTeams = [...tournament.teams].sort((a, b) => {
-      if (b.points !== a.points) return b.points - a.points;
-      return (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst);
+      const aPoints = a.points || 0;
+      const bPoints = b.points || 0;
+      if (bPoints !== aPoints) return bPoints - aPoints;
+      
+      const aGD = (a.goalsFor || 0) - (a.goalsAgainst || 0);
+      const bGD = (b.goalsFor || 0) - (b.goalsAgainst || 0);
+      return bGD - aGD;
     });
 
     // 1. Check if all matches in the current stage are FINISHED
     const stageMatches = tournament.matches.filter(m => m.stage === stage);
     console.log(`[BRACKET ENGINE] Found ${stageMatches.length} matches in stage ${stage}`);
     
-    if (stageMatches.length === 0 && stage !== "GROUP_STAGE") return;
+    // If manual, we bypass the "all finished" check for the CURRENT stage matches,
+    // but we still need to know which stage we are resolving FROM to find the NEXT stage.
+    // Let's assume MANUAL trigger always resolves the FIRST stage in the config (the next step after groups).
     
-    const allFinished = stageMatches.every(m => m.status === "FINISHED");
-    console.log(`[BRACKET ENGINE] All matches finished? ${allFinished}`);
-    
-    if (!allFinished && stage !== "MANUAL") return; 
+    if (stage !== "MANUAL") {
+      if (stageMatches.length === 0) return { success: false, error: "No matches found in this stage." };
+      const allFinished = stageMatches.every(m => m.status === "FINISHED");
+      if (!allFinished) {
+        console.log(`[BRACKET ENGINE] Stage ${stage} is not fully finished yet.`);
+        return { success: false, error: `Stage ${stage} is not fully finished yet.` };
+      }
+    }
 
     // 2. Find what the next stage is from bracketConfig
     const bracketStages = tournament.bracketConfig as any[];
-    console.log(`[BRACKET ENGINE] Bracket Stages Config:`, bracketStages.map(s => s.stage));
-
+    
     let nextConfigStage: any = null;
     if (stage === "GROUP_STAGE" || stage === "MANUAL") {
       nextConfigStage = bracketStages.length > 0 ? bracketStages[0] : null;
@@ -58,17 +73,17 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
 
     if (!nextConfigStage) {
       console.log("[BRACKET ENGINE] No next stage found in config");
-      return;
+      return { success: false, error: "No next stage found in your bracket configuration." };
     }
 
     console.log(`[BRACKET ENGINE] Resolving for next stage: ${nextConfigStage.stage}`);
 
     // 3. Create the matches for the next stage
     const nextStageName = nextConfigStage.stage;
+    let createdCount = 0;
 
     // Helper to resolve a team ID from a placeholder string
     const resolveTeam = (placeholder: string) => {
-      console.log(`[BRACKET ENGINE] Resolving team for: ${placeholder}`);
       if (!placeholder) return null;
       
       if (placeholder.startsWith("GROUP_")) {
@@ -77,10 +92,7 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
         const rankIndex = parseInt(parts[2], 10) - 1;
         
         const teamsInGroup = sortedTeams.filter(t => t.groupId === groupId);
-        console.log(`[BRACKET ENGINE] Found ${teamsInGroup.length} teams in group ${groupId}`);
-        
         if (teamsInGroup[rankIndex]) {
-          console.log(`[BRACKET ENGINE] Resolved to team ${teamsInGroup[rankIndex].batchId}`);
           return teamsInGroup[rankIndex].batchId;
         }
       } else if (placeholder.startsWith("WINNER_")) {
@@ -106,7 +118,6 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
         );
 
         if (!exists) {
-          console.log(`[BRACKET ENGINE] Creating match: ${homeTeamId} vs ${awayTeamId}`);
           await prisma.match.create({
             data: {
               tournamentId: tournament.id,
@@ -118,13 +129,21 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
               isFeatured: false,
             }
           });
+          createdCount++;
         }
-      } else {
-        console.log(`[BRACKET ENGINE] Could not resolve both teams for match ${matchConfig.id}`);
       }
     }
 
-    return { success: true };
+    return { 
+      success: true, 
+      message: createdCount > 0 
+        ? `Successfully generated ${createdCount} matches for ${nextStageName}!` 
+        : `No new matches were created (they might already exist or teams couldn't be resolved).` 
+    };
+  } catch (error: any) {
+    console.error("[BRACKET ENGINE] Failed to resolve stage:", error);
+    return { success: false, error: error.message || "Internal engine error" };
+  }
   } catch (error) {
     console.error("[BRACKET ENGINE] Failed to resolve stage:", error);
     return { success: false, error: "Internal engine error" };
