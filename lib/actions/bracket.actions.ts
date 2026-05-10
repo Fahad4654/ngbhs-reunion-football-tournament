@@ -144,10 +144,6 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
     console.error("[BRACKET ENGINE] Failed to resolve stage:", error);
     return { success: false, error: error.message || "Internal engine error" };
   }
-  } catch (error) {
-    console.error("[BRACKET ENGINE] Failed to resolve stage:", error);
-    return { success: false, error: "Internal engine error" };
-  }
 }
 
 // Complex helper to figure out the actual winner of a configured match like "M1"
