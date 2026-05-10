@@ -394,7 +394,7 @@ export default function MatchesClient({
                   No matches yet. Create one above.
                 </td>
               </tr>
-            ) : matches.map((match) => {
+            ) : [...matches].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((match) => {
               const label = `${match.homeTeam.name} vs ${match.awayTeam.name}`;
               const d = new Date(match.date);
               return (
