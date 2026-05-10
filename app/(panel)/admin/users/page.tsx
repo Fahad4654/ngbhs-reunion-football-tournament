@@ -71,7 +71,13 @@ export default async function AdminUsersPage() {
                 </td>
                 <td style={{ padding: '1.25rem' }}>{new Date(user.createdAt).toLocaleDateString()}</td>
                 <td style={{ padding: '1.25rem', textAlign: 'right' }}>
-                  <UserActions userId={user.id} currentRole={user.role} />
+                  <UserActions 
+                    userId={user.id} 
+                    currentRole={user.role} 
+                    isCommitteeMember={user.isCommitteeMember}
+                    committeeRole={user.committeeRole || ''}
+                    isVolunteer={user.isVolunteer}
+                  />
                 </td>
               </tr>
             ))}

@@ -8,6 +8,7 @@ import {
   renameTournament,
   deleteTournament,
 } from "@/lib/actions/tournament.actions";
+import { useConfirm } from "@/app/components/ConfirmModal";
 
 type Tournament = {
   id: string;
@@ -17,6 +18,11 @@ type Tournament = {
   _count: { teams: number; matches: number };
 };
 
+const STAGES = ["ROUND_OF_32", "ROUND_OF_16", "QUARTER_FINAL", "SEMI_FINAL", "FINAL", "THIRD_PLACE"];
+
+type BracketMatch = { id: string; home: string; away: string };
+type BracketStage = { stage: string; matches: BracketMatch[] };
+
 export default function TournamentsClient({ tournaments: initial }: { tournaments: Tournament[] }) {
   const [tournaments, setTournaments] = useState(initial);
 
@@ -24,6 +30,33 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [makeActive, setMakeActive] = useState(false);
+  
+  // Bracket config state
+  const [bracketStages, setBracketStages] = useState<BracketStage[]>([]);
+
+  // Bracket Helpers
+  const addStage = () => setBracketStages([...bracketStages, { stage: STAGES[0], matches: [] }]);
+  const removeStage = (sIdx: number) => setBracketStages(bracketStages.filter((_, i) => i !== sIdx));
+  const addMatch = (sIdx: number) => {
+    const newStages = [...bracketStages];
+    newStages[sIdx].matches.push({ id: `M${Math.random().toString(36).substr(2, 5).toUpperCase()}`, home: "", away: "" });
+    setBracketStages(newStages);
+  };
+  const removeMatch = (sIdx: number, mIdx: number) => {
+    const newStages = [...bracketStages];
+    newStages[sIdx].matches = newStages[sIdx].matches.filter((_, i) => i !== mIdx);
+    setBracketStages(newStages);
+  };
+  const updateMatch = (sIdx: number, mIdx: number, field: "home" | "away", val: string) => {
+    const newStages = [...bracketStages];
+    newStages[sIdx].matches[mIdx][field] = val;
+    setBracketStages(newStages);
+  };
+  const updateStageName = (sIdx: number, val: string) => {
+    const newStages = [...bracketStages];
+    newStages[sIdx].stage = val;
+    setBracketStages(newStages);
+  };
 
   // Inline rename state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -31,6 +64,7 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   // ── Create ───────────────────────────────
   function handleCreate(e: React.FormEvent) {
@@ -38,7 +72,7 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
     if (!name.trim()) return;
     setError("");
     startTransition(async () => {
-      const res = await createTournament(name.trim(), makeActive);
+      const res = await createTournament(name.trim(), makeActive, bracketStages.length > 0 ? bracketStages : null);
       if (res.success) {
         setName("");
         setMakeActive(false);
@@ -84,20 +118,26 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
 
   // ── Delete ───────────────────────────────
   function handleDelete(id: string, tName: string) {
-    if (!confirm(`Delete "${tName}"? This will also remove all team entries for this tournament.`)) return;
-    setError("");
-    startTransition(async () => {
-      const res = await deleteTournament(id);
-      if (res.success) {
-        setTournaments((prev) => prev.filter((t) => t.id !== id));
-      } else {
-        setError(res.error || "Failed to delete tournament");
-      }
-    });
+    askConfirm(
+      `Delete "${tName}"?`,
+      () => {
+        setError("");
+        startTransition(async () => {
+          const res = await deleteTournament(id);
+          if (res.success) {
+            setTournaments((prev) => prev.filter((t) => t.id !== id));
+          } else {
+            setError(res.error || "Failed to delete tournament");
+          }
+        });
+      },
+      { subMessage: 'All team entries for this tournament will also be removed.', confirmLabel: 'Delete Tournament' }
+    );
   }
 
   return (
     <>
+      {confirmModal}
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
@@ -137,6 +177,53 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
               />
               Set as the active tournament (replaces current active)
             </label>
+            {/* Bracket Builder */}
+            <div style={{ marginTop: "1rem", padding: "1rem", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", background: "rgba(0,0,0,0.2)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <h4 style={{ margin: 0, fontWeight: "700", fontSize: "0.95rem" }}>Bracket Configuration (Optional)</h4>
+                <button type="button" onClick={addStage} className="btn btn-secondary" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem" }}>
+                  + Add Stage
+                </button>
+              </div>
+              
+              {bracketStages.length === 0 ? (
+                <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0 }}>No knockout stages defined yet. You can add them now to pre-declare matchups.</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                  {bracketStages.map((stage, sIdx) => (
+                    <div key={sIdx} style={{ background: "rgba(255,255,255,0.03)", padding: "1rem", borderRadius: "8px", position: "relative" }}>
+                      <button type="button" onClick={() => removeStage(sIdx)} style={{ position: "absolute", top: "0.5rem", right: "0.5rem", background: "transparent", border: "none", color: "var(--accent-danger)", cursor: "pointer", fontSize: "1.2rem" }}>&times;</button>
+                      <div style={{ marginBottom: "1rem" }}>
+                        <select 
+                          value={stage.stage} 
+                          onChange={(e) => updateStageName(sIdx, e.target.value)}
+                          style={{ padding: "0.4rem 0.5rem", background: "var(--bg-secondary)", color: "white", border: "1px solid var(--border-color)", borderRadius: "4px" }}
+                        >
+                          {STAGES.map(s => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
+                        </select>
+                      </div>
+                      
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        {stage.matches.map((m, mIdx) => (
+                          <div key={m.id} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto 1fr auto", gap: "0.5rem", alignItems: "center", fontSize: "0.85rem" }}>
+                            <span style={{ fontWeight: "700", color: "var(--accent-primary)" }}>{m.id}</span>
+                            <input type="text" value={m.home} onChange={e => updateMatch(sIdx, mIdx, "home", e.target.value)} placeholder="Home (e.g. Winner A)" style={{ padding: "0.4rem", background: "rgba(0,0,0,0.3)", color: "white", border: "1px solid var(--border-color)", borderRadius: "4px", width: "100%" }} />
+                            <span>vs</span>
+                            <input type="text" value={m.away} onChange={e => updateMatch(sIdx, mIdx, "away", e.target.value)} placeholder="Away (e.g. Runner-up B)" style={{ padding: "0.4rem", background: "rgba(0,0,0,0.3)", color: "white", border: "1px solid var(--border-color)", borderRadius: "4px", width: "100%" }} />
+                            <button type="button" onClick={() => removeMatch(sIdx, mIdx)} style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer" }}>&times;</button>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <button type="button" onClick={() => addMatch(sIdx)} style={{ marginTop: "1rem", background: "transparent", border: "1px dashed var(--border-color)", color: "var(--text-muted)", padding: "0.4rem", borderRadius: "4px", width: "100%", cursor: "pointer", fontSize: "0.85rem" }}>
+                        + Add Match
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {error && <p style={{ color: "var(--accent-danger)", fontSize: "0.85rem" }}>{error}</p>}
             <button type="submit" className="btn btn-primary" disabled={isPending} style={{ width: "100%" }}>
               {isPending ? "Creating..." : "Create Tournament"}

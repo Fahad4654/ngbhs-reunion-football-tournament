@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "./page.module.css";
 import Link from "next/link";
+import ShieldIcon from '@mui/icons-material/Shield';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 async function getMatches() {
   return await prisma.match.findMany({
@@ -29,28 +31,47 @@ async function getNews() {
 async function getStandings() {
   const activeTournament = await prisma.tournament.findFirst({
     where: { isActive: true },
+    include: { groups: true },
   });
 
-  if (!activeTournament) return { teams: [], tournamentName: null };
+  if (!activeTournament) return { groups: [], tournamentName: null };
 
-  const teams = await prisma.tournamentTeam.findMany({
+  const allTeams = await prisma.tournamentTeam.findMany({
     where: { tournamentId: activeTournament.id },
     include: { batch: { select: { name: true } } },
     orderBy: [{ points: 'desc' }, { goalsFor: 'desc' }],
-    take: 5,
   });
 
-  return { teams, tournamentName: activeTournament.name };
+  const hasGroups = activeTournament.groups.length > 0;
+  let groupsData: { name: string; teams: any[] }[] = [];
+
+  if (hasGroups) {
+    for (const group of activeTournament.groups) {
+      const groupTeams = allTeams
+        .filter(t => t.groupId === group.id)
+        .slice(0, 3); // Take top 3 from each group
+      if (groupTeams.length > 0) {
+        groupsData.push({ name: group.name, teams: groupTeams });
+      }
+    }
+  } else {
+    groupsData.push({ name: 'Overall Standings', teams: allTeams.slice(0, 5) });
+  }
+
+  return { groups: groupsData, tournamentName: activeTournament.name };
 }
 
 import HeroSlideshow from "../components/HeroSlideshow";
 
 export default async function Home() {
-  const [matches, news, { teams: standings, tournamentName }] = await Promise.all([
+  const [matches, news, standingsData] = await Promise.all([
     getMatches(),
     getNews(),
     getStandings(),
   ]);
+
+  const standingsGroups = standingsData.groups;
+  const tournamentName = standingsData.tournamentName;
 
   const featuredMatch = matches.find(m => m.isFeatured) || matches[0];
 
@@ -113,7 +134,7 @@ export default async function Home() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
                   <div style={{ flex: 1, textAlign: 'right' }} className={styles.teamName}>
                     {match.homeTeam.name}
-                    {match.homeCleanSheet && <span title="Clean Sheet" style={{ marginLeft: '0.4rem', fontSize: '0.8rem' }}>🛡️</span>}
+                    {match.homeCleanSheet && <ShieldIcon sx={{ fontSize: '0.9rem', color: '#60a5fa', verticalAlign: 'middle', ml: 0.5 }} />}
                   </div>
                   
                   <div className={styles.scoreBox}>
@@ -128,7 +149,7 @@ export default async function Home() {
                   </div>
 
                   <div style={{ flex: 1, textAlign: 'left' }} className={styles.teamName}>
-                    {match.awayCleanSheet && <span title="Clean Sheet" style={{ marginRight: '0.4rem', fontSize: '0.8rem' }}>🛡️</span>}
+                    {match.awayCleanSheet && <ShieldIcon sx={{ fontSize: '0.9rem', color: '#60a5fa', verticalAlign: 'middle', mr: 0.5 }} />}
                     {match.awayTeam.name}
                   </div>
                 </div>
@@ -138,7 +159,8 @@ export default async function Home() {
                 </div>
                 {match.manOfTheMatch && (
                   <div style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: '700' }}>
-                    🏆 MOTM: {match.manOfTheMatch.name}
+                    <EmojiEventsIcon sx={{ fontSize: '1rem', color: '#fbbf24', verticalAlign: 'text-bottom', mr: 0.5 }} />
+                    MOTM: {match.manOfTheMatch.name}
                   </div>
                 )}
               </div>
@@ -188,41 +210,45 @@ export default async function Home() {
           {tournamentName && (
             <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '2.963vh', fontWeight: '700', textTransform: 'uppercase' }}>{tournamentName}</p>
           )}
-          <div className="glass" style={{ padding: '1.481vh 1.042vw', borderRadius: '1.563vw', overflow: 'hidden' }}>
-            <div className={styles.tableWrapper}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ color: 'var(--text-muted)', fontSize: '0.729vw', textAlign: 'left', borderBottom: '0.052vw solid var(--border-color)' }}>
-                    <th style={{ padding: '1.481vh 1.042vw' }}>BATCH / TEAM</th>
-                    <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>PLAYED</th>
-                    <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>WINS</th>
-                    <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>GD</th>
-                    <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>POINTS</th>
-                  </tr>
-                </thead>
-                <tbody style={{ fontSize: '0.833vw' }}>
-                  {standings.length > 0 ? standings.map((team, i) => (
-                    <tr key={team.id} style={{ borderBottom: i === standings.length - 1 ? 'none' : '0.052vw solid var(--border-color)' }}>
-                      <td style={{ padding: '1.481vh 1.042vw', fontWeight: '800', color: 'white', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.batch.name}</td>
-                      <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.played}</td>
-                      <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.won}</td>
-                      <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontWeight: '700', color: (team.goalsFor - team.goalsAgainst) >= 0 ? 'var(--accent-primary)' : 'var(--accent-danger)', fontSize: 'calc(0.833vw * var(--font-scale))' }}>
-                        {team.goalsFor - team.goalsAgainst > 0 ? `+${team.goalsFor - team.goalsAgainst}` : team.goalsFor - team.goalsAgainst}
-                      </td>
-                      <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontWeight: '900', fontSize: 'calc(1.042vw * var(--font-scale))', color: 'var(--accent-primary)' }}>{team.points}</td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={5} style={{ padding: '2.963vh', textAlign: 'center', color: 'var(--text-muted)' }}>
-                        {tournamentName ? 'No teams enrolled yet.' : 'No active tournament. Set one active in the admin panel.'}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <Link href="/standings" className="btn glass" style={{ width: '100%', marginTop: '1.852vh', fontWeight: '700', justifyContent: 'center' }}>VIEW COMPLETE LEAGUE TABLE</Link>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            {standingsGroups.length > 0 ? standingsGroups.map((group) => (
+              <div key={group.name} className="glass" style={{ padding: '1.481vh 1.042vw', borderRadius: '1.563vw', overflow: 'hidden' }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: '900', marginBottom: '1rem', color: 'var(--accent-primary)', textAlign: 'center', textTransform: 'uppercase' }}>{group.name}</h3>
+                <div className={styles.tableWrapper}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ color: 'var(--text-muted)', fontSize: '0.729vw', textAlign: 'left', borderBottom: '0.052vw solid var(--border-color)' }}>
+                        <th style={{ padding: '1.481vh 1.042vw' }}>TEAM</th>
+                        <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>P</th>
+                        <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>GD</th>
+                        <th style={{ padding: '1.481vh 1.042vw', textAlign: 'center' }}>PTS</th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ fontSize: '0.833vw' }}>
+                      {group.teams.map((team, i) => (
+                        <tr key={team.id} style={{ borderBottom: i === group.teams.length - 1 ? 'none' : '0.052vw solid var(--border-color)' }}>
+                          <td style={{ padding: '1.481vh 1.042vw', fontWeight: '800', color: 'white', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.batch.name}</td>
+                          <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontSize: 'calc(0.833vw * var(--font-scale))' }}>{team.played}</td>
+                          <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontWeight: '700', color: (team.goalsFor - team.goalsAgainst) >= 0 ? 'var(--accent-primary)' : 'var(--accent-danger)', fontSize: 'calc(0.833vw * var(--font-scale))' }}>
+                            {team.goalsFor - team.goalsAgainst > 0 ? `+${team.goalsFor - team.goalsAgainst}` : team.goalsFor - team.goalsAgainst}
+                          </td>
+                          <td style={{ padding: '1.481vh 1.042vw', textAlign: 'center', fontWeight: '900', fontSize: 'calc(1.042vw * var(--font-scale))', color: 'var(--accent-primary)' }}>{team.points}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )) : (
+              <div className="glass" style={{ padding: '3rem', textAlign: 'center', borderRadius: '1.563vw', width: '100%' }}>
+                <p style={{ color: 'var(--text-muted)' }}>
+                  {tournamentName ? 'No teams enrolled yet.' : 'No active tournament. Set one active in the admin panel.'}
+                </p>
+              </div>
+            )}
           </div>
+          <Link href="/standings" className="btn glass" style={{ width: '100%', marginTop: '2.5rem', fontWeight: '700', justifyContent: 'center' }}>VIEW COMPLETE LEAGUE TABLE</Link>
         </div>
       </section>
     </div>

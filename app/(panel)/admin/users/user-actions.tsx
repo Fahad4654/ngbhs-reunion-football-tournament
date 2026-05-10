@@ -1,29 +1,33 @@
 'use client';
 
 import { useState } from 'react';
-import { updateUserRoleAction, deleteUserAction } from '@/lib/actions';
+import { updateUserRoleAction, deleteUserAction, updateCommitteeStatus, updateVolunteerStatus } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
+import { useConfirm } from '@/app/components/ConfirmModal';
+import CustomSelect from '@/app/components/panel/CustomSelect';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface UserActionsProps {
   userId: string;
   currentRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'ADMIN' | 'SCORER';
+  isCommitteeMember: boolean;
+  committeeRole: string;
+  isVolunteer: boolean;
 }
 
-export default function UserActions({ userId, currentRole }: UserActionsProps) {
+export default function UserActions({ 
+  userId, 
+  currentRole, 
+  isCommitteeMember, 
+  committeeRole: initialCommitteeRole, 
+  isVolunteer 
+}: UserActionsProps) {
   const [isPending, setIsPending] = useState(false);
-  const [confirmState, setConfirmState] = useState<{
-    isOpen: boolean;
-    message: string;
-    onConfirm: (() => void) | null;
-  }>({ isOpen: false, message: '', onConfirm: null });
-
-  const confirmAction = (message: string, onConfirm: () => void) => {
-    setConfirmState({ isOpen: true, message, onConfirm });
-  };
-
-  const closeConfirm = () => {
-    setConfirmState({ isOpen: false, message: '', onConfirm: null });
-  };
+  const [showOrgSettings, setShowOrgSettings] = useState(false);
+  const [committeeRole, setCommitteeRole] = useState(initialCommitteeRole);
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   const handleRoleChange = async (newRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER') => {
     setIsPending(true);
@@ -45,8 +49,42 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
     }
   };
 
+  const handleToggleCommittee = async () => {
+    const newStatus = !isCommitteeMember;
+    let role = committeeRole;
+    
+    if (newStatus && !role) {
+      const input = window.prompt("Enter Committee Role (e.g. President, Member):");
+      if (input === null) return;
+      role = input;
+      setCommitteeRole(role);
+    }
+
+    setIsPending(true);
+    const res = await updateCommitteeStatus(userId, newStatus, role);
+    setIsPending(false);
+
+    if (res.success) {
+      toast.success(newStatus ? 'Added to Committee' : 'Removed from Committee');
+    } else {
+      toast.error(res.error || 'Failed to update committee status');
+    }
+  };
+
+  const handleToggleVolunteer = async () => {
+    setIsPending(true);
+    const res = await updateVolunteerStatus(userId, !isVolunteer);
+    setIsPending(false);
+
+    if (res.success) {
+      toast.success(!isVolunteer ? 'Designated as Volunteer' : 'Removed Volunteer status');
+    } else {
+      toast.error(res.error || 'Failed to update volunteer status');
+    }
+  };
+
   const handleDelete = () => {
-    confirmAction('Are you sure you want to completely delete this user? All their posts and media will be removed. This cannot be undone.', async () => {
+    askConfirm('Are you sure you want to completely delete this user?', async () => {
       setIsPending(true);
       const promise = deleteUserAction(userId).then(res => {
         if (res.error) throw new Error(res.error);
@@ -64,105 +102,81 @@ export default function UserActions({ userId, currentRole }: UserActionsProps) {
       } finally {
         setIsPending(false);
       }
-    });
+    }, { subMessage: 'All their posts and media will be removed. This cannot be undone.', confirmLabel: 'Delete User' });
   };
 
   return (
     <>
       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+        {/* Committee Toggle */}
+        <button
+          onClick={handleToggleCommittee}
+          disabled={isPending}
+          title={isCommitteeMember ? `Committee Member (${committeeRole})` : "Add to Committee"}
+          className="btn glass"
+          style={{ 
+            padding: '0.4rem', 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: isCommitteeMember ? 'rgba(235, 183, 0, 0.2)' : 'transparent',
+            borderColor: isCommitteeMember ? 'var(--accent-primary)' : 'var(--border-color)',
+            color: isCommitteeMember ? 'var(--accent-primary)' : 'var(--text-muted)'
+          }}
+        >
+          <AccountBalanceIcon sx={{ fontSize: '1.2rem' }} />
+        </button>
+
+        {/* Volunteer Toggle */}
+        <button
+          onClick={handleToggleVolunteer}
+          disabled={isPending}
+          title={isVolunteer ? "Volunteer" : "Add as Volunteer"}
+          className="btn glass"
+          style={{ 
+            padding: '0.4rem', 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: isVolunteer ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+            borderColor: isVolunteer ? '#22c55e' : 'var(--border-color)',
+            color: isVolunteer ? '#22c55e' : 'var(--text-muted)'
+          }}
+        >
+          <VolunteerActivismIcon sx={{ fontSize: '1.2rem' }} />
+        </button>
+
         {currentRole !== 'ADMIN' && (
-          <select 
-            value={currentRole}
-            onChange={(e) => handleRoleChange(e.target.value as 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER')}
-            disabled={isPending}
-            style={{ 
-              width: 'auto',
-              padding: '0.4rem 2.2rem 0.4rem 0.7rem',
-              fontSize: '0.75rem',
-              fontWeight: '600'
-            }}
-          >
-            <option value="USER" style={{ color: 'black' }}>Role: User</option>
-            <option value="BATCH_MANAGER" style={{ color: 'black' }}>Role: Batch Manager</option>
-            <option value="SCORER" style={{ color: 'black' }}>Role: Scorer</option>
-            <option value="CO_ADMIN" style={{ color: 'black' }}>Role: Co-Admin</option>
-          </select>
+          <div style={{ width: '140px' }}>
+            <CustomSelect 
+              value={currentRole}
+              onChange={(e) => handleRoleChange(e.target.value as 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'SCORER')}
+              disabled={isPending}
+              style={{ 
+                padding: '0.4rem 2rem 0.4rem 0.7rem',
+                fontSize: '0.75rem',
+                height: 'auto'
+              }}
+            >
+              <option value="USER">User</option>
+              <option value="BATCH_MANAGER">Batch Manager</option>
+              <option value="SCORER">Scorer</option>
+              <option value="CO_ADMIN">Co-Admin</option>
+            </CustomSelect>
+          </div>
         )}
         <button 
           onClick={handleDelete}
           disabled={isPending}
           className="btn glass" 
-          style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', color: 'var(--accent-danger)' }}
+          style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', color: 'var(--accent-danger)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
         >
+          <DeleteIcon sx={{ fontSize: '1rem' }} />
           Delete
         </button>
       </div>
 
-      {confirmState.isOpen && typeof window !== 'undefined' && require('react-dom').createPortal(
-        <div 
-          style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 99999,
-            animation: 'fadeIn 0.2s ease-out forwards',
-          }}
-          onClick={closeConfirm}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="glass"
-            style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '1.5rem', 
-              width: '100%',
-              maxWidth: '450px',
-              padding: '2rem',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(235, 183, 0, 0.1)',
-              border: '1px solid rgba(235, 183, 0, 0.3)',
-              animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-              margin: '0 1rem',
-            }}
-          >
-            <div style={{ textAlign: 'center' }}>
-              <p style={{ 
-                margin: 0, 
-                fontWeight: '600', 
-                fontSize: '1.25rem', 
-                color: 'var(--text-primary)',
-                fontFamily: 'Outfit, sans-serif'
-              }}>
-                {confirmState.message}
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <button 
-                onClick={closeConfirm}
-                className="btn glass"
-                style={{ flex: 1, padding: '0.75rem' }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={() => {
-                  if (confirmState.onConfirm) confirmState.onConfirm();
-                  closeConfirm();
-                }}
-                className="btn"
-                style={{ flex: 1, padding: '0.75rem', background: '#ef4444', color: 'white', border: 'none' }}
-              >
-                Delete User
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      {confirmModal}
     </>
   );
 }

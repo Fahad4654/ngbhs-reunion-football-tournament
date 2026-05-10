@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { createBatch, updateBatch, deleteBatch } from "@/lib/actions/batch.actions";
 import LogoUploader from "@/app/components/LogoUploader";
+import { useConfirm } from "@/app/components/ConfirmModal";
 
 type Batch = {
   id: string;
@@ -60,6 +61,7 @@ export default function BatchesClient({ batches: initial }: { batches: Batch[] }
 
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   // ── Create ──────────────────────────────
   function handleCreate(e: React.FormEvent) {
@@ -101,22 +103,28 @@ export default function BatchesClient({ batches: initial }: { batches: Batch[] }
 
   // ── Delete ──────────────────────────────
   function handleDelete(id: string, name: string) {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    startTransition(async () => {
-      const res = await deleteBatch(id);
-      if (res.success) {
-        setBatches((prev) => prev.filter((b) => b.id !== id));
-        if (editingId === id) setEditingId(null);
-      } else {
-        setError(res.error ?? "Failed to delete");
-      }
-    });
+    askConfirm(
+      `Delete "${name}"?`,
+      () => {
+        startTransition(async () => {
+          const res = await deleteBatch(id);
+          if (res.success) {
+            setBatches((prev) => prev.filter((b) => b.id !== id));
+            if (editingId === id) setEditingId(null);
+          } else {
+            setError(res.error ?? "Failed to delete");
+          }
+        });
+      },
+      { subMessage: 'This cannot be undone.', confirmLabel: 'Delete Batch' }
+    );
   }
 
   const currentYear = new Date().getFullYear();
 
   return (
     <>
+      {confirmModal}
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
