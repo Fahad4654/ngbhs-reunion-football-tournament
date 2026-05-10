@@ -7,7 +7,14 @@ import { saveBracketConfig } from "@/lib/actions/tournament.actions";
 type BracketMatch = { id: string; home: string; away: string };
 type BracketStage = { stage: string; matches: BracketMatch[] };
 
-const STAGES = ["ROUND_OF_32", "ROUND_OF_16", "QUARTER_FINAL", "SEMI_FINAL", "FINAL", "THIRD_PLACE"];
+const STAGE_CODES: Record<string, string> = {
+  ROUND_OF_32: "R32",
+  ROUND_OF_16: "R16",
+  QUARTER_FINAL: "QF",
+  SEMI_FINAL: "SF",
+  FINAL: "F",
+  THIRD_PLACE: "3P"
+};
 
 export default function BracketClient({ tournament }: { tournament: any }) {
   const initialStages = Array.isArray(tournament.bracketConfig) ? tournament.bracketConfig : [];
@@ -21,7 +28,10 @@ export default function BracketClient({ tournament }: { tournament: any }) {
   const removeStage = (sIdx: number) => setBracketStages(bracketStages.filter((_, i) => i !== sIdx));
   const addMatch = (sIdx: number) => {
     const newStages = [...bracketStages];
-    newStages[sIdx].matches.push({ id: `M${Math.random().toString(36).substr(2, 5).toUpperCase()}`, home: "", away: "" });
+    const stage = newStages[sIdx].stage;
+    const prefix = STAGE_CODES[stage] || "M";
+    const nextNum = newStages[sIdx].matches.length + 1;
+    newStages[sIdx].matches.push({ id: `${prefix}${nextNum}`, home: "", away: "" });
     setBracketStages(newStages);
   };
   const removeMatch = (sIdx: number, mIdx: number) => {
@@ -29,7 +39,7 @@ export default function BracketClient({ tournament }: { tournament: any }) {
     newStages[sIdx].matches = newStages[sIdx].matches.filter((_, i) => i !== mIdx);
     setBracketStages(newStages);
   };
-  const updateMatch = (sIdx: number, mIdx: number, field: "home" | "away", val: string) => {
+  const updateMatch = (sIdx: number, mIdx: number, field: "home" | "away" | "id", val: string) => {
     const newStages = [...bracketStages];
     newStages[sIdx].matches[mIdx][field] = val;
     setBracketStages(newStages);
@@ -37,6 +47,12 @@ export default function BracketClient({ tournament }: { tournament: any }) {
   const updateStageName = (sIdx: number, val: string) => {
     const newStages = [...bracketStages];
     newStages[sIdx].stage = val;
+    // Auto-update match IDs in this stage if they follow the default pattern
+    const prefix = STAGE_CODES[val] || "M";
+    newStages[sIdx].matches = newStages[sIdx].matches.map((m, i) => ({
+      ...m,
+      id: m.id.match(/^[A-Z]+\d+$/) ? `${prefix}${i+1}` : m.id
+    }));
     setBracketStages(newStages);
   };
 
@@ -169,7 +185,12 @@ export default function BracketClient({ tournament }: { tournament: any }) {
 
                       return (
                         <div key={m.id} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto 1fr auto", gap: "1rem", alignItems: "center", fontSize: "0.9rem" }}>
-                          <span style={{ fontWeight: "700", color: "var(--accent-primary)" }}>{m.id}</span>
+                          <input 
+                            type="text" 
+                            value={m.id} 
+                            onChange={e => updateMatch(sIdx, mIdx, "id", e.target.value.toUpperCase())} 
+                            style={{ width: "70px", padding: "0.5rem", background: "rgba(0,0,0,0.3)", color: "var(--accent-primary)", border: "1px solid var(--border-color)", borderRadius: "4px", fontWeight: "700", textAlign: "center" }} 
+                          />
                           
                           <select 
                             value={m.home} 
