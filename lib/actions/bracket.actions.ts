@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
  * If yes, it spawns matches for the next stage defined in the bracket config.
  */
 export async function resolveStageIfComplete(tournamentId: string, stage: string) {
+  console.log(`[BRACKET ENGINE] Checking resolution for tournament ${tournamentId}, stage ${stage}`);
   try {
     const tournament = await prisma.tournament.findUnique({
       where: { id: tournamentId },
@@ -13,75 +14,79 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
         groups: true,
         teams: {
           include: { batch: true },
-          orderBy: [
-            { points: 'desc' },
-            { goalsFor: 'desc' }
-          ]
         }
       }
     });
 
-    if (!tournament || !tournament.bracketConfig) return;
+    if (!tournament || !tournament.bracketConfig) {
+      console.log("[BRACKET ENGINE] No tournament or bracket config found");
+      return;
+    }
+
+    // Manual sort because Prisma orderBy on joined fields can be tricky
+    const sortedTeams = [...tournament.teams].sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      return (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst);
+    });
 
     // 1. Check if all matches in the current stage are FINISHED
     const stageMatches = tournament.matches.filter(m => m.stage === stage);
-    if (stageMatches.length === 0) return; // No matches exist for this stage yet
+    console.log(`[BRACKET ENGINE] Found ${stageMatches.length} matches in stage ${stage}`);
+    
+    if (stageMatches.length === 0 && stage !== "GROUP_STAGE") return;
     
     const allFinished = stageMatches.every(m => m.status === "FINISHED");
-    if (!allFinished) return; // Not fully complete yet
+    console.log(`[BRACKET ENGINE] All matches finished? ${allFinished}`);
+    
+    if (!allFinished && stage !== "MANUAL") return; 
 
     // 2. Find what the next stage is from bracketConfig
     const bracketStages = tournament.bracketConfig as any[];
-    const currentStageIndex = bracketStages.findIndex(s => s.stage === stage);
-    
-    // If we are at GROUP_STAGE, the 'next stage' in the bracket config is at index 0.
-    // If we are at a knockout stage, the 'next stage' is currentStageIndex + 1.
+    console.log(`[BRACKET ENGINE] Bracket Stages Config:`, bracketStages.map(s => s.stage));
+
     let nextConfigStage: any = null;
-    if (stage === "GROUP_STAGE") {
+    if (stage === "GROUP_STAGE" || stage === "MANUAL") {
       nextConfigStage = bracketStages.length > 0 ? bracketStages[0] : null;
-    } else if (currentStageIndex !== -1 && currentStageIndex + 1 < bracketStages.length) {
-      nextConfigStage = bracketStages[currentStageIndex + 1];
+    } else {
+      const currentStageIndex = bracketStages.findIndex(s => s.stage === stage);
+      if (currentStageIndex !== -1 && currentStageIndex + 1 < bracketStages.length) {
+        nextConfigStage = bracketStages[currentStageIndex + 1];
+      }
     }
 
-    if (!nextConfigStage) return; // No next stage defined
+    if (!nextConfigStage) {
+      console.log("[BRACKET ENGINE] No next stage found in config");
+      return;
+    }
+
+    console.log(`[BRACKET ENGINE] Resolving for next stage: ${nextConfigStage.stage}`);
 
     // 3. Create the matches for the next stage
     const nextStageName = nextConfigStage.stage;
 
-    // Check if matches for the next stage already exist to prevent duplicates
-    const nextStageMatchesExist = tournament.matches.some(m => m.stage === nextStageName);
-    if (nextStageMatchesExist) return;
-
-    console.log(`[BRACKET ENGINE] Auto-generating matches for ${nextStageName}`);
-
-    // Helper to resolve a team ID from a placeholder string like "GROUP_cuid_1" or "WINNER_M1"
+    // Helper to resolve a team ID from a placeholder string
     const resolveTeam = (placeholder: string) => {
+      console.log(`[BRACKET ENGINE] Resolving team for: ${placeholder}`);
       if (!placeholder) return null;
       
       if (placeholder.startsWith("GROUP_")) {
-        // e.g. "GROUP_clkj123_1" (group ID is clkj123, rank is 1)
         const parts = placeholder.split("_");
-        if (parts.length >= 3) {
-          const groupId = parts[1];
-          const rankIndex = parseInt(parts[2], 10) - 1; // 1-based to 0-based
-          
-          const teamsInGroup = tournament.teams.filter(t => t.groupId === groupId);
-          if (teamsInGroup[rankIndex]) {
-            return teamsInGroup[rankIndex].batchId;
-          }
+        const groupId = parts[1];
+        const rankIndex = parseInt(parts[2], 10) - 1;
+        
+        const teamsInGroup = sortedTeams.filter(t => t.groupId === groupId);
+        console.log(`[BRACKET ENGINE] Found ${teamsInGroup.length} teams in group ${groupId}`);
+        
+        if (teamsInGroup[rankIndex]) {
+          console.log(`[BRACKET ENGINE] Resolved to team ${teamsInGroup[rankIndex].batchId}`);
+          return teamsInGroup[rankIndex].batchId;
         }
       } else if (placeholder.startsWith("WINNER_")) {
-        // e.g. "WINNER_M1" (Match ID from the config)
         const matchConfigId = placeholder.split("_")[1];
-        // We need to find the actual match in the database.
-        // Wait, the DB match doesn't know it is "M1". We need a way to link config match IDs to real matches.
-        // For now, let's look at the config to see what teams played in M1, then find that real match.
-        // OR better, we should save the config Match ID into the actual Match record, or deduce it.
-        // Since we don't have a configMatchId in the DB yet, we have to deduce it.
-        return deduceWinner(matchConfigId, bracketStages, tournament.matches, tournament.teams);
+        return deduceWinner(matchConfigId, bracketStages, tournament.matches, sortedTeams);
       } else if (placeholder.startsWith("LOSER_")) {
         const matchConfigId = placeholder.split("_")[1];
-        return deduceLoser(matchConfigId, bracketStages, tournament.matches, tournament.teams);
+        return deduceLoser(matchConfigId, bracketStages, tournament.matches, sortedTeams);
       }
       return null;
     };
@@ -91,23 +96,36 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
       const awayTeamId = resolveTeam(matchConfig.away);
 
       if (homeTeamId && awayTeamId && homeTeamId !== awayTeamId) {
-        // Create the match
-        await prisma.match.create({
-          data: {
-            tournamentId: tournament.id,
-            stage: nextStageName,
-            status: "SCHEDULED",
-            homeTeamId,
-            awayTeamId,
-            date: new Date(), // Defaults to now, admin can reschedule
-            isFeatured: false,
-          }
-        });
+        // Check if this specific match already exists
+        const exists = tournament.matches.some(m => 
+          m.stage === nextStageName && 
+          ((m.homeTeamId === homeTeamId && m.awayTeamId === awayTeamId) || 
+           (m.homeTeamId === awayTeamId && m.awayTeamId === homeTeamId))
+        );
+
+        if (!exists) {
+          console.log(`[BRACKET ENGINE] Creating match: ${homeTeamId} vs ${awayTeamId}`);
+          await prisma.match.create({
+            data: {
+              tournamentId: tournament.id,
+              stage: nextStageName,
+              status: "SCHEDULED",
+              homeTeamId,
+              awayTeamId,
+              date: new Date(),
+              isFeatured: false,
+            }
+          });
+        }
+      } else {
+        console.log(`[BRACKET ENGINE] Could not resolve both teams for match ${matchConfig.id}`);
       }
     }
 
+    return { success: true };
   } catch (error) {
     console.error("[BRACKET ENGINE] Failed to resolve stage:", error);
+    return { success: false, error: "Internal engine error" };
   }
 }
 

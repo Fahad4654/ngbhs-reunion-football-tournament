@@ -105,7 +105,25 @@ export default function BracketClient({ tournament }: { tournament: any }) {
               <button className="btn btn-primary" onClick={handleSave} disabled={isPending}>{isPending ? "Saving..." : "Save Bracket"}</button>
             </div>
           ) : (
-            <button className="btn btn-secondary" onClick={() => setIsEditing(true)}>Edit Bracket</button>
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <button 
+                className="btn btn-secondary" 
+                onClick={() => {
+                  if (confirm("This will manually check the current stage results and generate the next round's matches. Continue?")) {
+                    startTransition(async () => {
+                      const { resolveStageIfComplete } = await import("@/lib/actions/bracket.actions");
+                      const res = await resolveStageIfComplete(tournament.id, "MANUAL");
+                      if (res?.success) alert("Bracket resolution triggered successfully! Check the Matches list.");
+                      else alert("Resolution failed: " + (res?.error || "Unknown error"));
+                    });
+                  }
+                }}
+                disabled={isPending}
+              >
+                {isPending ? "Resolving..." : "Trigger Resolution"}
+              </button>
+              <button className="btn btn-secondary" onClick={() => setIsEditing(true)}>Edit Bracket</button>
+            </div>
           )}
         </div>
       </div>
