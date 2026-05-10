@@ -52,6 +52,24 @@ export default function BracketClient({ tournament }: { tournament: any }) {
     });
   };
 
+  const resolveLabel = (val: string) => {
+    if (!val) return "TBD";
+    if (val.startsWith("GROUP_")) {
+      const parts = val.split("_");
+      const groupId = parts[1];
+      const rank = parts[2];
+      const group = tournament.groups?.find((g: any) => g.id === groupId);
+      return `${group ? group.name : "Group"} - Rank ${rank}`;
+    }
+    if (val.startsWith("WINNER_")) {
+      return `Winner of ${val.split("_")[1]}`;
+    }
+    if (val.startsWith("LOSER_")) {
+      return `Loser of ${val.split("_")[1]}`;
+    }
+    return val;
+  };
+
   return (
     <div className="container" style={{ padding: "2rem" }}>
       <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -85,17 +103,17 @@ export default function BracketClient({ tournament }: { tournament: any }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
             {bracketStages.map((stage: any, sIdx: number) => (
               <div key={sIdx} className="glass" style={{ padding: "1.5rem" }}>
-                <h2 style={{ fontSize: "1.2rem", fontWeight: "800", color: "var(--accent-primary)", marginBottom: "1rem", textTransform: "uppercase" }}>
+                <h2 style={{ fontSize: "1.2rem", fontWeight: "800", color: "var(--accent-primary)", marginBottom: "1.5rem", textTransform: "uppercase" }}>
                   {stage.stage.replace(/_/g, " ")}
                 </h2>
-                <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}>
+                <div style={{ display: "grid", gap: "1.5rem", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))" }}>
                   {stage.matches.map((m: any) => (
-                    <div key={m.id} style={{ background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                      <div style={{ fontSize: "0.75rem", fontWeight: "800", color: "var(--text-muted)", marginBottom: "0.5rem" }}>Match: {m.id}</div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontWeight: "600" }}>{m.home || "TBD"}</span>
-                        <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: "0 0.5rem" }}>VS</span>
-                        <span style={{ fontWeight: "600" }}>{m.away || "TBD"}</span>
+                    <div key={m.id} style={{ background: "rgba(0,0,0,0.4)", padding: "1.25rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>
+                      <div style={{ fontSize: "0.7rem", fontWeight: "900", color: "var(--accent-primary)", marginBottom: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.8 }}>Match ID: {m.id}</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", textAlign: "center" }}>
+                        <div style={{ fontWeight: "700", fontSize: "1.05rem" }}>{resolveLabel(m.home)}</div>
+                        <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: "900", margin: "0.25rem 0" }}>VS</div>
+                        <div style={{ fontWeight: "700", fontSize: "1.05rem" }}>{resolveLabel(m.away)}</div>
                       </div>
                     </div>
                   ))}
