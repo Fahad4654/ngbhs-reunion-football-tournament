@@ -7,6 +7,8 @@ import { saveBracketConfig } from "@/lib/actions/tournament.actions";
 type BracketMatch = { id: string; home: string; away: string };
 type BracketStage = { stage: string; matches: BracketMatch[] };
 
+const STAGES = ["ROUND_OF_32", "ROUND_OF_16", "QUARTER_FINAL", "SEMI_FINAL", "FINAL", "THIRD_PLACE"];
+
 const STAGE_CODES: Record<string, string> = {
   ROUND_OF_32: "R32",
   ROUND_OF_16: "R16",
