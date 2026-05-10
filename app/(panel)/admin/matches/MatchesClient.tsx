@@ -271,7 +271,7 @@ export default function MatchesClient({
                 </CustomSelect>
                 {form.tournamentId && (
                   <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--accent-primary)", fontWeight: "600", display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <InfoIcon sx={{ fontSize: '0.9rem' }} /> Team selection below will be restricted to this tournament's groups.
+                    <InfoIcon sx={{ fontSize: '0.9rem' }} /> Team selection is restricted to the same group for Group Stage matches only.
                   </p>
                 )}
               </div>
@@ -310,7 +310,7 @@ export default function MatchesClient({
                     const isRegistered = tournament.teams.some(t => t.batchId === b.id);
                     if (!isRegistered) return false;
 
-                    if (form.homeTeamId) {
+                    if (form.homeTeamId && form.stage === "GROUP_STAGE") {
                       const homeTeamInfo = tournament.teams.find(t => t.batchId === form.homeTeamId);
                       const awayTeamInfo = tournament.teams.find(t => t.batchId === b.id);
                       return homeTeamInfo?.groupId === awayTeamInfo?.groupId;
