@@ -234,40 +234,126 @@ export default function StandingsClient({
       {tournamentData?.bracketConfig && Array.isArray(tournamentData.bracketConfig) && tournamentData.bracketConfig.length > 0 && (
         <div className={styles.bracketContainer}>
           <div className={styles.bracketTitle}>
-            <h2>Knockout <span className="text-gradient">Bracket</span></h2>
+            <h2 className="text-gradient" style={{ fontSize: '1.2rem', letterSpacing: '0.5em', opacity: 0.8 }}>ROAD TO THE FINAL</h2>
+            <h2 style={{ fontSize: '3rem', fontWeight: 950, marginTop: '0.5rem' }}>KNOCKOUT <span className="text-gradient">BRACKET</span></h2>
           </div>
-          <div className={styles.bracketScroll}>
-            {(tournamentData.bracketConfig as any[]).map((stageConfig, sIdx) => (
-              <div key={stageConfig.stage} className={styles.bracketColumn}>
-                <div className={styles.stageLabel}>{stageConfig.stage.replace(/_/g, " ")}</div>
-                {stageConfig.matches.map((matchConfig: any) => {
-                  const stageMatches = knockoutMatches.filter(m => m.stage === stageConfig.stage);
-                  const matchIndex = stageConfig.matches.indexOf(matchConfig);
-                  const realMatch = stageMatches[matchIndex];
 
-                  const homeWinner = realMatch?.status === 'FINISHED' && (realMatch.homeScore > realMatch.awayScore || (realMatch.homePenaltyScore > realMatch.awayPenaltyScore));
-                  const awayWinner = realMatch?.status === 'FINISHED' && (realMatch.awayScore > realMatch.homeScore || (realMatch.awayPenaltyScore > realMatch.homePenaltyScore));
+          <div className={styles.bracketWrapper}>
+            {/* Split matches into Left and Right sides for symmetry */}
+            {(() => {
+              const stages = (tournamentData.bracketConfig as any[]).filter(s => s.stage !== 'THIRD_PLACE');
+              const thirdPlaceStage = (tournamentData.bracketConfig as any[]).find(s => s.stage === 'THIRD_PLACE');
+              const leftStages: any[] = [];
+              const rightStages: any[] = [];
+              let finalStage: any = null;
 
-                  return (
-                    <div key={matchConfig.id} className={styles.bracketMatch}>
-                      <div className={styles.matchTime}>
-                        {realMatch ? new Date(realMatch.date).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'MATCH ' + matchConfig.id}
+              stages.forEach((stage, idx) => {
+                if (idx === stages.length - 1) {
+                  finalStage = stage;
+                } else {
+                  const mid = Math.ceil(stage.matches.length / 2);
+                  leftStages.push({ stage: stage.stage, matches: stage.matches.slice(0, mid) });
+                  rightStages.push({ stage: stage.stage, matches: stage.matches.slice(mid) });
+                }
+              });
+
+              return (
+                <div className={styles.symmetricalBracket}>
+                  {/* Left Side */}
+                  <div className={styles.bracketSide}>
+                    {leftStages.map((stage, sIdx) => (
+                      <div key={stage.stage + 'left'} className={styles.bracketColumn}>
+                        {stage.matches.map((matchConfig: any, mIdx: number) => {
+                          const stageMatches = knockoutMatches.filter(m => m.stage === stage.stage).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                          const realMatch = stageMatches[mIdx];
+                          const homeWinner = realMatch?.status === 'FINISHED' && (realMatch.homeScore > realMatch.awayScore || (realMatch.homePenaltyScore > realMatch.awayPenaltyScore));
+                          const awayWinner = realMatch?.status === 'FINISHED' && (realMatch.awayScore > realMatch.homeScore || (realMatch.awayPenaltyScore > realMatch.homePenaltyScore));
+
+                          return (
+                            <div key={matchConfig.id} className={styles.uclMatchPair}>
+                              <div className={`${styles.uclTeamBox} ${homeWinner ? styles.uclWinner : ''}`}>
+                                <img src={realMatch?.homeTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                                <span className={styles.uclTeamName}>{realMatch?.homeTeam?.name || matchConfig.home.replace(/_/g, " ").replace("GROUP_", "Group ").replace("_1", " #1").replace("_2", " #2")}</span>
+                                <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.homeScore : ''}</span>
+                              </div>
+                              <div className={`${styles.uclTeamBox} ${awayWinner ? styles.uclWinner : ''}`}>
+                                <img src={realMatch?.awayTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                                <span className={styles.uclTeamName}>{realMatch?.awayTeam?.name || matchConfig.away.replace(/_/g, " ").replace("GROUP_", "Group ").replace("_1", " #1").replace("_2", " #2")}</span>
+                                <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.awayScore : ''}</span>
+                              </div>
+                              <div className={styles.uclStageMarker}>{stage.stage.replace("ROUND_OF_16", "R16").replace("QUARTER_FINAL", "QF").replace("SEMI_FINAL", "SF")}</div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className={`${styles.bracketTeam} ${homeWinner ? styles.winner : ''}`}>
-                        <img src={realMatch?.homeTeam?.logoUrl || "/default-team.png"} className={styles.bracketLogo} alt="" />
-                        <span className={styles.teamName}>{realMatch?.homeTeam?.name || matchConfig.home.replace(/_/g, " ")}</span>
-                        <span className={styles.bracketScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.homeScore : '-'}</span>
-                      </div>
-                      <div className={`${styles.bracketTeam} ${awayWinner ? styles.winner : ''}`}>
-                        <img src={realMatch?.awayTeam?.logoUrl || "/default-team.png"} className={styles.bracketLogo} alt="" />
-                        <span className={styles.teamName}>{realMatch?.awayTeam?.name || matchConfig.away.replace(/_/g, " ")}</span>
-                        <span className={styles.bracketScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.awayScore : '-'}</span>
-                      </div>
+                    ))}
+                  </div>
+
+                  {/* Center / Final */}
+                  <div className={styles.bracketCenter}>
+                    <div className={styles.trophyWrapper}>
+                      <img src="/trophy.png" alt="Trophy" className={styles.trophyImgSmall} onError={(e) => e.currentTarget.style.display = 'none'} />
+                      <div className={styles.trophyGlowSmall} />
                     </div>
-                  );
-                })}
-              </div>
-            ))}
+                    
+                    <div className={styles.finalLabel}>THE GRAND FINAL</div>
+
+                    {finalStage && finalStage.matches.map((matchConfig: any) => {
+                      const realMatch = knockoutMatches.find(m => m.stage === finalStage.stage);
+                      const homeWinner = realMatch?.status === 'FINISHED' && (realMatch.homeScore > realMatch.awayScore || (realMatch.homePenaltyScore > realMatch.awayPenaltyScore));
+                      const awayWinner = realMatch?.status === 'FINISHED' && (realMatch.awayScore > realMatch.homeScore || (realMatch.awayPenaltyScore > realMatch.homePenaltyScore));
+
+                      return (
+                        <div key={matchConfig.id} className={styles.uclFinalBox}>
+                          <div className={`${styles.uclTeamBox} ${homeWinner ? styles.uclWinner : ''}`}>
+                            <img src={realMatch?.homeTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                            <span className={styles.uclTeamName}>{realMatch?.homeTeam?.name || matchConfig.home.replace(/_/g, " ").replace("WINNER_", "Winner ")}</span>
+                            <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.homeScore : ''}</span>
+                          </div>
+                          <div className={`${styles.uclTeamBox} ${awayWinner ? styles.uclWinner : ''}`}>
+                            <img src={realMatch?.awayTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                            <span className={styles.uclTeamName}>{realMatch?.awayTeam?.name || matchConfig.away.replace(/_/g, " ").replace("WINNER_", "Winner ")}</span>
+                            <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.awayScore : ''}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right Side */}
+                  <div className={styles.bracketSide}>
+                    {rightStages.slice().reverse().map((stage, sIdx) => (
+                      <div key={stage.stage + 'right'} className={styles.bracketColumn}>
+                        {stage.matches.map((matchConfig: any, mIdx: number) => {
+                          const stageMatches = knockoutMatches.filter(m => m.stage === stage.stage).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                          const originalStage = (tournamentData.bracketConfig as any[]).find(s => s.stage === stage.stage);
+                          const mid = Math.ceil(originalStage.matches.length / 2);
+                          const realMatch = stageMatches[mid + mIdx];
+                          const homeWinner = realMatch?.status === 'FINISHED' && (realMatch.homeScore > realMatch.awayScore || (realMatch.homePenaltyScore > realMatch.awayPenaltyScore));
+                          const awayWinner = realMatch?.status === 'FINISHED' && (realMatch.awayScore > realMatch.homeScore || (realMatch.awayPenaltyScore > realMatch.homePenaltyScore));
+
+                          return (
+                            <div key={matchConfig.id} className={`${styles.uclMatchPair} ${styles.uclMatchPairRight}`}>
+                              <div className={`${styles.uclTeamBox} ${homeWinner ? styles.uclWinner : ''}`}>
+                                <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.homeScore : ''}</span>
+                                <span className={styles.uclTeamName}>{realMatch?.homeTeam?.name || matchConfig.home.replace(/_/g, " ").replace("GROUP_", "Group ").replace("_1", " #1").replace("_2", " #2")}</span>
+                                <img src={realMatch?.homeTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                              </div>
+                              <div className={`${styles.uclTeamBox} ${awayWinner ? styles.uclWinner : ''}`}>
+                                <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.awayScore : ''}</span>
+                                <span className={styles.uclTeamName}>{realMatch?.awayTeam?.name || matchConfig.away.replace(/_/g, " ").replace("GROUP_", "Group ").replace("_1", " #1").replace("_2", " #2")}</span>
+                                <img src={realMatch?.awayTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                              </div>
+                              <div className={styles.uclStageMarker}>{stage.stage.replace("ROUND_OF_16", "R16").replace("QUARTER_FINAL", "QF").replace("SEMI_FINAL", "SF")}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
