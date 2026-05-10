@@ -34,62 +34,45 @@ export default async function MatchesPage() {
   return (
     <div className="container">
       <section className={styles.section}>
-        <div style={{ marginBottom: 'clamp(2rem, 5vw, 4rem)' }}>
+        <div className={styles.timeline} />
+        
+        <div style={{ marginBottom: 'clamp(4rem, 10vw, 6rem)', textAlign: 'center' }}>
           <h1 className="text-gradient" style={{ 
-            fontSize: 'clamp(2.25rem, 8vw, 4rem)', 
-            marginBottom: '1rem',
-            lineHeight: 1.1
+            fontSize: 'clamp(3rem, 10vw, 5rem)', 
+            marginBottom: '1.5rem',
+            lineHeight: 1,
+            fontWeight: 950
           }}>
-            TOURNAMENT <br/>FIXTURES & RESULTS
+            MATCHES & <br/>RESULTS
           </h1>
           <p style={{ 
             color: 'var(--text-secondary)', 
-            maxWidth: '600px',
-            fontSize: 'clamp(1rem, 1.2vw, 1.1rem)',
-            lineHeight: 1.6
+            maxWidth: '700px',
+            margin: '0 auto',
+            fontSize: 'clamp(1rem, 1.2vw, 1.2rem)',
+            lineHeight: 1.8,
+            fontWeight: 500
           }}>
-            Stay updated with every match. From intense group stages to the grand finale, track all the action here.
+            Experience the intensity of the NGBHS Reunion Football Championship. From legendary group stage battles to the final whistle of the grand finale.
           </p>
         </div>
 
         {groupedMatches.length > 0 ? groupedMatches.map((group) => (
-          <div key={group.stage} style={{ marginBottom: '4rem' }}>
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column',
-              alignItems: 'center', 
-              gap: '0.75rem', 
-              marginBottom: '2.5rem',
-            }}>
-              <div style={{ 
-                padding: '0.4rem 1.25rem',
-                background: 'rgba(235,183,0,0.08)',
-                borderBottom: '2px solid var(--accent-primary)',
-                borderRadius: '2px',
-                display: 'inline-block'
-              }}>
-                <h2 style={{ 
-                  fontSize: '1.1rem', 
-                  fontWeight: '900', 
-                  textTransform: 'uppercase', 
-                  letterSpacing: '0.15em',
-                  margin: 0,
-                  color: 'var(--accent-primary)',
-                  textAlign: 'center'
-                }}>
-                  {group.stage.replace(/_/g, " ")}
-                </h2>
-              </div>
+          <div key={group.stage} className={styles.stageHeader}>
+            <div className={styles.stageTitleWrapper}>
+              <h2 className={styles.stageTitle}>
+                {group.stage.replace(/_/g, " ")}
+              </h2>
             </div>
 
             <div className={styles.matchList}>
               {group.matches.map((match) => (
-                <Link key={match.id} href={`/matches/${match.id}`} className={`${styles.matchCard} glass`} style={{ textDecoration: 'none', color: 'inherit', display: 'grid' }}>
+                <Link key={match.id} href={`/matches/${match.id}`} className={`${styles.matchCard} glass`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   {/* Home Team */}
                   <div className={`${styles.team} ${styles.teamHome}`}>
                     <span className={styles.teamName}>
                       {match.homeTeam.name}
-                      {match.homeCleanSheet && <ShieldIcon sx={{ fontSize: '0.9rem', color: '#60a5fa', verticalAlign: 'middle', ml: 0.5 }} />}
+                      {match.homeCleanSheet && <ShieldIcon sx={{ fontSize: '1rem', color: '#60a5fa', verticalAlign: 'middle', ml: 0.8 }} />}
                     </span>
                     <div className={styles.teamLogo}>
                       {match.homeTeam.logoUrl && (
@@ -100,43 +83,37 @@ export default async function MatchesPage() {
 
                   {/* Score / Time */}
                   <div className={styles.scoreContainer}>
-                    <div className={styles.status}>
-                      {match.status === 'LIVE' ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
-                          <span className="badge badge-live">LIVE</span>
-                          <span style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--accent-danger)' }}>
-                            {match.currentMinute}'{match.injuryTime > 0 ? ` +${match.injuryTime}` : ''}
-                          </span>
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>{match.status}</span>
-                      )}
-                    </div>
-                    <div className={styles.scoreBox} style={{ fontSize: '2rem', fontWeight: '950', letterSpacing: '-0.02em' }}>
+                    <div className={styles.scoreBox}>
                       {match.status === 'SCHEDULED' ? (
-                        <span style={{ fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', color: 'var(--text-muted)' }}>VS</span>
+                        <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>VS</span>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
                             <span>{match.homeScore}</span>
-                            <span style={{ opacity: 0.3 }}>-</span>
+                            <span style={{ opacity: 0.2, fontWeight: 300 }}>:</span>
                             <span>{match.awayScore}</span>
                           </div>
                           {(match.homePenaltyScore > 0 || match.awayPenaltyScore > 0) && (
-                            <div style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--accent-primary)', marginTop: '0.2rem' }}>
-                              ({match.homePenaltyScore} - {match.awayPenaltyScore} Pen)
+                            <div style={{ fontSize: '0.9rem', fontWeight: '800', color: 'var(--accent-primary)', marginTop: '0.4rem', letterSpacing: '0' }}>
+                              ({match.homePenaltyScore} - {match.awayPenaltyScore} P)
                             </div>
                           )}
                         </div>
                       )}
                     </div>
                     <div className={styles.venue}>
-                      <div style={{ marginBottom: '0.2rem' }}>
-                        {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {match.venue || 'TBD'}
+                      <div style={{ marginBottom: '0.4rem', color: 'var(--accent-primary)' }}>
+                        {match.status === 'LIVE' ? (
+                          <span className="badge badge-live" style={{ padding: '4px 10px' }}>LIVE {match.currentMinute}'</span>
+                        ) : match.status}
                       </div>
+                      <div style={{ opacity: 0.7 }}>
+                        {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                      <div style={{ marginTop: '0.2rem', color: 'white', opacity: 0.9 }}>{match.venue || 'Main Stadium'}</div>
                       {match.manOfTheMatch && (
-                        <div style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.75rem', marginTop: '0.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
-                          <EmojiEventsIcon sx={{ fontSize: '1rem' }} /> MOTM: {match.manOfTheMatch.name}
+                        <div style={{ color: '#fbbf24', fontWeight: '900', fontSize: '0.7rem', marginTop: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                          <EmojiEventsIcon sx={{ fontSize: '0.9rem' }} /> MOTM: {match.manOfTheMatch.name}
                         </div>
                       )}
                     </div>
@@ -150,7 +127,7 @@ export default async function MatchesPage() {
                       )}
                     </div>
                     <span className={styles.teamName}>
-                      {match.awayCleanSheet && <ShieldIcon sx={{ fontSize: '0.9rem', color: '#60a5fa', verticalAlign: 'middle', mr: 0.5 }} />}
+                      {match.awayCleanSheet && <ShieldIcon sx={{ fontSize: '1rem', color: '#60a5fa', verticalAlign: 'middle', mr: 0.8 }} />}
                       {match.awayTeam.name}
                     </span>
                   </div>
@@ -159,8 +136,9 @@ export default async function MatchesPage() {
             </div>
           </div>
         )) : (
-          <div className="glass" style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            No matches have been scheduled yet. Check back soon!
+          <div className="glass" style={{ padding: '6rem', textAlign: 'center', borderRadius: '30px' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', fontWeight: 600 }}>No matches have been scheduled yet.</p>
+            <p style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', marginTop: '0.5rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Check back soon!</p>
           </div>
         )}
       </section>
