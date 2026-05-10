@@ -24,6 +24,7 @@ interface TournamentData {
   winPoints: number;
   drawPoints: number;
   lossPoints: number;
+  bracketConfig?: any;
   groups?: { id: string; name: string }[];
 }
 
@@ -50,6 +51,7 @@ export default function StandingsClient({
   tournaments,
   initialTournamentData,
   initialTeams,
+  initialKnockoutMatches,
   topScorers,
   bestGKs,
   bestPlayers,
@@ -59,6 +61,7 @@ export default function StandingsClient({
   tournaments: TournamentListInfo[];
   initialTournamentData: TournamentData | null;
   initialTeams: TeamStats[];
+  initialKnockoutMatches: any[];
   topScorers: any[];
   bestGKs: any[];
   bestPlayers: any[];
@@ -68,6 +71,7 @@ export default function StandingsClient({
   const [selectedTournamentId, setSelectedTournamentId] = useState(initialTournamentData?.id || "");
   const [tournamentData, setTournamentData] = useState(initialTournamentData);
   const [teams, setTeams] = useState(initialTeams);
+  const [knockoutMatches, setKnockoutMatches] = useState(initialKnockoutMatches);
   const [topScorersState, setTopScorersState] = useState(topScorers);
   const [bestGKsState, setBestGKsState] = useState(bestGKs);
   const [bestPlayersState, setBestPlayersState] = useState(bestPlayers);
@@ -87,6 +91,7 @@ export default function StandingsClient({
       if (data) {
         setTournamentData(data.tournament);
         setTeams(data.teams);
+        setKnockoutMatches(data.knockoutMatches || []);
         setTopScorersState(data.stats.topScorers);
         setBestGKsState(data.stats.bestGKs);
         setBestPlayersState(data.stats.bestPlayers);
@@ -224,6 +229,48 @@ export default function StandingsClient({
           </div>
         )}
       </div>
+
+      {/* Knockout Bracket */}
+      {tournamentData?.bracketConfig && Array.isArray(tournamentData.bracketConfig) && tournamentData.bracketConfig.length > 0 && (
+        <div className={styles.bracketContainer}>
+          <div className={styles.bracketTitle}>
+            <h2>Knockout <span className="text-gradient">Bracket</span></h2>
+          </div>
+          <div className={styles.bracketScroll}>
+            {(tournamentData.bracketConfig as any[]).map((stageConfig, sIdx) => (
+              <div key={stageConfig.stage} className={styles.bracketColumn}>
+                <div className={styles.stageLabel}>{stageConfig.stage.replace(/_/g, " ")}</div>
+                {stageConfig.matches.map((matchConfig: any) => {
+                  const stageMatches = knockoutMatches.filter(m => m.stage === stageConfig.stage);
+                  const matchIndex = stageConfig.matches.indexOf(matchConfig);
+                  const realMatch = stageMatches[matchIndex];
+
+                  const homeWinner = realMatch?.status === 'FINISHED' && (realMatch.homeScore > realMatch.awayScore || (realMatch.homePenaltyScore > realMatch.awayPenaltyScore));
+                  const awayWinner = realMatch?.status === 'FINISHED' && (realMatch.awayScore > realMatch.homeScore || (realMatch.awayPenaltyScore > realMatch.homePenaltyScore));
+
+                  return (
+                    <div key={matchConfig.id} className={styles.bracketMatch}>
+                      <div className={styles.matchTime}>
+                        {realMatch ? new Date(realMatch.date).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'MATCH ' + matchConfig.id}
+                      </div>
+                      <div className={`${styles.bracketTeam} ${homeWinner ? styles.winner : ''}`}>
+                        <img src={realMatch?.homeTeam?.logoUrl || "/default-team.png"} className={styles.bracketLogo} alt="" />
+                        <span className={styles.teamName}>{realMatch?.homeTeam?.name || matchConfig.home.replace(/_/g, " ")}</span>
+                        <span className={styles.bracketScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.homeScore : '-'}</span>
+                      </div>
+                      <div className={`${styles.bracketTeam} ${awayWinner ? styles.winner : ''}`}>
+                        <img src={realMatch?.awayTeam?.logoUrl || "/default-team.png"} className={styles.bracketLogo} alt="" />
+                        <span className={styles.teamName}>{realMatch?.awayTeam?.name || matchConfig.away.replace(/_/g, " ")}</span>
+                        <span className={styles.bracketScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.awayScore : '-'}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ─── Hybrid Leaderboards ─── */}
       <div style={{ marginTop: "4rem" }}>

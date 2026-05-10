@@ -21,30 +21,43 @@ async function getStandingsData(tournamentId?: string) {
       winPoints: true,
       drawPoints: true,
       lossPoints: true,
+      bracketConfig: true,
       groups: { select: { id: true, name: true } },
     },
   });
 
-  const teamsData = await prisma.tournamentTeam.findMany({
-    where: { tournamentId },
-    include: {
-      batch: { 
-        select: { 
-          name: true, 
-          nickname: true,
-          logoUrl: true,
-          members: {
-            where: { isPlayer: true },
-            select: { id: true, name: true, image: true, teamRole: true, teamDesignation: true }
-          }
-        } 
+  const [teamsData, knockoutMatches] = await Promise.all([
+    prisma.tournamentTeam.findMany({
+      where: { tournamentId },
+      include: {
+        batch: { 
+          select: { 
+            name: true, 
+            nickname: true,
+            logoUrl: true,
+            members: {
+              where: { isPlayer: true },
+              select: { id: true, name: true, image: true, teamRole: true, teamDesignation: true }
+            }
+          } 
+        },
+        group: { select: { id: true, name: true } },
       },
-      group: { select: { id: true, name: true } },
-    },
-    orderBy: [{ points: "desc" }, { goalsFor: "desc" }],
-  });
+      orderBy: [{ points: "desc" }, { goalsFor: "desc" }],
+    }),
+    prisma.match.findMany({
+      where: { 
+        tournamentId,
+        stage: { not: "GROUP_STAGE" }
+      },
+      include: {
+        homeTeam: { select: { id: true, name: true, logoUrl: true } },
+        awayTeam: { select: { id: true, name: true, logoUrl: true } }
+      }
+    })
+  ]);
 
-  return { activeTournamentData, teamsData };
+  return { activeTournamentData, teamsData, knockoutMatches };
 }
 
 export default async function StandingsPage() {
@@ -56,7 +69,7 @@ export default async function StandingsPage() {
   const activeTournamentRef = tournaments.find((t: any) => t.isActive) ?? tournaments[0] ?? null;
 
   const [
-    { activeTournamentData, teamsData },
+    { activeTournamentData, teamsData, knockoutMatches },
     topScorers,
     bestGKs,
     bestPlayers,
@@ -77,6 +90,7 @@ export default async function StandingsPage() {
         tournaments={tournaments}
         initialTournamentData={activeTournamentData}
         initialTeams={teamsData}
+        initialKnockoutMatches={knockoutMatches}
         topScorers={topScorers}
         bestGKs={bestGKs}
         bestPlayers={bestPlayers}

@@ -16,7 +16,8 @@ export async function GET(
       bestGKs,
       bestPlayers,
       topTeam,
-      bestEleven
+      bestEleven,
+      knockoutMatches
     ] = await Promise.all([
       prisma.tournament.findUnique({
         where: { id },
@@ -27,6 +28,7 @@ export async function GET(
           winPoints: true,
           drawPoints: true,
           lossPoints: true,
+          bracketConfig: true,
           groups: { select: { id: true, name: true } },
         },
       }),
@@ -36,6 +38,7 @@ export async function GET(
           batch: { 
             select: { 
               name: true, 
+              nickname: true,
               logoUrl: true,
               members: {
                 where: { isPlayer: true },
@@ -51,7 +54,17 @@ export async function GET(
       getBestGoalkeepers(id),
       getBestPlayers(id),
       getSeasonAward("TOP_TEAM", id),
-      getSeasonAward("BEST_ELEVEN", id)
+      getSeasonAward("BEST_ELEVEN", id),
+      prisma.match.findMany({
+        where: { 
+          tournamentId: id,
+          stage: { not: "GROUP_STAGE" }
+        },
+        include: {
+          homeTeam: { select: { id: true, name: true, logoUrl: true } },
+          awayTeam: { select: { id: true, name: true, logoUrl: true } }
+        }
+      })
     ]);
 
     if (!tournament) {
@@ -62,7 +75,8 @@ export async function GET(
       tournament, 
       teams, 
       stats: { topScorers, bestGKs, bestPlayers },
-      awards: { topTeam, bestEleven }
+      awards: { topTeam, bestEleven },
+      knockoutMatches
     });
   } catch (error) {
     console.error("[TournamentAPI]", error);
