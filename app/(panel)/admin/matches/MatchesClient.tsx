@@ -6,6 +6,11 @@ import { getFullMatchSquads } from "@/lib/actions/match-squad.actions";
 import PrintSquad from "@/app/components/PrintSquad";
 import PrintIcon from "@mui/icons-material/Print";
 import { toast } from "react-hot-toast";
+import { useConfirm } from "@/app/components/ConfirmModal";
+import CustomSelect from "@/app/components/panel/CustomSelect";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import InfoIcon from "@mui/icons-material/Info";
 
 type Batch = { id: string; name: string };
 type Tournament = { 
@@ -29,6 +34,7 @@ type Match = {
   isFeatured: boolean;
   tournamentId: string | null;
   tournament: { id: string; name: string } | null;
+  stage: string;
 };
 
 type FormData = {
@@ -41,9 +47,11 @@ type FormData = {
   homeScore: number;
   awayScore: number;
   isFeatured: boolean;
+  stage: string;
 };
 
 const STATUSES = ["SCHEDULED", "LIVE", "FINISHED", "CANCELLED"];
+const STAGES = ["GROUP_STAGE", "ROUND_OF_32", "ROUND_OF_16", "QUARTER_FINAL", "SEMI_FINAL", "FINAL", "THIRD_PLACE"];
 
 function toDateTimeLocal(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -61,6 +69,7 @@ function emptyForm(): FormData {
     homeScore: 0,
     awayScore: 0,
     isFeatured: false,
+    stage: "GROUP_STAGE",
   };
 }
 
@@ -75,6 +84,7 @@ function matchToForm(m: Match): FormData {
     homeScore: m.homeScore,
     awayScore: m.awayScore,
     isFeatured: m.isFeatured,
+    stage: m.stage || "GROUP_STAGE",
   };
 }
 
@@ -105,6 +115,7 @@ export default function MatchesClient({
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const [printingMatch, setPrintingMatch] = useState<{ match: any, squads: any[] } | null>(null);
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   function openCreate() {
     setEditingId(null);
@@ -148,8 +159,8 @@ export default function MatchesClient({
           return;
         }
         
-        if (homeTeam.groupId !== awayTeam.groupId) {
-          setError("Teams must be in the same group for this tournament");
+        if (form.stage === "GROUP_STAGE" && homeTeam.groupId !== awayTeam.groupId) {
+          setError("Teams must be in the same group for group stage matches");
           return;
         }
       }
@@ -175,16 +186,21 @@ export default function MatchesClient({
   }
 
   function handleDelete(id: string, label: string) {
-    if (!confirm(`Delete match "${label}"? This cannot be undone.`)) return;
-    startTransition(async () => {
-      const res = await deleteMatch(id);
-      if (res.success) {
-        setMatches((prev) => prev.filter((m) => m.id !== id));
-        if (editingId === id) closeForm();
-      } else {
-        setError(res.error ?? "Failed to delete match");
-      }
-    });
+    askConfirm(
+      `Delete match "${label}"?`,
+      () => {
+        startTransition(async () => {
+          const res = await deleteMatch(id);
+          if (res.success) {
+            setMatches((prev) => prev.filter((m) => m.id !== id));
+            if (editingId === id) closeForm();
+          } else {
+            setError(res.error ?? "Failed to delete match");
+          }
+        });
+      },
+      { subMessage: 'This cannot be undone.', confirmLabel: 'Delete Match' }
+    );
   }
 
   async function handlePrint(match: any) {
@@ -205,6 +221,7 @@ export default function MatchesClient({
 
   return (
     <>
+      {confirmModal}
       {/* Top bar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
@@ -227,40 +244,63 @@ export default function MatchesClient({
         <div id="match-form" className="glass" style={{ padding: "1.75rem", borderRadius: "14px", marginBottom: "2rem", border: "1px solid var(--border-color)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
             <h3 style={{ fontWeight: "900", margin: 0, fontSize: "1.15rem" }}>
-              {editingId ? "✏️ Edit Match" : "➕ New Match"}
+              {editingId ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <EditIcon sx={{ fontSize: '1.2rem' }} /> Edit Match
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <AddIcon sx={{ fontSize: '1.2rem' }} /> New Match
+                </div>
+              )}
             </h3>
             <button className="btn glass" onClick={closeForm} style={{ padding: "0.3rem 0.7rem", fontSize: "0.75rem" }}>✕ Cancel</button>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              {/* Tournament - Now at the Top */}
+              {/* Tournament */}
               <div style={{ gridColumn: "span 2" }}>
-                <label style={labelStyle}>Tournament</label>
-                <select value={form.tournamentId} onChange={(e) => set("tournamentId", e.target.value)}>
+                <CustomSelect 
+                  label="Tournament"
+                  value={form.tournamentId} 
+                  onChange={(e) => set("tournamentId", e.target.value)}
+                >
                   <option value="">— Generic Match (No Tournament) —</option>
-                  {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " 🟢" : ""}</option>)}
-                </select>
-                {form.tournamentId && <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--accent-primary)", fontWeight: "600" }}>ℹ️ Team selection below will be restricted to this tournament's groups.</p>}
+                  {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isActive ? " (Active)" : ""}</option>)}
+                </CustomSelect>
+                {form.tournamentId && (
+                  <p style={{ margin: "0.4rem 0 0", fontSize: "0.7rem", color: "var(--accent-primary)", fontWeight: "600", display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <InfoIcon sx={{ fontSize: '0.9rem' }} /> Team selection is restricted to the same group for Group Stage matches only.
+                  </p>
+                )}
               </div>
 
               {/* Home Team */}
               <div>
-                <label style={labelStyle}>Home Team</label>
-                <select value={form.homeTeamId} onChange={(e) => set("homeTeamId", e.target.value)} required>
+                <CustomSelect 
+                  label="Home Team"
+                  value={form.homeTeamId} 
+                  onChange={(e) => set("homeTeamId", e.target.value)} 
+                  required
+                >
                   <option value="">— Select —</option>
                   {batches.filter(b => {
                     if (!form.tournamentId) return true;
                     const tournament = tournaments.find(t => t.id === form.tournamentId);
                     return tournament?.teams.some(t => t.batchId === b.id);
                   }).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
+                </CustomSelect>
               </div>
 
               {/* Away Team */}
               <div>
-                <label style={labelStyle}>Away Team</label>
-                <select value={form.awayTeamId} onChange={(e) => set("awayTeamId", e.target.value)} required>
+                <CustomSelect 
+                  label="Away Team"
+                  value={form.awayTeamId} 
+                  onChange={(e) => set("awayTeamId", e.target.value)} 
+                  required
+                >
                   <option value="">— Select —</option>
                   {batches.filter(b => {
                     if (!form.tournamentId) return true;
@@ -270,15 +310,14 @@ export default function MatchesClient({
                     const isRegistered = tournament.teams.some(t => t.batchId === b.id);
                     if (!isRegistered) return false;
 
-                    // If home team selected, filter by group
-                    if (form.homeTeamId) {
+                    if (form.homeTeamId && form.stage === "GROUP_STAGE") {
                       const homeTeamInfo = tournament.teams.find(t => t.batchId === form.homeTeamId);
                       const awayTeamInfo = tournament.teams.find(t => t.batchId === b.id);
                       return homeTeamInfo?.groupId === awayTeamInfo?.groupId;
                     }
                     return true;
                   }).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
+                </CustomSelect>
               </div>
 
               {/* Date & Time */}
@@ -293,12 +332,26 @@ export default function MatchesClient({
                 <input type="text" value={form.venue} onChange={(e) => set("venue", e.target.value)} placeholder="e.g. Main Stadium" />
               </div>
 
+              {/* Stage */}
+              <div>
+                <CustomSelect 
+                  label="Stage"
+                  value={form.stage} 
+                  onChange={(e) => set("stage", e.target.value)}
+                >
+                  {STAGES.map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
+                </CustomSelect>
+              </div>
+
               {/* Status */}
               <div>
-                <label style={labelStyle}>Status</label>
-                <select value={form.status} onChange={(e) => set("status", e.target.value)}>
+                <CustomSelect 
+                  label="Status"
+                  value={form.status} 
+                  onChange={(e) => set("status", e.target.value)}
+                >
                   {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
+                </CustomSelect>
               </div>
 
             </div>
@@ -341,7 +394,7 @@ export default function MatchesClient({
                   No matches yet. Create one above.
                 </td>
               </tr>
-            ) : matches.map((match) => {
+            ) : [...matches].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((match) => {
               const label = `${match.homeTeam.name} vs ${match.awayTeam.name}`;
               const d = new Date(match.date);
               return (

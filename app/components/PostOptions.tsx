@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { deletePostAction, editPostAction } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
+import { useConfirm } from '@/app/components/ConfirmModal';
 import MediaRenderer from '@/app/components/MediaRenderer';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditIcon from '@mui/icons-material/Edit';
@@ -38,11 +39,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
   const [editedContent, setEditedContent] = useState(content);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [confirmState, setConfirmState] = useState<{
-    isOpen: boolean;
-    message: string;
-    onConfirm: (() => void) | null;
-  }>({ isOpen: false, message: '', onConfirm: null });
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   const [removedMediaIds, setRemovedMediaIds] = useState<string[]>([]);
   const [newMediaPreviews, setNewMediaPreviews] = useState<MediaPreview[]>([]);
@@ -67,19 +64,13 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const confirmAction = (message: string, onConfirm: () => void) => {
-    setConfirmState({ isOpen: true, message, onConfirm });
-  };
 
-  const closeConfirm = () => {
-    setConfirmState({ isOpen: false, message: '', onConfirm: null });
-  };
 
   if (!isAuthorized) return null;
 
   const handleDelete = () => {
     setIsOpen(false);
-    confirmAction('Are you sure you want to delete this post?', async () => {
+    askConfirm('Are you sure you want to delete this post?', async () => {
       const promise = deletePostAction(postId).then(res => {
         if (res.error) throw new Error(res.error);
         return res;
@@ -311,82 +302,7 @@ export default function PostOptions({ postId, title, content, isAuthorized, medi
         </div>
       )}
 
-      {confirmState.isOpen && typeof window !== 'undefined' && require('react-dom').createPortal(
-        <div 
-          style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 99999,
-            animation: 'fadeIn 0.2s ease-out forwards',
-          }}
-          onClick={closeConfirm}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="glass"
-            style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '1.5rem', 
-              width: '100%',
-              maxWidth: 'min(90vw, 400px)',
-              padding: '2rem 1.5rem',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(235, 183, 0, 0.1)',
-              border: '1px solid rgba(235, 183, 0, 0.3)',
-              animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-              margin: '0 1rem',
-              borderRadius: '1.25rem'
-            }}
-          >
-            <div style={{ textAlign: 'center' }}>
-              <p style={{ 
-                margin: 0, 
-                fontWeight: '600', 
-                fontSize: '1.2rem', 
-                color: 'var(--text-primary)',
-                fontFamily: 'Outfit, sans-serif'
-              }}>
-                {confirmState.message}
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <button 
-                onClick={closeConfirm}
-                className="btn glass"
-                style={{ flex: 1, padding: '0.75rem' }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={() => {
-                  if (confirmState.onConfirm) confirmState.onConfirm();
-                  closeConfirm();
-                }}
-                className="btn"
-                style={{ flex: 1, padding: '0.75rem', background: '#ef4444', color: 'white', border: 'none' }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-          <style>{`
-            @keyframes fadeIn {
-              from { opacity: 0; }
-              to { opacity: 1; }
-            }
-            @keyframes scaleIn {
-              from { transform: scale(0.9) translateY(10px); }
-              to { transform: scale(1) translateY(0); }
-            }
-          `}</style>
-        </div>,
-        document.body
-      )}
+      {confirmModal}
     </>
   );
 }

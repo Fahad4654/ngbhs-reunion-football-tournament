@@ -4,6 +4,8 @@ import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateMatchScore, logMatchEvent, updateMatchClock, updateMatchStats, deleteMatchEvent, updateMatchEvent } from '@/lib/actions/match.actions';
 import { toast } from 'react-hot-toast';
+import { useConfirm } from '@/app/components/ConfirmModal';
+import CustomSelect from '@/app/components/panel/CustomSelect';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import TimerIcon from '@mui/icons-material/Timer';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
@@ -12,9 +14,13 @@ import SyncIcon from '@mui/icons-material/Sync'; // For Subs
 import BarChartIcon from '@mui/icons-material/BarChart';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FlagIcon from '@mui/icons-material/Flag';
-import CircleIcon from '@mui/icons-material/Circle';
+import ForumIcon from '@mui/icons-material/Forum';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import CircleIcon from '@mui/icons-material/Circle';
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 type Player = { id: string, name: string | null };
@@ -75,6 +81,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   const [penaltyModal, setPenaltyModal] = useState<{ matchId: string } | null>(null);
   const [tick, setTick] = useState(0);
   const router = useRouter();
+  const { ask: askConfirm, modal: confirmModal } = useConfirm();
 
   useEffect(() => {
     setMatches(initialMatches);
@@ -150,11 +157,16 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   }
 
   async function handleFinishMatch(matchId: string) {
-    if (!confirm('Are you sure you want to finish this match? This will change status to FINISHED and period to FINISHED.')) return;
-    updateLocal(matchId, 'status', 'FINISHED');
-    updateLocal(matchId, 'matchPeriod', 'FINISHED');
-    await syncMatchState(matchId, { status: 'FINISHED', matchPeriod: 'FINISHED' });
-    toast.success('Match Finished!');
+    askConfirm(
+      'Finish this match?',
+      () => {
+        updateLocal(matchId, 'status', 'FINISHED');
+        updateLocal(matchId, 'matchPeriod', 'FINISHED');
+        syncMatchState(matchId, { status: 'FINISHED', matchPeriod: 'FINISHED' });
+        toast.success('Match Finished!');
+      },
+      { subMessage: 'Status and period will be set to FINISHED. This cannot be undone.', confirmLabel: 'Finish Match' }
+    );
   }
 
   async function handleAddPenalty(matchId: string, data: any) {
@@ -227,14 +239,19 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
   }
 
   async function handleDeleteEvent(eventId: string) {
-    if (!confirm('Are you sure you want to delete this event? This will revert the score if it was a goal.')) return;
-    startTransition(async () => {
-      const res = await deleteMatchEvent(eventId);
-      if (res.success) {
-        toast.success('Event deleted');
-        router.refresh();
-      } else toast.error(res.error);
-    });
+    askConfirm(
+      'Delete this event?',
+      () => {
+        startTransition(async () => {
+          const res = await deleteMatchEvent(eventId);
+          if (res.success) {
+            toast.success('Event deleted');
+            router.refresh();
+          } else toast.error(res.error);
+        });
+      },
+      { subMessage: 'If it was a goal, the score will be reverted.', confirmLabel: 'Delete Event' }
+    );
   }
 
   return (
@@ -374,11 +391,20 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                               <button disabled={match.status === 'FINISHED'} onClick={() => handleClockToggle(match)} className={`btn ${match.clockRunning ? 'btn-danger' : 'btn-primary'}`} style={{ flex: 1, opacity: match.status === 'FINISHED' ? 0.5 : 1 }}>{match.clockRunning ? 'Pause Clock' : 'Start Clock'}</button>
                             </div>
                          </div>
-                         <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem' }}><FlagIcon fontSize="small" /> MATCH PERIOD</div>
-                            <select disabled={match.status === 'FINISHED'} value={match.matchPeriod} onChange={(e) => { const v = e.target.value; updateLocal(match.id, 'matchPeriod', v); syncMatchState(match.id, { matchPeriod: v }); }} className="glass" style={{ opacity: match.status === 'FINISHED' ? 0.5 : 1 }}>
+                         <div style={{ flex: 1 }}>
+                            <CustomSelect 
+                              label="Match Period"
+                              disabled={match.status === 'FINISHED'} 
+                              value={match.matchPeriod} 
+                              onChange={(e) => { 
+                                const v = e.target.value; 
+                                updateLocal(match.id, 'matchPeriod', v); 
+                                syncMatchState(match.id, { matchPeriod: v }); 
+                              }}
+                              style={{ opacity: match.status === 'FINISHED' ? 0.5 : 1 }}
+                            >
                               {PERIODS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                            </select>
+                            </CustomSelect>
                          </div>
                       </div>
                       
@@ -427,41 +453,88 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                   </div>
 
                   {/* ─── Events Log ─────────────────────────────── */}
-                  <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)' }}>
-                        <SportsSoccerIcon fontSize="small" /> MATCH EVENTS LOG
+                  <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '2px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.9rem', fontWeight: '900', color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        <SportsSoccerIcon fontSize="small" /> Match Timeline & Events
                       </div>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                        {(match.events || []).length} event{(match.events || []).length !== 1 ? 's' : ''}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '600', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+                          {(match.events || []).length} Recorded
+                        </span>
+                      </div>
                     </div>
+                    
                     {!match.events || match.events.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.85rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-color)' }}>
-                        No events logged yet. Use Quick Log above.
+                      <div style={{ 
+                        textAlign: 'center', 
+                        padding: '2.5rem', 
+                        color: 'var(--text-muted)', 
+                        fontSize: '0.85rem', 
+                        background: 'rgba(255,255,255,0.01)', 
+                        borderRadius: '12px', 
+                        border: '1px dashed var(--border-color)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '0.75rem'
+                      }}>
+                        <div style={{ opacity: 0.2 }}><ForumIcon sx={{ fontSize: '2.5rem' }} /></div>
+                        <p style={{ margin: 0, fontWeight: '700' }}>No events recorded for this match yet.</p>
+                        <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.7 }}>Use the "Quick Log" buttons above to start recording.</p>
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '300px', overflowY: 'auto' }}>
+                      <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
                         {(match.events || []).map((ev: any) => {
-                          const evIcon = ev.type === 'GOAL' ? '⚽' : ev.type === 'YELLOW_CARD' ? '🟨' : ev.type === 'RED_CARD' ? '🟥' : ev.type === 'SUBSTITUTION' ? '🔄' : ev.type === 'OWN_GOAL' ? '🙈' : ev.type === 'ASSIST' ? '👟' : '📋';
+                          const evIcon = ev.type === 'GOAL' ? <SportsSoccerIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-primary)' }} /> : 
+                                         ev.type === 'YELLOW_CARD' ? <StyleIcon sx={{ fontSize: '1.2rem', color: '#fbbf24' }} /> : 
+                                         ev.type === 'RED_CARD' ? <StyleIcon sx={{ fontSize: '1.2rem', color: '#ef4444' }} /> : 
+                                         ev.type === 'SUBSTITUTION' ? <SyncIcon sx={{ fontSize: '1.2rem', color: '#10b981' }} /> : 
+                                         ev.type === 'OWN_GOAL' ? <SentimentVeryDissatisfiedIcon sx={{ fontSize: '1.2rem', color: '#ef4444' }} /> : 
+                                         ev.type === 'ASSIST' ? <DirectionsRunIcon sx={{ fontSize: '1.2rem', color: '#60a5fa' }} /> : 
+                                         <AssignmentIcon sx={{ fontSize: '1.2rem', color: 'var(--text-muted)' }} />;
                           const isHome = ev.teamId === match.homeTeam.id;
                           return (
-                            <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                              <span style={{ fontSize: '1rem', flexShrink: 0 }}>{evIcon}</span>
-                              <span style={{ fontSize: '0.72rem', fontWeight: '900', color: 'var(--accent-primary)', minWidth: '28px' }}>{ev.minute}'</span>
+                            <div key={ev.id} className="event-row" style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '1rem', 
+                              padding: '0.85rem 1rem', 
+                              background: 'rgba(255,255,255,0.03)', 
+                              borderRadius: '12px', 
+                              border: '1px solid rgba(255,255,255,0.05)',
+                              transition: 'all 0.2s ease'
+                            }}>
+                              <div style={{ 
+                                width: '32px', 
+                                height: '32px', 
+                                borderRadius: '8px', 
+                                background: 'rgba(0,0,0,0.3)', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                fontSize: '1.2rem',
+                                flexShrink: 0,
+                                border: '1px solid rgba(255,255,255,0.05)'
+                              }}>
+                                {evIcon}
+                              </div>
+                              <div style={{ width: '40px', textAlign: 'center', flexShrink: 0 }}>
+                                <div style={{ fontSize: '1rem', fontWeight: '950', color: 'var(--accent-primary)' }}>{ev.minute}'</div>
+                              </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: '700', fontSize: '0.82rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <div style={{ fontWeight: '800', fontSize: '0.95rem', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                   {ev.player?.name || '—'}
+                                  {ev.type === 'SUBSTITUTION' && ev.playerIn?.name && (
+                                    <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>↔ {ev.playerIn.name}</span>
+                                  )}
                                 </div>
-                                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                                  {isHome ? match.homeTeam.name : match.awayTeam.name}
-                                  {ev.note && <span> · {ev.note}</span>}
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '2px' }}>
+                                  <span style={{ color: isHome ? 'var(--accent-primary)' : 'white', opacity: 0.8 }}>{isHome ? match.homeTeam.name : match.awayTeam.name}</span>
+                                  {ev.note && <span style={{ opacity: 0.5 }}>• {ev.note}</span>}
                                 </div>
                               </div>
-                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
-                                {ev.type.replace('_', ' ')}
-                              </span>
-                              <div style={{ display: 'flex', gap: '0.3rem', flexShrink: 0 }}>
+                              <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                                 <button
                                   onClick={() => setEventModal({
                                     matchId: match.id,
@@ -469,17 +542,19 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                                     eventId: ev.id,
                                     defaultData: { teamId: ev.teamId, playerId: ev.playerId, minute: ev.minute, note: ev.note || '' }
                                   })}
-                                  style={{ background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: '4px', color: 'white', cursor: 'pointer', padding: '0.25rem 0.45rem', display: 'flex', alignItems: 'center' }}
+                                  className="btn glass"
+                                  style={{ padding: '0.4rem', minWidth: '32px', height: '32px', borderRadius: '8px' }}
                                   title="Edit event"
                                 >
-                                  <EditIcon sx={{ fontSize: '0.85rem' }} />
+                                  <EditIcon sx={{ fontSize: '1rem' }} />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteEvent(ev.id)}
-                                  style={{ background: 'rgba(239,68,68,0.08)', border: 'none', borderRadius: '4px', color: '#ef4444', cursor: 'pointer', padding: '0.25rem 0.45rem', display: 'flex', alignItems: 'center' }}
+                                  className="btn glass"
+                                  style={{ padding: '0.4rem', minWidth: '32px', height: '32px', borderRadius: '8px', color: 'var(--accent-danger)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
                                   title="Delete event"
                                 >
-                                  <DeleteIcon sx={{ fontSize: '0.85rem' }} />
+                                  <DeleteIcon sx={{ fontSize: '1rem' }} />
                                 </button>
                               </div>
                             </div>
@@ -493,11 +568,9 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
 
               {/* Match Awards & Clean Sheets */}
               <div className="glass" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                <div>
-                  <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    🏆 MAN OF THE MATCH
-                  </div>
-                  <select 
+                 <div style={{ flex: 1 }}>
+                  <CustomSelect 
+                    label={<div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><EmojiEventsIcon sx={{ fontSize: '1rem', color: '#fbbf24' }} /> Man of the Match</div>}
                     value={match.manOfTheMatchId || ''} 
                     onChange={(e) => { 
                       const v = e.target.value; 
@@ -509,7 +582,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
                     {match.matchSquads.map((s: any) => (
                       <option key={s.user.id} value={s.user.id}>{s.user.name} ({s.batchId === match.homeTeam.id ? 'Home' : 'Away'})</option>
                     ))}
-                  </select>
+                  </CustomSelect>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.8rem' }}>
                    <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Defensive Shutouts</div>
@@ -546,16 +619,17 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
 
               {/* Instant Status Switch */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <select
-                  value={match.status}
-                  onChange={(e) => { const v = e.target.value as any; updateLocal(match.id, 'status', v); syncMatchState(match.id, { status: v }); }}
-                  style={{ width: 'auto' }}
-                >
-                  <option value="SCHEDULED">Scheduled</option>
-                  <option value="LIVE">Live 🔴</option>
-                  <option value="FINISHED">Finished ✅</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </select>
+                 <div style={{ width: '200px' }}>
+                  <CustomSelect
+                    value={match.status}
+                    onChange={(e) => { const v = e.target.value as any; updateLocal(match.id, 'status', v); syncMatchState(match.id, { status: v }); }}
+                  >
+                    <option value="SCHEDULED">Scheduled</option>
+                    <option value="LIVE">Live</option>
+                    <option value="FINISHED">Finished</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </CustomSelect>
+                </div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>All changes saved instantly</div>
               </div>
             </div>
@@ -563,6 +637,7 @@ export default function UpdateScoreClient({ initialMatches }: { initialMatches: 
         })
       )}
 
+      {confirmModal}
       {/* Modals */}
       {eventModal && (
         <EventModal 
@@ -642,26 +717,29 @@ function EventModal({ isOpen, onClose, onSubmit, type, match, defaultData, displ
             <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Minute</label>
             <input type="number" value={minute} onChange={(e) => setMinute(parseInt(e.target.value))} />
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Team</label>
-            <select value={teamId} onChange={(e) => handleTeamChange(e.target.value)}>
-              <option value={match.homeTeam.id}>{match.homeTeam.name} (Home)</option>
-              <option value={match.awayTeam.id}>{match.awayTeam.name} (Away)</option>
-            </select>
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Player {squadForTeam.length === 0 && <span style={{ color: '#fbbf24', fontWeight: 600 }}>(showing all — no squad filtered for this team)</span>}
-            </label>
-            <select value={playerId} onChange={(e) => setPlayerId(e.target.value)}>
-              <option value="">— Select Player —</option>
-              {playerOptions.map((s: any) => (
-                <option key={s.user.id} value={s.user.id}>
-                  {s.user.name}{squadForTeam.length === 0 ? ` (${s.batchId === match.homeTeam.id ? 'Home' : 'Away'})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+          
+          <CustomSelect 
+            label="Team"
+            value={teamId} 
+            onChange={(e) => handleTeamChange(e.target.value)}
+          >
+            <option value={match.homeTeam.id}>{match.homeTeam.name} (Home)</option>
+            <option value={match.awayTeam.id}>{match.awayTeam.name} (Away)</option>
+          </CustomSelect>
+
+          <CustomSelect 
+            label={`Player ${squadForTeam.length === 0 ? '(showing all — no squad filtered for this team)' : ''}`}
+            value={playerId} 
+            onChange={(e) => setPlayerId(e.target.value)}
+          >
+            <option value="">— Select Player —</option>
+            {playerOptions.map((s: any) => (
+              <option key={s.user.id} value={s.user.id}>
+                {s.user.name}{squadForTeam.length === 0 ? ` (${s.batchId === match.homeTeam.id ? 'Home' : 'Away'})` : ''}
+              </option>
+            ))}
+          </CustomSelect>
+
           <div>
             <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Note (optional)</label>
             <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Penalty, Own Goal, Header" />
@@ -688,22 +766,19 @@ function PenaltyModal({ isOpen, onClose, onSubmit, match }: any) {
       <div className="glass" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
         <h3 style={{ margin: '0 0 1.5rem', fontWeight: '900' }}>RECORD PENALTY</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>TEAM</label>
-            <select value={teamId} onChange={(e) => setTeamId(e.target.value)}>
-              <option value={match.homeTeam.id}>{match.homeTeam.name}</option>
-              <option value={match.awayTeam.id}>{match.awayTeam.name}</option>
-            </select>
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>PLAYER</label>
-            <select value={playerId} onChange={(e) => setPlayerId(e.target.value)}>
-              <option value="">Select Player</option>
-              {match.matchSquads.filter((s: any) => s.batchId === teamId).map((s: any) => (
-                <option key={s.user.id} value={s.user.id}>{s.user.name}</option>
-              ))}
-            </select>
-          </div>
+          
+          <CustomSelect label="TEAM" value={teamId} onChange={(e) => setTeamId(e.target.value)}>
+            <option value={match.homeTeam.id}>{match.homeTeam.name}</option>
+            <option value={match.awayTeam.id}>{match.awayTeam.name}</option>
+          </CustomSelect>
+
+          <CustomSelect label="PLAYER" value={playerId} onChange={(e) => setPlayerId(e.target.value)}>
+            <option value="">Select Player</option>
+            {match.matchSquads.filter((s: any) => s.batchId === teamId).map((s: any) => (
+              <option key={s.user.id} value={s.user.id}>{s.user.name}</option>
+            ))}
+          </CustomSelect>
+
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>RESULT</label>
             <div style={{ display: 'flex', gap: '1rem' }}>

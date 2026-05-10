@@ -1,279 +1,486 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import styles from "./standings.module.css";
-import SquadModal from "./SquadModal";
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import StarIcon from '@mui/icons-material/Star';
+import PanToolIcon from '@mui/icons-material/PanTool';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import CloseIcon from '@mui/icons-material/Close';
+import CustomSelect from "@/app/components/panel/CustomSelect";
 
-type TournamentListInfo = { id: string; name: string; isActive: boolean };
+interface Player {
+  id: string;
+  name: string | null;
+  image: string | null;
+  teamRole?: string;
+  batch?: { name: string };
+}
 
-type TournamentData = {
+interface TournamentData {
   id: string;
   name: string;
-  description: string | null;
   winPoints: number;
   drawPoints: number;
   lossPoints: number;
-  groups: { id: string; name: string }[];
-};
+  bracketConfig?: any;
+  groups?: { id: string; name: string }[];
+}
 
-type TournamentTeam = {
+interface TeamStats {
   id: string;
-  batchId: string;
-  batch: { 
-    name: string; 
-    logoUrl: string | null;
-      members: {
-        id: string;
-        name: string;
-        image: string | null;
-        teamRole: string | null;
-        teamDesignation: string | null;
-      }[];
-  };
-  groupId: string | null;
-  group: { id: string; name: string } | null;
-  points: number;
+  batch: { name: string; nickname: string | null; logoUrl: string | null };
   played: number;
   won: number;
   drawn: number;
   lost: number;
   goalsFor: number;
   goalsAgainst: number;
-};
+  points: number;
+  group?: { id: string; name: string } | null;
+}
 
-async function fetchTournamentData(tournamentId: string): Promise<{ tournament: TournamentData, teams: TournamentTeam[] } | null> {
-  const res = await fetch(`/api/tournaments/${tournamentId}/standings`);
-  if (!res.ok) return null;
-  return res.json();
+interface TournamentListInfo {
+  id: string;
+  name: string;
+  isActive: boolean;
 }
 
 export default function StandingsClient({
   tournaments,
   initialTournamentData,
   initialTeams,
+  initialKnockoutMatches,
+  topScorers,
+  bestGKs,
+  bestPlayers,
+  topTeam,
+  bestEleven,
 }: {
   tournaments: TournamentListInfo[];
   initialTournamentData: TournamentData | null;
-  initialTeams: TournamentTeam[];
+  initialTeams: TeamStats[];
+  initialKnockoutMatches: any[];
+  topScorers: any[];
+  bestGKs: any[];
+  bestPlayers: any[];
+  topTeam: any;
+  bestEleven: any;
 }) {
-  const [selectedId, setSelectedId] = useState(initialTournamentData?.id ?? "");
-  const [tournamentData, setTournamentData] = useState<TournamentData | null>(initialTournamentData);
-  const [teams, setTeams] = useState<TournamentTeam[]>(initialTeams);
+  const [selectedTournamentId, setSelectedTournamentId] = useState(initialTournamentData?.id || "");
+  const [tournamentData, setTournamentData] = useState(initialTournamentData);
+  const [teams, setTeams] = useState(initialTeams);
+  const [knockoutMatches, setKnockoutMatches] = useState(initialKnockoutMatches);
+  const [topScorersState, setTopScorersState] = useState(topScorers);
+  const [bestGKsState, setBestGKsState] = useState(bestGKs);
+  const [bestPlayersState, setBestPlayersState] = useState(bestPlayers);
+  const [topTeamState, setTopTeamState] = useState(topTeam);
+  const [bestElevenState, setBestElevenState] = useState(bestEleven);
   const [isPending, startTransition] = useTransition();
-  const [selectedSquad, setSelectedSquad] = useState<{ name: string, players: any[] } | null>(null);
+  const [selectedSquad, setSelectedSquad] = useState<any>(null);
 
-  function handleTournamentChange(id: string) {
-    setSelectedId(id);
-    if (!id) { 
-      setTournamentData(null);
-      setTeams([]); 
-      return; 
-    }
+  const handleTournamentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    setSelectedTournamentId(id);
+    if (!id) return;
+
     startTransition(async () => {
-      const data = await fetchTournamentData(id);
+      const res = await fetch(`/api/tournaments/${id}/standings`);
+      const data = await res.json();
       if (data) {
         setTournamentData(data.tournament);
         setTeams(data.teams);
-      } else {
-        setTournamentData(null);
-        setTeams([]);
+        setKnockoutMatches(data.knockoutMatches || []);
+        setTopScorersState(data.stats.topScorers);
+        setBestGKsState(data.stats.bestGKs);
+        setBestPlayersState(data.stats.bestPlayers);
+        setTopTeamState(data.awards.topTeam);
+        setBestElevenState(data.awards.bestEleven);
       }
     });
-  }
-
-  const selectedTournamentInfo = tournaments.find((t) => t.id === selectedId);
-
-  // Group teams for display
-  const hasGroups = tournamentData?.groups && tournamentData.groups.length > 0;
-  
-  let groupedTeams: { title: string, teams: TournamentTeam[] }[] = [];
-  
-  if (hasGroups) {
-    // Add groups
-    for (const group of tournamentData!.groups) {
-      groupedTeams.push({
-        title: group.name,
-        teams: teams.filter(t => t.groupId === group.id)
-      });
-    }
-    // Add ungrouped teams if any exist
-    const ungrouped = teams.filter(t => !t.groupId);
-    if (ungrouped.length > 0) {
-      groupedTeams.push({ title: "Other Teams", teams: ungrouped });
-    }
-  } else {
-    // Just one main table
-    groupedTeams = [{ title: "Overall Standings", teams: teams }];
-  }
+  };
 
   return (
-    <section className={styles.section}>
-      {/* Header */}
-      <div style={{ marginBottom: "3rem" }}>
-        <h1 className="text-gradient" style={{ fontSize: "3.5rem", marginBottom: "1rem", lineHeight: 1.1 }}>
-          League <br />Standings
-        </h1>
-        <p style={{ color: "var(--text-secondary)", maxWidth: "600px", marginBottom: "2rem" }}>
-          The race for glory. Track how each batch is performing and who is leading the charge to become the champions.
-        </p>
+    <section className={styles.standingsSection}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Tournament <span className="text-gradient">Standings</span></h1>
+          <p className={styles.subtitle}>Real-time points table and player performance statistics.</p>
+        </div>
 
-        {/* Tournament Dropdown */}
-        {tournaments.length > 0 ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <label
-              htmlFor="tournament-select"
-              style={{ fontWeight: "700", fontSize: "0.8rem", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.08em" }}
+        <div className={styles.controls}>
+          <div className={styles.selectWrapper}>
+            <CustomSelect
+              value={selectedTournamentId}
+              onChange={handleTournamentChange}
+              label="Select Season"
             >
-              Tournament
-            </label>
-            <select
-              id="tournament-select"
-              value={selectedId}
-              onChange={(e) => handleTournamentChange(e.target.value)}
-              style={{ minWidth: "240px", fontWeight: "700" }}
-            >
-              <option value="">— Select a tournament —</option>
               {tournaments.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.name}{t.isActive ? " 🟢" : ""}
+                  {t.name} {t.isActive ? "(Active)" : ""}
                 </option>
               ))}
-            </select>
-            {selectedTournamentInfo?.isActive && (
-              <span className="badge badge-live">ACTIVE</span>
-            )}
-            {isPending && (
-              <span style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>Loading...</span>
-            )}
+            </CustomSelect>
+          </div>
+        </div>
+      </div>
+
+      {/* Points Table */}
+      <div style={{ opacity: isPending ? 0.7 : 1, transition: 'opacity 0.2s' }}>
+        {tournamentData?.groups && tournamentData.groups.length > 0 ? (
+          <div style={{ display: 'grid', gap: '2rem' }}>
+            {tournamentData.groups.map(group => {
+              const groupTeams = teams.filter(t => t.group?.id === group.id);
+              if (groupTeams.length === 0) return null;
+              return (
+                <div key={group.id} className={`glass ${styles.tableContainer}`}>
+                  <h3 style={{ padding: '1rem 1.25vw', margin: 0, borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '1.1rem', fontWeight: 800 }}>{group.name}</h3>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '60px', textAlign: 'center' }}>Pos</th>
+                        <th style={{ textAlign: 'left' }}>Team</th>
+                        <th style={{ textAlign: 'center' }}>P</th>
+                        <th style={{ textAlign: 'center' }}>W</th>
+                        <th style={{ textAlign: 'center' }}>D</th>
+                        <th style={{ textAlign: 'center' }}>L</th>
+                        <th style={{ textAlign: 'center' }}>GF</th>
+                        <th style={{ textAlign: 'center' }}>GA</th>
+                        <th style={{ textAlign: 'center' }}>GD</th>
+                        <th style={{ textAlign: 'center' }}>Pts</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {groupTeams.map((team, index) => (
+                        <tr key={team.id} className={styles.row}>
+                          <td style={{ textAlign: 'center' }}>
+                            <span style={{ fontWeight: 800 }}>{index + 1}</span>
+                          </td>
+                          <td>
+                            <div className={styles.teamCell}>
+                              <img src={team.batch.logoUrl || "/default-team.png"} alt="" className={styles.teamLogo} />
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{team.batch.name}</span>
+                                {team.batch.nickname && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{team.batch.nickname}</span>}
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>{team.played}</td>
+                          <td style={{ textAlign: 'center' }}>{team.won}</td>
+                          <td style={{ textAlign: 'center' }}>{team.drawn}</td>
+                          <td style={{ textAlign: 'center' }}>{team.lost}</td>
+                          <td style={{ textAlign: 'center' }}>{team.goalsFor}</td>
+                          <td style={{ textAlign: 'center' }}>{team.goalsAgainst}</td>
+                          <td style={{ textAlign: 'center' }}>{team.goalsFor - team.goalsAgainst}</td>
+                          <td className={styles.points} style={{ textAlign: 'center' }}>{team.points}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <div className="glass" style={{ padding: "1rem 1.5rem", borderRadius: "10px", display: "inline-block" }}>
-            <p style={{ color: "var(--text-muted)", margin: 0 }}>No tournaments have been created yet.</p>
-          </div>
-        )}
-
-        {/* Tournament Info */}
-        {tournamentData && (
-          <div className="glass" style={{ padding: "1.5rem", borderRadius: "12px", border: "1px solid var(--border-color)", opacity: isPending ? 0.5 : 1, transition: "opacity 0.2s" }}>
-            {tournamentData.description && (
-              <div style={{ marginBottom: "1.25rem" }}>
-                <h3 style={{ fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>About</h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
-                  {tournamentData.description}
-                </p>
-              </div>
-            )}
-            
-            <div>
-              <h3 style={{ fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Point System</h3>
-              <div style={{ display: "flex", gap: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <span style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#10b981", display: "inline-block" }}></span>
-                  <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Win: <strong style={{ color: "white" }}>{tournamentData.winPoints} pts</strong></span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <span style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--accent-primary)", display: "inline-block" }}></span>
-                  <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Draw: <strong style={{ color: "white" }}>{tournamentData.drawPoints} pts</strong></span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <span style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--accent-danger)", display: "inline-block" }}></span>
-                  <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Loss: <strong style={{ color: "white" }}>{tournamentData.lossPoints} pts</strong></span>
-                </div>
-              </div>
-            </div>
+          <div className={`glass ${styles.tableContainer}`}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th style={{ width: '60px', textAlign: 'center' }}>Pos</th>
+                  <th style={{ textAlign: 'left' }}>Team</th>
+                  <th style={{ textAlign: 'center' }}>P</th>
+                  <th style={{ textAlign: 'center' }}>W</th>
+                  <th style={{ textAlign: 'center' }}>D</th>
+                  <th style={{ textAlign: 'center' }}>L</th>
+                  <th style={{ textAlign: 'center' }}>GF</th>
+                  <th style={{ textAlign: 'center' }}>GA</th>
+                  <th style={{ textAlign: 'center' }}>GD</th>
+                  <th style={{ textAlign: 'center' }}>Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teams.map((team, index) => (
+                  <tr key={team.id} className={styles.row}>
+                    <td style={{ textAlign: 'center' }}>
+                      <span style={{ fontWeight: 800 }}>{index + 1}</span>
+                    </td>
+                    <td>
+                      <div className={styles.teamCell}>
+                        <img src={team.batch.logoUrl || "/default-team.png"} alt="" className={styles.teamLogo} />
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{team.batch.name}</span>
+                          {team.batch.nickname && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{team.batch.nickname}</span>}
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{team.played}</td>
+                    <td style={{ textAlign: 'center' }}>{team.won}</td>
+                    <td style={{ textAlign: 'center' }}>{team.drawn}</td>
+                    <td style={{ textAlign: 'center' }}>{team.lost}</td>
+                    <td style={{ textAlign: 'center' }}>{team.goalsFor}</td>
+                    <td style={{ textAlign: 'center' }}>{team.goalsAgainst}</td>
+                    <td style={{ textAlign: 'center' }}>{team.goalsFor - team.goalsAgainst}</td>
+                    <td className={styles.points} style={{ textAlign: 'center' }}>{team.points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
 
-      {/* Standings Tables */}
-      {selectedId && (
-        <>
-          {teams.length === 0 && !isPending ? (
-            <div className="glass" style={{ padding: "3rem", textAlign: "center", borderRadius: "12px" }}>
-              <p style={{ color: "var(--text-muted)", fontSize: "1rem" }}>
-                No teams have been added to this tournament yet.
-              </p>
-            </div>
-          ) : (
-            <div style={{ opacity: isPending ? 0.5 : 1, transition: "opacity 0.2s", display: "grid", gap: "2rem" }}>
-              {groupedTeams.map((group) => (
-                <div key={group.title}>
-                  {hasGroups && (
-                    <h2 style={{ fontSize: "1.25rem", fontWeight: "900", marginBottom: "1rem", color: "var(--accent-primary)" }}>
-                      {group.title}
-                    </h2>
-                  )}
-                  
-                  {group.teams.length === 0 ? (
-                    <div className="glass" style={{ padding: "2rem", textAlign: "center", borderRadius: "12px" }}>
-                      <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: 0 }}>No teams in this group.</p>
+      {/* Knockout Bracket */}
+      {tournamentData?.bracketConfig && Array.isArray(tournamentData.bracketConfig) && tournamentData.bracketConfig.length > 0 && (
+        <div className={styles.bracketContainer}>
+          <div className={styles.bracketTitle}>
+            <h2 className="text-gradient" style={{ fontSize: '1.2rem', letterSpacing: '0.5em', opacity: 0.8 }}>ROAD TO THE FINAL</h2>
+            <h2 style={{ fontSize: '3rem', fontWeight: 950, marginTop: '0.5rem' }}>KNOCKOUT <span className="text-gradient">BRACKET</span></h2>
+          </div>
+
+          <div className={styles.bracketWrapper}>
+            {/* Split matches into Left and Right sides for symmetry */}
+            {(() => {
+              const stages = (tournamentData.bracketConfig as any[]).filter(s => s.stage !== 'THIRD_PLACE');
+              const thirdPlaceStage = (tournamentData.bracketConfig as any[]).find(s => s.stage === 'THIRD_PLACE');
+              const leftStages: any[] = [];
+              const rightStages: any[] = [];
+              let finalStage: any = null;
+
+              stages.forEach((stage, idx) => {
+                if (idx === stages.length - 1) {
+                  finalStage = stage;
+                } else {
+                  const mid = Math.ceil(stage.matches.length / 2);
+                  leftStages.push({ stage: stage.stage, matches: stage.matches.slice(0, mid) });
+                  rightStages.push({ stage: stage.stage, matches: stage.matches.slice(mid) });
+                }
+              });
+
+              return (
+                <div className={styles.symmetricalBracket}>
+                  {/* Left Side */}
+                  <div className={styles.bracketSide}>
+                    {leftStages.map((stage, sIdx) => (
+                      <div key={stage.stage + 'left'} className={styles.bracketColumn}>
+                        {stage.matches.map((matchConfig: any, mIdx: number) => {
+                          const stageMatches = knockoutMatches.filter(m => m.stage === stage.stage).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                          const realMatch = stageMatches[mIdx];
+                          const homeWinner = realMatch?.status === 'FINISHED' && (realMatch.homeScore > realMatch.awayScore || (realMatch.homePenaltyScore > realMatch.awayPenaltyScore));
+                          const awayWinner = realMatch?.status === 'FINISHED' && (realMatch.awayScore > realMatch.homeScore || (realMatch.awayPenaltyScore > realMatch.homePenaltyScore));
+
+                          return (
+                            <div key={matchConfig.id} className={styles.uclMatchPair}>
+                              <div className={`${styles.uclTeamBox} ${homeWinner ? styles.uclWinner : ''}`}>
+                                <img src={realMatch?.homeTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                                <span className={styles.uclTeamName}>{realMatch?.homeTeam?.name || matchConfig.home.replace(/_/g, " ").replace("GROUP_", "Group ").replace("_1", " #1").replace("_2", " #2")}</span>
+                                <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.homeScore : ''}</span>
+                              </div>
+                              <div className={`${styles.uclTeamBox} ${awayWinner ? styles.uclWinner : ''}`}>
+                                <img src={realMatch?.awayTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                                <span className={styles.uclTeamName}>{realMatch?.awayTeam?.name || matchConfig.away.replace(/_/g, " ").replace("GROUP_", "Group ").replace("_1", " #1").replace("_2", " #2")}</span>
+                                <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.awayScore : ''}</span>
+                              </div>
+                              <div className={styles.uclStageMarker}>{stage.stage.replace("ROUND_OF_16", "R16").replace("QUARTER_FINAL", "QF").replace("SEMI_FINAL", "SF")}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Center / Final */}
+                  <div className={styles.bracketCenter}>
+                    <div className={styles.trophyWrapper}>
+                      <EmojiEventsIcon className={styles.uclTrophyIcon} />
+                      <div className={styles.trophyGlowSmall} />
                     </div>
-                  ) : (
-                    <div className={styles.tableContainer}>
-                      <table className={styles.table}>
-                        <thead>
-                          <tr>
-                            <th>Pos</th>
-                            <th>Team</th>
-                            <th>P</th>
-                            <th>W</th>
-                            <th>D</th>
-                            <th>L</th>
-                            <th>GF</th>
-                            <th>GA</th>
-                            <th>GD</th>
-                            <th className={styles.points}>PTS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {group.teams.map((team, index) => {
-                            const gd = team.goalsFor - team.goalsAgainst;
-                            return (
-                              <tr key={team.id} className={styles.row}>
-                                <td>{index + 1}</td>
-                                <td>
-                                  <div className={styles.teamCell}>
-                                    {team.batch.logoUrl ? (
-                                      <img src={team.batch.logoUrl} alt={team.batch.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover" }} />
-                                    ) : (
-                                      <div className={styles.teamLogo} />
-                                    )}
-                                    <span style={{ fontWeight: "700" }}>{team.batch.name}</span>
-                                    <button 
-                                      className={styles.squadLink}
-                                      onClick={() => setSelectedSquad({ name: team.batch.name, players: team.batch.members })}
-                                    >
-                                      View Squad
-                                    </button>
-                                  </div>
-                                </td>
-                                <td>{team.played}</td>
-                                <td>{team.won}</td>
-                                <td>{team.drawn}</td>
-                                <td>{team.lost}</td>
-                                <td>{team.goalsFor}</td>
-                                <td>{team.goalsAgainst}</td>
-                                <td className={gd >= 0 ? styles.positive : styles.negative}>
-                                  {gd > 0 ? `+${gd}` : gd}
-                                </td>
-                                <td className={styles.points}>{team.points}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                    
+                    <div className={styles.finalLabel}>THE GRAND FINAL</div>
+
+                    {finalStage && finalStage.matches.map((matchConfig: any) => {
+                      const realMatch = knockoutMatches.find(m => m.stage === finalStage.stage);
+                      const homeWinner = realMatch?.status === 'FINISHED' && (realMatch.homeScore > realMatch.awayScore || (realMatch.homePenaltyScore > realMatch.awayPenaltyScore));
+                      const awayWinner = realMatch?.status === 'FINISHED' && (realMatch.awayScore > realMatch.homeScore || (realMatch.awayPenaltyScore > realMatch.homePenaltyScore));
+
+                      return (
+                        <div key={matchConfig.id} className={styles.uclFinalBox}>
+                          <div className={`${styles.uclTeamBox} ${homeWinner ? styles.uclWinner : ''}`}>
+                            <img src={realMatch?.homeTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                            <span className={styles.uclTeamName}>{realMatch?.homeTeam?.name || matchConfig.home.replace(/_/g, " ").replace("WINNER_", "Winner ")}</span>
+                            <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.homeScore : ''}</span>
+                          </div>
+                          <div className={`${styles.uclTeamBox} ${awayWinner ? styles.uclWinner : ''}`}>
+                            <img src={realMatch?.awayTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                            <span className={styles.uclTeamName}>{realMatch?.awayTeam?.name || matchConfig.away.replace(/_/g, " ").replace("WINNER_", "Winner ")}</span>
+                            <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.awayScore : ''}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right Side */}
+                  <div className={styles.bracketSide}>
+                    {rightStages.slice().reverse().map((stage, sIdx) => (
+                      <div key={stage.stage + 'right'} className={styles.bracketColumn}>
+                        {stage.matches.map((matchConfig: any, mIdx: number) => {
+                          const stageMatches = knockoutMatches.filter(m => m.stage === stage.stage).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                          const originalStage = (tournamentData.bracketConfig as any[]).find(s => s.stage === stage.stage);
+                          const mid = Math.ceil(originalStage.matches.length / 2);
+                          const realMatch = stageMatches[mid + mIdx];
+                          const homeWinner = realMatch?.status === 'FINISHED' && (realMatch.homeScore > realMatch.awayScore || (realMatch.homePenaltyScore > realMatch.awayPenaltyScore));
+                          const awayWinner = realMatch?.status === 'FINISHED' && (realMatch.awayScore > realMatch.homeScore || (realMatch.awayPenaltyScore > realMatch.homePenaltyScore));
+
+                          return (
+                            <div key={matchConfig.id} className={`${styles.uclMatchPair} ${styles.uclMatchPairRight}`}>
+                              <div className={`${styles.uclTeamBox} ${homeWinner ? styles.uclWinner : ''}`}>
+                                <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.homeScore : ''}</span>
+                                <span className={styles.uclTeamName}>{realMatch?.homeTeam?.name || matchConfig.home.replace(/_/g, " ").replace("GROUP_", "Group ").replace("_1", " #1").replace("_2", " #2")}</span>
+                                <img src={realMatch?.homeTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                              </div>
+                              <div className={`${styles.uclTeamBox} ${awayWinner ? styles.uclWinner : ''}`}>
+                                <span className={styles.uclScore}>{realMatch?.status !== 'SCHEDULED' ? realMatch?.awayScore : ''}</span>
+                                <span className={styles.uclTeamName}>{realMatch?.awayTeam?.name || matchConfig.away.replace(/_/g, " ").replace("GROUP_", "Group ").replace("_1", " #1").replace("_2", " #2")}</span>
+                                <img src={realMatch?.awayTeam?.logoUrl || "/default-team.png"} className={styles.uclLogo} alt="" />
+                              </div>
+                              <div className={styles.uclStageMarker}>{stage.stage.replace("ROUND_OF_16", "R16").replace("QUARTER_FINAL", "QF").replace("SEMI_FINAL", "SF")}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </>
+              );
+            })()}
+          </div>
+        </div>
       )}
 
-      {!selectedId && tournaments.length > 0 && (
-        <div className="glass" style={{ padding: "3rem", textAlign: "center", borderRadius: "12px" }}>
-          <p style={{ color: "var(--text-muted)", margin: 0 }}>Select a tournament above to view standings.</p>
+      {/* ─── Hybrid Leaderboards ─── */}
+      <div style={{ marginTop: "4rem" }}>
+        <h2 className={styles.sectionTitle}>
+          Tournament <span className="text-gradient">Leaderboards</span>
+        </h2>
+        <p className={styles.sectionSubtitle}>
+          Hybrid rankings combining match statistics and judge ratings.
+        </p>
+
+        <div className={styles.statsGrid}>
+          {/* Top Scorers */}
+          <div className={`glass ${styles.card}`}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardIcon}><SportsSoccerIcon /></div>
+              <div>
+                <h3 className={styles.cardTitle}>Top Scorers</h3>
+                <p className={styles.cardSub}>95% Stats + 5% Judge Rating</p>
+              </div>
+            </div>
+            <div className={styles.list}>
+              {topScorersState.length > 0 ? topScorersState.map((item: any, i: number) => (
+                <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
+                  <div className={styles.rank}>
+                    {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
+                  </div>
+                  <img src={item.player.image || "/default-avatar.png"} alt={item.player.name || ""} className={styles.avatar} />
+                  <div className={styles.info}>
+                    <div className={styles.name}>{item.player.name}</div>
+                    <div className={styles.meta}>{item.player.batch?.name || "No Batch"}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className={styles.statBadge}>{item.goals} <span>goals</span></div>
+                    <div style={{ fontSize: '0.6rem', color: 'var(--accent-primary)', fontWeight: 800 }}>{item.finalScore.toFixed(1)} PTS</div>
+                  </div>
+                </div>
+              )) : <p className={styles.empty}>No goals recorded yet.</p>}
+            </div>
+          </div>
+
+          {/* Best Goalkeepers */}
+          <div className={`glass ${styles.card}`}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardIcon}><PanToolIcon /></div>
+              <div>
+                <h3 className={styles.cardTitle}>Best Goalkeepers</h3>
+                <p className={styles.cardSub}>70% Stats + 30% Judge Rating</p>
+              </div>
+            </div>
+            <div className={styles.list}>
+              {bestGKsState.length > 0 ? bestGKsState.map((item: any, i: number) => (
+                <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
+                  <div className={styles.rank}>
+                    {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
+                  </div>
+                  <img src={item.player.image || "/default-avatar.png"} alt={item.player.name || ""} className={styles.avatar} />
+                  <div className={styles.info}>
+                    <div className={styles.name}>{item.player.name}</div>
+                    <div className={styles.meta}>{item.player.batch?.name || "No Batch"}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className={styles.statBadge}>{item.cleanSheets} <span>CS</span></div>
+                    <div style={{ fontSize: '0.6rem', color: 'var(--accent-primary)', fontWeight: 800 }}>{item.finalScore.toFixed(1)} PTS</div>
+                  </div>
+                </div>
+              )) : <p className={styles.empty}>No clean sheets recorded yet.</p>}
+            </div>
+          </div>
+
+          {/* Best Players */}
+          <div className={`glass ${styles.card}`}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardIcon}><StarIcon /></div>
+              <div>
+                <h3 className={styles.cardTitle}>Best Players (MVP)</h3>
+                <p className={styles.cardSub}>60% Stats + 40% Judge Rating</p>
+              </div>
+            </div>
+            <div className={styles.list}>
+              {bestPlayersState.length > 0 ? bestPlayersState.map((item: any, i: number) => (
+                <div key={item.player.id} className={`${styles.listItem} ${i === 0 ? styles.gold : i === 1 ? styles.silver : i === 2 ? styles.bronze : ""}`}>
+                  <div className={styles.rank}>
+                    {i === 0 ? <MilitaryTechIcon sx={{ color: '#FFD700' }} /> : i === 1 ? <MilitaryTechIcon sx={{ color: '#C0C0C0' }} /> : i === 2 ? <MilitaryTechIcon sx={{ color: '#CD7F32' }} /> : <span style={{ color: "var(--text-muted)" }}>{i + 1}</span>}
+                  </div>
+                  <img src={item.player.image || "/default-avatar.png"} alt={item.player.name || ""} className={styles.avatar} />
+                  <div className={styles.info}>
+                    <div className={styles.name}>{item.player.name}</div>
+                    <div className={styles.meta}>
+                      {item.player.batch?.name || "No Batch"}
+                      <div className={styles.statChips}>
+                        <span title="Goals">{item.stats.goals}G</span>
+                        <span title="Assists">{item.stats.assists}A</span>
+                        <span title="MOTM">{item.stats.motms}<EmojiEventsIcon sx={{ fontSize: '0.7rem', verticalAlign: 'text-bottom' }} /></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className={styles.statBadge}>{item.finalScore.toFixed(1)} <span>pts</span></div>
+                  </div>
+                </div>
+              )) : <p className={styles.empty}>No stats recorded yet.</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Curated Teams ─── */}
+      {(topTeamState || bestElevenState) && (
+        <div style={{ marginTop: "4rem" }}>
+          <h2 className={styles.sectionTitle}>
+            Teams of the <span className="text-gradient">Season</span>
+          </h2>
+          <p className={styles.sectionSubtitle}>
+            Manually curated teams featuring the best performers.
+          </p>
+
+          <div className={styles.awardsGrid}>
+            {topTeamState && topTeamState.players.length > 0 && (
+              <AwardCard award={topTeamState} icon={<EmojiEventsIcon />} />
+            )}
+            {bestElevenState && bestElevenState.players.length > 0 && (
+              <AwardCard award={bestElevenState} icon={<StarIcon />} />
+            )}
+          </div>
         </div>
       )}
 
@@ -285,5 +492,81 @@ export default function StandingsClient({
         />
       )}
     </section>
+  );
+}
+
+function AwardCard({ award, icon }: { award: any; icon: React.ReactNode }) {
+  return (
+    <div className={`glass ${styles.awardCard}`}>
+      <div className={styles.awardHeader}>
+        <span className={styles.awardIcon}>{icon}</span>
+        <div>
+          <h3 className={styles.awardTitle}>{award.title}</h3>
+          {award.description && (
+            <p className={styles.awardDesc}>{award.description}</p>
+          )}
+        </div>
+      </div>
+
+      {(award.coach || award.captain) && (
+        <div className={styles.staffRow}>
+          {award.coach && (
+            <div className={styles.staffItem}>
+              <img src={award.coach.image || "/default-avatar.png"} alt="" className={styles.staffAvatar} />
+              <div>
+                <div className={styles.staffLabel}>Coach</div>
+                <div className={styles.staffName}>{award.coach.name}</div>
+              </div>
+            </div>
+          )}
+          {award.captain && (
+            <div className={styles.staffItem}>
+              <img src={award.captain.image || "/default-avatar.png"} alt="" className={styles.staffAvatar} />
+              <div>
+                <div className={styles.staffLabel}>Captain</div>
+                <div className={styles.staffName}>{award.captain.name}</div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className={styles.squadGrid}>
+        {award.players.map((p: any) => (
+          <div key={p.id} className={styles.squadPlayer}>
+            <img src={p.image || "/default-avatar.png"} alt="" className={styles.squadAvatar} />
+            <span className={styles.squadName}>{p.name}</span>
+            <span className={styles.squadBatch}>{p.batch?.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SquadModal({ teamName, players, onClose }: { teamName: string; players: any[]; onClose: () => void }) {
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={`glass ${styles.modalContent}`} onClick={e => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>{teamName}</h2>
+          <button onClick={onClose}><CloseIcon /></button>
+        </div>
+        <div className={styles.modalBody}>
+          <div className={styles.modalGrid}>
+            {players.map(p => (
+              <div key={p.id} className={styles.modalPlayer}>
+                <img src={p.image || "/default-avatar.png"} alt="" />
+                <div className={styles.modalPlayerInfo}>
+                  <div className={styles.modalPlayerName}>{p.name}</div>
+                  <div className={styles.modalPlayerBatch}>{p.batch?.name}</div>
+                  <div className={styles.modalPlayerRole}>{p.teamRole}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
