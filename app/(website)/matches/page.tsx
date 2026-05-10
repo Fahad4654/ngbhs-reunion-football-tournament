@@ -94,6 +94,9 @@ export default async function MatchesPage() {
                   )}
                 </div>
                 <div className={styles.venue}>
+                  <div style={{ color: 'var(--accent-primary)', fontWeight: '800', marginBottom: '0.2rem', textTransform: 'uppercase', fontSize: '0.75rem' }}>
+                    {match.stage?.replace(/_/g, " ")}
+                  </div>
                   <div style={{ marginBottom: '0.2rem' }}>
                     {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {new Date(match.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {match.venue || 'TBD'}
                   </div>

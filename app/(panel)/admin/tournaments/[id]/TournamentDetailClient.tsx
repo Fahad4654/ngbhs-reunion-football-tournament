@@ -199,6 +199,12 @@ export default function TournamentDetailClient({
           {tournament.isActive
             ? <span className="badge badge-live">ACTIVE</span>
             : <span className="badge" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-muted)", border: "1px solid var(--border-color)" }}>INACTIVE</span>}
+            
+          <div style={{ marginLeft: "auto" }}>
+            <Link href={`/admin/tournaments/${tournament.id}/bracket`} className="btn btn-secondary" style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}>
+              🔗 Bracket Configuration
+            </Link>
+          </div>
         </div>
       </div>
 

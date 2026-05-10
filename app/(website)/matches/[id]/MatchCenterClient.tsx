@@ -82,6 +82,11 @@ export default function MatchCenterClient({ initialMatch }: { initialMatch: any 
           <span style={{ background: 'rgba(255,255,255,0.05)', padding: '0.4rem 1.2rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.1em', color: 'var(--accent-primary)', textTransform: 'uppercase' }}>
             {match.tournament?.name}
           </span>
+          {match.stage && (
+            <span style={{ background: 'var(--accent-primary)', padding: '0.4rem 1.2rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.1em', color: 'black', textTransform: 'uppercase' }}>
+              {match.stage.replace(/_/g, " ")}
+            </span>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3rem', marginTop: '1rem' }}>

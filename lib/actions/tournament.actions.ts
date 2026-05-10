@@ -5,7 +5,7 @@ import { getServerUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
 import { recalculateTournamentStandings } from "./match.actions";
 
-export async function createTournament(name: string, isActive: boolean = false) {
+export async function createTournament(name: string, isActive: boolean = false, bracketConfig?: any) {
   const user = await getServerUser();
   if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
     return { success: false, error: "Unauthorized" };
@@ -23,6 +23,7 @@ export async function createTournament(name: string, isActive: boolean = false) 
       data: {
         name,
         isActive,
+        bracketConfig: bracketConfig || null,
       },
     });
     
@@ -263,6 +264,26 @@ export async function assignTeamToGroup(tournamentTeamId: string, groupId: strin
     revalidatePath(`/admin/tournaments/${tournamentId}`);
     return { success: true, data: team };
   } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function saveBracketConfig(tournamentId: string, bracketConfig: any) {
+  const user = await getServerUser();
+  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const tournament = await prisma.tournament.update({
+      where: { id: tournamentId },
+      data: { bracketConfig },
+    });
+    
+    revalidatePath(`/admin/tournaments/${tournamentId}/bracket`);
+    return { success: true, data: tournament };
+  } catch (error: any) {
+    console.error("Failed to save bracket config:", error);
     return { success: false, error: error.message };
   }
 }

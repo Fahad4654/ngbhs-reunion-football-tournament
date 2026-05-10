@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
+import { resolveStageIfComplete } from "./bracket.actions";
 
 function isAdmin(role: string | undefined) {
   return role === "ADMIN" || role === "CO_ADMIN";
@@ -22,6 +23,7 @@ export async function createMatch(data: {
   homeScore: number;
   awayScore: number;
   isFeatured: boolean;
+  stage?: string;
 }) {
   const user = await getServerUser();
   if (!isAdmin(user?.role)) return { success: false, error: "Unauthorized" };
@@ -38,6 +40,7 @@ export async function createMatch(data: {
         homeScore: data.homeScore,
         awayScore: data.awayScore,
         isFeatured: data.isFeatured,
+        stage: data.stage as any,
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
     });
@@ -69,6 +72,7 @@ export async function updateMatch(
     homeScore: number;
     awayScore: number;
     isFeatured: boolean;
+    stage?: string;
   }
 ) {
   const user = await getServerUser();
@@ -87,6 +91,7 @@ export async function updateMatch(
         homeScore: data.homeScore,
         awayScore: data.awayScore,
         isFeatured: data.isFeatured,
+        stage: data.stage as any,
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
     });
@@ -94,6 +99,10 @@ export async function updateMatch(
     if (match.tournamentId) {
       await recalculateTournamentStandings(match.tournamentId);
       revalidatePath("/standings");
+
+      if (match.status === "FINISHED" && match.stage) {
+        await resolveStageIfComplete(match.tournamentId, match.stage);
+      }
     }
 
     revalidatePath("/admin/matches");
@@ -176,6 +185,10 @@ export async function updateMatchScore(
     if (match.tournamentId) {
       await recalculateTournamentStandings(match.tournamentId);
       revalidatePath("/standings");
+
+      if (match.status === "FINISHED" && match.stage) {
+        await resolveStageIfComplete(match.tournamentId, match.stage);
+      }
     }
 
     return { success: true, data: match };

@@ -34,6 +34,7 @@ type Match = {
   isFeatured: boolean;
   tournamentId: string | null;
   tournament: { id: string; name: string } | null;
+  stage: string;
 };
 
 type FormData = {
@@ -46,9 +47,11 @@ type FormData = {
   homeScore: number;
   awayScore: number;
   isFeatured: boolean;
+  stage: string;
 };
 
 const STATUSES = ["SCHEDULED", "LIVE", "FINISHED", "CANCELLED"];
+const STAGES = ["GROUP_STAGE", "ROUND_OF_32", "ROUND_OF_16", "QUARTER_FINAL", "SEMI_FINAL", "FINAL", "THIRD_PLACE"];
 
 function toDateTimeLocal(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -66,6 +69,7 @@ function emptyForm(): FormData {
     homeScore: 0,
     awayScore: 0,
     isFeatured: false,
+    stage: "GROUP_STAGE",
   };
 }
 
@@ -80,6 +84,7 @@ function matchToForm(m: Match): FormData {
     homeScore: m.homeScore,
     awayScore: m.awayScore,
     isFeatured: m.isFeatured,
+    stage: m.stage || "GROUP_STAGE",
   };
 }
 
@@ -154,8 +159,8 @@ export default function MatchesClient({
           return;
         }
         
-        if (homeTeam.groupId !== awayTeam.groupId) {
-          setError("Teams must be in the same group for this tournament");
+        if (form.stage === "GROUP_STAGE" && homeTeam.groupId !== awayTeam.groupId) {
+          setError("Teams must be in the same group for group stage matches");
           return;
         }
       }
@@ -325,6 +330,17 @@ export default function MatchesClient({
               <div>
                 <label style={labelStyle}>Venue</label>
                 <input type="text" value={form.venue} onChange={(e) => set("venue", e.target.value)} placeholder="e.g. Main Stadium" />
+              </div>
+
+              {/* Stage */}
+              <div>
+                <CustomSelect 
+                  label="Stage"
+                  value={form.stage} 
+                  onChange={(e) => set("stage", e.target.value)}
+                >
+                  {STAGES.map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
+                </CustomSelect>
               </div>
 
               {/* Status */}
