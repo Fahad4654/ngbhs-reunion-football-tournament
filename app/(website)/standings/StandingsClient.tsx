@@ -292,7 +292,7 @@ export default function StandingsClient({
                   {/* Center / Final */}
                   <div className={styles.bracketCenter}>
                     <div className={styles.trophyWrapper}>
-                      <img src="/trophy.png" alt="Trophy" className={styles.trophyImgSmall} onError={(e) => e.currentTarget.style.display = 'none'} />
+                      <EmojiEventsIcon className={styles.uclTrophyIcon} />
                       <div className={styles.trophyGlowSmall} />
                     </div>
                     

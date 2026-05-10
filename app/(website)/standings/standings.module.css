@@ -507,7 +507,7 @@
 
 .bracketSide {
   display: flex;
-  gap: 6vw;
+  gap: 10vw;
   flex: 1;
   align-items: center;
   justify-content: flex-end;
@@ -521,18 +521,18 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8vh;
+  gap: 12vh;
   position: relative;
-  min-height: 60vh;
+  min-height: 70vh;
 }
 
 .uclMatchPair {
   display: flex;
   flex-direction: column;
-  gap: 0.5vh;
+  gap: 3vh;
   position: relative;
-  width: 18vw;
-  min-width: 220px;
+  width: 20vw;
+  min-width: 250px;
 }
 
 .uclTeamBox {
@@ -540,15 +540,16 @@
   align-items: center;
   background: rgba(0, 30, 60, 0.9);
   border: 1px solid #0055aa;
-  padding: 0.8vh 1vw;
+  padding: 1.2vh 1.2vw;
   color: white;
   gap: 1vw;
-  height: 6vh;
-  min-height: 45px;
+  height: 7vh;
+  min-height: 50px;
   position: relative;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
+
 
 .uclLogo {
   width: 1.8vw;
@@ -560,8 +561,7 @@
 }
 
 .uclTeamName {
-  font-size: 0.8vw;
-  min-font-size: 12px;
+  font-size: clamp(12px, 0.8vw, 18px);
   font-weight: 900;
   text-transform: uppercase;
   flex: 1;
@@ -574,8 +574,7 @@
 .uclScore {
   font-family: 'Outfit', sans-serif;
   font-weight: 950;
-  font-size: 1.2vw;
-  min-font-size: 16px;
+  font-size: clamp(16px, 1.2vw, 24px);
   color: #00d4ff;
   min-width: 2vw;
   text-align: center;
@@ -597,8 +596,8 @@
   content: '';
   position: absolute;
   top: 50%;
-  right: -3.1vw;
-  width: 3.1vw;
+  right: -10vw;
+  width: 10vw;
   height: 2px;
   background: #00d4ff;
   box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
@@ -607,19 +606,18 @@
 
 .uclMatchPairRight::after {
   right: auto;
-  left: -3.1vw;
+  left: -10vw;
 }
 
 /* Stage Markers */
 .uclStageMarker {
   position: absolute;
-  right: -1.5vw;
+  right: -5vw;
   top: 50%;
   transform: translate(50%, -50%);
   background: #000c1a;
   border: 1px solid #00d4ff;
-  font-size: 0.6vw;
-  min-font-size: 10px;
+  font-size: clamp(10px, 0.6vw, 14px);
   font-weight: 950;
   padding: 0.2vh 0.5vw;
   color: #00d4ff;
@@ -631,32 +629,33 @@
 
 .uclMatchPairRight .uclStageMarker {
   right: auto;
-  left: -1.5vw;
+  left: -5vw;
   transform: translate(-50%, -50%);
 }
 
 /* Center / Trophy */
 .bracketCenter {
-  width: 30vw;
-  min-width: 400px;
+  width: 40vw;
+  min-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  min-height: 60vh;
+  min-height: 70vh;
 }
 
 .bracketCenter::before, .bracketCenter::after {
   content: '';
   position: absolute;
   top: 50%;
-  width: 3vw;
+  width: 9vw;
   height: 2px;
   background: #00d4ff;
   box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
   z-index: 0;
 }
+
 
 .bracketCenter::before { left: 0; }
 .bracketCenter::after { right: 0; }
@@ -665,24 +664,44 @@
 .trophyWrapper {
   position: absolute;
   top: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 2;
 }
 
-.trophyImgSmall {
-  width: 8vw;
-  min-width: 100px;
-  height: auto;
-  filter: drop-shadow(0 0 40px rgba(0, 212, 255, 0.4));
-  animation: uclFloat 6s ease-in-out infinite;
+.uclTrophyIcon {
+  font-size: 7vw !important;
+  color: #FFD700;
+  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.7));
+  animation: uclFloat 6s ease-in-out infinite, uclGlowPulse 4s ease-in-out infinite;
+}
+
+.trophyGlowSmall {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 15vw;
+  height: 15vw;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+  filter: blur(50px);
+  z-index: 1;
+}
+
+@keyframes uclGlowPulse {
+  0%, 100% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5)); opacity: 0.8; }
+  50% { filter: drop-shadow(0 0 60px rgba(255, 215, 0, 0.9)); opacity: 1; }
 }
 
 .finalLabel {
   position: absolute;
-  top: 80px; /* Below trophy */
-  font-size: 1.6rem;
+  top: 18vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(18px, 1.8vw, 36px);
   font-weight: 950;
   color: #00d4ff;
   letter-spacing: 0.6em;
@@ -698,131 +717,54 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;
+  width: 22vw;
+  min-width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 6px; /* Match uclMatchPair gap */
+  gap: 3vh;
   z-index: 10;
+  margin-top: -1vh;
+  padding: 1.5vh;
+  background: rgba(0, 212, 255, 0.03);
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
 }
-
-
+.uclMatchPairRight .uclTeamName {
+  text-align: right;
+}
 
 @keyframes uclFloat {
   0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
-  50% { transform: translateY(-20px) scale(1.05) rotate(2deg); }
-}
-
-.trophyGlow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
-  filter: blur(80px);
-  z-index: 1;
-}
-
-.finalLabel {
-  font-size: 2rem;
-  font-weight: 950;
-  color: #00d4ff;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  text-shadow: 0 0 40px rgba(0, 212, 255, 0.7);
-  margin-top: 2rem;
-  text-align: center;
-}
-
-.uclFinalBox {
-  width: 340px;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin-top: 3rem;
-}
-
-.trophyWrapper {
-  position: relative;
-  margin-bottom: 4rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.trophyImg {
-  width: 280px;
-  height: auto;
-  z-index: 2;
-  filter: drop-shadow(0 0 50px rgba(0, 212, 255, 0.4));
-  animation: uclFloat 5s ease-in-out infinite;
-}
-
-@keyframes uclFloat {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-15px) scale(1.02); }
-}
-
-.trophyGlow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
-  filter: blur(60px);
-  z-index: 1;
-}
-
-.finalLabel {
-  font-size: 1.6rem;
-  font-weight: 950;
-  color: var(--accent-primary);
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  text-shadow: 0 0 25px rgba(235, 183, 0, 0.6);
-  margin-top: 1.5rem;
-  text-align: center;
-}
-
-.finalMatch {
-  width: 320px;
-  border: 2px solid var(--accent-primary);
-  background: rgba(235, 183, 0, 0.08);
-  box-shadow: 0 0 60px rgba(235, 183, 0, 0.3);
-}
-
-@media (max-width: 1300px) {
-  .bracketWrapper {
-    justify-content: flex-start;
-    padding-left: 10%;
-  }
+  50% { transform: translateY(-1.5vh) scale(1.05) rotate(1deg); }
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .bracketContainer {
-    padding: 3rem 0;
-  }
-  
+@media (max-width: 1024px) {
   .symmetricalBracket {
-    gap: 2rem;
+    flex-direction: column;
+    gap: 8vh;
   }
   
-  .bracketMatch {
-    width: 180px;
+  .bracketSide {
+    justify-content: center;
+    width: 100%;
+    gap: 4vw;
   }
-  
-  .trophyImg {
-    width: 150px;
+
+  .bracketColumn {
+    min-height: auto;
   }
-  
-  .bracketCenter {
-    width: 280px;
+
+  .uclMatchPair, .uclFinalBox {
+    width: 80vw;
+    max-width: 320px;
   }
+
+  .uclTeamName { font-size: 14px; }
+  .uclScore { font-size: 18px; }
+  .finalLabel { font-size: 20px; }
 }
+
 
 
 
