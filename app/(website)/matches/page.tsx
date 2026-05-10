@@ -16,7 +16,7 @@ async function getMatches() {
       }
     },
     orderBy: {
-      date: 'asc',
+      date: 'desc',
     },
   });
 }
