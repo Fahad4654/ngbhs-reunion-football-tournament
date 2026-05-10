@@ -10,7 +10,7 @@ export async function generateMetadata() {
 }
 
 async function getStandingsData(tournamentId?: string) {
-  if (!tournamentId) return { activeTournamentData: null, teamsData: [] };
+  if (!tournamentId) return { activeTournamentData: null, teamsData: [], knockoutMatches: [] };
 
   const activeTournamentData = await prisma.tournament.findUnique({
     where: { id: tournamentId },
@@ -90,7 +90,7 @@ export default async function StandingsPage() {
         tournaments={tournaments}
         initialTournamentData={activeTournamentData}
         initialTeams={teamsData}
-        initialKnockoutMatches={knockoutMatches}
+        initialKnockoutMatches={knockoutMatches || []}
         topScorers={topScorers}
         bestGKs={bestGKs}
         bestPlayers={bestPlayers}
