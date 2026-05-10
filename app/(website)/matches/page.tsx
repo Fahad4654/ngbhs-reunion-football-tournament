@@ -56,25 +56,30 @@ export default async function MatchesPage() {
           <div key={group.stage} style={{ marginBottom: '4rem' }}>
             <div style={{ 
               display: 'flex', 
+              flexDirection: 'column',
               alignItems: 'center', 
-              gap: '1rem', 
-              marginBottom: '2rem',
-              padding: '0.5rem 1rem',
-              background: 'rgba(235,183,0,0.05)',
-              borderLeft: '4px solid var(--accent-primary)',
-              borderRadius: '4px'
+              gap: '0.75rem', 
+              marginBottom: '2.5rem',
             }}>
-              <h2 style={{ 
-                fontSize: '1.2rem', 
-                fontWeight: '900', 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.1em',
-                margin: 0,
-                color: 'var(--accent-primary)'
+              <div style={{ 
+                padding: '0.4rem 1.25rem',
+                background: 'rgba(235,183,0,0.08)',
+                borderBottom: '2px solid var(--accent-primary)',
+                borderRadius: '2px',
+                display: 'inline-block'
               }}>
-                {group.stage.replace(/_/g, " ")}
-              </h2>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.05)' }} />
+                <h2 style={{ 
+                  fontSize: '1.1rem', 
+                  fontWeight: '900', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.15em',
+                  margin: 0,
+                  color: 'var(--accent-primary)',
+                  textAlign: 'center'
+                }}>
+                  {group.stage.replace(/_/g, " ")}
+                </h2>
+              </div>
             </div>
 
             <div className={styles.matchList}>
