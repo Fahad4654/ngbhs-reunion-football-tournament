@@ -439,7 +439,7 @@ export async function recalculateTournamentStandings(tournamentId: string) {
     const lossPts = tournament.lossPoints || 0;
 
     const finishedMatches = await prisma.match.findMany({
-      where: { tournamentId, status: 'FINISHED' }
+      where: { tournamentId, status: 'FINISHED', stage: 'GROUP_STAGE' }
     });
 
     const teams = await prisma.tournamentTeam.findMany({
