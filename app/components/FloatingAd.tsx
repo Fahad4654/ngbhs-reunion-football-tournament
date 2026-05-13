@@ -93,47 +93,28 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
         display: 'flex',
         flexDirection: 'column'
       }}>
-        {/* Close Button / Countdown */}
+        {/* Non-closable indicator */}
         <div style={{ 
           position: 'absolute', 
           top: '8px', 
           right: '8px', 
           zIndex: 10
         }}>
-          {canClose ? (
-            <button 
-              onClick={handleClose}
-              style={{ 
-                background: 'rgba(0,0,0,0.8)', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '50%', 
-                width: '32px', 
-                height: '32px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
-              }}
-            >
-              <CloseIcon sx={{ fontSize: '1.2rem' }} />
-            </button>
-          ) : (
-            <div style={{ 
-              background: 'rgba(235, 183, 0, 0.9)', 
-              color: 'black', 
-              borderRadius: '20px', 
-              padding: '4px 12px', 
-              fontSize: '0.75rem',
-              fontWeight: '900',
-              backdropFilter: 'blur(4px)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-            }}>
-              {timeLeft}s
-            </div>
-          )}
+          <div style={{ 
+            background: 'rgba(235, 183, 0, 0.2)', 
+            color: 'var(--accent-primary)', 
+            borderRadius: '20px', 
+            padding: '2px 10px', 
+            fontSize: '0.6rem',
+            fontWeight: '900',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            border: '1px solid rgba(235, 183, 0, 0.3)'
+          }}>
+            Ad
+          </div>
         </div>
+
 
         <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.15em', marginBottom: '8px' }}>
           Sponsored {ads.length > 1 && `(${currentAdIndex + 1}/${ads.length})`}
