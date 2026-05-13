@@ -53,8 +53,9 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
           borderRadius: '8px', 
           display: 'block',
           objectFit: 'contain',
-          maxHeight: position.includes('SIDEBAR') ? '300px' : '450px'
+          maxHeight: '250px'
         };
+
 
         const mediaContent = isVideo ? (
           <video 
@@ -75,8 +76,8 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
         );
 
         return (
-          <div key={ad.id} className="ad-banner glass" style={{ padding: '0.75rem', borderRadius: '12px', width: '100%', maxWidth: '800px', margin: '0 auto' }}>
-            <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', textAlign: 'right', fontWeight: '700', letterSpacing: '0.05em' }}>
+          <div key={ad.id} className="ad-banner glass" style={{ padding: '0.5rem', borderRadius: '10px', width: '100%', maxWidth: '100%', margin: '0 auto' }}>
+            <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.3rem', textAlign: 'right', fontWeight: '700', letterSpacing: '0.05em', opacity: 0.8 }}>
               Sponsored
             </div>
             {ad.linkUrl ? (

@@ -57,7 +57,6 @@ export default async function FeedPage() {
         <main style={{ display: 'flex', flexDirection: 'column', gap: '1.667vw' }}>
           {/* Mobile Only Ad */}
           <div className="mobile-only" style={{ marginBottom: '1rem' }}>
-            <AdBanner position="SIDEBAR" />
             <AdBanner position="FEED_TOP" />
           </div>
 

@@ -41,7 +41,6 @@ export default async function NewsPage() {
 
           <div className="mobile-only" style={{ marginBottom: '2rem' }}>
             <AdBanner position="NEWS" />
-            <AdBanner position="SIDEBAR" />
           </div>
 
           <div className={styles.newsGrid}>
