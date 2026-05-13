@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import styles from "./standings.module.css";
 import StandingsClient from "./StandingsClient";
 import { getTopScorers, getBestGoalkeepers, getBestPlayers, getSeasonAward } from "@/lib/actions/stats.actions";
+import AdBanner from "@/app/components/AdBanner";
 
 export const revalidate = 60;
 
@@ -86,6 +87,7 @@ export default async function StandingsPage() {
 
   return (
     <div className="container">
+      <AdBanner position="STANDINGS" />
       <StandingsClient
         tournaments={tournaments}
         initialTournamentData={activeTournamentData}
@@ -100,3 +102,4 @@ export default async function StandingsPage() {
     </div>
   );
 }
+

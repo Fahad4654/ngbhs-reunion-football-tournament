@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "./news.module.css";
+import AdBanner from "@/app/components/AdBanner";
 
 async function getNews() {
   return await prisma.news.findMany({
@@ -15,6 +17,7 @@ export default async function NewsPage() {
 
   return (
     <div className="container">
+      <AdBanner position="FEED_TOP" />
       <section className={styles.section}>
         <div style={{ marginBottom: 'clamp(2rem, 5vw, 4rem)' }}>
           <h1 className="text-gradient" style={{ 

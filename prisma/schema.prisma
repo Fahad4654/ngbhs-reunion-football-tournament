@@ -410,3 +410,22 @@ enum MatchStage {
   FINAL
   THIRD_PLACE
 }
+
+model Advertisement {
+  id        String     @id @default(cuid())
+  title     String
+  imageUrl  String
+  linkUrl   String?
+  position  AdPosition @default(SIDEBAR)
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+enum AdPosition {
+  HOME_TOP
+  HOME_BOTTOM
+  SIDEBAR
+  STANDINGS
+  FEED_TOP
+}

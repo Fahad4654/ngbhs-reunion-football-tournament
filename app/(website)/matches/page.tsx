@@ -3,6 +3,8 @@ import styles from "./matches.module.css";
 import Link from "next/link";
 import ShieldIcon from '@mui/icons-material/Shield';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import AdBanner from "@/app/components/AdBanner";
+
 
 async function getMatches() {
   return await prisma.match.findMany({
@@ -33,6 +35,7 @@ export default async function MatchesPage() {
 
   return (
     <div className="container">
+      <AdBanner position="FEED_TOP" />
       <section className={styles.section}>
         <div className={styles.timeline} />
         

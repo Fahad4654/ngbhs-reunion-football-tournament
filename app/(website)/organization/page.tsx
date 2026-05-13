@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import styles from "./organization.module.css";
+import AdBanner from "@/app/components/AdBanner";
 
 export const metadata = { title: "Organization | NGBHS Reunion Football Championship" };
 
@@ -19,6 +20,9 @@ export default async function OrganizationPage() {
 
   return (
     <div className={styles.page}>
+      <div className="container">
+        <AdBanner position="FEED_TOP" />
+      </div>
       {/* Hero Section */}
       <div className={styles.hero}>
         <div className="container">
