@@ -12,6 +12,7 @@ import prisma from "@/lib/prisma";
 import CollapsibleContent from "@/app/components/CollapsibleContent";
 import ClickablePost from "@/app/components/ClickablePost";
 import AdBanner from "@/app/components/AdBanner";
+import FloatingAd from "@/app/components/FloatingAd";
 import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const metadata = {
@@ -67,10 +68,11 @@ export default async function FeedPage() {
 
         {/* Main Feed */}
         <main style={{ display: 'flex', flexDirection: 'column', gap: '1.667vw' }}>
-          {/* Mobile Only Ad */}
-          <div className="mobile-only" style={{ marginBottom: '1rem' }}>
-            <AdBanner position="FEED_TOP" />
-          </div>
+          {/* Mobile Floating Ads */}
+          <FloatingAd position="FEED_TOP" />
+          <FloatingAd position="SIDEBAR" />
+          <FloatingAd position="FLOATING" />
+
 
           {posts.length > 0 ? posts.map((post) => (
             <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '1.25vw' }}>

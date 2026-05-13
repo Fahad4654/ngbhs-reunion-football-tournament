@@ -3,6 +3,7 @@ import styles from "./standings.module.css";
 import StandingsClient from "./StandingsClient";
 import { getTopScorers, getBestGoalkeepers, getBestPlayers, getSeasonAward } from "@/lib/actions/stats.actions";
 import AdBanner from "@/app/components/AdBanner";
+import FloatingAd from "@/app/components/FloatingAd";
 import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const revalidate = 60;
@@ -105,10 +106,11 @@ export default async function StandingsPage() {
         
         {/* Main Content */}
         <div style={{ minWidth: 0 }}>
-          <div className="mobile-only" style={{ marginBottom: '2rem' }}>
-            <AdBanner position="STANDINGS" />
-            <AdBanner position="SIDEBAR" />
-          </div>
+          {/* Mobile Floating Ads */}
+          <FloatingAd position="STANDINGS" />
+          <FloatingAd position="SIDEBAR" />
+          <FloatingAd position="FLOATING" />
+
       <StandingsClient
         tournaments={tournaments}
         initialTournamentData={activeTournamentData}

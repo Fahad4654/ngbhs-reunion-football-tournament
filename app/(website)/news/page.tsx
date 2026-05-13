@@ -3,6 +3,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "./news.module.css";
 import AdBanner from "@/app/components/AdBanner";
+import FloatingAd from "@/app/components/FloatingAd";
 import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 
@@ -53,9 +54,11 @@ export default async function NewsPage() {
             </p>
           </div>
 
-          <div className="mobile-only" style={{ marginBottom: '2rem' }}>
-            <AdBanner position="NEWS" />
-          </div>
+          {/* Mobile Floating Ads */}
+          <FloatingAd position="NEWS" />
+          <FloatingAd position="SIDEBAR" />
+          <FloatingAd position="FLOATING" />
+
 
           <div className={styles.newsGrid}>
             {news.length > 0 ? news.map((item) => (

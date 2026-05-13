@@ -4,6 +4,7 @@ import Link from "next/link";
 import ShieldIcon from '@mui/icons-material/Shield';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AdBanner from "@/app/components/AdBanner";
+import FloatingAd from "@/app/components/FloatingAd";
 import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 
@@ -74,10 +75,11 @@ export default async function MatchesPage() {
             </p>
           </div>
 
-          <div className="mobile-only" style={{ marginBottom: '2rem' }}>
-            <AdBanner position="MATCHES" />
-            <AdBanner position="SIDEBAR" />
-          </div>
+          {/* Mobile Floating Ads */}
+          <FloatingAd position="MATCHES" />
+          <FloatingAd position="SIDEBAR" />
+          <FloatingAd position="FLOATING" />
+
 
           {groupedMatches.length > 0 ? groupedMatches.map((group) => (
             <div key={group.stage} className={styles.stageHeader}>

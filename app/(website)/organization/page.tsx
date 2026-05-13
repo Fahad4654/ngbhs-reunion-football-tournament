@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import styles from "./organization.module.css";
 import AdBanner from "@/app/components/AdBanner";
+import FloatingAd from "@/app/components/FloatingAd";
 import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const metadata = { title: "Organization | NGBHS Reunion Football Championship" };
@@ -46,10 +47,11 @@ export default async function OrganizationPage() {
             </p>
           </div>
 
-          <div className="mobile-only" style={{ marginBottom: '2rem' }}>
-            <AdBanner position="ORGANIZATION" />
-            <AdBanner position="SIDEBAR" />
-          </div>
+          {/* Mobile Floating Ads */}
+          <FloatingAd position="ORGANIZATION" />
+          <FloatingAd position="SIDEBAR" />
+          <FloatingAd position="FLOATING" />
+
 
       {/* Committee Section */}
       <section className={styles.section}>
