@@ -2,20 +2,57 @@ import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import UserActions from "./user-actions";
 import { redirect } from "next/navigation";
+import UsersFilter from "./UsersFilter";
+import { Prisma } from "@prisma/client";
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const user = await getServerUser();
   
   if (user?.role !== "ADMIN") redirect("/");
 
+  const resolvedParams = await searchParams;
+  const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
+  const sort = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : 'newest';
+
+  const where: Prisma.UserWhereInput = q ? {
+    OR: [
+      { name: { contains: q, mode: 'insensitive' } },
+      { email: { contains: q, mode: 'insensitive' } },
+    ]
+  } : {};
+
+  let orderBy: Prisma.UserOrderByWithRelationInput = { createdAt: 'desc' };
+  switch (sort) {
+    case 'oldest':
+      orderBy = { createdAt: 'asc' };
+      break;
+    case 'name_asc':
+      orderBy = { name: 'asc' };
+      break;
+    case 'name_desc':
+      orderBy = { name: 'desc' };
+      break;
+    case 'role':
+      orderBy = { role: 'asc' };
+      break;
+    case 'newest':
+    default:
+      orderBy = { createdAt: 'desc' };
+      break;
+  }
+
   const users = await prisma.user.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
+    where,
+    orderBy,
   });
 
   return (
     <>
+      <UsersFilter />
       <div className="responsive-table-container glass" style={{ padding: '0' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
@@ -28,7 +65,7 @@ export default async function AdminUsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {users.length > 0 ? users.map((user) => (
               <tr key={user.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -49,10 +86,10 @@ export default async function AdminUsersPage() {
                       {user.image ? (
                         <img src={user.image} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        user.name?.charAt(0)
+                        user.name?.charAt(0) || 'U'
                       )}
                     </div>
-                    <span style={{ fontWeight: '600' }}>{user.name}</span>
+                    <span style={{ fontWeight: '600' }}>{user.name || 'Unknown User'}</span>
                   </div>
                 </td>
                 <td style={{ padding: '1.25rem' }}>{user.email}</td>
@@ -80,7 +117,13 @@ export default async function AdminUsersPage() {
                   />
                 </td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  No users found matching your search.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
