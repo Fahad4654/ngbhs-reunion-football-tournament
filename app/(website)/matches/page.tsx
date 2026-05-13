@@ -159,7 +159,9 @@ export default async function MatchesPage() {
           </div>
         </aside>
 
+      </div>
     </div>
   );
 }
+
 
