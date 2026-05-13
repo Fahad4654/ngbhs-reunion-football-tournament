@@ -104,27 +104,49 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
         display: 'flex',
         flexDirection: 'column'
       }}>
-        {/* Countdown Timer (Auto-hides at 0) */}
+        {/* Close Button / Countdown */}
         <div style={{ 
           position: 'absolute', 
           top: '8px', 
           right: '8px', 
           zIndex: 10
         }}>
-          <div style={{ 
-            background: 'rgba(235, 183, 0, 0.9)', 
-            color: 'black', 
-            borderRadius: '20px', 
-            padding: '4px 12px', 
-            fontSize: '0.75rem',
-            fontWeight: '900',
-            backdropFilter: 'blur(4px)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            {timeLeft}s
-          </div>
+          {timeLeft <= 0 ? (
+            <button 
+              onClick={() => setIsVisible(false)}
+              style={{ 
+                background: 'rgba(0,0,0,0.8)', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '50%', 
+                width: '32px', 
+                height: '32px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
+              }}
+            >
+              <CloseIcon sx={{ fontSize: '1.2rem' }} />
+            </button>
+          ) : (
+            <div style={{ 
+              background: 'rgba(235, 183, 0, 0.9)', 
+              color: 'black', 
+              borderRadius: '20px', 
+              padding: '4px 12px', 
+              fontSize: '0.75rem',
+              fontWeight: '900',
+              backdropFilter: 'blur(4px)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              {timeLeft}s
+            </div>
+          )}
         </div>
+
 
 
 
