@@ -47,10 +47,9 @@ export default async function OrganizationPage() {
             </p>
           </div>
 
-          {/* Mobile Floating Ads */}
-          <FloatingAd position="ORGANIZATION" />
-          <FloatingAd position="SIDEBAR" />
-          <FloatingAd position="FLOATING" />
+          {/* Mobile Floating Ads (Consolidated) */}
+          <FloatingAd positions={['ORGANIZATION', 'SIDEBAR', 'FLOATING']} />
+
 
 
       {/* Committee Section */}

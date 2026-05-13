@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 import { Toaster } from "react-hot-toast";
 import { getServerUser } from "@/lib/server-auth";
 import PostViewerProvider from "@/app/components/PostViewerProvider";
-import FloatingAdManager from "@/app/components/FloatingAdManager";
 
 export const dynamic = 'force-dynamic';
+
 
 export default async function RootLayout({
   children,
@@ -43,7 +43,6 @@ export default async function RootLayout({
           currentUserBatchId={user?.batchId || undefined} 
           currentUserRole={user?.role}
         />
-        <FloatingAdManager />
         {children}
       </body>
     </html>

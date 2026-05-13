@@ -54,10 +54,9 @@ export default async function NewsPage() {
             </p>
           </div>
 
-          {/* Mobile Floating Ads */}
-          <FloatingAd position="NEWS" />
-          <FloatingAd position="SIDEBAR" />
-          <FloatingAd position="FLOATING" />
+          {/* Mobile Floating Ads (Consolidated) */}
+          <FloatingAd positions={['NEWS', 'SIDEBAR', 'FLOATING']} />
+
 
 
           <div className={styles.newsGrid}>

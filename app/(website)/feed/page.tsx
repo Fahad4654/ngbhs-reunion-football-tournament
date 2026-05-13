@@ -68,10 +68,9 @@ export default async function FeedPage() {
 
         {/* Main Feed */}
         <main style={{ display: 'flex', flexDirection: 'column', gap: '1.667vw' }}>
-          {/* Mobile Floating Ads */}
-          <FloatingAd position="FEED_TOP" />
-          <FloatingAd position="SIDEBAR" />
-          <FloatingAd position="FLOATING" />
+          {/* Mobile Floating Ads (Consolidated) */}
+          <FloatingAd positions={['FEED_TOP', 'SIDEBAR', 'FLOATING']} />
+
 
 
           {posts.length > 0 ? posts.map((post) => (

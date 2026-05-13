@@ -75,10 +75,9 @@ export default async function MatchesPage() {
             </p>
           </div>
 
-          {/* Mobile Floating Ads */}
-          <FloatingAd position="MATCHES" />
-          <FloatingAd position="SIDEBAR" />
-          <FloatingAd position="FLOATING" />
+          {/* Mobile Floating Ads (Consolidated) */}
+          <FloatingAd positions={['MATCHES', 'SIDEBAR', 'FLOATING']} />
+
 
 
           {groupedMatches.length > 0 ? groupedMatches.map((group) => (

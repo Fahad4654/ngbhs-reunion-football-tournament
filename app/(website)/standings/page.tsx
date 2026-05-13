@@ -106,10 +106,9 @@ export default async function StandingsPage() {
         
         {/* Main Content */}
         <div style={{ minWidth: 0 }}>
-          {/* Mobile Floating Ads */}
-          <FloatingAd position="STANDINGS" />
-          <FloatingAd position="SIDEBAR" />
-          <FloatingAd position="FLOATING" />
+          {/* Mobile Floating Ads (Consolidated) */}
+          <FloatingAd positions={['STANDINGS', 'SIDEBAR', 'FLOATING']} />
+
 
       <StandingsClient
         tournaments={tournaments}
