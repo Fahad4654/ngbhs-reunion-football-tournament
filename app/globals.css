@@ -19,7 +19,7 @@
   --glass-blur: blur(0.625vw);
 
   /* Spacing */
-  --max-width: 85vw;
+  --max-width: 95vw;
   --nav-height: 8vh;
   --font-scale: 1;
 }
@@ -340,11 +340,10 @@ select:disabled {
   scrollbar-width: none;
 }
 
-/* Feed Grid System */
 .feed-grid {
   display: grid;
-  grid-template-columns: 1fr minmax(400px, 33.854vw) 1fr;
-  gap: 2.083vw;
+  grid-template-columns: 280px 1fr 300px;
+  gap: 2rem;
   align-items: start;
 }
 
