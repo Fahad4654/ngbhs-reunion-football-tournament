@@ -585,6 +585,25 @@ select:disabled {
   width: 100%;
 }
 
+.nav-link {
+  color: rgba(255, 255, 255, 0.65);
+  padding-bottom: 4px;
+}
+
+.nav-link:hover {
+  color: #fff;
+}
+
+.nav-link-active {
+  color: var(--accent-primary);
+  text-shadow: 0 0 12px rgba(235, 183, 0, 0.5);
+}
+
+.nav-link-active::after {
+  width: 100% !important;
+  box-shadow: 0 0 10px rgba(235, 183, 0, 0.7);
+}
+
 .nav-auth {
   display: flex;
   align-items: center;

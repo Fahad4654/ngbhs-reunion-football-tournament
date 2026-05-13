@@ -72,13 +72,10 @@ export default function Navbar({ user }: { user: AppUser | null }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
-          {/* Divider between nav links and auth */}
-          <span className="nav-auth-divider" />
           <div className="nav-auth">
             {user ? (
               <>
-                <Link href="/dashboard" style={{ fontSize: 'clamp(0.75rem, 0.9vw, 1rem)', color: 'var(--accent-primary)', fontWeight: '700', whiteSpace: 'nowrap' }}>Dashboard</Link>
-                <span style={{ width: '1px', height: '1.4em', background: 'var(--border-color)', borderLeft: '1px solid rgba(235,183,0,0.35)', display: 'inline-block', flexShrink: 0 }} />
+                <Link href="/dashboard" className="btn btn-primary" style={{ padding: '0.6vh clamp(8px, 0.9vw, 14px)', fontSize: 'clamp(0.7rem, 0.85vw, 0.9rem)', whiteSpace: 'nowrap' }}>Dashboard</Link>
                 <form action={logout}>
                   <button type="submit" className="btn glass" style={{ padding: '0.6vh clamp(8px, 0.9vw, 14px)', fontSize: 'clamp(0.7rem, 0.85vw, 0.9rem)', whiteSpace: 'nowrap' }}>Sign Out</button>
                 </form>
