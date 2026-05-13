@@ -57,7 +57,17 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
     }
   };
 
-  if (!isVisible || ads.length === 0) return null;
+  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+
+  useEffect(() => {
+    if (!isVisible || ads.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentAdIndex((prev) => (prev + 1) % ads.length);
+    }, 5000); // Cycle every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [isVisible, ads.length]);
 
   return (
     <div 
@@ -81,8 +91,7 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
         border: '1.5px solid var(--accent-primary)',
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem'
+        flexDirection: 'column'
       }}>
         {/* Close Button / Countdown */}
         <div style={{ 
@@ -126,33 +135,41 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
           )}
         </div>
 
-        <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.15em' }}>
-          Sponsored
+        <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.15em', marginBottom: '8px' }}>
+          Sponsored {ads.length > 1 && `(${currentAdIndex + 1}/${ads.length})`}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '40vh', overflowY: 'auto', paddingRight: '4px' }} className="no-scrollbar">
-          {ads.map((ad) => {
+        <div style={{ position: 'relative', minHeight: '100px' }}>
+          {ads.map((ad, index) => {
             const isVideo = ad.imageUrl.match(/\.(mp4|webm|mov)$/i);
+            const isActive = index === currentAdIndex;
+            
             return (
-              <div key={ad.id} style={{ borderBottom: ads.length > 1 ? '1px solid rgba(255,255,255,0.1)' : 'none', paddingBottom: ads.length > 1 ? '0.75rem' : '0' }}>
+              <div 
+                key={ad.id} 
+                style={{ 
+                  display: isActive ? 'block' : 'none',
+                  animation: isActive ? 'fadeIn 0.3s ease-in' : 'none'
+                }}
+              >
                 {ad.linkUrl ? (
                   <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
                     {isVideo ? (
-                      <video src={ad.imageUrl} autoPlay muted loop playsInline style={{ width: '100%', borderRadius: '8px', display: 'block', maxHeight: '120px', objectFit: 'contain' }} />
+                      <video src={ad.imageUrl} autoPlay muted loop playsInline style={{ width: '100%', borderRadius: '8px', display: 'block', maxHeight: '150px', objectFit: 'contain' }} />
                     ) : (
-                      <img src={ad.imageUrl} alt={ad.title} style={{ width: '100%', borderRadius: '8px', display: 'block', maxHeight: '120px', objectFit: 'contain' }} />
+                      <img src={ad.imageUrl} alt={ad.title} style={{ width: '100%', borderRadius: '8px', display: 'block', maxHeight: '150px', objectFit: 'contain' }} />
                     )}
                   </a>
                 ) : (
                   <div>
                     {isVideo ? (
-                      <video src={ad.imageUrl} autoPlay muted loop playsInline style={{ width: '100%', borderRadius: '8px', display: 'block', maxHeight: '120px', objectFit: 'contain' }} />
+                      <video src={ad.imageUrl} autoPlay muted loop playsInline style={{ width: '100%', borderRadius: '8px', display: 'block', maxHeight: '150px', objectFit: 'contain' }} />
                     ) : (
-                      <img src={ad.imageUrl} alt={ad.title} style={{ width: '100%', borderRadius: '8px', display: 'block', maxHeight: '120px', objectFit: 'contain' }} />
+                      <img src={ad.imageUrl} alt={ad.title} style={{ width: '100%', borderRadius: '8px', display: 'block', maxHeight: '150px', objectFit: 'contain' }} />
                     )}
                   </div>
                 )}
-                <div style={{ marginTop: '8px', fontWeight: '700', fontSize: '0.85rem', color: 'white' }}>
+                <div style={{ marginTop: '10px', fontWeight: '700', fontSize: '0.9rem', color: 'white', lineHeight: '1.2' }}>
                   {ad.title}
                 </div>
               </div>
@@ -160,6 +177,7 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
           })}
         </div>
       </div>
+
 
 
       <style jsx>{`
