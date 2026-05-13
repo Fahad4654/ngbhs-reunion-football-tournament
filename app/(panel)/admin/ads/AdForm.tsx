@@ -132,7 +132,7 @@ export default function AdForm({ initialData, onSuccess }: AdFormProps) {
         />
       </div>
 
-      <div>
+      <div style={{ width: '100%' }}>
         <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Position</label>
         <select 
           value={position} 
@@ -140,19 +140,24 @@ export default function AdForm({ initialData, onSuccess }: AdFormProps) {
           className="input glass" 
           style={{ width: '100%' }}
         >
-          <option value="HOME_TOP">Home - Top Banner</option>
-          <option value="HOME_BOTTOM">Home - Bottom Banner</option>
-          <option value="SIDEBAR">Sidebar</option>
+          <option value="SIDEBAR">Sidebar (Admin & Feed)</option>
           <option value="STANDINGS">Standings Page</option>
           <option value="FEED_TOP">Feed Page - Top</option>
+          <option value="MATCHES">Matches Page - Top</option>
+          <option value="NEWS">News Page - Top</option>
+          <option value="ORGANIZATION">Organization Page - Top</option>
         </select>
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Advertisement Image</label>
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Advertisement Media</label>
         {imageUrl ? (
           <div style={{ position: 'relative', width: '100%', maxWidth: '300px', marginBottom: '1rem', borderRadius: '8px', overflow: 'hidden' }}>
-            <img src={imageUrl} alt="Ad Preview" style={{ width: '100%', display: 'block' }} />
+            {imageUrl.match(/\.(mp4|webm|ogg)$/) ? (
+              <video src={imageUrl} style={{ width: '100%', display: 'block' }} autoPlay muted loop playsInline />
+            ) : (
+              <img src={imageUrl} alt="Ad Preview" style={{ width: '100%', display: 'block' }} />
+            )}
             <button 
               type="button" 
               onClick={() => setImageUrl('')} 

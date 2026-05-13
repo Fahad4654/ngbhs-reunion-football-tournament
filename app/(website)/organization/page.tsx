@@ -21,7 +21,7 @@ export default async function OrganizationPage() {
   return (
     <div className={styles.page}>
       <div className="container">
-        <AdBanner position="FEED_TOP" />
+        <AdBanner position="ORGANIZATION" />
       </div>
       {/* Hero Section */}
       <div className={styles.hero}>

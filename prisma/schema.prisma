@@ -423,9 +423,11 @@ model Advertisement {
 }
 
 enum AdPosition {
-  HOME_TOP
-  HOME_BOTTOM
   SIDEBAR
   STANDINGS
   FEED_TOP
+  NEWS
+  ORGANIZATION
+  MATCHES
 }
+

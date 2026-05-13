@@ -35,7 +35,7 @@ export default async function MatchesPage() {
 
   return (
     <div className="container">
-      <AdBanner position="FEED_TOP" />
+      <AdBanner position="MATCHES" />
       <section className={styles.section}>
         <div className={styles.timeline} />
         

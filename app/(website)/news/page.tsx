@@ -17,7 +17,7 @@ export default async function NewsPage() {
 
   return (
     <div className="container">
-      <AdBanner position="FEED_TOP" />
+      <AdBanner position="NEWS" />
       <section className={styles.section}>
         <div style={{ marginBottom: 'clamp(2rem, 5vw, 4rem)' }}>
           <h1 className="text-gradient" style={{ 
