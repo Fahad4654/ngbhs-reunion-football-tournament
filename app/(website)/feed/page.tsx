@@ -55,11 +55,10 @@ export default async function FeedPage() {
 
         {/* Main Feed */}
         <main style={{ display: 'flex', flexDirection: 'column', gap: '1.667vw' }}>
-          <AdBanner position="FEED_TOP" />
-          
           {/* Mobile Only Ad */}
           <div className="mobile-only" style={{ marginBottom: '1rem' }}>
             <AdBanner position="SIDEBAR" />
+            <AdBanner position="FEED_TOP" />
           </div>
 
           {posts.length > 0 ? posts.map((post) => (
@@ -146,9 +145,14 @@ export default async function FeedPage() {
 
         {/* Right Sidebar - Ad/Promo */}
         <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.852vh)' }} className="desktop-only">
-          <div className="glass" style={{ padding: '1rem', borderRadius: '1.25vw', textAlign: 'center' }}>
-            <h3 style={{ fontSize: 'calc(0.667vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Sponsorship</h3>
-            <AdBanner position="SIDEBAR" />
+          <div className="glass" style={{ padding: '1rem', borderRadius: '1.25vw', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: 'calc(0.667vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Sponsorship</h3>
+              <AdBanner position="SIDEBAR" />
+            </div>
+            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+              <AdBanner position="FEED_TOP" />
+            </div>
           </div>
         </aside>
 
