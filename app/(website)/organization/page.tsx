@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import styles from "./organization.module.css";
 import AdBanner from "@/app/components/AdBanner";
+import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const metadata = { title: "Organization | NGBHS Reunion Football Championship" };
 
@@ -15,12 +16,23 @@ export default async function OrganizationPage() {
       where: { isVolunteer: true },
       include: { batch: { select: { name: true } } },
       orderBy: { name: 'asc' }
-    })
+    }),
+    getActiveAdsByPosition('ORGANIZATION')
   ]);
+
+  const hasAds = ads && ads.length > 0;
+
 
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2.5rem', alignItems: 'start' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: hasAds ? '1fr 300px' : '1fr', 
+        gap: '2.5rem', 
+        alignItems: 'start',
+        maxWidth: hasAds ? '100%' : '1000px',
+        margin: '0 auto'
+      }}>
         
         {/* Main Content */}
         <div className={styles.page} style={{ padding: 0 }}>

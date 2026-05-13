@@ -13,11 +13,23 @@ async function getNews() {
 }
 
 export default async function NewsPage() {
-  const news = await getNews();
+  const [news, ads] = await Promise.all([
+    getNews(),
+    getActiveAdsByPosition('NEWS')
+  ]);
+
+  const hasAds = ads && ads.length > 0;
 
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2.5rem', alignItems: 'start' }} className="news-layout">
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: hasAds ? '1fr 300px' : '1fr', 
+        gap: '2.5rem', 
+        alignItems: 'start',
+        maxWidth: hasAds ? '100%' : '1000px',
+        margin: '0 auto'
+      }} className="news-layout">
         
         {/* Main Content */}
         <section className={styles.section} style={{ padding: 0 }}>

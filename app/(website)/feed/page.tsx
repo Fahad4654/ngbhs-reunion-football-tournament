@@ -12,6 +12,7 @@ import prisma from "@/lib/prisma";
 import CollapsibleContent from "@/app/components/CollapsibleContent";
 import ClickablePost from "@/app/components/ClickablePost";
 import AdBanner from "@/app/components/AdBanner";
+import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
@@ -21,16 +22,27 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function FeedPage() {
-  const [posts, userSession] = await Promise.all([
+  const [posts, userSession, ads] = await Promise.all([
     getApprovedPosts(),
-    getServerUser()
+    getServerUser(),
+    getActiveAdsByPosition('FEED_TOP')
   ]);
+
+  const hasAds = ads && ads.length > 0;
+
 
   const dbUser = userSession ? await prisma.user.findUnique({ where: { id: userSession.uid } }) : null;
 
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', paddingTop: '1.852vh', paddingBottom: '3.704vh' }}>
-      <div className="container feed-grid">
+      <div className="container" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: hasAds ? '280px 1fr 300px' : '280px 1fr', 
+        gap: '2rem', 
+        alignItems: 'start',
+        maxWidth: hasAds ? '100%' : '1400px',
+        margin: '0 auto'
+      }}>
         
         {/* Left Sidebar - Navigation/Shortcuts */}
         <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.852vh)' }} className="desktop-only">

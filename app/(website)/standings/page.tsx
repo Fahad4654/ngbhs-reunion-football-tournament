@@ -3,6 +3,7 @@ import styles from "./standings.module.css";
 import StandingsClient from "./StandingsClient";
 import { getTopScorers, getBestGoalkeepers, getBestPlayers, getSeasonAward } from "@/lib/actions/stats.actions";
 import AdBanner from "@/app/components/AdBanner";
+import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const revalidate = 60;
 
@@ -83,11 +84,22 @@ export default async function StandingsPage() {
     getBestPlayers(activeTournamentRef?.id),
     getSeasonAward("TOP_TEAM", activeTournamentRef?.id),
     getSeasonAward("BEST_ELEVEN", activeTournamentRef?.id),
+    getActiveAdsByPosition('STANDINGS')
   ]);
+
+  const hasAds = ads && ads.length > 0;
+
 
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2.5rem', alignItems: 'start' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: hasAds ? '1fr 300px' : '1fr', 
+        gap: '2.5rem', 
+        alignItems: 'start',
+        maxWidth: hasAds ? '100%' : '1000px',
+        margin: '0 auto'
+      }}>
         
         {/* Main Content */}
         <div style={{ minWidth: 0 }}>

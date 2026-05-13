@@ -4,6 +4,7 @@ import Link from "next/link";
 import ShieldIcon from '@mui/icons-material/Shield';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AdBanner from "@/app/components/AdBanner";
+import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 
 async function getMatches() {
@@ -24,7 +25,13 @@ async function getMatches() {
 }
 
 export default async function MatchesPage() {
-  const matches = await getMatches();
+  const [matches, ads] = await Promise.all([
+    getMatches(),
+    getActiveAdsByPosition('MATCHES')
+  ]);
+
+  const hasAds = ads && ads.length > 0;
+
 
   const STAGE_ORDER = ["FINAL", "THIRD_PLACE", "SEMI_FINAL", "QUARTER_FINAL", "ROUND_OF_16", "ROUND_OF_32", "GROUP_STAGE"];
 
@@ -35,7 +42,14 @@ export default async function MatchesPage() {
 
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2.5rem', alignItems: 'start' }} className="matches-layout">
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: hasAds ? '1fr 300px' : '1fr', 
+        gap: '2.5rem', 
+        alignItems: 'start',
+        maxWidth: hasAds ? '100%' : '1000px',
+        margin: '0 auto'
+      }} className="matches-layout">
         
         {/* Main Content */}
         <section className={styles.section} style={{ padding: 0 }}>
