@@ -77,7 +77,9 @@ export default async function StandingsPage() {
     bestPlayers,
     topTeam,
     bestEleven,
+    ads
   ] = await Promise.all([
+
     getStandingsData(activeTournamentRef?.id),
     getTopScorers(activeTournamentRef?.id),
     getBestGoalkeepers(activeTournamentRef?.id),

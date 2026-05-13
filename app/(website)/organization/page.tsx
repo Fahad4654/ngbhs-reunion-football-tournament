@@ -6,7 +6,7 @@ import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 export const metadata = { title: "Organization | NGBHS Reunion Football Championship" };
 
 export default async function OrganizationPage() {
-  const [committee, volunteers] = await Promise.all([
+  const [committee, volunteers, ads] = await Promise.all([
     prisma.user.findMany({
       where: { isCommitteeMember: true },
       include: { batch: { select: { name: true } } },
@@ -19,6 +19,7 @@ export default async function OrganizationPage() {
     }),
     getActiveAdsByPosition('ORGANIZATION')
   ]);
+
 
   const hasAds = ads && ads.length > 0;
 
