@@ -22,6 +22,8 @@ export default function AdForm({ initialData, onSuccess }: AdFormProps) {
   const [position, setPosition] = useState<AdPosition>(initialData?.position || 'SIDEBAR');
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
+  const [closeDelay, setCloseDelay] = useState(initialData?.closeDelay ?? 5);
+
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -73,7 +75,8 @@ export default function AdForm({ initialData, onSuccess }: AdFormProps) {
           linkUrl,
           position,
           imageUrl,
-          isActive
+          isActive,
+          closeDelay
         });
         if (res.error) throw new Error(res.error);
         toast.success('Advertisement updated successfully');
@@ -83,7 +86,8 @@ export default function AdForm({ initialData, onSuccess }: AdFormProps) {
           linkUrl,
           position,
           imageUrl,
-          isActive
+          isActive,
+          closeDelay
         });
         if (res.error) throw new Error(res.error);
         toast.success('Advertisement created successfully');
@@ -146,8 +150,29 @@ export default function AdForm({ initialData, onSuccess }: AdFormProps) {
           <option value="MATCHES">Matches Page - Top</option>
           <option value="NEWS">News Page - Top</option>
           <option value="ORGANIZATION">Organization Page - Top</option>
+          <option value="FLOATING">Floating Ad (Mobile Only)</option>
         </select>
+
       </div>
+...
+      <div>
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Mobile Close Delay (Seconds)</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <input 
+            type="number" 
+            value={closeDelay} 
+            onChange={e => setCloseDelay(parseInt(e.target.value) || 0)} 
+            className="input glass" 
+            style={{ width: '100px' }}
+            min="0"
+            max="60"
+          />
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+            Number of seconds before the "Close" button appears on mobile floating ads.
+          </span>
+        </div>
+      </div>
+
 
       <div>
         <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Advertisement Media</label>

@@ -412,15 +412,17 @@ enum MatchStage {
 }
 
 model Advertisement {
-  id        String     @id @default(cuid())
-  title     String
-  imageUrl  String
-  linkUrl   String?
-  position  AdPosition @default(SIDEBAR)
-  isActive  Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id         String     @id @default(cuid())
+  title      String
+  imageUrl   String
+  linkUrl    String?
+  position   AdPosition @default(SIDEBAR)
+  isActive   Boolean    @default(true)
+  closeDelay Int        @default(5) // Seconds before close button appears
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
+
 
 enum AdPosition {
   SIDEBAR
@@ -429,5 +431,7 @@ enum AdPosition {
   NEWS
   ORGANIZATION
   MATCHES
+  FLOATING
 }
+
 

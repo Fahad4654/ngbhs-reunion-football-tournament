@@ -38,6 +38,7 @@ export async function createAd(data: {
   linkUrl?: string;
   position: AdPosition;
   isActive: boolean;
+  closeDelay?: number;
 }) {
   const user = await getServerUser();
   if (!user || (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
@@ -51,7 +52,8 @@ export async function createAd(data: {
         imageUrl: data.imageUrl,
         linkUrl: data.linkUrl || null,
         position: data.position,
-        isActive: data.isActive
+        isActive: data.isActive,
+        closeDelay: data.closeDelay || 5
       }
     });
 
@@ -70,6 +72,7 @@ export async function updateAd(id: string, data: {
   linkUrl?: string | null;
   position?: AdPosition;
   isActive?: boolean;
+  closeDelay?: number;
 }) {
   const user = await getServerUser();
   if (!user || (user.role !== 'ADMIN' && user.role !== 'CO_ADMIN')) {
