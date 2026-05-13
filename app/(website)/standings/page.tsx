@@ -86,8 +86,15 @@ export default async function StandingsPage() {
   ]);
 
   return (
-    <div className="container">
-      <AdBanner position="STANDINGS" />
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2.5rem', alignItems: 'start' }}>
+        
+        {/* Main Content */}
+        <div style={{ minWidth: 0 }}>
+          <div className="mobile-only" style={{ marginBottom: '2rem' }}>
+            <AdBanner position="STANDINGS" />
+            <AdBanner position="SIDEBAR" />
+          </div>
       <StandingsClient
         tournaments={tournaments}
         initialTournamentData={activeTournamentData}
@@ -99,6 +106,17 @@ export default async function StandingsPage() {
         topTeam={topTeam}
         bestEleven={bestEleven}
       />
+        </div>
+
+        {/* Sidebar */}
+        <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 2rem)' }} className="desktop-only">
+          <div className="glass" style={{ padding: '1.5rem', borderRadius: '1rem', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Sponsorship</h3>
+            <AdBanner position="STANDINGS" />
+          </div>
+        </aside>
+
+      </div>
     </div>
   );
 }

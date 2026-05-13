@@ -19,20 +19,24 @@ export default async function OrganizationPage() {
   ]);
 
   return (
-    <div className={styles.page}>
-      <div className="container">
-        <AdBanner position="ORGANIZATION" />
-      </div>
-      {/* Hero Section */}
-      <div className={styles.hero}>
-        <div className="container">
-          <div className="badge">Behind the Scenes</div>
-          <h1 className={`${styles.heroTitle} text-gradient`}>Our Team</h1>
-          <p className={styles.heroSubtitle}>
-            The NGBHS Reunion Football Championship is powered by the passion and dedication of our committee members and selfless volunteers.
-          </p>
-        </div>
-      </div>
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2.5rem', alignItems: 'start' }}>
+        
+        {/* Main Content */}
+        <div className={styles.page} style={{ padding: 0 }}>
+          {/* Hero Section */}
+          <div className={styles.hero}>
+            <div className="badge">Behind the Scenes</div>
+            <h1 className={`${styles.heroTitle} text-gradient`}>Our Team</h1>
+            <p className={styles.heroSubtitle}>
+              The NGBHS Reunion Football Championship is powered by the passion and dedication of our committee members and selfless volunteers.
+            </p>
+          </div>
+
+          <div className="mobile-only" style={{ marginBottom: '2rem' }}>
+            <AdBanner position="ORGANIZATION" />
+            <AdBanner position="SIDEBAR" />
+          </div>
 
       {/* Committee Section */}
       <section className={styles.section}>
@@ -98,6 +102,17 @@ export default async function OrganizationPage() {
           </div>
         </div>
       </section>
+        </div>
+
+        {/* Sidebar */}
+        <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 2rem)' }} className="desktop-only">
+          <div className="glass" style={{ padding: '1.5rem', borderRadius: '1rem', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Sponsorship</h3>
+            <AdBanner position="ORGANIZATION" />
+          </div>
+        </aside>
+
+      </div>
     </div>
   );
 }

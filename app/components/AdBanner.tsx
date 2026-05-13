@@ -37,9 +37,9 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
       style={{ 
         width: '100%', 
         display: 'grid', 
-        gridTemplateColumns: ads.length > 1 && !position.includes('SIDEBAR') ? 'repeat(auto-fit, minmax(300px, 1fr))' : '1fr',
-        gap: '1.5rem', 
-        margin: '1.5rem 0', 
+        gridTemplateColumns: ads.length > 1 && !position.includes('SIDEBAR') ? 'repeat(auto-fit, minmax(200px, 1fr))' : '1fr',
+        gap: '0.75rem', 
+        margin: '1rem 0', 
         alignItems: 'start',
         justifyContent: 'center'
       }}
@@ -51,12 +51,13 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
           width: 'auto', 
           maxWidth: '100%', 
           height: 'auto', 
-          borderRadius: '6px', 
+          borderRadius: '4px', 
           display: 'block',
           objectFit: 'contain',
-          maxHeight: '180px',
+          maxHeight: '120px',
           margin: '0 auto'
         };
+
 
 
 
@@ -79,10 +80,11 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
         );
 
         return (
-          <div key={ad.id} className="ad-banner glass" style={{ padding: '0.35rem', borderRadius: '8px', width: '100%', maxWidth: '100%', margin: '0 auto' }}>
-            <div style={{ fontSize: '0.5rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem', textAlign: 'right', fontWeight: '700', letterSpacing: '0.05em', opacity: 0.7 }}>
+          <div key={ad.id} className="ad-banner glass" style={{ padding: '0.2rem', borderRadius: '6px', width: '100%', maxWidth: '100%', margin: '0 auto' }}>
+            <div style={{ fontSize: '0.45rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem', textAlign: 'right', fontWeight: '700', letterSpacing: '0.05em', opacity: 0.6 }}>
               Sponsored
             </div>
+
 
             {ad.linkUrl ? (
               <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
