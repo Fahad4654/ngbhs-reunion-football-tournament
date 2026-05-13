@@ -25,13 +25,15 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
         if (allAds.length > 0) {
           setAds(allAds);
           setIsVisible(true);
-          const maxDelay = Math.max(...allAds.map(ad => (ad as any).closeDelay || 5));
-          setTimeLeft(maxDelay);
+          // Calculate total time as the sum of all ads' delays
+          const totalDelay = allAds.reduce((sum, ad) => sum + ((ad as any).closeDelay || 5), 0);
+          setTimeLeft(totalDelay);
         }
       } catch (error) {
         console.error('Error fetching ads:', error);
       }
     }
+
     
     // Only run on mobile
     if (window.innerWidth <= 768) {
@@ -40,35 +42,44 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
   }, [positions.join(',')]);
 
 
+  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+  const [adTimeLeft, setAdTimeLeft] = useState(0); // Time left for the CURRENT ad
+
   useEffect(() => {
     if (!isVisible || ads.length === 0) return;
 
-    if (timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setIsVisible(false); // Auto-hide after duration
+    // Initialize adTimeLeft when ads are loaded or index changes
+    if (adTimeLeft === 0) {
+      setAdTimeLeft((ads[currentAdIndex] as any).closeDelay || 5);
     }
-  }, [timeLeft, isVisible, ads]);
 
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setIsVisible(false);
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
 
-  const handleClose = () => {
-    if (canClose) {
-      setIsVisible(false);
-    }
-  };
+      setAdTimeLeft((prev) => {
+        if (prev <= 1) {
+          // Switch to next ad if available
+          if (currentAdIndex < ads.length - 1) {
+            const nextIndex = currentAdIndex + 1;
+            setCurrentAdIndex(nextIndex);
+            return (ads[nextIndex] as any).closeDelay || 5;
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+    return () => clearInterval(timer);
+  }, [isVisible, ads, currentAdIndex, adTimeLeft]);
 
-  useEffect(() => {
-    if (!isVisible || ads.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentAdIndex((prev) => (prev + 1) % ads.length);
-    }, 5000); // Cycle every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [isVisible, ads.length]);
 
   return (
     <div 
