@@ -48,13 +48,16 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
         const isVideo = ad.imageUrl.match(/\.(mp4|webm|mov)$/i);
         
         const mediaStyle: React.CSSProperties = { 
-          width: '100%', 
+          width: 'auto', 
+          maxWidth: '100%', 
           height: 'auto', 
-          borderRadius: '8px', 
+          borderRadius: '6px', 
           display: 'block',
           objectFit: 'contain',
-          maxHeight: '250px'
+          maxHeight: '180px',
+          margin: '0 auto'
         };
+
 
 
         const mediaContent = isVideo ? (
@@ -76,10 +79,11 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
         );
 
         return (
-          <div key={ad.id} className="ad-banner glass" style={{ padding: '0.5rem', borderRadius: '10px', width: '100%', maxWidth: '100%', margin: '0 auto' }}>
-            <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.3rem', textAlign: 'right', fontWeight: '700', letterSpacing: '0.05em', opacity: 0.8 }}>
+          <div key={ad.id} className="ad-banner glass" style={{ padding: '0.35rem', borderRadius: '8px', width: '100%', maxWidth: '100%', margin: '0 auto' }}>
+            <div style={{ fontSize: '0.5rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem', textAlign: 'right', fontWeight: '700', letterSpacing: '0.05em', opacity: 0.7 }}>
               Sponsored
             </div>
+
             {ad.linkUrl ? (
               <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
                 {mediaContent}
