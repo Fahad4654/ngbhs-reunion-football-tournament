@@ -609,6 +609,7 @@ select:disabled {
   align-items: center;
   gap: clamp(8px, 0.8vw, 16px);
   flex-shrink: 0;
+  transform: translateY(-2px);
 }
 
 .nav-auth-divider {

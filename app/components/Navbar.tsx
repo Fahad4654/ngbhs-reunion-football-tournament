@@ -72,6 +72,8 @@ export default function Navbar({ user }: { user: AppUser | null }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
+          {/* Divider between nav links and auth */}
+          <span className="nav-auth-divider" />
           <div className="nav-auth">
             {user ? (
               <>
