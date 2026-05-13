@@ -43,42 +43,41 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
 
 
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
-  const [adTimeLeft, setAdTimeLeft] = useState(0); // Time left for the CURRENT ad
 
+  // Unified timer and carousel effect
   useEffect(() => {
     if (!isVisible || ads.length === 0) return;
 
-    // Initialize adTimeLeft when ads are loaded or index changes
-    if (adTimeLeft === 0) {
-      setAdTimeLeft((ads[currentAdIndex] as any).closeDelay || 5);
-    }
+    let currentAdTimeRemaining = (ads[currentAdIndex] as any).closeDelay || 5;
 
-    const timer = setInterval(() => {
+    const interval = setInterval(() => {
+      // 1. Update Global Timer
       setTimeLeft((prev) => {
         if (prev <= 1) {
           setIsVisible(false);
-          clearInterval(timer);
+          clearInterval(interval);
           return 0;
         }
         return prev - 1;
       });
 
-      setAdTimeLeft((prev) => {
-        if (prev <= 1) {
-          // Switch to next ad if available
-          if (currentAdIndex < ads.length - 1) {
-            const nextIndex = currentAdIndex + 1;
-            setCurrentAdIndex(nextIndex);
-            return (ads[nextIndex] as any).closeDelay || 5;
+      // 2. Update Carousel Logic
+      currentAdTimeRemaining -= 1;
+      if (currentAdTimeRemaining <= 0) {
+        setCurrentAdIndex((prevIndex) => {
+          const nextIndex = prevIndex + 1;
+          if (nextIndex < ads.length) {
+            currentAdTimeRemaining = (ads[nextIndex] as any).closeDelay || 5;
+            return nextIndex;
           }
-          return 0;
-        }
-        return prev - 1;
-      });
+          return prevIndex;
+        });
+      }
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [isVisible, ads, currentAdIndex, adTimeLeft]);
+    return () => clearInterval(interval);
+  }, [isVisible, ads]); // Only re-run if ads load or visibility toggles
+
 
 
   return (
