@@ -47,9 +47,10 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
     } else {
-      setCanClose(true);
+      setIsVisible(false); // Auto-hide after duration
     }
   }, [timeLeft, isVisible, ads]);
+
 
   const handleClose = () => {
     if (canClose) {
@@ -93,7 +94,7 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
         display: 'flex',
         flexDirection: 'column'
       }}>
-        {/* Non-closable indicator */}
+        {/* Countdown Timer (Auto-hides at 0) */}
         <div style={{ 
           position: 'absolute', 
           top: '8px', 
@@ -101,19 +102,20 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
           zIndex: 10
         }}>
           <div style={{ 
-            background: 'rgba(235, 183, 0, 0.2)', 
-            color: 'var(--accent-primary)', 
+            background: 'rgba(235, 183, 0, 0.9)', 
+            color: 'black', 
             borderRadius: '20px', 
-            padding: '2px 10px', 
-            fontSize: '0.6rem',
+            padding: '4px 12px', 
+            fontSize: '0.75rem',
             fontWeight: '900',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            border: '1px solid rgba(235, 183, 0, 0.3)'
+            backdropFilter: 'blur(4px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            border: '1px solid rgba(255,255,255,0.1)'
           }}>
-            Ad
+            {timeLeft}s
           </div>
         </div>
+
 
 
         <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.15em', marginBottom: '8px' }}>
