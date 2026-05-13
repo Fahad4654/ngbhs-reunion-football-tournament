@@ -3,6 +3,8 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "./news.module.css";
 import AdBanner from "@/app/components/AdBanner";
+import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
+
 
 async function getNews() {
   return await prisma.news.findMany({
