@@ -7,9 +7,13 @@ import { useState, useEffect } from 'react';
 interface AdBannerProps {
   position: AdPosition;
   className?: string;
+  showTitle?: boolean;
+  style?: React.CSSProperties;
 }
 
-export default function AdBanner({ position, className = '' }: AdBannerProps) {
+export default function AdBanner({ position, className = '', showTitle = false, style = {} }: AdBannerProps) {
+
+
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,18 +36,33 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
   }
 
   return (
-    <div 
-      className={`ad-banner-container ${className}`} 
-      style={{ 
-        width: '100%', 
-        display: 'grid', 
-        gridTemplateColumns: ads.length > 1 && !position.includes('SIDEBAR') ? 'repeat(auto-fit, minmax(200px, 1fr))' : '1fr',
-        gap: '0.75rem', 
-        margin: '1rem 0', 
-        alignItems: 'start',
-        justifyContent: 'center'
-      }}
-    >
+    <div className={className} style={style}>
+
+      {showTitle && ads.length > 0 && (
+        <h3 style={{ 
+          fontSize: '0.75rem', 
+          color: 'var(--text-muted)', 
+          textTransform: 'uppercase', 
+          letterSpacing: '0.1em', 
+          marginBottom: '1rem',
+          textAlign: 'center'
+        }}>
+          Sponsorship
+        </h3>
+      )}
+      <div 
+        className="ad-banner-grid" 
+        style={{ 
+          width: '100%', 
+          display: 'grid', 
+          gridTemplateColumns: ads.length > 1 && !position.includes('SIDEBAR') ? 'repeat(auto-fit, minmax(200px, 1fr))' : '1fr',
+          gap: '0.75rem', 
+          margin: '0.5rem 0', 
+          alignItems: 'start',
+          justifyContent: 'center'
+        }}
+      >
+
       {ads.map((ad) => {
         const isVideo = ad.imageUrl.match(/\.(mp4|webm|mov)$/i);
         
@@ -96,9 +115,11 @@ export default function AdBanner({ position, className = '' }: AdBannerProps) {
           </div>
         );
       })}
+      </div>
     </div>
   );
 }
+
 
 
 

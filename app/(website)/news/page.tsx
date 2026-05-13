@@ -98,11 +98,9 @@ export default async function NewsPage() {
 
         {/* Sidebar */}
         <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 2rem)' }} className="desktop-only">
-          <div className="glass" style={{ padding: '1.5rem', borderRadius: '1rem', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Sponsorship</h3>
-            <AdBanner position="NEWS" />
-          </div>
+          <AdBanner position="NEWS" showTitle className="glass" style={{ padding: '1.5rem', borderRadius: '1rem' }} />
         </aside>
+
 
 
       </div>
