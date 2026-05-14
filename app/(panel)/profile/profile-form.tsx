@@ -272,86 +272,6 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
       </div>
 
-      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2.5rem', marginTop: '1.5rem' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)', marginBottom: '1.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          Contact & Social Presence
-        </h3>
-        
-        <div className="responsive-grid">
-          <div className={styles.inputGroup} style={{ position: 'relative' }}>
-            <PrivacyToggle name="showSecondaryEmail" defaultChecked={user.privacySettings?.showSecondaryEmail ?? false} />
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
-              <EmailIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-primary)' }} /> 
-              <span>Secondary Email</span>
-            </label>
-            <input name="secondaryEmail" type="email" defaultValue={user.secondaryEmail || ''} placeholder="alternative@example.com" className={styles.input} />
-          </div>
-          <div className={styles.inputGroup} style={{ position: 'relative' }}>
-            <PrivacyToggle name="showWhatsapp" defaultChecked={user.privacySettings?.showWhatsapp ?? false} />
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
-              <WhatsAppIcon sx={{ fontSize: '1.2rem', color: '#25D366' }} /> 
-              <span>WhatsApp Number</span>
-            </label>
-            <input name="whatsappNo" type="text" defaultValue={user.whatsappNo || ''} placeholder="e.g. +88017..." className={styles.input} />
-          </div>
-        </div>
-
-        <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
-          <div className={styles.inputGroup} style={{ position: 'relative' }}>
-            <PrivacyToggle name="showFacebook" defaultChecked={user.privacySettings?.showFacebook ?? true} />
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
-              <FacebookIcon sx={{ fontSize: '1.2rem', color: '#1877F2' }} /> 
-              <span>Facebook Profile</span>
-            </label>
-            <input name="facebookUrl" type="url" defaultValue={user.facebookUrl || ''} placeholder="https://facebook.com/username" className={styles.input} />
-          </div>
-          <div className={styles.inputGroup} style={{ position: 'relative' }}>
-            <PrivacyToggle name="showInstagram" defaultChecked={user.privacySettings?.showInstagram ?? true} />
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
-              <InstagramIcon sx={{ fontSize: '1.2rem', color: '#E4405F' }} /> 
-              <span>Instagram Profile</span>
-            </label>
-            <input name="instagramUrl" type="url" defaultValue={user.instagramUrl || ''} placeholder="https://instagram.com/username" className={styles.input} />
-          </div>
-        </div>
-
-        <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
-          <div className={styles.inputGroup} style={{ position: 'relative' }}>
-            <PrivacyToggle name="showLinkedin" defaultChecked={user.privacySettings?.showLinkedin ?? true} />
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
-              <LinkedInIcon sx={{ fontSize: '1.2rem', color: '#0A66C2' }} /> 
-              <span>LinkedIn Profile</span>
-            </label>
-            <input name="linkedinUrl" type="url" defaultValue={user.linkedinUrl || ''} placeholder="https://linkedin.com/in/username" className={styles.input} />
-          </div>
-          <div className={styles.inputGroup} style={{ position: 'relative' }}>
-            <PrivacyToggle name="showGithub" defaultChecked={user.privacySettings?.showGithub ?? true} />
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
-              <GitHubIcon sx={{ fontSize: '1.2rem', color: '#fff' }} /> 
-              <span>GitHub Profile</span>
-            </label>
-            <input name="githubUrl" type="url" defaultValue={user.githubUrl || ''} placeholder="https://github.com/username" className={styles.input} />
-          </div>
-        </div>
-
-        <div className={styles.inputGroup} style={{ position: 'relative' }}>
-          <PrivacyToggle name="showWebsite" defaultChecked={user.privacySettings?.showWebsite ?? true} />
-          <label className={styles.label}>Website / Portfolio URL</label>
-          <div style={{ position: 'relative' }}>
-            <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)', opacity: 0.7 }} />
-            <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} style={{ paddingLeft: '40px' }} />
-          </div>
-        </div>
-        <div className={styles.inputGroup} style={{ position: 'relative' }}>
-          <PrivacyToggle name="showYoutube" defaultChecked={user.privacySettings?.showYoutube ?? true} />
-          <label className={styles.label}>YouTube Channel</label>
-          <div style={{ position: 'relative' }}>
-            <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#FF0000', opacity: 0.7 }} />
-            <input name="youtubeUrl" type="url" defaultValue={user.youtubeUrl || ''} placeholder="https://youtube.com/@channel" className={styles.input} style={{ paddingLeft: '40px' }} />
-          </div>
-        </div>
-      </div>
-
       <div style={{ height: '1px', background: 'var(--border-color)', margin: '1rem 0', opacity: 0.5 }}></div>
 
       <h3 style={{ color: 'var(--accent-primary)', fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -438,6 +358,86 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
             </div>
           </div>
         ))}
+      </div>
+
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2.5rem', marginTop: '1.5rem' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)', marginBottom: '1.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          Contact & Social Presence
+        </h3>
+        
+        <div className="responsive-grid">
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showSecondaryEmail" defaultChecked={user.privacySettings?.showSecondaryEmail ?? false} />
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <EmailIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-primary)' }} /> 
+              <span>Secondary Email</span>
+            </label>
+            <input name="secondaryEmail" type="email" defaultValue={user.secondaryEmail || ''} placeholder="alternative@example.com" className={styles.input} />
+          </div>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showWhatsapp" defaultChecked={user.privacySettings?.showWhatsapp ?? false} />
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <WhatsAppIcon sx={{ fontSize: '1.2rem', color: '#25D366' }} /> 
+              <span>WhatsApp Number</span>
+            </label>
+            <input name="whatsappNo" type="text" defaultValue={user.whatsappNo || ''} placeholder="e.g. +88017..." className={styles.input} />
+          </div>
+        </div>
+
+        <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showFacebook" defaultChecked={user.privacySettings?.showFacebook ?? true} />
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <FacebookIcon sx={{ fontSize: '1.2rem', color: '#1877F2' }} /> 
+              <span>Facebook Profile</span>
+            </label>
+            <input name="facebookUrl" type="url" defaultValue={user.facebookUrl || ''} placeholder="https://facebook.com/username" className={styles.input} />
+          </div>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showInstagram" defaultChecked={user.privacySettings?.showInstagram ?? true} />
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <InstagramIcon sx={{ fontSize: '1.2rem', color: '#E4405F' }} /> 
+              <span>Instagram Profile</span>
+            </label>
+            <input name="instagramUrl" type="url" defaultValue={user.instagramUrl || ''} placeholder="https://instagram.com/username" className={styles.input} />
+          </div>
+        </div>
+
+        <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showLinkedin" defaultChecked={user.privacySettings?.showLinkedin ?? true} />
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <LinkedInIcon sx={{ fontSize: '1.2rem', color: '#0A66C2' }} /> 
+              <span>LinkedIn Profile</span>
+            </label>
+            <input name="linkedinUrl" type="url" defaultValue={user.linkedinUrl || ''} placeholder="https://linkedin.com/in/username" className={styles.input} />
+          </div>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showGithub" defaultChecked={user.privacySettings?.showGithub ?? true} />
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <GitHubIcon sx={{ fontSize: '1.2rem', color: '#fff' }} /> 
+              <span>GitHub Profile</span>
+            </label>
+            <input name="githubUrl" type="url" defaultValue={user.githubUrl || ''} placeholder="https://github.com/username" className={styles.input} />
+          </div>
+        </div>
+
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showWebsite" defaultChecked={user.privacySettings?.showWebsite ?? true} />
+          <label className={styles.label}>Website / Portfolio URL</label>
+          <div style={{ position: 'relative' }}>
+            <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)', opacity: 0.7 }} />
+            <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} style={{ paddingLeft: '40px' }} />
+          </div>
+        </div>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showYoutube" defaultChecked={user.privacySettings?.showYoutube ?? true} />
+          <label className={styles.label}>YouTube Channel</label>
+          <div style={{ position: 'relative' }}>
+            <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#FF0000', opacity: 0.7 }} />
+            <input name="youtubeUrl" type="url" defaultValue={user.youtubeUrl || ''} placeholder="https://youtube.com/@channel" className={styles.input} style={{ paddingLeft: '40px' }} />
+          </div>
+        </div>
       </div>
 
       <button type="submit" className="btn btn-primary" disabled={isPending} style={{ marginTop: '1rem', padding: '1.5vh 2vw', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)' }}>
