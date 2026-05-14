@@ -106,7 +106,12 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
           </div>
 
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900', color: 'white' }}>{user.name}</h2>
+            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900', color: 'white' }}>
+              {user.privacySettings?.showFirstName !== false || user.privacySettings?.showLastName !== false
+                ? `${user.privacySettings?.showFirstName !== false ? (user.firstName || '') : ''} ${user.privacySettings?.showLastName !== false ? (user.lastName || '') : ''}`.trim() || user.name
+                : (user.privacySettings?.showUsername !== false ? `@${user.username}` : 'Private Member')
+              }
+            </h2>
             <div style={{ 
               display: 'inline-block', 
               marginTop: '0.5rem', 
@@ -122,18 +127,25 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
             }}>
               {user.teamRole || (user.isPlayer ? 'Player' : 'Member')} • {user.batch?.name || 'No Batch'}
             </div>
+            {user.privacySettings?.showUsername !== false && (user.privacySettings?.showFirstName !== false || user.privacySettings?.showLastName !== false) && (
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                @{user.username}
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'grid', gap: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <EmailIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7 }} />
-              <div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Email Address</div>
-                <div style={{ color: 'white', fontWeight: '600' }}>{user.email}</div>
+            {user.privacySettings?.showEmail !== false && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <EmailIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7 }} />
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Email Address</div>
+                  <div style={{ color: 'white', fontWeight: '600' }}>{user.email}</div>
+                </div>
               </div>
-            </div>
+            )}
 
-            {user.phone && (
+            {user.phone && user.privacySettings?.showPhone !== false && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <PhoneIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7 }} />
                 <div>
@@ -143,19 +155,20 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               </div>
             )}
 
-            {(user.occupation || user.workplace) && (
+            {(user.occupation && user.privacySettings?.showOccupation !== false || user.workplace && user.privacySettings?.showWorkplace !== false) && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <WorkIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Professional</div>
                   <div style={{ color: 'white', fontWeight: '600' }}>
-                    {user.occupation}{user.workplace && ` at ${user.workplace}`}
+                    {user.privacySettings?.showOccupation !== false && user.occupation}
+                    {user.privacySettings?.showWorkplace !== false && user.workplace && `${user.privacySettings?.showOccupation !== false ? ' at ' : ''}${user.workplace}`}
                   </div>
                 </div>
               </div>
             )}
 
-            {user.currentAddress && (
+            {user.currentAddress && user.privacySettings?.showAddress !== false && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <LocationOnIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
@@ -165,7 +178,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               </div>
             )}
 
-            {user.permanentAddress && (
+            {user.permanentAddress && user.privacySettings?.showAddress !== false && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <HomeIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
@@ -176,7 +189,15 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
             )}
 
             {/* Social & Other Contact */}
-            {(user.secondaryEmail || user.whatsappNo || user.facebookUrl || user.instagramUrl || user.linkedinUrl || user.githubUrl || user.websiteUrl) && (
+            {(
+              (user.secondaryEmail && user.privacySettings?.showSecondaryEmail !== false) || 
+              (user.whatsappNo && user.privacySettings?.showWhatsapp !== false) || 
+              (user.facebookUrl && user.privacySettings?.showFacebook !== false) || 
+              (user.instagramUrl && user.privacySettings?.showInstagram !== false) || 
+              (user.linkedinUrl && user.privacySettings?.showLinkedin !== false) || 
+              (user.githubUrl && user.privacySettings?.showGithub !== false) || 
+              (user.websiteUrl && user.privacySettings?.showWebsite !== false)
+            ) && (
               <div style={{ 
                 marginTop: '1rem', 
                 paddingTop: '1.5rem', 
@@ -186,37 +207,37 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
                 gap: '1rem',
                 justifyContent: 'center'
               }}>
-                {user.secondaryEmail && (
+                {user.secondaryEmail && user.privacySettings?.showSecondaryEmail !== false && (
                   <a href={`mailto:${user.secondaryEmail}`} title={`Secondary Email: ${user.secondaryEmail}`} style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseOver={e => e.currentTarget.style.color = 'var(--accent-primary)'} onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}>
                     <EmailIcon />
                   </a>
                 )}
-                {user.whatsappNo && (
+                {user.whatsappNo && user.privacySettings?.showWhatsapp !== false && (
                   <a href={`https://wa.me/${user.whatsappNo.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" style={{ color: '#25D366', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
                     <WhatsAppIcon />
                   </a>
                 )}
-                {user.facebookUrl && (
+                {user.facebookUrl && user.privacySettings?.showFacebook !== false && (
                   <a href={user.facebookUrl} target="_blank" rel="noopener noreferrer" title="Facebook" style={{ color: '#1877F2', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
                     <FacebookIcon />
                   </a>
                 )}
-                {user.instagramUrl && (
+                {user.instagramUrl && user.privacySettings?.showInstagram !== false && (
                   <a href={user.instagramUrl} target="_blank" rel="noopener noreferrer" title="Instagram" style={{ color: '#E4405F', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
                     <InstagramIcon />
                   </a>
                 )}
-                {user.linkedinUrl && (
+                {user.linkedinUrl && user.privacySettings?.showLinkedin !== false && (
                   <a href={user.linkedinUrl} target="_blank" rel="noopener noreferrer" title="LinkedIn" style={{ color: '#0A66C2', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
                     <LinkedInIcon />
                   </a>
                 )}
-                {user.githubUrl && (
+                {user.githubUrl && user.privacySettings?.showGithub !== false && (
                   <a href={user.githubUrl} target="_blank" rel="noopener noreferrer" title="GitHub" style={{ color: '#ffffff', opacity: 0.7, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.7'}>
                     <GitHubIcon />
                   </a>
                 )}
-                {user.websiteUrl && (
+                {user.websiteUrl && user.privacySettings?.showWebsite !== false && (
                   <a href={user.websiteUrl} target="_blank" rel="noopener noreferrer" title="Website" style={{ color: 'var(--accent-primary)', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
                     <LanguageIcon />
                   </a>
