@@ -30,6 +30,12 @@ export default async function DashboardPage() {
     redirect('/admin');
   }
 
+  // Fetch full user data to check for completeness
+  const fullUser = await prisma.user.findUnique({
+    where: { id: user.uid },
+    include: { batch: true }
+  });
+
   // Fetch data for stats and activities
   const [myPosts, myCheers, myComments, matchCount] = await Promise.all([
     prisma.post.findMany({
@@ -74,8 +80,40 @@ export default async function DashboardPage() {
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
    .slice(0, 5);
 
+  const isProfileIncomplete = !fullUser?.phone || !fullUser?.batchId || !fullUser?.username;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1rem, 3vw, 2rem)', maxWidth: '100%', overflow: 'hidden' }}>
+      {/* Profile Completion Prompt */}
+      {isProfileIncomplete && (
+        <div className="glass" style={{ 
+          padding: '1.5rem', 
+          borderRadius: '16px', 
+          border: '1px solid rgba(235, 183, 0, 0.3)',
+          background: 'linear-gradient(90deg, rgba(235, 183, 0, 0.05) 0%, transparent 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ position: 'absolute', top: 0, right: 0, padding: '0.5rem', opacity: 0.1 }}>
+            <PersonIcon sx={{ fontSize: '100px' }} />
+          </div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <h3 style={{ color: 'var(--accent-primary)', fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <EditIcon sx={{ fontSize: '1.2rem' }} /> COMPLETE YOUR PROFILE
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '600px', lineHeight: 1.6 }}>
+              Welcome to the community! Since you logged in via Google, some details like your <strong>Phone Number</strong>, <strong>Batch</strong>, and <strong>Username</strong> are missing. Please complete these to get full access and a better experience.
+            </p>
+          </div>
+          <Link href="/profile" className="btn btn-primary" style={{ width: 'fit-content', padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}>
+            Complete Profile Now
+          </Link>
+        </div>
+      )}
+
       {/* Stats Row */}
       <div className="responsive-grid" style={{ 
         display: 'grid', 
