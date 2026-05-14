@@ -322,7 +322,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
           <label className={styles.label} style={{ margin: 0 }}>Nicknames (Max 3)</label>
           {nicknameCount < 3 && (
-            <button type="button" onClick={() => setNicknameCount(prev => prev + 1)} style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <button type="button" onClick={() => setNicknameCount(prev => prev + 1)} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', background: 'rgba(235, 183, 0, 0.1)', border: '1px solid rgba(235, 183, 0, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '100px', cursor: 'pointer', fontWeight: 'bold', marginRight: '5.5rem' }}>
               + Add More
             </button>
           )}
@@ -344,20 +344,21 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
 
       <div style={{ height: '1px', background: 'var(--border-color)', margin: '1rem 0', opacity: 0.5 }}></div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', position: 'relative' }}>
+        <PrivacyToggle name="showEducation" defaultChecked={user.privacySettings?.showEducation ?? true} />
         <h3 style={{ color: 'var(--accent-primary)', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-primary)' }}></span>
           Education (Max 5)
         </h3>
         {educationCount < 5 && (
-          <button type="button" onClick={() => setEducationCount(prev => prev + 1)} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', background: 'rgba(235, 183, 0, 0.1)', border: '1px solid rgba(235, 183, 0, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '100px', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button type="button" onClick={() => setEducationCount(prev => prev + 1)} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', background: 'rgba(235, 183, 0, 0.1)', border: '1px solid rgba(235, 183, 0, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '100px', cursor: 'pointer', fontWeight: 'bold', marginRight: '5.5rem' }}>
             + Add More
           </button>
         )}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative' }}>
-        <PrivacyToggle name="showEducation" defaultChecked={user.privacySettings?.showEducation ?? true} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
         {[...Array(educationCount)].map((_, i) => (
           <div key={i} className="responsive-grid" style={{ gap: '0.5rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div style={{ flex: 2 }}>
