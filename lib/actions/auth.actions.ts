@@ -81,7 +81,7 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
     if (existingUser) {
       await prisma.user.update({
         where: { id: existingUser.id },
-        data: { name, firstName, lastName, username, phone, password: hashedPassword, batchId: batchId || null, status: 'PENDING' },
+        data: { name, firstName, lastName, username, phone, password: hashedPassword, batchId: batchId || null, status: 'PENDING' } as any,
       });
     } else {
       await prisma.user.create({
@@ -96,7 +96,7 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
           role: 'USER',
           batchId: batchId || null,
           status: 'PENDING',
-        },
+        } as any,
       });
     }
 
@@ -190,23 +190,24 @@ export async function loginWithGoogle(idToken: string) {
           role: 'USER',
           status: 'PENDING',
           emailVerified: new Date(),
-        },
+        } as any,
       });
     } else if (!user.firebaseId || !user.username) {
       const username = user.username || await generateUniqueUsername(user.name || email.split('@')[0], email);
+      const anyUser = user as any;
       user = await prisma.user.update({
         where: { id: user.id },
         data: { 
           firebaseId: uid, 
           username,
-          firstName: user.firstName || firstName,
-          lastName: user.lastName || lastName,
-          image: user.image || picture,
+          firstName: anyUser.firstName || firstName,
+          lastName: anyUser.lastName || lastName,
+          image: anyUser.image || picture,
           // If the user already existed (e.g. invited or manual reg but not verified)
           // we ensure they are PENDING and verified
-          status: user.status === 'APPROVED' ? 'APPROVED' : 'PENDING',
-          emailVerified: user.emailVerified || new Date(),
-        },
+          status: anyUser.status === 'APPROVED' ? 'APPROVED' : 'PENDING',
+          emailVerified: anyUser.emailVerified || new Date(),
+        } as any,
       });
     }
 

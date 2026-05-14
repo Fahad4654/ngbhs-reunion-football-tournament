@@ -34,7 +34,7 @@ export default async function DashboardPage() {
   const fullUser = await prisma.user.findUnique({
     where: { id: user.uid },
     include: { batch: true }
-  });
+  }) as any;
 
   // Fetch data for stats and activities
   const [myPosts, myCheers, myComments, matchCount] = await Promise.all([

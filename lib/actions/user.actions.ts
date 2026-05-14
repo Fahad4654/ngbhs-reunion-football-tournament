@@ -83,7 +83,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
         websiteUrl,
         whatsappNo,
         ...(shouldResetStatus ? { status: 'PENDING' } : {}),
-      },
+      } as any,
     });
 
     await setSessionCookie(user.uid, user.role, name);
