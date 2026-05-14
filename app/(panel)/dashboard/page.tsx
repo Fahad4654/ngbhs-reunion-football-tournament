@@ -87,30 +87,65 @@ export default async function DashboardPage() {
       {/* Profile Completion Prompt */}
       {isProfileIncomplete && (
         <div className="glass" style={{ 
-          padding: '1.5rem', 
-          borderRadius: '16px', 
-          border: '1px solid rgba(235, 183, 0, 0.3)',
-          background: 'linear-gradient(90deg, rgba(235, 183, 0, 0.05) 0%, transparent 100%)',
+          padding: '2rem', 
+          borderRadius: '20px', 
+          border: '1px solid rgba(235, 183, 0, 0.4)',
+          background: 'linear-gradient(135deg, rgba(235, 183, 0, 0.12) 0%, rgba(0, 0, 0, 0.4) 100%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem',
+          gap: '1.25rem',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.05)'
         }}>
-          <div style={{ position: 'absolute', top: 0, right: 0, padding: '0.5rem', opacity: 0.1 }}>
-            <PersonIcon sx={{ fontSize: '100px' }} />
-          </div>
+          {/* Decorative background circle */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '-20%', 
+            right: '-10%', 
+            width: '300px', 
+            height: '300px', 
+            background: 'radial-gradient(circle, rgba(235, 183, 0, 0.15) 0%, transparent 70%)',
+            zIndex: 0,
+            pointerEvents: 'none'
+          }}></div>
+
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <h3 style={{ color: 'var(--accent-primary)', fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <EditIcon sx={{ fontSize: '1.2rem' }} /> COMPLETE YOUR PROFILE
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '600px', lineHeight: 1.6 }}>
-              Welcome to the community! Since you logged in via Google, some details like your <strong>Phone Number</strong>, <strong>Batch</strong>, and <strong>Username</strong> are missing. Please complete these to get full access and a better experience.
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '1.5rem' }}>📝</span>
+              <h3 style={{ color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '900', margin: 0 }}>
+                Complete Your Profile
+              </h3>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.6', maxWidth: '700px' }}>
+              Welcome to the community! Since you logged in via Google, some details like your 
+              <strong style={{ color: '#fff' }}> Phone Number</strong>, 
+              <strong style={{ color: '#fff' }}> Batch</strong>, and 
+              <strong style={{ color: '#fff' }}> Username</strong> are missing. 
+              Please complete these to get full access and a better experience.
             </p>
+            <a href="/profile" className="btn btn-primary" style={{ 
+              marginTop: '0.5rem', 
+              padding: '0.8rem 2rem', 
+              boxShadow: '0 4px 15px rgba(235, 183, 0, 0.3)',
+              display: 'inline-block'
+            }}>
+              COMPLETE PROFILE NOW
+            </a>
           </div>
-          <Link href="/profile" className="btn btn-primary" style={{ width: 'fit-content', padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}>
-            Complete Profile Now
-          </Link>
+          
+          <div style={{ 
+            position: 'absolute', 
+            right: '2rem', 
+            top: '50%', 
+            transform: 'translateY(-50%)', 
+            fontSize: '5rem', 
+            opacity: 0.07,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}>
+            👤
+          </div>
         </div>
       )}
 
