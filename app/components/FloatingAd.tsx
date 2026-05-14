@@ -80,6 +80,8 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
 
 
 
+  if (!isVisible || ads.length === 0) return null;
+
   return (
     <div 
       className="mobile-only" 
