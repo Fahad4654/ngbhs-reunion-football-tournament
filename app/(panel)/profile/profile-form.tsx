@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState, useRef, useEffect } from 'react';
-import { updateProfile } from '@/lib/actions';
+import { updateProfile, updatePrivacyAction } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
 import styles from '@/app/(website)/login/login.module.css';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -24,24 +24,58 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
 
   const PrivacyToggle = ({ name, defaultChecked }: { name: string, defaultChecked: boolean }) => {
     const [isPublic, setIsPublic] = useState(defaultChecked);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     useEffect(() => {
       setIsPublic(defaultChecked);
     }, [defaultChecked]);
 
+    const handleToggle = async (checked: boolean) => {
+      setIsPublic(checked);
+      setIsUpdating(true);
+      try {
+        const result = await updatePrivacyAction(name, checked);
+        if (result?.error) {
+          toast.error(result.error);
+          setIsPublic(!checked); // Rollback
+        } else {
+          toast.success(`${name.replace('show', '')} is now ${checked ? 'Public' : 'Private'}`);
+        }
+      } catch (err) {
+        toast.error('Connection failed.');
+        setIsPublic(!checked);
+      } finally {
+        setIsUpdating(false);
+      }
+    };
+
     return (
-      <div style={{ position: 'absolute', top: '-10px', right: '0', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-secondary)', padding: '2px 8px', borderRadius: '12px', border: '1px solid var(--border-color)', zIndex: 5, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+      <div style={{ 
+        position: 'absolute', 
+        top: '-10px', 
+        right: '0', 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '0.4rem', 
+        background: 'var(--bg-secondary)', 
+        padding: '2px 8px', 
+        borderRadius: '12px', 
+        border: '1px solid var(--border-color)', 
+        zIndex: 5, 
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        opacity: isUpdating ? 0.6 : 1,
+        pointerEvents: isUpdating ? 'none' : 'auto',
+        transition: 'opacity 0.2s'
+      }}>
         <span style={{ fontSize: '0.6rem', color: isPublic ? 'var(--accent-primary)' : 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '900', letterSpacing: '0.05em' }}>
           {isPublic ? 'Public' : 'Private'}
         </span>
         <label style={{ position: 'relative', display: 'inline-block', width: '24px', height: '14px', cursor: 'pointer' }}>
-          <input type="hidden" name={`privacy_${name}`} value="off" />
+          <input type="hidden" name={`privacy_${name}`} value={isPublic ? 'on' : 'off'} />
           <input 
             type="checkbox" 
-            name={`privacy_${name}`} 
-            value="on"
             checked={isPublic}
-            onChange={(e) => setIsPublic(e.target.checked)}
+            onChange={(e) => handleToggle(e.target.checked)}
             style={{ opacity: 0, width: 0, height: 0 }}
           />
           <span style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: isPublic ? 'var(--accent-primary)' : '#444', transition: '.2s', borderRadius: '14px' }}>

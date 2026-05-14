@@ -119,6 +119,32 @@ export async function updateProfile(prevState: any, formData: FormData) {
   }
 }
 
+export async function updatePrivacyAction(settingName: string, isPublic: boolean) {
+  try {
+    const user = await getServerUser();
+    if (!user) return { error: 'Not authenticated.' };
+
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.uid },
+      select: { privacySettings: true }
+    });
+
+    const currentSettings = (dbUser?.privacySettings as Record<string, boolean>) || {};
+    const newSettings = { ...currentSettings, [settingName]: isPublic };
+
+    await prisma.user.update({
+      where: { id: user.uid },
+      data: { privacySettings: newSettings }
+    });
+
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error) {
+    console.error('[updatePrivacyAction]', error);
+    return { error: 'Failed to update privacy setting.' };
+  }
+}
+
 // ─────────────────────────────────────────
 // Role Management (Admin / Co-Admin)
 // ─────────────────────────────────────────
