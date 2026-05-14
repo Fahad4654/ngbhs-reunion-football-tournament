@@ -13,8 +13,18 @@ export interface AppUser {
   workplace: string | null;
   phone: string | null;
   batchId: string | null;
+  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
   currentAddress: string | null;
   permanentAddress: string | null;
+  secondaryEmail: string | null;
+  whatsappNo: string | null;
+  facebookUrl: string | null;
+  instagramUrl: string | null;
+  linkedinUrl: string | null;
+  githubUrl: string | null;
+  websiteUrl: string | null;
 }
 
 /**
@@ -36,20 +46,31 @@ export async function getServerUser(): Promise<AppUser | null> {
     });
 
     if (!user) return null;
+    const anyUser = user as any;
 
     return {
-      uid: user.id,
-      email: user.email,
-      name: user.name,
-      image: user.image,
-      role: user.role,
-      status: user.status,
-      occupation: user.occupation,
-      workplace: user.workplace,
-      phone: user.phone,
-      batchId: user.batchId,
-      currentAddress: user.currentAddress,
-      permanentAddress: user.permanentAddress,
+      uid: anyUser.id,
+      email: anyUser.email,
+      name: anyUser.name,
+      firstName: anyUser.firstName,
+      lastName: anyUser.lastName,
+      username: anyUser.username,
+      image: anyUser.image,
+      role: anyUser.role,
+      status: anyUser.status,
+      occupation: anyUser.occupation,
+      workplace: anyUser.workplace,
+      phone: anyUser.phone,
+      batchId: anyUser.batchId,
+      currentAddress: anyUser.currentAddress,
+      permanentAddress: anyUser.permanentAddress,
+      secondaryEmail: anyUser.secondaryEmail,
+      whatsappNo: anyUser.whatsappNo,
+      facebookUrl: anyUser.facebookUrl,
+      instagramUrl: anyUser.instagramUrl,
+      linkedinUrl: anyUser.linkedinUrl,
+      githubUrl: anyUser.githubUrl,
+      websiteUrl: anyUser.websiteUrl,
     };
   } catch (error) {
     console.error("Auth verification error:", error);
