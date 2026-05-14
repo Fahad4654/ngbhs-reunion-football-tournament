@@ -236,6 +236,13 @@ model User {
   isCommitteeMember   Boolean            @default(false)
   committeeRole       String?
   isVolunteer         Boolean            @default(false)
+  secondaryEmail      String?
+  facebookUrl         String?
+  instagramUrl        String?
+  linkedinUrl         String?
+  githubUrl           String?
+  websiteUrl          String?
+  whatsappNo          String?
   cheers              Cheer[]
   comments            Comment[]
   manOfTheMatchAwards Match[]            @relation("ManOfTheMatch")

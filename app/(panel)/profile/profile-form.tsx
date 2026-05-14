@@ -4,6 +4,13 @@ import { useActionState, useState, useRef, useEffect } from 'react';
 import { updateProfile } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
 import styles from '@/app/(website)/login/login.module.css';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LanguageIcon from '@mui/icons-material/Language';
+import EmailIcon from '@mui/icons-material/Email';
 
 interface ProfileFormProps {
   user: any;
@@ -152,6 +159,66 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           <textarea name="permanentAddress" defaultValue={user.permanentAddress || ''} placeholder="Natore, Bangladesh" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
         </div>
       </div>
+
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2rem', marginTop: '1rem' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--accent-primary)', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Contact & Social Presence
+        </h3>
+        
+        <div className="responsive-grid">
+          <div className={styles.inputGroup}>
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <EmailIcon sx={{ fontSize: '1.1rem' }} /> Secondary Email
+            </label>
+            <input name="secondaryEmail" type="email" defaultValue={user.secondaryEmail || ''} placeholder="alternative@example.com" className={styles.input} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <WhatsAppIcon sx={{ fontSize: '1.1rem', color: '#25D366' }} /> WhatsApp Number
+            </label>
+            <input name="whatsappNo" type="text" defaultValue={user.whatsappNo || ''} placeholder="e.g. +88017..." className={styles.input} />
+          </div>
+        </div>
+
+        <div className="responsive-grid">
+          <div className={styles.inputGroup}>
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <FacebookIcon sx={{ fontSize: '1.1rem', color: '#1877F2' }} /> Facebook Profile URL
+            </label>
+            <input name="facebookUrl" type="url" defaultValue={user.facebookUrl || ''} placeholder="https://facebook.com/username" className={styles.input} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <InstagramIcon sx={{ fontSize: '1.1rem', color: '#E4405F' }} /> Instagram Profile URL
+            </label>
+            <input name="instagramUrl" type="url" defaultValue={user.instagramUrl || ''} placeholder="https://instagram.com/username" className={styles.input} />
+          </div>
+        </div>
+
+        <div className="responsive-grid">
+          <div className={styles.inputGroup}>
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <LinkedInIcon sx={{ fontSize: '1.1rem', color: '#0A66C2' }} /> LinkedIn Profile URL
+            </label>
+            <input name="linkedinUrl" type="url" defaultValue={user.linkedinUrl || ''} placeholder="https://linkedin.com/in/username" className={styles.input} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <GitHubIcon sx={{ fontSize: '1.1rem' }} /> GitHub Profile URL
+            </label>
+            <input name="githubUrl" type="url" defaultValue={user.githubUrl || ''} placeholder="https://github.com/username" className={styles.input} />
+          </div>
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <LanguageIcon sx={{ fontSize: '1.1rem', color: 'var(--accent-primary)' }} /> Personal Website / Portfolio
+          </label>
+          <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} />
+        </div>
+      </div>
+
+
 
       <button type="submit" className="btn btn-primary" disabled={isPending} style={{ marginTop: '1rem', padding: '1.5vh 2vw', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)' }}>
         {isPending ? 'Saving Changes...' : 'Save Profile Details'}

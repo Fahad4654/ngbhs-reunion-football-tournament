@@ -7,6 +7,12 @@ import WorkIcon from '@mui/icons-material/Work';
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import HomeIcon from '@mui/icons-material/Home';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LanguageIcon from '@mui/icons-material/Language';
 
 interface UserDetailModalProps {
   user: any;
@@ -168,7 +174,57 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
                 </div>
               </div>
             )}
+
+            {/* Social & Other Contact */}
+            {(user.secondaryEmail || user.whatsappNo || user.facebookUrl || user.instagramUrl || user.linkedinUrl || user.githubUrl || user.websiteUrl) && (
+              <div style={{ 
+                marginTop: '1rem', 
+                paddingTop: '1.5rem', 
+                borderTop: '1px solid rgba(255,255,255,0.05)',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '1rem',
+                justifyContent: 'center'
+              }}>
+                {user.secondaryEmail && (
+                  <a href={`mailto:${user.secondaryEmail}`} title={`Secondary Email: ${user.secondaryEmail}`} style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseOver={e => e.currentTarget.style.color = 'var(--accent-primary)'} onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}>
+                    <EmailIcon />
+                  </a>
+                )}
+                {user.whatsappNo && (
+                  <a href={`https://wa.me/${user.whatsappNo.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" style={{ color: '#25D366', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                    <WhatsAppIcon />
+                  </a>
+                )}
+                {user.facebookUrl && (
+                  <a href={user.facebookUrl} target="_blank" rel="noopener noreferrer" title="Facebook" style={{ color: '#1877F2', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                    <FacebookIcon />
+                  </a>
+                )}
+                {user.instagramUrl && (
+                  <a href={user.instagramUrl} target="_blank" rel="noopener noreferrer" title="Instagram" style={{ color: '#E4405F', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                    <InstagramIcon />
+                  </a>
+                )}
+                {user.linkedinUrl && (
+                  <a href={user.linkedinUrl} target="_blank" rel="noopener noreferrer" title="LinkedIn" style={{ color: '#0A66C2', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                    <LinkedInIcon />
+                  </a>
+                )}
+                {user.githubUrl && (
+                  <a href={user.githubUrl} target="_blank" rel="noopener noreferrer" title="GitHub" style={{ color: '#ffffff', opacity: 0.7, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.7'}>
+                    <GitHubIcon />
+                  </a>
+                )}
+                {user.websiteUrl && (
+                  <a href={user.websiteUrl} target="_blank" rel="noopener noreferrer" title="Website" style={{ color: 'var(--accent-primary)', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                    <LanguageIcon />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
+
         </div>
       </div>
     </div>

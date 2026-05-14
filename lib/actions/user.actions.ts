@@ -23,6 +23,13 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const batchId = formData.get('batchId') as string;
     const currentAddress = formData.get('currentAddress') as string;
     const permanentAddress = formData.get('permanentAddress') as string;
+    const secondaryEmail = formData.get('secondaryEmail') as string;
+    const facebookUrl = formData.get('facebookUrl') as string;
+    const instagramUrl = formData.get('instagramUrl') as string;
+    const linkedinUrl = formData.get('linkedinUrl') as string;
+    const githubUrl = formData.get('githubUrl') as string;
+    const websiteUrl = formData.get('websiteUrl') as string;
+    const whatsappNo = formData.get('whatsappNo') as string;
     const profilePicture = formData.get('profilePicture') as File | null;
 
     const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
@@ -62,6 +69,13 @@ export async function updateProfile(prevState: any, formData: FormData) {
         image: finalImageUrl,
         currentAddress,
         permanentAddress,
+        secondaryEmail,
+        facebookUrl,
+        instagramUrl,
+        linkedinUrl,
+        githubUrl,
+        websiteUrl,
+        whatsappNo,
         ...(shouldResetStatus ? { status: 'PENDING' } : {}),
       },
     });
