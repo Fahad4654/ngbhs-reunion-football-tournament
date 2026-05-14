@@ -131,9 +131,15 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25vw' }}>
       <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.042vw' }}>
-        <div className={styles.inputGroup}>
-          <label htmlFor="name" className={styles.label}>Full Name</label>
-          <input id="name" name="name" type="text" placeholder="Your full name" className={styles.input} required disabled={isPending} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="firstName" className={styles.label}>First Name</label>
+            <input id="firstName" name="firstName" type="text" placeholder="First Name" className={styles.input} required disabled={isPending} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="lastName" className={styles.label}>Last Name</label>
+            <input id="lastName" name="lastName" type="text" placeholder="Last Name" className={styles.input} required disabled={isPending} />
+          </div>
         </div>
         <div className={styles.inputGroup}>
           <label htmlFor="email" className={styles.label}>Email Address</label>

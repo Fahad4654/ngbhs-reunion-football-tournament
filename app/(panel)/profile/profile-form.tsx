@@ -110,9 +110,15 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
       </div>
 
-      <div className={styles.inputGroup}>
-        <label className={styles.label}>Full Name</label>
-        <input name="name" type="text" defaultValue={user.name || ''} className={styles.input} required />
+      <div className="responsive-grid">
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>First Name</label>
+          <input name="firstName" type="text" defaultValue={user.firstName || ''} className={styles.input} required />
+        </div>
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>Last Name</label>
+          <input name="lastName" type="text" defaultValue={user.lastName || ''} className={styles.input} required />
+        </div>
       </div>
 
       <div className={styles.inputGroup}>

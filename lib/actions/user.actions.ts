@@ -16,7 +16,9 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const user = await getServerUser();
     if (!user) return { error: 'Not authenticated.' };
 
-    const name = formData.get('name') as string;
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const name = `${firstName} ${lastName}`.trim();
     const username = formData.get('username') as string;
     const occupation = formData.get('occupation') as string;
     const workplace = formData.get('workplace') as string;
@@ -63,6 +65,8 @@ export async function updateProfile(prevState: any, formData: FormData) {
       where: { id: user.uid },
       data: {
         name,
+        firstName,
+        lastName,
         username: username || null,
         occupation,
         workplace,
