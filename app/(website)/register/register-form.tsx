@@ -80,7 +80,7 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
     password:  validatePassword(password),
     batch:     validateBatch(batchId),
   };
-  const isFormValid = mounted && Object.values(errors).every(e => !e);
+  const isFormValid = Object.values(errors).every(e => !e);
 
   // Password strength
   const calcStrength = (p: string) => {
@@ -274,8 +274,8 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
           <p style={{ color: 'var(--accent-danger)', fontSize: '0.85rem', textAlign: 'center' }}>{state.error}</p>
         )}
 
-        <button type="submit" className="btn btn-primary" disabled={isPending || !isFormValid}
-          style={{ width: '100%', marginTop: '0.25rem', opacity: isFormValid ? 1 : 0.6, transition: 'opacity 0.2s ease' }}>
+        <button type="submit" className="btn btn-primary" disabled={isPending || (mounted && !isFormValid)}
+          style={{ width: '100%', marginTop: '0.25rem', opacity: (!mounted || isFormValid) ? 1 : 0.6, transition: 'opacity 0.2s ease' }}>
           {isPending ? 'Creating Account…' : 'Create Account'}
         </button>
       </form>
