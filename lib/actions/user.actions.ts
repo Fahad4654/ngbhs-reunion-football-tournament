@@ -61,13 +61,16 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     const shouldResetStatus = hasBatchChanged && user.role === 'USER';
 
+    const existingUser = await prisma.user.findUnique({ where: { id: user.uid } }) as any;
+    const canUpdateUsername = !existingUser?.username;
+
     await prisma.user.update({
       where: { id: user.uid },
       data: {
         name,
         firstName,
         lastName,
-        username: username || null,
+        ...(canUpdateUsername ? { username: username || null } : {}),
         occupation,
         workplace,
         phone: phone || null,

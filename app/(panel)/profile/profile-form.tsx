@@ -131,9 +131,13 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           className={styles.input} 
           pattern="^[a-zA-Z0-9_]{3,20}$"
           title="Username must be 3-20 characters long and can only contain letters, numbers, and underscores."
+          disabled={!!user.username}
+          style={!!user.username ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
         />
         <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-          This can be used to log in instead of your email.
+          {!!user.username 
+            ? "Your username is permanent and cannot be changed." 
+            : "Choose a unique username. Once set, it cannot be changed."}
         </p>
       </div>
 
