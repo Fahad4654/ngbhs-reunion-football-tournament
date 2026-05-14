@@ -80,7 +80,30 @@ export default async function DashboardPage() {
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
    .slice(0, 5);
 
-  const isProfileIncomplete = !fullUser?.phone || !fullUser?.batchId || !fullUser?.username;
+  const profileFields = [
+    { label: 'First Name', value: fullUser?.firstName },
+    { label: 'Last Name', value: fullUser?.lastName },
+    { label: 'Username', value: fullUser?.username },
+    { label: 'Phone', value: fullUser?.phone },
+    { label: 'Batch', value: fullUser?.batchId },
+    { label: 'Occupation', value: fullUser?.occupation },
+    { label: 'Workplace', value: fullUser?.workplace },
+    { label: 'Current Address', value: fullUser?.currentAddress },
+    { label: 'Permanent Address', value: fullUser?.permanentAddress },
+    { label: 'Bio', value: fullUser?.bio },
+    { label: 'Profile Picture', value: fullUser?.image },
+    { label: 'Birthday', value: fullUser?.birthday },
+    { label: 'Gender', value: fullUser?.gender },
+    { label: 'Marital Status', value: fullUser?.maritalStatus },
+    { label: 'Education', value: fullUser?.education && Array.isArray(fullUser.education) && fullUser.education.length > 0 && fullUser.education[0].institute },
+    { label: 'Nicknames', value: fullUser?.nicknames && Array.isArray(fullUser.nicknames) && fullUser.nicknames.length > 0 },
+    { label: 'Social Links', value: (fullUser?.secondaryEmail || fullUser?.whatsappNo || fullUser?.facebookUrl || fullUser?.instagramUrl || fullUser?.linkedinUrl || fullUser?.githubUrl || fullUser?.websiteUrl || fullUser?.youtubeUrl) }
+  ];
+
+  const completedCount = profileFields.filter(f => !!f.value).length;
+  const completionPercentage = Math.round((completedCount / profileFields.length) * 100);
+  const isProfileIncomplete = completionPercentage < 100;
+  const missingFields = profileFields.filter(f => !f.value).map(f => f.label);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1rem, 3vw, 2rem)', maxWidth: '100%', overflow: 'hidden' }}>
@@ -90,7 +113,7 @@ export default async function DashboardPage() {
           padding: '2rem', 
           borderRadius: '20px', 
           border: '1px solid rgba(235, 183, 0, 0.4)',
-          background: 'linear-gradient(135deg, rgba(235, 183, 0, 0.12) 0%, rgba(0, 0, 0, 0.4) 100%)',
+          background: 'linear-gradient(135deg, rgba(235, 183, 0, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%)',
           display: 'flex',
           flexDirection: 'column',
           gap: '1.25rem',
@@ -105,33 +128,66 @@ export default async function DashboardPage() {
             right: '-10%', 
             width: '300px', 
             height: '300px', 
-            background: 'radial-gradient(circle, rgba(235, 183, 0, 0.15) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(235, 183, 0, 0.2) 0%, transparent 70%)',
             zIndex: 0,
             pointerEvents: 'none'
           }}></div>
 
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>📝</span>
-              <h3 style={{ color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '900', margin: 0 }}>
-                Complete Your Profile
-              </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '1.5rem' }}>🚀</span>
+                  <h3 style={{ color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '900', margin: 0 }}>
+                    Complete Your Profile ({completionPercentage}%)
+                  </h3>
+                </div>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', maxWidth: '700px', margin: 0 }}>
+                  Boost your visibility in the alumni network! Fill in your details to reach 100%.
+                </p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '1.25rem', fontWeight: '900', color: 'var(--accent-primary)' }}>{completedCount}/{profileFields.length}</span>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Fields Done</div>
+              </div>
             </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.6', maxWidth: '700px' }}>
-              Welcome to the community! Since you logged in via Google, some details like your 
-              <strong style={{ color: '#fff' }}> Phone Number</strong>, 
-              <strong style={{ color: '#fff' }}> Batch</strong>, and 
-              <strong style={{ color: '#fff' }}> Username</strong> are missing. 
-              Please complete these to get full access and a better experience.
-            </p>
-            <a href="/profile" className="btn btn-primary" style={{ 
-              marginTop: '0.5rem', 
-              padding: '0.8rem 2rem', 
-              boxShadow: '0 4px 15px rgba(235, 183, 0, 0.3)',
-              display: 'inline-block'
+
+            {/* Progress Bar */}
+            <div style={{ 
+              width: '100%', 
+              height: '10px', 
+              background: 'rgba(255,255,255,0.05)', 
+              borderRadius: '5px', 
+              overflow: 'hidden',
+              marginBottom: '1.5rem',
+              border: '1px solid rgba(255,255,255,0.05)'
             }}>
-              COMPLETE PROFILE NOW
-            </a>
+              <div style={{ 
+                width: `${completionPercentage}%`, 
+                height: '100%', 
+                background: 'linear-gradient(90deg, var(--accent-primary) 0%, #ffcc00 100%)',
+                boxShadow: '0 0 10px rgba(235, 183, 0, 0.5)',
+                transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)'
+              }} />
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'center' }}>
+              <Link href="/profile" className="btn btn-primary" style={{ 
+                padding: '0.8rem 2rem', 
+                boxShadow: '0 4px 15px rgba(235, 183, 0, 0.3)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                UPDATE PROFILE NOW <ArrowForwardIcon sx={{ fontSize: '1rem' }} />
+              </Link>
+              
+              {missingFields.length > 0 && (
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  Next up: <span style={{ color: 'rgba(255,255,255,0.7)' }}>{missingFields[0]}</span>, {missingFields[1] || 'and more'}...
+                </div>
+              )}
+            </div>
           </div>
           
           <div style={{ 
@@ -139,12 +195,12 @@ export default async function DashboardPage() {
             right: '2rem', 
             top: '50%', 
             transform: 'translateY(-50%)', 
-            fontSize: '5rem', 
-            opacity: 0.07,
+            fontSize: '6rem', 
+            opacity: 0.05,
             pointerEvents: 'none',
             zIndex: 0
           }}>
-            👤
+            ⚡
           </div>
         </div>
       )}

@@ -10,6 +10,7 @@ interface PhoneInputProps {
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  onChange?: (value: string) => void;
 }
 
 // Build dropdown option list from country.json (emoji + name + dial code)
@@ -26,21 +27,34 @@ const allOptions = countries.flatMap(c => {
   return [{ isoCode: c.code, code, emoji: c.emoji, name: c.name }];
 });
 
-// Get max national number length for a country via AsYouType
-function getMaxLocalLength(isoCode: string): number {
+// Get max national number length for a country
+function getMaxLocalLength(isoCode: string, dialCode: string): number {
+  const dialCodeDigits = dialCode.replace('+', '').length;
+  const absoluteMax = 15 - dialCodeDigits;
+
   try {
-    // Ask libphonenumber-js how many digits the longest number has
     const formatter = new AsYouType(isoCode as any);
-    // Feed 15 digits and see what it gives back — we cap at the cleaned digit count
-    formatter.input('123456789012345');
+    // Use a more realistic sequence to trigger the metadata lookup
+    // Most countries start with 1-9.
+    formatter.input('9');
+    formatter.input('012345678901234');
     const result = formatter.getNumber();
-    if (result) return result.nationalNumber.length;
+    
+    if (result && result.nationalNumber) {
+      // libphonenumber-js metadata might allow longer numbers for some countries,
+      // but we still want to respect the user's 15-digit total limit.
+      return Math.min(result.nationalNumber.length, absoluteMax);
+    }
   } catch {}
-  return 12; // safe fallback
+  
+  // Specific override for Bangladesh if detection fails
+  if (isoCode === 'BD') return 10;
+  
+  return absoluteMax; 
 }
 
 export default function PhoneInput({
-  id, name, defaultValue = '', required, disabled, className
+  id, name, defaultValue = '', required, disabled, className, onChange
 }: PhoneInputProps) {
   const [selectedOption, setSelectedOption] = useState(
     () => allOptions.find(o => o.code === '+880') ?? allOptions[0]
@@ -87,8 +101,12 @@ export default function PhoneInput({
     ? allOptions.filter(o => o.name.toLowerCase().includes(q) || o.code.includes(q))
     : allOptions;
 
-  const maxLocalLength = getMaxLocalLength(selectedOption.isoCode);
+  const maxLocalLength = getMaxLocalLength(selectedOption.isoCode, selectedOption.code);
   const fullPhone = localNumber ? `${selectedOption.code}${localNumber}` : '';
+
+  useEffect(() => {
+    if (onChange) onChange(fullPhone);
+  }, [fullPhone, onChange]);
 
   return (
     <div className={className} ref={dropdownRef}
@@ -164,7 +182,7 @@ export default function PhoneInput({
                 onClick={() => {
                   setSelectedOption(opt);
                   // Trim local number if new country max is shorter
-                  const newMax = getMaxLocalLength(opt.isoCode);
+                  const newMax = getMaxLocalLength(opt.isoCode, opt.code);
                   if (localNumber.length > newMax) setLocalNumber(localNumber.slice(0, newMax));
                   setOpen(false); setSearch('');
                 }}

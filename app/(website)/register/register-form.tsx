@@ -11,6 +11,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PhoneInput from '@/app/components/PhoneInput';
+import { isValidPhone } from '@/lib/utils/phone';
 
 // ─── Validation helpers ───────────────────────────────────────────────────────
 const validateEmail    = (v: string) => {
@@ -24,6 +25,11 @@ const validateBatch     = (v: string) => (!v ? 'Please select your batch.' : '')
 const validatePassword  = (v: string) => {
   if (!v) return 'Password is required.';
   if (v.length < 6) return 'Password must be at least 6 characters.';
+  return '';
+};
+const validatePhone = (v: string) => {
+  if (!v) return 'Phone number is required.';
+  if (!isValidPhone(v)) return 'Invalid phone number format.';
   return '';
 };
 
@@ -63,11 +69,12 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
   const [lastName,  setLastName]  = useState('');
   const [email,     setEmail]     = useState('');
   const [password,  setPassword]  = useState('');
+  const [phone,     setPhone]     = useState('');
   const [batchId,   setBatchId]   = useState('');
 
   // Touched: only show errors after the user has interacted with a field
   const [touched, setTouched] = useState({
-    firstName: false, lastName: false, email: false, password: false, batch: false,
+    firstName: false, lastName: false, email: false, password: false, batch: false, phone: false,
   });
   const touch = (field: keyof typeof touched) =>
     setTouched(prev => ({ ...prev, [field]: true }));
@@ -79,6 +86,7 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
     email:     validateEmail(email),
     password:  validatePassword(password),
     batch:     validateBatch(batchId),
+    phone:     validatePhone(phone),
   };
   const isFormValid = Object.values(errors).every(e => !e);
 
@@ -216,7 +224,15 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
         {/* Phone */}
         <div className={styles.inputGroup}>
           <label htmlFor="phone" className={styles.label}>Phone Number</label>
-          <PhoneInput id="phone" name="phone" required disabled={isPending} className={styles.input} />
+          <PhoneInput 
+            id="phone" 
+            name="phone" 
+            required 
+            disabled={isPending} 
+            className={styles.input}
+            onChange={setPhone}
+          />
+          <FieldMessage error={errors.phone} touched={touched.phone || phone.length > 5} />
         </div>
 
         {/* Email */}
