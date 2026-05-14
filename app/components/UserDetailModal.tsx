@@ -168,7 +168,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               </div>
             )}
 
-            {user.currentAddress && user.privacySettings?.showAddress !== false && (
+            {user.currentAddress && user.privacySettings?.showCurrentAddress !== false && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <LocationOnIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
@@ -178,7 +178,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               </div>
             )}
 
-            {user.permanentAddress && user.privacySettings?.showAddress !== false && (
+            {user.permanentAddress && user.privacySettings?.showPermanentAddress !== false && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <HomeIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>

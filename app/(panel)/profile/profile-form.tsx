@@ -227,12 +227,12 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
 
       <div className="responsive-grid">
         <div className={styles.inputGroup} style={{ position: 'relative' }}>
-          <PrivacyToggle name="showAddress" defaultChecked={user.privacySettings?.showAddress ?? false} />
+          <PrivacyToggle name="showCurrentAddress" defaultChecked={user.privacySettings?.showCurrentAddress ?? false} />
           <label className={styles.label}>Current Address</label>
           <textarea name="currentAddress" defaultValue={user.currentAddress || ''} placeholder="Natore, Bangladesh" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
         </div>
         <div className={styles.inputGroup} style={{ position: 'relative' }}>
-          <PrivacyToggle name="showAddress" defaultChecked={user.privacySettings?.showAddress ?? false} />
+          <PrivacyToggle name="showPermanentAddress" defaultChecked={user.privacySettings?.showPermanentAddress ?? false} />
           <label className={styles.label}>Permanent Address</label>
           <textarea name="permanentAddress" defaultValue={user.permanentAddress || ''} placeholder="Natore, Bangladesh" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
         </div>
