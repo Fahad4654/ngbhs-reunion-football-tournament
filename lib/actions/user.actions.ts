@@ -65,14 +65,16 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const canUpdateUsername = !dbUserRecord?.username;
     const canUpdatePhone = !dbUserRecord?.phone;
 
-    // Extract all privacy settings dynamically
+    // Extract all privacy settings dynamically and robustly
+    const rawData = Object.fromEntries(formData.entries());
     const privacySettings: Record<string, boolean> = {};
-    formData.forEach((value, key) => {
+    
+    for (const [key, value] of Object.entries(rawData)) {
       if (key.startsWith('privacy_')) {
         const settingName = key.replace('privacy_', '');
         privacySettings[settingName] = value === 'on';
       }
-    });
+    }
 
     console.log('[updateProfile] Privacy Settings to save:', privacySettings);
 

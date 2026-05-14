@@ -87,7 +87,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
             height: '100px', 
             borderRadius: '50%', 
             border: '4px solid #0f1114',
-            background: user.image ? 'transparent' : 'var(--accent-primary)',
+            background: user.image && user.privacySettings?.showImage !== false ? 'transparent' : 'var(--accent-primary)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -98,7 +98,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
             margin: '0 auto 1.5rem',
             boxShadow: '0 10px 20px rgba(0,0,0,0.3)'
           }}>
-            {user.image ? (
+            {user.image && user.privacySettings?.showImage !== false ? (
               <img src={user.image} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
               user.name?.charAt(0)

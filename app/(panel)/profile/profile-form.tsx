@@ -116,6 +116,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           }}
           title="Click to change profile picture"
         >
+          <PrivacyToggle name="showImage" defaultChecked={user.privacySettings?.showImage ?? true} />
           {previewImage
             ? <img src={previewImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : user.name?.charAt(0)
