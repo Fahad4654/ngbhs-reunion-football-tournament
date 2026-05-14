@@ -61,6 +61,7 @@ export async function loginWithEmail(prevState: any, formData: FormData) {
 export async function registerWithEmail(prevState: any, formData: FormData) {
   const firstName = formData.get('firstName') as string;
   const lastName = formData.get('lastName') as string;
+  const preferredUsername = formData.get('username') as string;
   const name = `${firstName} ${lastName}`.trim();
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -74,7 +75,7 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const username = await generateUniqueUsername(name, email);
+    const username = await generateUniqueUsername(name, email, preferredUsername);
 
     if (existingUser) {
       await prisma.user.update({

@@ -142,6 +142,10 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
           </div>
         </div>
         <div className={styles.inputGroup}>
+          <label htmlFor="username" className={styles.label}>Preferred Username (Optional)</label>
+          <input id="username" name="username" type="text" placeholder="e.g. john_doe (assigned automatically if empty)" className={styles.input} disabled={isPending} />
+        </div>
+        <div className={styles.inputGroup}>
           <label htmlFor="email" className={styles.label}>Email Address</label>
           <input id="email" name="email" type="email" placeholder="name@example.com" className={styles.input} required disabled={isPending} />
         </div>

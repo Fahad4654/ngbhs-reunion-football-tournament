@@ -9,7 +9,18 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export async function generateUniqueUsername(name: string, email: string): Promise<string> {
+export async function generateUniqueUsername(name: string, email: string, preferred?: string): Promise<string> {
+  // 0. Try preferred username if provided
+  if (preferred && preferred.trim().length >= 3) {
+    const slugifiedPreferred = slugify(preferred);
+    const existing = await prisma.user.findUnique({
+      where: { username: slugifiedPreferred }
+    });
+    if (!existing) {
+      return slugifiedPreferred;
+    }
+  }
+
   // 1. Try name-based slug
   let username = slugify(name);
   
