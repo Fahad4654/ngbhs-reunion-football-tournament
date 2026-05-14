@@ -1,3 +1,4 @@
+import { isValidPhoneNumber, parsePhoneNumber, AsYouType, getCountries, getCountryCallingCode } from 'libphonenumber-js';
 import countriesData from './country.json';
 
 export interface Country {
@@ -11,70 +12,62 @@ export interface Country {
 
 export const countries = countriesData as Country[];
 
-// Flat list of all possible clean dial codes (e.g. "+1", "+1809")
-export const validDialCodes = new Set<string>();
-
-countries.forEach((country) => {
-  if (country.dial_code) {
-    // split by comma, strip spaces
-    const codes = country.dial_code.split(',').map((c: string) => c.replace(/\s+/g, ''));
-    codes.forEach((c: string) => validDialCodes.add(c));
-  }
-});
-
-// Sorted by length descending, so we match longest dial code first (e.g. +1809 before +1)
-export const sortedDialCodes = Array.from(validDialCodes).sort((a, b) => b.length - a.length);
-
 /**
- * Validates if a phone number string has a valid format and country code.
- * Example: +8801712345678 -> true
+ * Validates a full phone number string (e.g. "+8801712345678") using libphonenumber-js.
+ * This is now authoritative — no need to maintain length tables manually.
  */
 export function isValidPhone(phone: string): boolean {
   if (!phone || typeof phone !== 'string') return false;
-  
-  // Remove all spaces and dashes for checking
-  const cleanPhone = phone.replace(/[\s-]/g, '');
-  
-  // Must start with + and contain only digits afterwards (total length between 7 and 15)
-  if (!/^\+\d{7,15}$/.test(cleanPhone)) return false;
-
-  // Check if it starts with a known dial code
-  for (const dialCode of sortedDialCodes) {
-    if (cleanPhone.startsWith(dialCode)) {
-      // Ensure the local part has at least some digits (e.g., 4 to 12 digits after dial code)
-      const localPart = cleanPhone.slice(dialCode.length);
-      if (localPart.length >= 4 && localPart.length <= 12) {
-        return true;
-      }
-    }
+  try {
+    return isValidPhoneNumber(phone.trim());
+  } catch {
+    return false;
   }
-
-  return false;
 }
 
 /**
- * Normalizes phone number (removes spaces, dashes, etc.)
+ * Returns the calling code for a given ISO 3166-1 alpha-2 country code (e.g. "BD" → "+880").
  */
-export function normalizePhone(phone: string): string {
-  if (!phone) return '';
-  return phone.replace(/[\s-]/g, '');
+export function getDialCodeForCountry(countryCode: string): string {
+  try {
+    return '+' + getCountryCallingCode(countryCode as any);
+  } catch {
+    return '';
+  }
 }
 
 /**
- * Tries to extract the dial code from a full phone number string.
- * Returns the dial code and the local number part.
+ * Tries to parse a full phone string and return { dialCode, localNumber }.
  */
-export function parsePhone(phone: string): { dialCode: string; localNumber: string } | null {
+export function parsePhone(phone: string): { dialCode: string; localNumber: string; countryCode?: string } | null {
   if (!phone) return null;
-  const cleanPhone = phone.replace(/[\s-]/g, '');
-  
-  for (const dialCode of sortedDialCodes) {
-    if (cleanPhone.startsWith(dialCode)) {
-      return {
-        dialCode,
-        localNumber: cleanPhone.slice(dialCode.length)
-      };
+  try {
+    const parsed = parsePhoneNumber(phone.trim());
+    if (parsed) {
+      const dialCode = '+' + parsed.countryCallingCode;
+      const localNumber = parsed.nationalNumber;
+      return { dialCode, localNumber, countryCode: parsed.country };
+    }
+  } catch {}
+
+  // Fallback: try to match our country.json dial codes
+  const clean = phone.replace(/\s/g, '');
+  const sorted = countries
+    .filter(c => c.dial_code)
+    .flatMap(c => c.dial_code!.split(',').map(d => ({ code: d.trim().replace(/\s/g, ''), c })))
+    .sort((a, b) => b.code.length - a.code.length);
+
+  for (const { code } of sorted) {
+    if (clean.startsWith(code)) {
+      return { dialCode: code, localNumber: clean.slice(code.length) };
     }
   }
   return null;
+}
+
+/**
+ * Removes all non-digit characters (for input normalisation).
+ */
+export function normalizePhone(phone: string): string {
+  return (phone ?? '').replace(/\D/g, '');
 }
