@@ -53,6 +53,10 @@ export default async function AdminDashboard() {
               <SportsSoccerIcon />
               <span>Manage Matches & Scores</span>
             </Link>
+            <Link href="/admin/ads" className="btn btn-primary" style={{ justifyContent: 'flex-start', background: 'var(--accent-secondary)', gap: '0.75rem' }}>
+              <NewspaperIcon />
+              <span>Manage Advertisements</span>
+            </Link>
             <Link href="/admin/news" className="btn glass" style={{ justifyContent: 'flex-start', border: '1px solid var(--border-color)', gap: '0.75rem' }}>
               <NewspaperIcon />
               <span>Publish News & Highlights</span>

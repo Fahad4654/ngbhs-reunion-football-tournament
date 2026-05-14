@@ -1,10 +1,13 @@
 import prisma from "@/lib/prisma";
 import styles from "./organization.module.css";
+import AdBanner from "@/app/components/AdBanner";
+import FloatingAd from "@/app/components/FloatingAd";
+import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const metadata = { title: "Organization | NGBHS Reunion Football Championship" };
 
 export default async function OrganizationPage() {
-  const [committee, volunteers] = await Promise.all([
+  const [committee, volunteers, ads] = await Promise.all([
     prisma.user.findMany({
       where: { isCommitteeMember: true },
       include: { batch: { select: { name: true } } },
@@ -14,21 +17,40 @@ export default async function OrganizationPage() {
       where: { isVolunteer: true },
       include: { batch: { select: { name: true } } },
       orderBy: { name: 'asc' }
-    })
+    }),
+    getActiveAdsByPosition('ORGANIZATION')
   ]);
 
+
+  const hasAds = ads && ads.length > 0;
+
+
   return (
-    <div className={styles.page}>
-      {/* Hero Section */}
-      <div className={styles.hero}>
-        <div className="container">
-          <div className="badge">Behind the Scenes</div>
-          <h1 className={`${styles.heroTitle} text-gradient`}>Our Team</h1>
-          <p className={styles.heroSubtitle}>
-            The NGBHS Reunion Football Championship is powered by the passion and dedication of our committee members and selfless volunteers.
-          </p>
-        </div>
-      </div>
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: hasAds ? '1fr 300px' : '1fr', 
+        gap: '2.5rem', 
+        alignItems: 'start',
+        maxWidth: hasAds ? '100%' : '1000px',
+        margin: '0 auto'
+      }}>
+        
+        {/* Main Content */}
+        <div className={styles.page} style={{ padding: 0 }}>
+          {/* Hero Section */}
+          <div className={styles.hero}>
+            <div className="badge">Behind the Scenes</div>
+            <h1 className={`${styles.heroTitle} text-gradient`}>Our Team</h1>
+            <p className={styles.heroSubtitle}>
+              The NGBHS Reunion Football Championship is powered by the passion and dedication of our committee members and selfless volunteers.
+            </p>
+          </div>
+
+          {/* Mobile Floating Ads (Consolidated) */}
+          <FloatingAd positions={['ORGANIZATION', 'SIDEBAR', 'FLOATING']} />
+
+
 
       {/* Committee Section */}
       <section className={styles.section}>
@@ -94,6 +116,15 @@ export default async function OrganizationPage() {
           </div>
         </div>
       </section>
+        </div>
+
+        {/* Sidebar */}
+        <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 2rem)' }} className="desktop-only">
+          <AdBanner position="ORGANIZATION" showTitle className="glass" style={{ padding: '1.5rem', borderRadius: '1rem' }} />
+        </aside>
+
+
+      </div>
     </div>
   );
 }

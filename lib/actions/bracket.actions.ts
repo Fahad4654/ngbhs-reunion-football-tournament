@@ -38,7 +38,9 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
       
       const aGD = (a.goalsFor || 0) - (a.goalsAgainst || 0);
       const bGD = (b.goalsFor || 0) - (b.goalsAgainst || 0);
-      return bGD - aGD;
+      if (bGD !== aGD) return bGD - aGD;
+      
+      return (b.goalsFor || 0) - (a.goalsFor || 0);
     });
 
     // 1. Check if all matches in the current stage are FINISHED
@@ -58,28 +60,27 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
       }
     }
 
-    // 2. Find what the next stage is from bracketConfig
+    // 2. Find what stages to resolve from bracketConfig
     const bracketStages = tournament.bracketConfig as any[];
     
-    let nextConfigStage: any = null;
-    if (stage === "GROUP_STAGE" || stage === "MANUAL") {
-      nextConfigStage = bracketStages.length > 0 ? bracketStages[0] : null;
+    let stagesToResolve: any[] = [];
+    if (stage === "MANUAL") {
+      stagesToResolve = bracketStages; // Try to resolve all possible matchups
+    } else if (stage === "GROUP_STAGE") {
+      stagesToResolve = bracketStages.length > 0 ? [bracketStages[0]] : [];
     } else {
       const currentStageIndex = bracketStages.findIndex(s => s.stage === stage);
       if (currentStageIndex !== -1 && currentStageIndex + 1 < bracketStages.length) {
-        nextConfigStage = bracketStages[currentStageIndex + 1];
+        stagesToResolve = [bracketStages[currentStageIndex + 1]];
       }
     }
 
-    if (!nextConfigStage) {
+    if (stagesToResolve.length === 0) {
       console.log("[BRACKET ENGINE] No next stage found in config");
       return { success: false, error: "No next stage found in your bracket configuration." };
     }
 
-    console.log(`[BRACKET ENGINE] Resolving for next stage: ${nextConfigStage.stage}`);
-
     // 3. Create the matches for the next stage
-    const nextStageName = nextConfigStage.stage;
     let createdCount = 0;
 
     // Helper to resolve a team ID from a placeholder string
@@ -105,31 +106,55 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
       return null;
     };
 
-    for (const matchConfig of nextConfigStage.matches) {
-      const homeTeamId = resolveTeam(matchConfig.home);
-      const awayTeamId = resolveTeam(matchConfig.away);
+    for (const nextConfigStage of stagesToResolve) {
+      const nextStageName = nextConfigStage.stage;
+      console.log(`[BRACKET ENGINE] Resolving for stage: ${nextStageName}`);
 
-      if (homeTeamId && awayTeamId && homeTeamId !== awayTeamId) {
-        // Check if this specific match already exists
-        const exists = tournament.matches.some(m => 
-          m.stage === nextStageName && 
-          ((m.homeTeamId === homeTeamId && m.awayTeamId === awayTeamId) || 
-           (m.homeTeamId === awayTeamId && m.awayTeamId === homeTeamId))
+      const expectedMatchups: {home: string, away: string}[] = [];
+
+      for (const matchConfig of nextConfigStage.matches) {
+        const homeTeamId = resolveTeam(matchConfig.home);
+        const awayTeamId = resolveTeam(matchConfig.away);
+
+        if (homeTeamId && awayTeamId && homeTeamId !== awayTeamId) {
+          expectedMatchups.push({ home: homeTeamId, away: awayTeamId });
+
+          // Check if this specific match already exists
+          const exists = tournament.matches.some(m => 
+            m.stage === nextStageName && 
+            ((m.homeTeamId === homeTeamId && m.awayTeamId === awayTeamId) || 
+             (m.homeTeamId === awayTeamId && m.awayTeamId === homeTeamId))
+          );
+
+          if (!exists) {
+            await prisma.match.create({
+              data: {
+                tournamentId: tournament.id,
+                stage: nextStageName,
+                status: "SCHEDULED",
+                homeTeamId,
+                awayTeamId,
+                date: new Date(),
+                isFeatured: false,
+              }
+            });
+            createdCount++;
+          }
+        }
+      }
+
+      // Cleanup outdated scheduled matches
+      // If a match is SCHEDULED in this stage, but its matchup is not in expectedMatchups, delete it.
+      const scheduledInStage = tournament.matches.filter(m => m.stage === nextStageName && m.status === "SCHEDULED");
+      for (const m of scheduledInStage) {
+        const isValid = expectedMatchups.some(exp => 
+          (exp.home === m.homeTeamId && exp.away === m.awayTeamId) ||
+          (exp.home === m.awayTeamId && exp.away === m.homeTeamId)
         );
-
-        if (!exists) {
-          await prisma.match.create({
-            data: {
-              tournamentId: tournament.id,
-              stage: nextStageName,
-              status: "SCHEDULED",
-              homeTeamId,
-              awayTeamId,
-              date: new Date(),
-              isFeatured: false,
-            }
-          });
-          createdCount++;
+        if (!isValid) {
+          await prisma.match.delete({ where: { id: m.id } });
+          console.log(`[BRACKET ENGINE] Deleted outdated scheduled match ${m.id}`);
+          createdCount++; // Increment just to show a message that changes happened
         }
       }
     }
@@ -137,7 +162,7 @@ export async function resolveStageIfComplete(tournamentId: string, stage: string
     return { 
       success: true, 
       message: createdCount > 0 
-        ? `Successfully generated ${createdCount} matches for ${nextStageName}!` 
+        ? `Successfully generated/updated matches!` 
         : `No new matches were created (they might already exist or teams couldn't be resolved).` 
     };
   } catch (error: any) {

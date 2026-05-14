@@ -2,6 +2,9 @@ import prisma from "@/lib/prisma";
 import styles from "./standings.module.css";
 import StandingsClient from "./StandingsClient";
 import { getTopScorers, getBestGoalkeepers, getBestPlayers, getSeasonAward } from "@/lib/actions/stats.actions";
+import AdBanner from "@/app/components/AdBanner";
+import FloatingAd from "@/app/components/FloatingAd";
+import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const revalidate = 60;
 
@@ -75,17 +78,38 @@ export default async function StandingsPage() {
     bestPlayers,
     topTeam,
     bestEleven,
+    ads
   ] = await Promise.all([
+
     getStandingsData(activeTournamentRef?.id),
     getTopScorers(activeTournamentRef?.id),
     getBestGoalkeepers(activeTournamentRef?.id),
     getBestPlayers(activeTournamentRef?.id),
     getSeasonAward("TOP_TEAM", activeTournamentRef?.id),
     getSeasonAward("BEST_ELEVEN", activeTournamentRef?.id),
+    getActiveAdsByPosition('STANDINGS')
   ]);
 
+  const hasAds = ads && ads.length > 0;
+
+
   return (
-    <div className="container">
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: hasAds ? '1fr 300px' : '1fr', 
+        gap: '2.5rem', 
+        alignItems: 'start',
+        maxWidth: hasAds ? '100%' : '1000px',
+        margin: '0 auto'
+      }}>
+        
+        {/* Main Content */}
+        <div style={{ minWidth: 0 }}>
+          {/* Mobile Floating Ads (Consolidated) */}
+          <FloatingAd positions={['STANDINGS', 'SIDEBAR', 'FLOATING']} />
+
+
       <StandingsClient
         tournaments={tournaments}
         initialTournamentData={activeTournamentData}
@@ -97,6 +121,16 @@ export default async function StandingsPage() {
         topTeam={topTeam}
         bestEleven={bestEleven}
       />
+        </div>
+
+        {/* Sidebar */}
+        <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 2rem)' }} className="desktop-only">
+          <AdBanner position="STANDINGS" showTitle className="glass" style={{ padding: '1.5rem', borderRadius: '1rem' }} />
+        </aside>
+
+
+      </div>
     </div>
   );
 }
+
