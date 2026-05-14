@@ -319,13 +319,8 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
 
       <div className={styles.inputGroup} style={{ position: 'relative' }}>
         <PrivacyToggle name="showNicknames" defaultChecked={user.privacySettings?.showNicknames ?? true} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <div style={{ marginBottom: '0.5rem' }}>
           <label className={styles.label} style={{ margin: 0 }}>Nicknames (Max 3)</label>
-          {nicknameCount < 3 && (
-            <button type="button" onClick={() => setNicknameCount(prev => prev + 1)} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', background: 'rgba(235, 183, 0, 0.1)', border: '1px solid rgba(235, 183, 0, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '100px', cursor: 'pointer', fontWeight: 'bold', marginRight: '5.5rem' }}>
-              + Add More
-            </button>
-          )}
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {[...Array(nicknameCount)].map((_, i) => (
@@ -340,6 +335,13 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
             />
           ))}
         </div>
+        {nicknameCount < 3 && (
+          <div style={{ marginTop: '0.75rem' }}>
+            <button type="button" onClick={() => setNicknameCount(prev => prev + 1)} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', background: 'rgba(235, 183, 0, 0.1)', border: '1px solid rgba(235, 183, 0, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '100px', cursor: 'pointer', fontWeight: 'bold' }}>
+              + Add More
+            </button>
+          </div>
+        )}
       </div>
 
       <div style={{ height: '1px', background: 'var(--border-color)', margin: '1rem 0', opacity: 0.5 }}></div>
@@ -350,15 +352,9 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-primary)' }}></span>
           Education (Max 5)
         </h3>
-        {educationCount < 5 && (
-          <button type="button" onClick={() => setEducationCount(prev => prev + 1)} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', background: 'rgba(235, 183, 0, 0.1)', border: '1px solid rgba(235, 183, 0, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '100px', cursor: 'pointer', fontWeight: 'bold', marginRight: '5.5rem' }}>
-            + Add More
-          </button>
-        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-
         {[...Array(educationCount)].map((_, i) => (
           <div key={i} className="responsive-grid" style={{ gap: '0.5rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div style={{ flex: 2 }}>
@@ -376,6 +372,14 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           </div>
         ))}
       </div>
+      
+      {educationCount < 5 && (
+        <div style={{ marginTop: '1rem' }}>
+          <button type="button" onClick={() => setEducationCount(prev => prev + 1)} style={{ fontSize: '0.85rem', color: 'var(--accent-primary)', background: 'rgba(235, 183, 0, 0.1)', border: '1px solid rgba(235, 183, 0, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '100px', cursor: 'pointer', fontWeight: 'bold' }}>
+            + Add More
+          </button>
+        </div>
+      )}
 
       <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2.5rem', marginTop: '1.5rem' }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)', marginBottom: '1.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -439,20 +443,22 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           </div>
         </div>
 
-        <div className={styles.inputGroup} style={{ position: 'relative' }}>
-          <PrivacyToggle name="showWebsite" defaultChecked={user.privacySettings?.showWebsite ?? true} />
-          <label className={styles.label}>Website / Portfolio URL</label>
-          <div style={{ position: 'relative' }}>
-            <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)', opacity: 0.7 }} />
-            <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} style={{ paddingLeft: '40px' }} />
+        <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showWebsite" defaultChecked={user.privacySettings?.showWebsite ?? true} />
+            <label className={styles.label}>Website / Portfolio URL</label>
+            <div style={{ position: 'relative' }}>
+              <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)', opacity: 0.7 }} />
+              <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} style={{ paddingLeft: '40px' }} />
+            </div>
           </div>
-        </div>
-        <div className={styles.inputGroup} style={{ position: 'relative' }}>
-          <PrivacyToggle name="showYoutube" defaultChecked={user.privacySettings?.showYoutube ?? true} />
-          <label className={styles.label}>YouTube Channel</label>
-          <div style={{ position: 'relative' }}>
-            <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#FF0000', opacity: 0.7 }} />
-            <input name="youtubeUrl" type="url" defaultValue={user.youtubeUrl || ''} placeholder="https://youtube.com/@channel" className={styles.input} style={{ paddingLeft: '40px' }} />
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showYoutube" defaultChecked={user.privacySettings?.showYoutube ?? true} />
+            <label className={styles.label}>YouTube Channel</label>
+            <div style={{ position: 'relative' }}>
+              <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#FF0000', opacity: 0.7 }} />
+              <input name="youtubeUrl" type="url" defaultValue={user.youtubeUrl || ''} placeholder="https://youtube.com/@channel" className={styles.input} style={{ paddingLeft: '40px' }} />
+            </div>
           </div>
         </div>
       </div>
