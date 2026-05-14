@@ -253,14 +253,56 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
             </label>
             <input name="githubUrl" type="url" defaultValue={user.githubUrl || ''} placeholder="https://github.com/username" className={styles.input} />
           </div>
-        </div>
-
         <div className={styles.inputGroup} style={{ marginTop: '1.25rem' }}>
           <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
             <LanguageIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-secondary)' }} /> 
             <span>Website / Portfolio URL</span>
           </label>
           <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} />
+        </div>
+      </div>
+
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2.5rem', marginTop: '1.5rem' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#10b981', marginBottom: '1.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          🔒 Profile Privacy Controls
+        </h3>
+        
+        <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+            Control which information is visible to other members on your public profile.
+          </p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+            {[
+              { id: 'showPhone', label: 'Show Phone Number' },
+              { id: 'showEmail', label: 'Show Email Address' },
+              { id: 'showAddress', label: 'Show Physical Address' },
+              { id: 'showOccupation', label: 'Show Occupation/Job' },
+              { id: 'showSocialLinks', label: 'Show Social Media Links' }
+            ].map((setting) => (
+              <label key={setting.id} style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '1rem', 
+                padding: '1rem', 
+                background: 'rgba(255,255,255,0.03)', 
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'background 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+              >
+                <input 
+                  type="checkbox" 
+                  name={`privacy_${setting.id}`}
+                  defaultChecked={user.privacySettings?.[setting.id] ?? (setting.id.startsWith('showOccupation') || setting.id.startsWith('showSocial'))}
+                  style={{ width: '1.2rem', height: '1.2rem', accentColor: 'var(--accent-primary)' }}
+                />
+                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{setting.label}</span>
+              </label>
+            ))}
+          </div>
         </div>
       </div>
 

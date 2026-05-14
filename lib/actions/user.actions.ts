@@ -61,9 +61,18 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     const shouldResetStatus = hasBatchChanged && user.role === 'USER';
 
-    const existingUser = await prisma.user.findUnique({ where: { id: user.uid } }) as any;
-    const canUpdateUsername = !existingUser?.username;
-    const canUpdatePhone = !existingUser?.phone;
+    const dbUserRecord = await prisma.user.findUnique({ where: { id: user.uid } });
+    const canUpdateUsername = !dbUserRecord?.username;
+    const canUpdatePhone = !dbUserRecord?.phone;
+
+    // Extract privacy settings
+    const privacySettings = {
+      showPhone: formData.get('privacy_showPhone') === 'on',
+      showEmail: formData.get('privacy_showEmail') === 'on',
+      showAddress: formData.get('privacy_showAddress') === 'on',
+      showOccupation: formData.get('privacy_showOccupation') === 'on',
+      showSocialLinks: formData.get('privacy_showSocialLinks') === 'on',
+    };
 
     await prisma.user.update({
       where: { id: user.uid },
@@ -86,8 +95,9 @@ export async function updateProfile(prevState: any, formData: FormData) {
         githubUrl,
         websiteUrl,
         whatsappNo,
+        privacySettings,
         ...(shouldResetStatus ? { status: 'PENDING' } : {}),
-      } as any,
+      },
     });
 
     await setSessionCookie(user.uid, user.role, name);
