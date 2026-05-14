@@ -12,6 +12,7 @@ import { sendOTPEmail, sendPasswordResetEmail } from '@/lib/mail';
 import { adminAuth } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
 import { generateUniqueUsername } from '@/lib/utils/username';
+import { isValidPhone } from '@/lib/utils/phone';
 
 // ─────────────────────────────────────────
 // Email / Password Auth
@@ -67,6 +68,10 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const batchId = formData.get('batchId') as string;
+
+  if (!isValidPhone(phone)) {
+    return { error: 'Invalid phone number format or country code.' };
+  }
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });

@@ -11,6 +11,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import PhoneInput from '@/app/components/PhoneInput';
 
 export default function RegisterForm({ batches }: { batches: any[] }) {
   const [state, formAction, isPending] = useActionState(registerWithEmail, null);
@@ -167,7 +168,7 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
           </div>
           <div className={styles.inputGroup}>
             <label htmlFor="phone" className={styles.label}>Phone Number</label>
-            <input id="phone" name="phone" type="tel" placeholder="e.g. +880..." className={styles.input} required disabled={isPending} />
+            <PhoneInput id="phone" name="phone" required disabled={isPending} className={styles.input} />
           </div>
         </div>
         <div className={styles.inputGroup}>

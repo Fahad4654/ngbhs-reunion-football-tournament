@@ -9,6 +9,9 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import WcIcon from '@mui/icons-material/Wc';
+import PhoneInput from '@/app/components/PhoneInput';
 import LanguageIcon from '@mui/icons-material/Language';
 import EmailIcon from '@mui/icons-material/Email';
 
@@ -231,14 +234,11 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         <div className={styles.inputGroup} style={{ position: 'relative' }}>
           <PrivacyToggle name="showPhone" defaultChecked={user.privacySettings?.showPhone ?? false} />
           <label className={styles.label}>Contact Number</label>
-          <input 
+          <PhoneInput 
             name="phone" 
-            type="tel" 
             defaultValue={user.phone || ''} 
-            placeholder="+880..." 
             className={styles.input} 
             disabled={!!user.phone}
-            style={!!user.phone ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
           />
           {!!user.phone && (
             <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>

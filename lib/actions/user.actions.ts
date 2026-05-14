@@ -6,6 +6,7 @@ import { setSessionCookie } from '@/lib/auth-utils';
 import { saveFile, deleteFile } from '@/lib/utils/upload';
 import { revalidatePath } from 'next/cache';
 import { adminAuth } from '@/lib/firebase-admin';
+import { isValidPhone } from '@/lib/utils/phone';
 
 // ─────────────────────────────────────────
 // Profile
@@ -87,6 +88,10 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const dbUserRecord = await prisma.user.findUnique({ where: { id: user.uid } });
     const canUpdateUsername = !dbUserRecord?.username;
     const canUpdatePhone = !dbUserRecord?.phone;
+
+    if (canUpdatePhone && phone && !isValidPhone(phone)) {
+      return { error: 'Invalid phone number format or country code.' };
+    }
 
     // Extract all privacy settings dynamically and robustly
     const rawData = Object.fromEntries(formData.entries());
