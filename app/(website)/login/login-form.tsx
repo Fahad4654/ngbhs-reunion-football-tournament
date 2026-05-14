@@ -5,12 +5,15 @@ import { loginWithEmail, verifyOTPAndRegister, resendOTP } from '@/lib/actions';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import GoogleLoginButton from '@/app/components/auth/GoogleLoginButton';
 
 export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginWithEmail, null);
   const [otpState, otpFormAction, isOtpPending] = useActionState(verifyOTPAndRegister, null);
   const [resending, setResending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -119,12 +122,49 @@ export default function LoginForm() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <form action={formAction} className={styles.form}>
         <div className={styles.inputGroup}>
-          <label className={styles.label} htmlFor="email">Email Address</label>
-          <input id="email" name="email" type="email" placeholder="name@example.com" className={styles.input} required />
+          <label className={styles.label} htmlFor="email">Username, Email, or Phone</label>
+          <input 
+            id="email" 
+            name="email" 
+            type="text" 
+            placeholder="e.g. username, email, or +880..." 
+            className={styles.input} 
+            required 
+          />
         </div>
         <div className={styles.inputGroup}>
           <label className={styles.label} htmlFor="password">Password</label>
-          <input id="password" name="password" type="password" placeholder="••••••••" className={styles.input} required minLength={6} />
+          <div style={{ position: 'relative' }}>
+            <input 
+              id="password" 
+              name="password" 
+              type={showPassword ? "text" : "password"} 
+              placeholder="••••••••" 
+              className={styles.input} 
+              required 
+              minLength={6} 
+              style={{ paddingRight: '3rem' }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '1rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                padding: 0
+              }}
+            >
+              {showPassword ? <VisibilityOff sx={{ fontSize: '1.2rem' }} /> : <Visibility sx={{ fontSize: '1.2rem' }} />}
+            </button>
+          </div>
           <div style={{ textAlign: 'right', marginTop: '0.25rem' }}>
             <a href="/forgot-password" style={{ color: 'var(--accent-primary)', fontSize: '0.8rem', textDecoration: 'none' }}>
               Forgot Password?

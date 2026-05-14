@@ -11,25 +11,37 @@ import { generateOTP, storeOTP, verifyOTP, verifyOTPNoDelete, deleteOTP } from '
 import { sendOTPEmail, sendPasswordResetEmail } from '@/lib/mail';
 import { adminAuth } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
+import { generateUniqueUsername } from '@/lib/utils/username';
+import { isValidPhone } from '@/lib/utils/phone';
+import { isValidEmail } from '@/lib/utils/email';
 
 // ─────────────────────────────────────────
 // Email / Password Auth
 // ─────────────────────────────────────────
 
 export async function loginWithEmail(prevState: any, formData: FormData) {
-  const email = formData.get('email') as string;
+  const identifier = formData.get('email') as string; // We'll keep the form name 'email' for now or change it later
   const password = formData.get('password') as string;
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    // Search by email, username, or phone
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: identifier },
+          { username: identifier },
+          { phone: identifier },
+        ],
+      },
+    });
 
     if (!user || !user.password) {
-      return { error: 'Invalid email or password.' };
+      return { error: 'Invalid credentials. Please check your username/email/phone and password.' };
     }
 
     if (!user.emailVerified) {
       return {
-        error: 'Please verify your email address before logging in.',
+        error: 'Please verify your account before logging in.',
         needsVerification: true,
         email: user.email,
       };
@@ -37,7 +49,7 @@ export async function loginWithEmail(prevState: any, formData: FormData) {
 
     const passwordsMatch = await comparePassword(password, user.password);
     if (!passwordsMatch) {
-      return { error: 'Invalid email or password.' };
+      return { error: 'Invalid credentials.' };
     }
 
     await setSessionCookie(user.id, user.role, user.name);
@@ -49,10 +61,22 @@ export async function loginWithEmail(prevState: any, formData: FormData) {
 }
 
 export async function registerWithEmail(prevState: any, formData: FormData) {
-  const name = formData.get('name') as string;
+  const firstName = formData.get('firstName') as string;
+  const lastName = formData.get('lastName') as string;
+  const preferredUsername = formData.get('username') as string;
+  const phone = formData.get('phone') as string;
+  const name = `${firstName} ${lastName}`.trim();
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const batchId = formData.get('batchId') as string;
+
+  if (!isValidEmail(email)) {
+    return { error: 'Please enter a valid email address.' };
+  }
+
+  if (!isValidPhone(phone)) {
+    return { error: 'Invalid phone number format or country code.' };
+  }
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -62,18 +86,23 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
     }
 
     const hashedPassword = await hashPassword(password);
+    const username = await generateUniqueUsername(name, email, preferredUsername);
 
     if (existingUser) {
       await prisma.user.update({
         where: { id: existingUser.id },
-        data: { name, password: hashedPassword, batchId: batchId || null, status: 'PENDING' },
+        data: { name, firstName, lastName, username, phone, password: hashedPassword, batchId: batchId || null, status: 'PENDING' },
       });
     } else {
       await prisma.user.create({
         data: {
           email,
+          username,
+          phone,
           password: hashedPassword,
           name,
+          firstName,
+          lastName,
           role: 'USER',
           batchId: batchId || null,
           status: 'PENDING',
@@ -153,11 +182,19 @@ export async function loginWithGoogle(idToken: string) {
 
     let user = await prisma.user.findUnique({ where: { email } });
 
+    const nameParts = (name || "").split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
     if (!user) {
+      const username = await generateUniqueUsername(name || email.split('@')[0], email);
       user = await prisma.user.create({
         data: { 
           email, 
+          username,
           name: name || null, 
+          firstName,
+          lastName,
           image: picture || null, 
           firebaseId: uid, 
           role: 'USER',
@@ -165,11 +202,15 @@ export async function loginWithGoogle(idToken: string) {
           emailVerified: new Date(),
         },
       });
-    } else if (!user.firebaseId) {
+    } else if (!user.firebaseId || !user.username) {
+      const username = user.username || await generateUniqueUsername(user.name || email.split('@')[0], email);
       user = await prisma.user.update({
         where: { id: user.id },
         data: { 
           firebaseId: uid, 
+          username,
+          firstName: user.firstName || firstName,
+          lastName: user.lastName || lastName,
           image: user.image || picture,
           // If the user already existed (e.g. invited or manual reg but not verified)
           // we ensure they are PENDING and verified
@@ -197,13 +238,14 @@ export async function sendPasswordResetOTP(prevState: any, formData: FormData) {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !user.password) {
+    if (!user) {
       // Return success anyway to avoid email enumeration
       return { success: true, email };
     }
 
     const otp = generateOTP();
     await storeOTP(email, otp);
+    console.log(`[PasswordReset] Attempting to send OTP to ${email}`);
     await sendPasswordResetEmail(email, otp);
 
     return { success: true, email };

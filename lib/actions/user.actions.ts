@@ -6,6 +6,8 @@ import { setSessionCookie } from '@/lib/auth-utils';
 import { saveFile, deleteFile } from '@/lib/utils/upload';
 import { revalidatePath } from 'next/cache';
 import { adminAuth } from '@/lib/firebase-admin';
+import { isValidPhone } from '@/lib/utils/phone';
+import { isValidEmail } from '@/lib/utils/email';
 
 // ─────────────────────────────────────────
 // Profile
@@ -16,15 +18,48 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const user = await getServerUser();
     if (!user) return { error: 'Not authenticated.' };
 
-    const name = formData.get('name') as string;
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const name = `${firstName} ${lastName}`.trim();
+    const username = formData.get('username') as string;
     const occupation = formData.get('occupation') as string;
     const workplace = formData.get('workplace') as string;
     const phone = formData.get('phone') as string;
     const batchId = formData.get('batchId') as string;
     const currentAddress = formData.get('currentAddress') as string;
     const permanentAddress = formData.get('permanentAddress') as string;
-    const profilePicture = formData.get('profilePicture') as File | null;
+    const secondaryEmail = formData.get('secondaryEmail') as string;
+    const facebookUrl = formData.get('facebookUrl') as string;
+    const instagramUrl = formData.get('instagramUrl') as string;
+    const linkedinUrl = formData.get('linkedinUrl') as string;
+    const githubUrl = formData.get('githubUrl') as string;
+    const websiteUrl = formData.get('websiteUrl') as string;
+    const youtubeUrl = formData.get('youtubeUrl') as string;
+    const whatsappNo = formData.get('whatsappNo') as string;
+    const bio = formData.get('bio') as string;
+    const gender = formData.get('gender') as string;
+    const maritalStatus = formData.get('maritalStatus') as string;
+    const birthdayStr = formData.get('birthday') as string;
+    const birthday = birthdayStr ? new Date(birthdayStr) : null;
 
+    // Nicknames (max 3)
+    const nicknames = formData.getAll('nicknames').filter(n => !!n).slice(0, 3) as string[];
+
+    // Education (max 5)
+    const educationNames = formData.getAll('edu_institute');
+    const educationDegrees = formData.getAll('edu_degree');
+    const educationYears = formData.getAll('edu_year');
+    const education = educationNames
+      .map((name, i) => ({ 
+        institute: name as string, 
+        degree: educationDegrees[i] as string, 
+        year: educationYears[i] as string 
+      }))
+      .filter(e => !!e.institute)
+      .slice(0, 5);
+
+    const profilePicture = formData.get('profilePicture') as File | null;
+    
     const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
     let finalImageUrl = dbUser?.image ?? null;
 
@@ -51,17 +86,60 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     const shouldResetStatus = hasBatchChanged && user.role === 'USER';
 
+    const dbUserRecord = await prisma.user.findUnique({ where: { id: user.uid } });
+    const canUpdateUsername = !dbUserRecord?.username;
+    const canUpdatePhone = !dbUserRecord?.phone;
+
+    if (canUpdatePhone && phone && !isValidPhone(phone)) {
+      return { error: 'Invalid phone number format or country code.' };
+    }
+
+    if (secondaryEmail && !isValidEmail(secondaryEmail)) {
+      return { error: 'Please enter a valid secondary email address.' };
+    }
+
+    // Extract all privacy settings dynamically and robustly
+    const rawData = Object.fromEntries(formData.entries());
+    const privacySettings: Record<string, boolean> = {};
+    
+    for (const [key, value] of Object.entries(rawData)) {
+      if (key.startsWith('privacy_')) {
+        const settingName = key.replace('privacy_', '');
+        privacySettings[settingName] = value === 'on';
+      }
+    }
+
+    console.log('[updateProfile] Privacy Settings to save:', privacySettings);
+
     await prisma.user.update({
       where: { id: user.uid },
       data: {
         name,
+        firstName,
+        lastName,
+        ...(canUpdateUsername ? { username: username || null } : {}),
         occupation,
         workplace,
-        phone,
+        ...(canUpdatePhone ? { phone: phone || null } : {}),
         batchId: batchId || null,
         image: finalImageUrl,
         currentAddress,
         permanentAddress,
+        secondaryEmail,
+        facebookUrl,
+        instagramUrl,
+        linkedinUrl,
+        githubUrl,
+        websiteUrl,
+        youtubeUrl,
+        whatsappNo,
+        bio,
+        gender,
+        maritalStatus,
+        birthday,
+        nicknames,
+        education,
+        privacySettings,
         ...(shouldResetStatus ? { status: 'PENDING' } : {}),
       },
     });
@@ -70,9 +148,40 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     revalidatePath('/profile');
     return { success: true, message: 'Profile updated successfully!' };
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      const field = error.meta?.target?.[0];
+      if (field === 'username') return { error: 'This username is already taken. Please choose another one.' };
+      if (field === 'phone') return { error: 'This contact number is already linked to another account.' };
+    }
     console.error('[updateProfile]', error);
     return { error: 'Failed to update profile.' };
+  }
+}
+
+export async function updatePrivacyAction(settingName: string, isPublic: boolean) {
+  try {
+    const user = await getServerUser();
+    if (!user) return { error: 'Not authenticated.' };
+
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.uid },
+      select: { privacySettings: true }
+    });
+
+    const currentSettings = (dbUser?.privacySettings as Record<string, boolean>) || {};
+    const newSettings = { ...currentSettings, [settingName]: isPublic };
+
+    await prisma.user.update({
+      where: { id: user.uid },
+      data: { privacySettings: newSettings }
+    });
+
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error) {
+    console.error('[updatePrivacyAction]', error);
+    return { error: 'Failed to update privacy setting.' };
   }
 }
 

@@ -1,10 +1,12 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { resetPassword } from '@/lib/actions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import styles from '../../login/login.module.css';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export default function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -12,6 +14,7 @@ export default function ResetPasswordForm() {
   const otp = searchParams.get('otp') || '';
   
   const [state, formAction, isPending] = useActionState(resetPassword, null);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,31 +54,75 @@ export default function ResetPasswordForm() {
       
       <div className={styles.inputGroup}>
         <label className={styles.label} htmlFor="password">New Password</label>
-        <input 
-          id="password" 
-          name="password" 
-          type="password" 
-          placeholder="••••••••" 
-          className={styles.input} 
-          required 
-          minLength={6}
-          disabled={isPending}
-          autoFocus
-        />
+        <div style={{ position: 'relative' }}>
+          <input 
+            id="password" 
+            name="password" 
+            type={showPassword ? "text" : "password"} 
+            placeholder="••••••••" 
+            className={styles.input} 
+            required 
+            minLength={6}
+            disabled={isPending}
+            autoFocus
+            style={{ paddingRight: '3rem' }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{
+              position: 'absolute',
+              right: '1rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              padding: 0
+            }}
+          >
+            {showPassword ? <VisibilityOff sx={{ fontSize: '1.2rem' }} /> : <Visibility sx={{ fontSize: '1.2rem' }} />}
+          </button>
+        </div>
       </div>
 
       <div className={styles.inputGroup}>
         <label className={styles.label} htmlFor="confirmPassword">Confirm Password</label>
-        <input 
-          id="confirmPassword" 
-          name="confirmPassword" 
-          type="password" 
-          placeholder="••••••••" 
-          className={styles.input} 
-          required 
-          minLength={6}
-          disabled={isPending}
-        />
+        <div style={{ position: 'relative' }}>
+          <input 
+            id="confirmPassword" 
+            name="confirmPassword" 
+            type={showPassword ? "text" : "password"} 
+            placeholder="••••••••" 
+            className={styles.input} 
+            required 
+            minLength={6}
+            disabled={isPending}
+            style={{ paddingRight: '3rem' }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{
+              position: 'absolute',
+              right: '1rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              padding: 0
+            }}
+          >
+            {showPassword ? <VisibilityOff sx={{ fontSize: '1.2rem' }} /> : <Visibility sx={{ fontSize: '1.2rem' }} />}
+          </button>
+        </div>
       </div>
 
       {state?.error && (
