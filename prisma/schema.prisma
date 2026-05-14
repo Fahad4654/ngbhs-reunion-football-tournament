@@ -225,7 +225,7 @@ model User {
   password            String?
   batchId             String?
   occupation          String?
-  phone               String?            @unique
+  phone               String?
   currentAddress      String?
   permanentAddress    String?
   workplace           String?
