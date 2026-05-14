@@ -36,6 +36,10 @@ export default function PhoneInput({
     }
   }, [defaultValue]);
 
+  // Calculate the max length for the local number (15 digits total max - dial code digits)
+  const dialCodeDigits = dialCode.replace('+', '').length;
+  const maxLocalLength = 15 - dialCodeDigits;
+
   // The actual value submitted by the form
   const fullPhone = localNumber ? `${dialCode}${localNumber}` : '';
 
@@ -82,7 +86,13 @@ export default function PhoneInput({
       <input 
         type="tel"
         value={localNumber}
-        onChange={(e) => setLocalNumber(normalizePhone(e.target.value))}
+        onChange={(e) => {
+          const normalized = normalizePhone(e.target.value);
+          if (normalized.length <= maxLocalLength) {
+            setLocalNumber(normalized);
+          }
+        }}
+        maxLength={maxLocalLength}
         placeholder="1712345678"
         required={required}
         disabled={disabled}
