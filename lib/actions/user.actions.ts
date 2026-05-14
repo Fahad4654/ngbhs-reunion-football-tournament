@@ -67,10 +67,12 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     // Extract all privacy settings dynamically
     const privacySettings: Record<string, boolean> = {};
-    for (const [key, value] of formData.entries()) {
+    for (const key of formData.keys()) {
       if (key.startsWith('privacy_')) {
         const settingName = key.replace('privacy_', '');
-        privacySettings[settingName] = value === 'on';
+        const values = formData.getAll(key);
+        // If checked, values will be ['off', 'on']. If unchecked, values will be ['off'].
+        privacySettings[settingName] = values.includes('on');
       }
     }
 

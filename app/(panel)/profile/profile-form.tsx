@@ -30,9 +30,11 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           {isPublic ? 'Public' : 'Private'}
         </span>
         <label style={{ position: 'relative', display: 'inline-block', width: '24px', height: '14px', cursor: 'pointer' }}>
+          <input type="hidden" name={`privacy_${name}`} value="off" />
           <input 
             type="checkbox" 
             name={`privacy_${name}`} 
+            value="on"
             checked={isPublic}
             onChange={(e) => setIsPublic(e.target.checked)}
             style={{ opacity: 0, width: 0, height: 0 }}
