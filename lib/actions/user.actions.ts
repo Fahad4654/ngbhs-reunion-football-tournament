@@ -17,6 +17,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
     if (!user) return { error: 'Not authenticated.' };
 
     const name = formData.get('name') as string;
+    const username = formData.get('username') as string;
     const occupation = formData.get('occupation') as string;
     const workplace = formData.get('workplace') as string;
     const phone = formData.get('phone') as string;
@@ -62,9 +63,10 @@ export async function updateProfile(prevState: any, formData: FormData) {
       where: { id: user.uid },
       data: {
         name,
+        username: username || null,
         occupation,
         workplace,
-        phone,
+        phone: phone || null,
         batchId: batchId || null,
         image: finalImageUrl,
         currentAddress,
@@ -84,7 +86,12 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     revalidatePath('/profile');
     return { success: true, message: 'Profile updated successfully!' };
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      const field = error.meta?.target?.[0];
+      if (field === 'username') return { error: 'This username is already taken. Please choose another one.' };
+      if (field === 'phone') return { error: 'This contact number is already linked to another account.' };
+    }
     console.error('[updateProfile]', error);
     return { error: 'Failed to update profile.' };
   }

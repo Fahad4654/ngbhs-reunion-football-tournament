@@ -119,8 +119,15 @@ export default function LoginForm() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <form action={formAction} className={styles.form}>
         <div className={styles.inputGroup}>
-          <label className={styles.label} htmlFor="email">Email Address</label>
-          <input id="email" name="email" type="email" placeholder="name@example.com" className={styles.input} required />
+          <label className={styles.label} htmlFor="email">Username, Email, or Phone</label>
+          <input 
+            id="email" 
+            name="email" 
+            type="text" 
+            placeholder="e.g. username, email, or +880..." 
+            className={styles.input} 
+            required 
+          />
         </div>
         <div className={styles.inputGroup}>
           <label className={styles.label} htmlFor="password">Password</label>

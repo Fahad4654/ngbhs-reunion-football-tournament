@@ -217,6 +217,7 @@ model User {
   firebaseId          String?            @unique
   name                String?
   email               String             @unique
+  username            String?            @unique
   role                Role               @default(USER)
   image               String?
   createdAt           DateTime           @default(now())
@@ -224,7 +225,7 @@ model User {
   password            String?
   batchId             String?
   occupation          String?
-  phone               String?
+  phone               String?            @unique
   currentAddress      String?
   permanentAddress    String?
   workplace           String?

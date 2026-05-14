@@ -17,19 +17,28 @@ import { redirect } from 'next/navigation';
 // ─────────────────────────────────────────
 
 export async function loginWithEmail(prevState: any, formData: FormData) {
-  const email = formData.get('email') as string;
+  const identifier = formData.get('email') as string; // We'll keep the form name 'email' for now or change it later
   const password = formData.get('password') as string;
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    // Search by email, username, or phone
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: identifier },
+          { username: identifier },
+          { phone: identifier },
+        ],
+      },
+    });
 
     if (!user || !user.password) {
-      return { error: 'Invalid email or password.' };
+      return { error: 'Invalid credentials. Please check your username/email/phone and password.' };
     }
 
     if (!user.emailVerified) {
       return {
-        error: 'Please verify your email address before logging in.',
+        error: 'Please verify your account before logging in.',
         needsVerification: true,
         email: user.email,
       };
@@ -37,7 +46,7 @@ export async function loginWithEmail(prevState: any, formData: FormData) {
 
     const passwordsMatch = await comparePassword(password, user.password);
     if (!passwordsMatch) {
-      return { error: 'Invalid email or password.' };
+      return { error: 'Invalid credentials.' };
     }
 
     await setSessionCookie(user.id, user.role, user.name);

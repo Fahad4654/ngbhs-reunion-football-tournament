@@ -116,6 +116,22 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
       </div>
 
       <div className={styles.inputGroup}>
+        <label className={styles.label}>Unique Username</label>
+        <input 
+          name="username" 
+          type="text" 
+          defaultValue={user.username || ''} 
+          placeholder="e.g. john_doe123" 
+          className={styles.input} 
+          pattern="^[a-zA-Z0-9_]{3,20}$"
+          title="Username must be 3-20 characters long and can only contain letters, numbers, and underscores."
+        />
+        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+          This can be used to log in instead of your email.
+        </p>
+      </div>
+
+      <div className={styles.inputGroup}>
         <label className={styles.label}>Email Address (Read-only)</label>
         <input type="email" value={user.email || ''} className={styles.input} disabled style={{ opacity: 0.6 }} />
       </div>
@@ -160,63 +176,71 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
       </div>
 
-      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2rem', marginTop: '1rem' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--accent-primary)', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2.5rem', marginTop: '1.5rem' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--accent-primary)', marginBottom: '1.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           Contact & Social Presence
         </h3>
         
         <div className="responsive-grid">
           <div className={styles.inputGroup}>
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <EmailIcon sx={{ fontSize: '1.1rem' }} /> Secondary Email
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <EmailIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-primary)' }} /> 
+              <span>Secondary Email</span>
             </label>
             <input name="secondaryEmail" type="email" defaultValue={user.secondaryEmail || ''} placeholder="alternative@example.com" className={styles.input} />
           </div>
           <div className={styles.inputGroup}>
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <WhatsAppIcon sx={{ fontSize: '1.1rem', color: '#25D366' }} /> WhatsApp Number
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <WhatsAppIcon sx={{ fontSize: '1.2rem', color: '#25D366' }} /> 
+              <span>WhatsApp Number</span>
             </label>
             <input name="whatsappNo" type="text" defaultValue={user.whatsappNo || ''} placeholder="e.g. +88017..." className={styles.input} />
           </div>
         </div>
 
-        <div className="responsive-grid">
+        <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
           <div className={styles.inputGroup}>
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <FacebookIcon sx={{ fontSize: '1.1rem', color: '#1877F2' }} /> Facebook Profile URL
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <FacebookIcon sx={{ fontSize: '1.2rem', color: '#1877F2' }} /> 
+              <span>Facebook Profile</span>
             </label>
             <input name="facebookUrl" type="url" defaultValue={user.facebookUrl || ''} placeholder="https://facebook.com/username" className={styles.input} />
           </div>
           <div className={styles.inputGroup}>
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <InstagramIcon sx={{ fontSize: '1.1rem', color: '#E4405F' }} /> Instagram Profile URL
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <InstagramIcon sx={{ fontSize: '1.2rem', color: '#E4405F' }} /> 
+              <span>Instagram Profile</span>
             </label>
             <input name="instagramUrl" type="url" defaultValue={user.instagramUrl || ''} placeholder="https://instagram.com/username" className={styles.input} />
           </div>
         </div>
 
-        <div className="responsive-grid">
+        <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
           <div className={styles.inputGroup}>
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <LinkedInIcon sx={{ fontSize: '1.1rem', color: '#0A66C2' }} /> LinkedIn Profile URL
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <LinkedInIcon sx={{ fontSize: '1.2rem', color: '#0A66C2' }} /> 
+              <span>LinkedIn Profile</span>
             </label>
             <input name="linkedinUrl" type="url" defaultValue={user.linkedinUrl || ''} placeholder="https://linkedin.com/in/username" className={styles.input} />
           </div>
           <div className={styles.inputGroup}>
-            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <GitHubIcon sx={{ fontSize: '1.1rem' }} /> GitHub Profile URL
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+              <GitHubIcon sx={{ fontSize: '1.2rem', color: '#fff' }} /> 
+              <span>GitHub Profile</span>
             </label>
             <input name="githubUrl" type="url" defaultValue={user.githubUrl || ''} placeholder="https://github.com/username" className={styles.input} />
           </div>
         </div>
 
-        <div className={styles.inputGroup}>
-          <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <LanguageIcon sx={{ fontSize: '1.1rem', color: 'var(--accent-primary)' }} /> Personal Website / Portfolio
+        <div className={styles.inputGroup} style={{ marginTop: '1.25rem' }}>
+          <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
+            <LanguageIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-secondary)' }} /> 
+            <span>Website / Portfolio URL</span>
           </label>
           <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} />
         </div>
       </div>
+
 
 
 
