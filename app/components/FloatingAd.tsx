@@ -54,12 +54,13 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
       // 1. Update Global Timer
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          setIsVisible(false);
+          // Instead of hiding, we just stop the timer and show the X button
           clearInterval(interval);
           return 0;
         }
         return prev - 1;
       });
+
 
       // 2. Update Carousel Logic
       currentAdTimeRemaining -= 1;
