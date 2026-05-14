@@ -13,6 +13,7 @@ import { adminAuth } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
 import { generateUniqueUsername } from '@/lib/utils/username';
 import { isValidPhone } from '@/lib/utils/phone';
+import { isValidEmail } from '@/lib/utils/email';
 
 // ─────────────────────────────────────────
 // Email / Password Auth
@@ -68,6 +69,10 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const batchId = formData.get('batchId') as string;
+
+  if (!isValidEmail(email)) {
+    return { error: 'Please enter a valid email address.' };
+  }
 
   if (!isValidPhone(phone)) {
     return { error: 'Invalid phone number format or country code.' };

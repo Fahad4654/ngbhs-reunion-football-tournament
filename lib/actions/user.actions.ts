@@ -7,6 +7,7 @@ import { saveFile, deleteFile } from '@/lib/utils/upload';
 import { revalidatePath } from 'next/cache';
 import { adminAuth } from '@/lib/firebase-admin';
 import { isValidPhone } from '@/lib/utils/phone';
+import { isValidEmail } from '@/lib/utils/email';
 
 // ─────────────────────────────────────────
 // Profile
@@ -91,6 +92,10 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     if (canUpdatePhone && phone && !isValidPhone(phone)) {
       return { error: 'Invalid phone number format or country code.' };
+    }
+
+    if (secondaryEmail && !isValidEmail(secondaryEmail)) {
+      return { error: 'Please enter a valid secondary email address.' };
     }
 
     // Extract all privacy settings dynamically and robustly
