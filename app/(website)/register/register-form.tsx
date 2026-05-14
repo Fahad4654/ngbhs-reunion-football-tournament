@@ -150,7 +150,7 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25vw' }}>
       <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.042vw' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
           <div className={styles.inputGroup}>
             <label htmlFor="firstName" className={styles.label}>First Name</label>
             <input id="firstName" name="firstName" type="text" placeholder="First Name" className={styles.input} required disabled={isPending} />
@@ -160,7 +160,7 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
             <input id="lastName" name="lastName" type="text" placeholder="Last Name" className={styles.input} required disabled={isPending} />
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
           <div className={styles.inputGroup}>
             <label htmlFor="username" className={styles.label}>Preferred Username (Optional)</label>
             <input id="username" name="username" type="text" placeholder="e.g. john_doe" className={styles.input} disabled={isPending} />
