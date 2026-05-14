@@ -51,34 +51,30 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
     let currentAdTimeRemaining = (ads[currentAdIndex] as any).closeDelay || 5;
 
     const interval = setInterval(() => {
-      // 1. Update Global Timer
+      // 1. Update Global Timer (stops at 0 but doesn't clear interval)
       setTimeLeft((prev) => {
-        if (prev <= 1) {
-          setIsVisible(false);
-          clearInterval(interval);
-          return 0;
-        }
+        if (prev <= 0) return 0;
         return prev - 1;
       });
 
-      // 2. Update Carousel Logic
+      // 2. Update Carousel Logic (continues indefinitely)
       currentAdTimeRemaining -= 1;
       if (currentAdTimeRemaining <= 0) {
         setCurrentAdIndex((prevIndex) => {
-          const nextIndex = prevIndex + 1;
-          if (nextIndex < ads.length) {
-            currentAdTimeRemaining = (ads[nextIndex] as any).closeDelay || 5;
-            return nextIndex;
-          }
-          return prevIndex;
+          const nextIndex = (prevIndex + 1) % ads.length;
+          currentAdTimeRemaining = (ads[nextIndex] as any).closeDelay || 5;
+          return nextIndex;
         });
       }
     }, 1000);
+
 
     return () => clearInterval(interval);
   }, [isVisible, ads]); // Only re-run if ads load or visibility toggles
 
 
+
+  if (!isVisible || ads.length === 0) return null;
 
   return (
     <div 
