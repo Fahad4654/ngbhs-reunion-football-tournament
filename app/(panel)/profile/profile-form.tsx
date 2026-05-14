@@ -334,14 +334,110 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           </div>
         </div>
 
-        <div className={styles.inputGroup} style={{ marginTop: '1.25rem', position: 'relative' }}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
           <PrivacyToggle name="showWebsite" defaultChecked={user.privacySettings?.showWebsite ?? true} />
-          <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
-            <LanguageIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-secondary)' }} /> 
-            <span>Website / Portfolio URL</span>
-          </label>
-          <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} />
+          <label className={styles.label}>Website / Portfolio URL</label>
+          <div style={{ position: 'relative' }}>
+            <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)', opacity: 0.7 }} />
+            <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} style={{ paddingLeft: '40px' }} />
+          </div>
         </div>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showYoutube" defaultChecked={user.privacySettings?.showYoutube ?? true} />
+          <label className={styles.label}>YouTube Channel</label>
+          <div style={{ position: 'relative' }}>
+            <LanguageIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#FF0000', opacity: 0.7 }} />
+            <input name="youtubeUrl" type="url" defaultValue={user.youtubeUrl || ''} placeholder="https://youtube.com/@channel" className={styles.input} style={{ paddingLeft: '40px' }} />
+          </div>
+        </div>
+      </div>
+
+      <div style={{ height: '1px', background: 'var(--border-color)', margin: '1rem 0', opacity: 0.5 }}></div>
+
+      <h3 style={{ color: 'var(--accent-primary)', fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-primary)' }}></span>
+        About & Bio
+      </h3>
+
+      <div className={styles.inputGroup} style={{ position: 'relative' }}>
+        <PrivacyToggle name="showBio" defaultChecked={user.privacySettings?.showBio ?? true} />
+        <label className={styles.label}>Short Bio</label>
+        <textarea name="bio" defaultValue={user.bio || ''} placeholder="Tell us something about yourself..." className={styles.input} style={{ minHeight: '100px', resize: 'vertical' }} />
+      </div>
+
+      <div className="responsive-grid">
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showBirthday" defaultChecked={user.privacySettings?.showBirthday ?? false} />
+          <label className={styles.label}>Birthday</label>
+          <input name="birthday" type="date" defaultValue={user.birthday ? new Date(user.birthday).toISOString().split('T')[0] : ''} className={styles.input} />
+        </div>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showGender" defaultChecked={user.privacySettings?.showGender ?? true} />
+          <label className={styles.label}>Gender</label>
+          <select name="gender" defaultValue={user.gender || ''} className={styles.input}>
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showMaritalStatus" defaultChecked={user.privacySettings?.showMaritalStatus ?? false} />
+          <label className={styles.label}>Marital Status</label>
+          <select name="maritalStatus" defaultValue={user.maritalStatus || ''} className={styles.input}>
+            <option value="">Select Status</option>
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Separated">Separated</option>
+            <option value="Divorced">Divorced</option>
+            <option value="Widowed">Widowed</option>
+          </select>
+        </div>
+      </div>
+
+      <div className={styles.inputGroup} style={{ position: 'relative' }}>
+        <PrivacyToggle name="showNicknames" defaultChecked={user.privacySettings?.showNicknames ?? true} />
+        <label className={styles.label}>Nicknames (Max 3)</label>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {[0, 1, 2].map(i => (
+            <input 
+              key={i}
+              name="nicknames" 
+              type="text" 
+              defaultValue={user.nicknames?.[i] || ''} 
+              placeholder={`Nickname ${i+1}`} 
+              className={styles.input} 
+              style={{ flex: 1, minWidth: '120px' }} 
+            />
+          ))}
+        </div>
+      </div>
+
+      <div style={{ height: '1px', background: 'var(--border-color)', margin: '1rem 0', opacity: 0.5 }}></div>
+
+      <h3 style={{ color: 'var(--accent-primary)', fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-primary)' }}></span>
+        Education (Max 5)
+      </h3>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <PrivacyToggle name="showEducation" defaultChecked={user.privacySettings?.showEducation ?? true} />
+        {[0, 1, 2, 3, 4].map(i => (
+          <div key={i} className="responsive-grid" style={{ gap: '0.5rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ flex: 2 }}>
+              <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Institute</label>
+              <input name="edu_institute" type="text" defaultValue={user.education?.[i]?.institute || ''} placeholder="University/College Name" className={styles.input} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Degree</label>
+              <input name="edu_degree" type="text" defaultValue={user.education?.[i]?.degree || ''} placeholder="BSc/MSc..." className={styles.input} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Passing Year</label>
+              <input name="edu_year" type="text" defaultValue={user.education?.[i]?.year || ''} placeholder="2020" className={styles.input} />
+            </div>
+          </div>
+        ))}
       </div>
 
       <button type="submit" className="btn btn-primary" disabled={isPending} style={{ marginTop: '1rem', padding: '1.5vh 2vw', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)' }}>

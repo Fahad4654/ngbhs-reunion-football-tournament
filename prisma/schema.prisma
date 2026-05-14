@@ -246,6 +246,13 @@ model User {
   githubUrl           String?
   websiteUrl          String?
   whatsappNo          String?
+  birthday            DateTime?
+  maritalStatus       String?
+  gender              String?
+  education           Json?              // List of institutes
+  youtubeUrl          String?
+  bio                 String?
+  nicknames           String[]           @default([])
   cheers              Cheer[]
   comments            Comment[]
   manOfTheMatchAwards Match[]            @relation("ManOfTheMatch")

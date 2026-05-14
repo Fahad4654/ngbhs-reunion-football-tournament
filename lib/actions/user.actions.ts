@@ -32,9 +32,32 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const linkedinUrl = formData.get('linkedinUrl') as string;
     const githubUrl = formData.get('githubUrl') as string;
     const websiteUrl = formData.get('websiteUrl') as string;
+    const youtubeUrl = formData.get('youtubeUrl') as string;
     const whatsappNo = formData.get('whatsappNo') as string;
-    const profilePicture = formData.get('profilePicture') as File | null;
+    const bio = formData.get('bio') as string;
+    const gender = formData.get('gender') as string;
+    const maritalStatus = formData.get('maritalStatus') as string;
+    const birthdayStr = formData.get('birthday') as string;
+    const birthday = birthdayStr ? new Date(birthdayStr) : null;
 
+    // Nicknames (max 3)
+    const nicknames = formData.getAll('nicknames').filter(n => !!n).slice(0, 3) as string[];
+
+    // Education (max 5)
+    const educationNames = formData.getAll('edu_institute');
+    const educationDegrees = formData.getAll('edu_degree');
+    const educationYears = formData.getAll('edu_year');
+    const education = educationNames
+      .map((name, i) => ({ 
+        institute: name as string, 
+        degree: educationDegrees[i] as string, 
+        year: educationYears[i] as string 
+      }))
+      .filter(e => !!e.institute)
+      .slice(0, 5);
+
+    const profilePicture = formData.get('profilePicture') as File | null;
+    
     const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
     let finalImageUrl = dbUser?.image ?? null;
 
@@ -98,7 +121,14 @@ export async function updateProfile(prevState: any, formData: FormData) {
         linkedinUrl,
         githubUrl,
         websiteUrl,
+        youtubeUrl,
         whatsappNo,
+        bio,
+        gender,
+        maritalStatus,
+        birthday,
+        nicknames,
+        education,
         privacySettings,
         ...(shouldResetStatus ? { status: 'PENDING' } : {}),
       },

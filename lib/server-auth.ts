@@ -25,6 +25,13 @@ export interface AppUser {
   linkedinUrl: string | null;
   githubUrl: string | null;
   websiteUrl: string | null;
+  birthday: Date | null;
+  maritalStatus: string | null;
+  gender: string | null;
+  education: any;
+  youtubeUrl: string | null;
+  bio: string | null;
+  nicknames: string[];
   privacySettings: any;
 }
 
@@ -71,6 +78,13 @@ export async function getServerUser(): Promise<AppUser | null> {
       linkedinUrl: user.linkedinUrl,
       githubUrl: user.githubUrl,
       websiteUrl: user.websiteUrl,
+      birthday: user.birthday,
+      maritalStatus: user.maritalStatus,
+      gender: user.gender,
+      education: user.education,
+      youtubeUrl: user.youtubeUrl,
+      bio: user.bio,
+      nicknames: user.nicknames,
       privacySettings: user.privacySettings,
     };
   } catch (error) {
