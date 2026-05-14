@@ -55,6 +55,7 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
   const [otpState, otpFormAction, isOtpPending] = useActionState(verifyOTPAndRegister, null);
   const [resending, setResending]            = useState(false);
   const [showPassword, setShowPassword]      = useState(false);
+  const [mounted, setMounted]                = useState(false);
   const router = useRouter();
 
   // Controlled field state
@@ -79,7 +80,7 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
     password:  validatePassword(password),
     batch:     validateBatch(batchId),
   };
-  const isFormValid = Object.values(errors).every(e => !e);
+  const isFormValid = mounted && Object.values(errors).every(e => !e);
 
   // Password strength
   const calcStrength = (p: string) => {
@@ -94,6 +95,9 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
   const strength      = calcStrength(password);
   const strengthText  = ['Too Weak', 'Fair', 'Good', 'Strong'][strength - 1] || '';
   const strengthColor = ['#ef4444', '#f59e0b', '#fbbf24', '#10b981'][strength - 1] || 'rgba(255,255,255,0.1)';
+
+  // Mark as mounted so we only apply client-side validation after hydration
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (state?.success && !state?.otpSent) {
