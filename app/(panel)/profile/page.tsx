@@ -48,7 +48,7 @@ export default async function ProfilePage() {
             )}
           </header>
 
-          <ProfileForm key={user.uid + (user.batchId || '') + (user.name || '')} user={user} batches={batches} />
+          <ProfileForm key={user.uid + (user.batchId || '') + (user.name || '') + JSON.stringify(user.privacySettings)} user={user} batches={batches} />
         </div>
       </div>
     </div>

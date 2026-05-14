@@ -39,9 +39,10 @@ export async function sendOTPEmail(email: string, otp: string) {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Mail] OTP sent successfully to ${email}. MessageId: ${info.messageId}`);
   } catch (error) {
-    console.error('Error sending OTP email:', error);
+    console.error(`[Mail Error] Failed to send OTP email to ${email}:`, error);
     throw new Error('Failed to send verification email.');
   }
 }
@@ -75,9 +76,10 @@ export async function sendPasswordResetEmail(email: string, otp: string) {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Mail] Password reset email sent successfully to ${email}. MessageId: ${info.messageId}`);
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    console.error(`[Mail Error] Failed to send password reset email to ${email}:`, error);
     throw new Error('Failed to send password reset email.');
   }
 }

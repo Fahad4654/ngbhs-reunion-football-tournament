@@ -215,8 +215,11 @@ model Notification {
 model User {
   id                  String             @id @default(cuid())
   firebaseId          String?            @unique
+  firstName           String?
+  lastName            String?
   name                String?
   email               String             @unique
+  username            String?            @unique
   role                Role               @default(USER)
   image               String?
   createdAt           DateTime           @default(now())
@@ -236,6 +239,20 @@ model User {
   isCommitteeMember   Boolean            @default(false)
   committeeRole       String?
   isVolunteer         Boolean            @default(false)
+  secondaryEmail      String?
+  facebookUrl         String?
+  instagramUrl        String?
+  linkedinUrl         String?
+  githubUrl           String?
+  websiteUrl          String?
+  whatsappNo          String?
+  birthday            DateTime?
+  maritalStatus       String?
+  gender              String?
+  education           Json?              // List of institutes
+  youtubeUrl          String?
+  bio                 String?
+  nicknames           String[]           @default([])
   cheers              Cheer[]
   comments            Comment[]
   manOfTheMatchAwards Match[]            @relation("ManOfTheMatch")
@@ -253,6 +270,7 @@ model User {
   followedBatches     Batch[]            @relation("UserFollows")
   awardRatings        AwardRating[]      @relation("PlayerRatings")
   judgeVotes          AwardRating[]      @relation("JudgeVotes")
+  privacySettings     Json?              @default("{\"showPhone\": false, \"showEmail\": false, \"showAddress\": false, \"showOccupation\": true, \"showSocialLinks\": true}")
 }
 
 model VerificationToken {

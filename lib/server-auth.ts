@@ -13,8 +13,26 @@ export interface AppUser {
   workplace: string | null;
   phone: string | null;
   batchId: string | null;
+  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
   currentAddress: string | null;
   permanentAddress: string | null;
+  secondaryEmail: string | null;
+  whatsappNo: string | null;
+  facebookUrl: string | null;
+  instagramUrl: string | null;
+  linkedinUrl: string | null;
+  githubUrl: string | null;
+  websiteUrl: string | null;
+  birthday: Date | null;
+  maritalStatus: string | null;
+  gender: string | null;
+  education: any;
+  youtubeUrl: string | null;
+  bio: string | null;
+  nicknames: string[];
+  privacySettings: any;
 }
 
 /**
@@ -41,15 +59,33 @@ export async function getServerUser(): Promise<AppUser | null> {
       uid: user.id,
       email: user.email,
       name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
       image: user.image,
-      role: user.role,
-      status: user.status,
+      role: user.role as any,
+      status: user.status as any,
       occupation: user.occupation,
       workplace: user.workplace,
       phone: user.phone,
       batchId: user.batchId,
       currentAddress: user.currentAddress,
       permanentAddress: user.permanentAddress,
+      secondaryEmail: user.secondaryEmail,
+      whatsappNo: user.whatsappNo,
+      facebookUrl: user.facebookUrl,
+      instagramUrl: user.instagramUrl,
+      linkedinUrl: user.linkedinUrl,
+      githubUrl: user.githubUrl,
+      websiteUrl: user.websiteUrl,
+      birthday: user.birthday,
+      maritalStatus: user.maritalStatus,
+      gender: user.gender,
+      education: user.education,
+      youtubeUrl: user.youtubeUrl,
+      bio: user.bio,
+      nicknames: user.nicknames,
+      privacySettings: user.privacySettings,
     };
   } catch (error) {
     console.error("Auth verification error:", error);
