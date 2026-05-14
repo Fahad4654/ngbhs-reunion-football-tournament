@@ -135,16 +135,19 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
 
       <div className="responsive-grid">
         <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showFirstName" defaultChecked={user.privacySettings?.showFirstName ?? true} />
           <label className={styles.label}>First Name</label>
           <input name="firstName" type="text" defaultValue={user.firstName || ''} className={styles.input} required />
         </div>
         <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showLastName" defaultChecked={user.privacySettings?.showLastName ?? true} />
           <label className={styles.label}>Last Name</label>
           <input name="lastName" type="text" defaultValue={user.lastName || ''} className={styles.input} required />
         </div>
       </div>
 
       <div className={styles.inputGroup} style={{ position: 'relative' }}>
+        <PrivacyToggle name="showUsername" defaultChecked={user.privacySettings?.showUsername ?? true} />
         <label className={styles.label}>Unique Username</label>
         <input 
           name="username" 
