@@ -170,6 +170,10 @@ export async function loginWithGoogle(idToken: string) {
 
     let user = await prisma.user.findUnique({ where: { email } });
 
+    const nameParts = (name || "").split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
     if (!user) {
       const username = await generateUniqueUsername(name || email.split('@')[0], email);
       user = await prisma.user.create({
@@ -177,6 +181,8 @@ export async function loginWithGoogle(idToken: string) {
           email, 
           username,
           name: name || null, 
+          firstName,
+          lastName,
           image: picture || null, 
           firebaseId: uid, 
           role: 'USER',
@@ -191,6 +197,8 @@ export async function loginWithGoogle(idToken: string) {
         data: { 
           firebaseId: uid, 
           username,
+          firstName: user.firstName || firstName,
+          lastName: user.lastName || lastName,
           image: user.image || picture,
           // If the user already existed (e.g. invited or manual reg but not verified)
           // we ensure they are PENDING and verified
