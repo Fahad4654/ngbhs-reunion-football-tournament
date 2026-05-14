@@ -119,7 +119,8 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
   return (
     <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Avatar Section */}
-      <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '1.5rem', position: 'relative', width: 'fit-content', margin: '0 auto' }}>
+        <PrivacyToggle name="showImage" defaultChecked={user.privacySettings?.showImage ?? true} />
         <input 
           type="file" 
           name="profilePicture" 
@@ -135,7 +136,6 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
             height: 'clamp(120px, 20vw, 160px)', 
             borderRadius: '50%', 
             background: previewImage ? 'transparent' : 'var(--accent-primary)',
-            margin: '0 auto 1rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -150,7 +150,6 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           }}
           title="Click to change profile picture"
         >
-          <PrivacyToggle name="showImage" defaultChecked={user.privacySettings?.showImage ?? true} />
           {previewImage
             ? <img src={previewImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : user.name?.charAt(0)
