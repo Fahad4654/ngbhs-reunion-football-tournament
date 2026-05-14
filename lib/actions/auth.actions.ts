@@ -229,13 +229,14 @@ export async function sendPasswordResetOTP(prevState: any, formData: FormData) {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !user.password) {
+    if (!user) {
       // Return success anyway to avoid email enumeration
       return { success: true, email };
     }
 
     const otp = generateOTP();
     await storeOTP(email, otp);
+    console.log(`[PasswordReset] Attempting to send OTP to ${email}`);
     await sendPasswordResetEmail(email, otp);
 
     return { success: true, email };
