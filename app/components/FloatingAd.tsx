@@ -66,14 +66,12 @@ export default function FloatingAd({ positions }: FloatingAdProps) {
       currentAdTimeRemaining -= 1;
       if (currentAdTimeRemaining <= 0) {
         setCurrentAdIndex((prevIndex) => {
-          const nextIndex = prevIndex + 1;
-          if (nextIndex < ads.length) {
-            currentAdTimeRemaining = (ads[nextIndex] as any).closeDelay || 5;
-            return nextIndex;
-          }
-          return prevIndex;
+          const nextIndex = (prevIndex + 1) % ads.length;
+          currentAdTimeRemaining = (ads[nextIndex] as any).closeDelay || 5;
+          return nextIndex;
         });
       }
+
     }, 1000);
 
     return () => clearInterval(interval);
