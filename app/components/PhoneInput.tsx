@@ -87,15 +87,18 @@ export default function PhoneInput({
         type="tel"
         value={localNumber}
         onChange={(e) => {
-          const normalized = normalizePhone(e.target.value);
-          if (normalized.length <= maxLocalLength) {
-            setLocalNumber(normalized);
+          // Remove all non-digit characters
+          const digitsOnly = e.target.value.replace(/\D/g, '');
+          if (digitsOnly.length <= maxLocalLength) {
+            setLocalNumber(digitsOnly);
           }
         }}
         maxLength={maxLocalLength}
         placeholder="1712345678"
         required={required}
         disabled={disabled}
+        inputMode="numeric"
+        pattern="[0-9]*"
         style={{
           flex: 1,
           background: 'transparent',
