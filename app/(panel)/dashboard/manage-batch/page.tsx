@@ -12,6 +12,7 @@ import BatchProfileForm from "./BatchProfileForm";
 import UserLink from "@/app/components/UserLink";
 import CollapsibleContent from "@/app/components/CollapsibleContent";
 import ClickablePost from "@/app/components/ClickablePost";
+import ManageBatchMembersClient from "./ManageBatchMembersClient";
 
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
@@ -162,6 +163,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
             </div>
           )}
         </div>
+      ) : tab === 'members' ? (
         <ManageBatchMembersClient 
           members={members} 
           currentUserBatchId={dbUser.batchId} 

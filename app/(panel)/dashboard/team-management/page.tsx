@@ -7,6 +7,7 @@ import DesignationAssignment from "./DesignationAssignment";
 import GroupIcon from '@mui/icons-material/Group';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import UserLink from "@/app/components/UserLink";
+import TeamManagementClient from "./TeamManagementClient";
 
 export const metadata = {
   title: 'Team Management - Dashboard',
