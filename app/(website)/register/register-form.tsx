@@ -9,11 +9,30 @@ import GoogleLoginButton from '@/app/components/auth/GoogleLoginButton';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+
 export default function RegisterForm({ batches }: { batches: any[] }) {
   const [state, formAction, isPending] = useActionState(registerWithEmail, null);
   const [otpState, otpFormAction, isOtpPending] = useActionState(verifyOTPAndRegister, null);
   const [resending, setResending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState('');
   const router = useRouter();
+
+  const calculateStrength = (pass: string) => {
+    let score = 0;
+    if (!pass) return 0;
+    if (pass.length >= 6) score++;
+    if (pass.length >= 10) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[^A-Za-z0-9]/.test(pass)) score++;
+    return score;
+  };
+
+  const strength = calculateStrength(password);
+  const strengthText = ['Too Weak', 'Fair', 'Good', 'Strong'][strength - 1] || 'Enter password';
+  const strengthColor = ['#ef4444', '#f59e0b', '#fbbf24', '#10b981'][strength - 1] || 'transparent';
 
   useEffect(() => {
     if (state?.success && !state?.otpSent) {
@@ -168,7 +187,56 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
         </div>
         <div className={styles.inputGroup}>
           <label htmlFor="password" className={styles.label}>Password</label>
-          <input id="password" name="password" type="password" placeholder="At least 6 characters" className={styles.input} required minLength={6} disabled={isPending} />
+          <div style={{ position: 'relative' }}>
+            <input 
+              id="password" 
+              name="password" 
+              type={showPassword ? "text" : "password"} 
+              placeholder="At least 6 characters" 
+              className={styles.input} 
+              required 
+              minLength={6} 
+              disabled={isPending}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ paddingRight: '3rem' }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '1rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                padding: 0
+              }}
+            >
+              {showPassword ? <VisibilityOff sx={{ fontSize: '1.2rem' }} /> : <Visibility sx={{ fontSize: '1.2rem' }} />}
+            </button>
+          </div>
+          
+          {/* Password Strength Indicator */}
+          <div style={{ marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Strength:</span>
+              <span style={{ fontSize: '0.7rem', color: strengthColor, fontWeight: '700' }}>{strengthText}</span>
+            </div>
+            <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ 
+                width: `${(strength / 4) * 100}%`, 
+                height: '100%', 
+                background: strengthColor, 
+                transition: 'all 0.3s ease' 
+              }} />
+            </div>
+          </div>
         </div>
 
         {state?.error && (
