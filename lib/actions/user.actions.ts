@@ -67,14 +67,14 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     // Extract all privacy settings dynamically
     const privacySettings: Record<string, boolean> = {};
-    for (const key of formData.keys()) {
+    formData.forEach((value, key) => {
       if (key.startsWith('privacy_')) {
         const settingName = key.replace('privacy_', '');
-        const values = formData.getAll(key);
-        // If checked, values will be ['off', 'on']. If unchecked, values will be ['off'].
-        privacySettings[settingName] = values.includes('on');
+        privacySettings[settingName] = value === 'on';
       }
-    }
+    });
+
+    console.log('[updateProfile] Privacy Settings to save:', privacySettings);
 
     await prisma.user.update({
       where: { id: user.uid },

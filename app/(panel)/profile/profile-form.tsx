@@ -24,6 +24,11 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
 
   const PrivacyToggle = ({ name, defaultChecked }: { name: string, defaultChecked: boolean }) => {
     const [isPublic, setIsPublic] = useState(defaultChecked);
+
+    useEffect(() => {
+      setIsPublic(defaultChecked);
+    }, [defaultChecked]);
+
     return (
       <div style={{ position: 'absolute', top: '-10px', right: '0', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-secondary)', padding: '2px 8px', borderRadius: '12px', border: '1px solid var(--border-color)', zIndex: 5, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
         <span style={{ fontSize: '0.6rem', color: isPublic ? 'var(--accent-primary)' : 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '900', letterSpacing: '0.05em' }}>
