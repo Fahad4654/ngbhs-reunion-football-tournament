@@ -16,6 +16,7 @@ export default function MemberDirectory({ members, currentUserBatchId }: MemberD
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
 
   return (
+    <>
     <MemberFilter members={members}>
       {(filteredMembers) => (
         <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto' }}>
