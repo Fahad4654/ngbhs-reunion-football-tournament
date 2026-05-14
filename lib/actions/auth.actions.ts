@@ -11,6 +11,7 @@ import { generateOTP, storeOTP, verifyOTP, verifyOTPNoDelete, deleteOTP } from '
 import { sendOTPEmail, sendPasswordResetEmail } from '@/lib/mail';
 import { adminAuth } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
+import { generateUniqueUsername } from '@/lib/utils/username';
 
 // ─────────────────────────────────────────
 // Email / Password Auth
@@ -71,16 +72,18 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
     }
 
     const hashedPassword = await hashPassword(password);
+    const username = await generateUniqueUsername(name, email);
 
     if (existingUser) {
       await prisma.user.update({
         where: { id: existingUser.id },
-        data: { name, password: hashedPassword, batchId: batchId || null, status: 'PENDING' },
+        data: { name, username, password: hashedPassword, batchId: batchId || null, status: 'PENDING' },
       });
     } else {
       await prisma.user.create({
         data: {
           email,
+          username,
           password: hashedPassword,
           name,
           role: 'USER',
@@ -163,9 +166,11 @@ export async function loginWithGoogle(idToken: string) {
     let user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
+      const username = await generateUniqueUsername(name || email.split('@')[0], email);
       user = await prisma.user.create({
         data: { 
           email, 
+          username,
           name: name || null, 
           image: picture || null, 
           firebaseId: uid, 
@@ -174,11 +179,13 @@ export async function loginWithGoogle(idToken: string) {
           emailVerified: new Date(),
         },
       });
-    } else if (!user.firebaseId) {
+    } else if (!user.firebaseId || !user.username) {
+      const username = user.username || await generateUniqueUsername(user.name || email.split('@')[0], email);
       user = await prisma.user.update({
         where: { id: user.id },
         data: { 
           firebaseId: uid, 
+          username,
           image: user.image || picture,
           // If the user already existed (e.g. invited or manual reg but not verified)
           // we ensure they are PENDING and verified
