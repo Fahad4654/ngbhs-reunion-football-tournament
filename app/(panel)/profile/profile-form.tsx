@@ -420,7 +420,7 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         Education (Max 5)
       </h3>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative' }}>
         <PrivacyToggle name="showEducation" defaultChecked={user.privacySettings?.showEducation ?? true} />
         {[0, 1, 2, 3, 4].map(i => (
           <div key={i} className="responsive-grid" style={{ gap: '0.5rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
