@@ -106,6 +106,8 @@ export default async function Home() {
         </div>
       </section>
 
+
+
       {/* Live Scoreboard Section */}
       <section className={styles.section}>
         <div className="container">
@@ -251,6 +253,7 @@ export default async function Home() {
           <Link href="/standings" className="btn glass" style={{ width: '100%', marginTop: '2.5rem', fontWeight: '700', justifyContent: 'center' }}>VIEW COMPLETE LEAGUE TABLE</Link>
         </div>
       </section>
+
     </div>
   );
 }

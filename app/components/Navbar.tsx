@@ -39,7 +39,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
       borderBottom: '1px solid var(--border-color)',
       background: 'rgba(10, 11, 13, 0.95)'
     }}>
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '100%', padding: '0 2vw' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
           <img src="/logo.jpg" alt="NGBHS Logo" className="navbar-logo" />
           <h1 className="navbar-title" style={{ margin: 0 }}>
@@ -63,7 +63,7 @@ export default function Navbar({ user }: { user: AppUser | null }) {
               <Link
                 key={link.href}
                 href={link.href}
-                style={{ color: isActive ? 'white' : 'var(--accent-primary)', transition: 'all 0.2s ease', borderBottom: isActive ? '0.185vh solid var(--accent-primary)' : 'none', paddingBottom: '0.463vh' }}
+                className={isActive ? 'nav-link nav-link-active' : 'nav-link'}
               >
                 {link.name}
               </Link>
@@ -72,16 +72,18 @@ export default function Navbar({ user }: { user: AppUser | null }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.833vw' }}>
+          {/* Divider between nav links and auth */}
+          <span className="nav-auth-divider" />
           <div className="nav-auth">
             {user ? (
               <>
-                <Link href="/dashboard" style={{ fontSize: '1.0vw', color: 'var(--accent-primary)', fontWeight: '700' }}>Dashboard</Link>
+                <Link href="/dashboard" className="btn btn-primary" style={{ padding: '0.6vh clamp(8px, 0.9vw, 14px)', fontSize: 'clamp(0.7rem, 0.85vw, 0.9rem)', whiteSpace: 'nowrap' }}>Dashboard</Link>
                 <form action={logout}>
-                  <button type="submit" className="btn glass" style={{ padding: '0.926vh 1.042vw', fontSize: '0.9vw' }}>Sign Out</button>
+                  <button type="submit" className="btn glass" style={{ padding: '0.6vh clamp(8px, 0.9vw, 14px)', fontSize: 'clamp(0.7rem, 0.85vw, 0.9rem)', whiteSpace: 'nowrap' }}>Sign Out</button>
                 </form>
               </>
             ) : (
-              <Link href="/login" className="btn btn-primary" style={{ padding: '0.926vh 1.042vw', fontSize: '1.0vw' }}>Sign In</Link>
+              <Link href="/login" className="btn btn-primary" style={{ padding: '0.6vh clamp(8px, 0.9vw, 14px)', fontSize: 'clamp(0.7rem, 0.85vw, 0.9rem)', whiteSpace: 'nowrap' }}>Sign In</Link>
             )}
           </div>
 

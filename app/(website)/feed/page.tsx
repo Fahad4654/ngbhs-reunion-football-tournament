@@ -11,6 +11,9 @@ import UserLink from "@/app/components/UserLink";
 import prisma from "@/lib/prisma";
 import CollapsibleContent from "@/app/components/CollapsibleContent";
 import ClickablePost from "@/app/components/ClickablePost";
+import AdBanner from "@/app/components/AdBanner";
+import FloatingAd from "@/app/components/FloatingAd";
+import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 export const metadata = {
   title: 'Community Feed - NGBHS Reunion',
@@ -20,16 +23,27 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function FeedPage() {
-  const [posts, userSession] = await Promise.all([
+  const [posts, userSession, ads] = await Promise.all([
     getApprovedPosts(),
-    getServerUser()
+    getServerUser(),
+    getActiveAdsByPosition('FEED_TOP')
   ]);
+
+  const hasAds = ads && ads.length > 0;
+
 
   const dbUser = userSession ? await prisma.user.findUnique({ where: { id: userSession.uid } }) : null;
 
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', paddingTop: '1.852vh', paddingBottom: '3.704vh' }}>
-      <div className="container feed-grid">
+      <div className="container" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: hasAds ? '280px 1fr 300px' : '280px 1fr', 
+        gap: '2rem', 
+        alignItems: 'start',
+        maxWidth: hasAds ? '100%' : '1400px',
+        margin: '0 auto'
+      }}>
         
         {/* Left Sidebar - Navigation/Shortcuts */}
         <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.852vh)' }} className="desktop-only">
@@ -54,6 +68,11 @@ export default async function FeedPage() {
 
         {/* Main Feed */}
         <main style={{ display: 'flex', flexDirection: 'column', gap: '1.667vw' }}>
+          {/* Mobile Floating Ads (Consolidated) */}
+          <FloatingAd positions={['FEED_TOP', 'SIDEBAR', 'FLOATING']} />
+
+
+
           {posts.length > 0 ? posts.map((post) => (
             <article key={post.id} className="glass" style={{ overflow: 'hidden', borderRadius: '1.25vw' }}>
               {/* Post Header */}
@@ -138,15 +157,13 @@ export default async function FeedPage() {
 
         {/* Right Sidebar - Ad/Promo */}
         <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 1.852vh)' }} className="desktop-only">
-          <div className="glass" style={{ padding: '2.222vh 1.25vw', borderRadius: '1.25vw', textAlign: 'center' }}>
-            <h3 style={{ fontSize: 'calc(0.667vw * var(--font-scale))', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2.222vh' }}>Tournament Partner</h3>
-            <div style={{ background: 'rgba(255,255,255,0.05)', height: '18.519vh', borderRadius: '0.833vw', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.75vw' }}>
-              Your Brand Here
-            </div>
-          </div>
+          <AdBanner position="FEED_TOP" showTitle className="glass" style={{ padding: '1rem', borderRadius: '1.25vw' }} />
         </aside>
+
+
 
       </div>
     </div>
   );
 }
+

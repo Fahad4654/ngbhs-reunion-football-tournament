@@ -18,6 +18,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import HomeIcon from '@mui/icons-material/Home';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import CloseIcon from '@mui/icons-material/Close';
+import AdBanner from "./AdBanner";
 
 interface SidebarProps {
   user: AppUser;
@@ -45,6 +46,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
 
   const adminOnlyLinks = [
     { name: "Tournaments", href: "/admin/tournaments", icon: <AssessmentIcon />, roles: ["ADMIN", "CO_ADMIN"] },
+    { name: "Ad Management", href: "/admin/ads", icon: <CampaignIcon />, roles: ["ADMIN", "CO_ADMIN"] },
     { name: "Batch Settings", href: "/admin/batches", icon: <SecurityIcon />, roles: ["ADMIN"] },
     { name: "User Access", href: "/admin/users", icon: <GroupIcon />, roles: ["ADMIN"] },
   ];
@@ -168,6 +170,10 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
               })}
             </div>
           )}
+
+          <div style={{ marginTop: '1rem', padding: '0 0.5rem' }}>
+            <AdBanner position="SIDEBAR" />
+          </div>
         </div>
       </div>
 
