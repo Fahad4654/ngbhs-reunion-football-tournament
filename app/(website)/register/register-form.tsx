@@ -161,15 +161,13 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
             <input id="lastName" name="lastName" type="text" placeholder="Last Name" className={styles.input} required disabled={isPending} />
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="username" className={styles.label}>Preferred Username (Optional)</label>
-            <input id="username" name="username" type="text" placeholder="e.g. john_doe" className={styles.input} disabled={isPending} />
-          </div>
-          <div className={styles.inputGroup}>
-            <label htmlFor="phone" className={styles.label}>Phone Number</label>
-            <PhoneInput id="phone" name="phone" required disabled={isPending} className={styles.input} />
-          </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="username" className={styles.label}>Preferred Username (Optional)</label>
+          <input id="username" name="username" type="text" placeholder="e.g. john_doe" className={styles.input} disabled={isPending} />
+        </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="phone" className={styles.label}>Phone Number</label>
+          <PhoneInput id="phone" name="phone" required disabled={isPending} className={styles.input} />
         </div>
         <div className={styles.inputGroup}>
           <label htmlFor="email" className={styles.label}>Email Address</label>
