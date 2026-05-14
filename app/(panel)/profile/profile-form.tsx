@@ -160,7 +160,20 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
         <div className={styles.inputGroup}>
           <label className={styles.label}>Contact Number</label>
-          <input name="phone" type="tel" defaultValue={user.phone || ''} placeholder="+880..." className={styles.input} />
+          <input 
+            name="phone" 
+            type="tel" 
+            defaultValue={user.phone || ''} 
+            placeholder="+880..." 
+            className={styles.input} 
+            disabled={!!user.phone}
+            style={!!user.phone ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+          />
+          {!!user.phone && (
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+              Phone number cannot be changed once verified.
+            </p>
+          )}
         </div>
       </div>
 

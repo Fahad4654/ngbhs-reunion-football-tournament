@@ -63,6 +63,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
     const existingUser = await prisma.user.findUnique({ where: { id: user.uid } }) as any;
     const canUpdateUsername = !existingUser?.username;
+    const canUpdatePhone = !existingUser?.phone;
 
     await prisma.user.update({
       where: { id: user.uid },
@@ -73,7 +74,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
         ...(canUpdateUsername ? { username: username || null } : {}),
         occupation,
         workplace,
-        phone: phone || null,
+        ...(canUpdatePhone ? { phone: phone || null } : {}),
         batchId: batchId || null,
         image: finalImageUrl,
         currentAddress,
