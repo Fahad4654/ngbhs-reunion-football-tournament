@@ -65,14 +65,14 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const canUpdateUsername = !dbUserRecord?.username;
     const canUpdatePhone = !dbUserRecord?.phone;
 
-    // Extract privacy settings
-    const privacySettings = {
-      showPhone: formData.get('privacy_showPhone') === 'on',
-      showEmail: formData.get('privacy_showEmail') === 'on',
-      showAddress: formData.get('privacy_showAddress') === 'on',
-      showOccupation: formData.get('privacy_showOccupation') === 'on',
-      showSocialLinks: formData.get('privacy_showSocialLinks') === 'on',
-    };
+    // Extract all privacy settings dynamically
+    const privacySettings: Record<string, boolean> = {};
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith('privacy_')) {
+        const settingName = key.replace('privacy_', '');
+        privacySettings[settingName] = value === 'on';
+      }
+    }
 
     await prisma.user.update({
       where: { id: user.uid },

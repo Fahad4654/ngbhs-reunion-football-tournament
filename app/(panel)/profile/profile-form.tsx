@@ -22,6 +22,29 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
   const [previewImage, setPreviewImage] = useState(user.image || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const PrivacyToggle = ({ name, defaultChecked }: { name: string, defaultChecked: boolean }) => {
+    const [isPublic, setIsPublic] = useState(defaultChecked);
+    return (
+      <div style={{ position: 'absolute', top: '-10px', right: '0', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-secondary)', padding: '2px 8px', borderRadius: '12px', border: '1px solid var(--border-color)', zIndex: 5, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+        <span style={{ fontSize: '0.6rem', color: isPublic ? 'var(--accent-primary)' : 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '900', letterSpacing: '0.05em' }}>
+          {isPublic ? 'Public' : 'Private'}
+        </span>
+        <label style={{ position: 'relative', display: 'inline-block', width: '24px', height: '14px', cursor: 'pointer' }}>
+          <input 
+            type="checkbox" 
+            name={`privacy_${name}`} 
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            style={{ opacity: 0, width: 0, height: 0 }}
+          />
+          <span style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: isPublic ? 'var(--accent-primary)' : '#444', transition: '.2s', borderRadius: '14px' }}>
+            <span style={{ position: 'absolute', content: '""', height: '10px', width: '10px', left: isPublic ? '12px' : '2px', bottom: '2px', backgroundColor: 'white', transition: '.2s', borderRadius: '50%' }}></span>
+          </span>
+        </label>
+      </div>
+    );
+  };
+
   useEffect(() => {
     return () => {
       if (previewImage && previewImage.startsWith('blob:')) {
@@ -111,17 +134,17 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
       </div>
 
       <div className="responsive-grid">
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
           <label className={styles.label}>First Name</label>
           <input name="firstName" type="text" defaultValue={user.firstName || ''} className={styles.input} required />
         </div>
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
           <label className={styles.label}>Last Name</label>
           <input name="lastName" type="text" defaultValue={user.lastName || ''} className={styles.input} required />
         </div>
       </div>
 
-      <div className={styles.inputGroup}>
+      <div className={styles.inputGroup} style={{ position: 'relative' }}>
         <label className={styles.label}>Unique Username</label>
         <input 
           name="username" 
@@ -141,13 +164,14 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </p>
       </div>
 
-      <div className={styles.inputGroup}>
+      <div className={styles.inputGroup} style={{ position: 'relative' }}>
+        <PrivacyToggle name="showEmail" defaultChecked={user.privacySettings?.showEmail ?? false} />
         <label className={styles.label}>Email Address (Read-only)</label>
         <input type="email" value={user.email || ''} className={styles.input} disabled style={{ opacity: 0.6 }} />
       </div>
 
       <div className="responsive-grid">
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
           <label className={styles.label}>Batch</label>
           <select name="batchId" defaultValue={user.batchId || ''} className={styles.input}>
             <option value="" style={{ background: 'var(--bg-secondary)' }}>Select Batch</option>
@@ -158,7 +182,8 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
             ))}
           </select>
         </div>
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showPhone" defaultChecked={user.privacySettings?.showPhone ?? false} />
           <label className={styles.label}>Contact Number</label>
           <input 
             name="phone" 
@@ -178,22 +203,26 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
       </div>
 
       <div className="responsive-grid">
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showOccupation" defaultChecked={user.privacySettings?.showOccupation ?? true} />
           <label className={styles.label}>Current Position / Job</label>
           <input name="occupation" type="text" defaultValue={user.occupation || ''} placeholder="e.g. Engineer" className={styles.input} />
         </div>
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showWorkplace" defaultChecked={user.privacySettings?.showWorkplace ?? true} />
           <label className={styles.label}>Organization / Workplace</label>
           <input name="workplace" type="text" defaultValue={user.workplace || ''} placeholder="e.g. Google" className={styles.input} />
         </div>
       </div>
 
       <div className="responsive-grid">
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showAddress" defaultChecked={user.privacySettings?.showAddress ?? false} />
           <label className={styles.label}>Current Address</label>
           <textarea name="currentAddress" defaultValue={user.currentAddress || ''} placeholder="Natore, Bangladesh" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
         </div>
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ position: 'relative' }}>
+          <PrivacyToggle name="showAddress" defaultChecked={user.privacySettings?.showAddress ?? false} />
           <label className={styles.label}>Permanent Address</label>
           <textarea name="permanentAddress" defaultValue={user.permanentAddress || ''} placeholder="Natore, Bangladesh" className={styles.input} style={{ minHeight: '80px', resize: 'vertical' }} />
         </div>
@@ -205,14 +234,16 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </h3>
         
         <div className="responsive-grid">
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showSecondaryEmail" defaultChecked={user.privacySettings?.showSecondaryEmail ?? false} />
             <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
               <EmailIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-primary)' }} /> 
               <span>Secondary Email</span>
             </label>
             <input name="secondaryEmail" type="email" defaultValue={user.secondaryEmail || ''} placeholder="alternative@example.com" className={styles.input} />
           </div>
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showWhatsapp" defaultChecked={user.privacySettings?.showWhatsapp ?? false} />
             <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
               <WhatsAppIcon sx={{ fontSize: '1.2rem', color: '#25D366' }} /> 
               <span>WhatsApp Number</span>
@@ -222,14 +253,16 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
 
         <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showFacebook" defaultChecked={user.privacySettings?.showFacebook ?? true} />
             <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
               <FacebookIcon sx={{ fontSize: '1.2rem', color: '#1877F2' }} /> 
               <span>Facebook Profile</span>
             </label>
             <input name="facebookUrl" type="url" defaultValue={user.facebookUrl || ''} placeholder="https://facebook.com/username" className={styles.input} />
           </div>
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showInstagram" defaultChecked={user.privacySettings?.showInstagram ?? true} />
             <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
               <InstagramIcon sx={{ fontSize: '1.2rem', color: '#E4405F' }} /> 
               <span>Instagram Profile</span>
@@ -239,21 +272,26 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
         </div>
 
         <div className="responsive-grid" style={{ marginTop: '1.25rem' }}>
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showLinkedin" defaultChecked={user.privacySettings?.showLinkedin ?? true} />
             <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
               <LinkedInIcon sx={{ fontSize: '1.2rem', color: '#0A66C2' }} /> 
               <span>LinkedIn Profile</span>
             </label>
             <input name="linkedinUrl" type="url" defaultValue={user.linkedinUrl || ''} placeholder="https://linkedin.com/in/username" className={styles.input} />
           </div>
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
+            <PrivacyToggle name="showGithub" defaultChecked={user.privacySettings?.showGithub ?? true} />
             <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
               <GitHubIcon sx={{ fontSize: '1.2rem', color: '#fff' }} /> 
               <span>GitHub Profile</span>
             </label>
             <input name="githubUrl" type="url" defaultValue={user.githubUrl || ''} placeholder="https://github.com/username" className={styles.input} />
           </div>
-        <div className={styles.inputGroup} style={{ marginTop: '1.25rem' }}>
+        </div>
+
+        <div className={styles.inputGroup} style={{ marginTop: '1.25rem', position: 'relative' }}>
+          <PrivacyToggle name="showWebsite" defaultChecked={user.privacySettings?.showWebsite ?? true} />
           <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)' }}>
             <LanguageIcon sx={{ fontSize: '1.2rem', color: 'var(--accent-secondary)' }} /> 
             <span>Website / Portfolio URL</span>
@@ -261,53 +299,6 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           <input name="websiteUrl" type="url" defaultValue={user.websiteUrl || ''} placeholder="https://yourwebsite.com" className={styles.input} />
         </div>
       </div>
-
-      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2.5rem', marginTop: '1.5rem' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#10b981', marginBottom: '1.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          🔒 Profile Privacy Controls
-        </h3>
-        
-        <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            Control which information is visible to other members on your public profile.
-          </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-            {[
-              { id: 'showPhone', label: 'Show Phone Number' },
-              { id: 'showEmail', label: 'Show Email Address' },
-              { id: 'showAddress', label: 'Show Physical Address' },
-              { id: 'showOccupation', label: 'Show Occupation/Job' },
-              { id: 'showSocialLinks', label: 'Show Social Media Links' }
-            ].map((setting) => (
-              <label key={setting.id} style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '1rem', 
-                padding: '1rem', 
-                background: 'rgba(255,255,255,0.03)', 
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'background 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
-              >
-                <input 
-                  type="checkbox" 
-                  name={`privacy_${setting.id}`}
-                  defaultChecked={user.privacySettings?.[setting.id] ?? (setting.id.startsWith('showOccupation') || setting.id.startsWith('showSocial'))}
-                  style={{ width: '1.2rem', height: '1.2rem', accentColor: 'var(--accent-primary)' }}
-                />
-                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{setting.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
-
-
-
 
       <button type="submit" className="btn btn-primary" disabled={isPending} style={{ marginTop: '1rem', padding: '1.5vh 2vw', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)' }}>
         {isPending ? 'Saving Changes...' : 'Save Profile Details'}
