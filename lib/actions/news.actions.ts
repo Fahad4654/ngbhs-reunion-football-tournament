@@ -71,6 +71,7 @@ export async function createNews(data: {
     }
 
     revalidatePath("/admin/news");
+    revalidatePath("/dashboard/news/manage");
     revalidatePath("/news");
     return { success: true, data: news };
   } catch (error: any) {
@@ -128,6 +129,7 @@ export async function updateNews(id: string, data: {
     }
 
     revalidatePath("/admin/news");
+    revalidatePath("/dashboard/news/manage");
     revalidatePath("/news");
     revalidatePath(`/news/${news.slug}`);
     return { success: true, data: news };
@@ -163,6 +165,7 @@ export async function deleteNews(id: string) {
     });
 
     revalidatePath("/admin/news");
+    revalidatePath("/dashboard/news/manage");
     revalidatePath("/news");
     return { success: true };
   } catch (error: any) {

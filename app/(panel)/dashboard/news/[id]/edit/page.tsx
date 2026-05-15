@@ -3,12 +3,12 @@ import { redirect, notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import NewsForm from "@/app/components/panel/news/NewsForm";
 
-export default async function EditNewsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditBatchNewsPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getServerUser();
-  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
-    if (user?.role === "BATCH_MANAGER") {
+  if (user?.role !== "BATCH_MANAGER") {
+    if (user?.role === "ADMIN" || user?.role === "CO_ADMIN") {
       const { id } = await params;
-      redirect(`/dashboard/news/${id}/edit`);
+      redirect(`/admin/news/${id}/edit`);
     }
     redirect("/");
   }
@@ -22,6 +22,10 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
     notFound();
   }
 
+  // Batch manager can only edit their own news
+  if (article.authorId !== user.uid) {
+    redirect("/dashboard/news/manage");
+  }
 
   const batches = await prisma.batch.findMany({
     select: { id: true, name: true },

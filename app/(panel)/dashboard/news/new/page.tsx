@@ -1,13 +1,14 @@
 import { getServerUser } from "@/lib/server-auth";
 import { redirect } from "next/navigation";
-import NewsForm from "@/app/components/panel/news/NewsForm";
 import prisma from "@/lib/prisma";
+import NewsForm from "@/app/components/panel/news/NewsForm";
 
-export default async function NewNewsPage() {
+export default async function NewBatchNewsPage() {
   const user = await getServerUser();
-  
-  if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN") {
-    if (user?.role === "BATCH_MANAGER") redirect("/dashboard/news/new");
+  if (user?.role !== "BATCH_MANAGER") {
+    if (user?.role === "ADMIN" || user?.role === "CO_ADMIN") {
+      redirect("/admin/news/new");
+    }
     redirect("/");
   }
 
@@ -18,7 +19,7 @@ export default async function NewNewsPage() {
 
   return (
     <div>
-      <h2 style={{ marginBottom: "2rem", fontWeight: "800", fontSize: "1.5rem" }}>Create New Article</h2>
+      <h2 style={{ marginBottom: "2rem", fontWeight: "800", fontSize: "1.5rem" }}>Create Batch News</h2>
       <NewsForm 
         batches={batches} 
         userRole={user.role} 

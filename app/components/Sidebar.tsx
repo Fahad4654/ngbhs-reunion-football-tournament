@@ -37,7 +37,12 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
     { name: "Team Management", href: "/dashboard/team-management", icon: <GroupIcon />, roles: ["BATCH_MANAGER"] },
     { name: "Match Announcements", href: "/dashboard/announcements", icon: <CampaignIcon />, roles: ["BATCH_MANAGER"] },
     { name: "Matches", href: "/admin/matches", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN"] },
-    { name: user.role === "BATCH_MANAGER" ? "Batch News" : "News Manager", href: "/admin/news", icon: <NewspaperIcon />, roles: ["ADMIN", "CO_ADMIN", "BATCH_MANAGER"] },
+    { 
+      name: user.role === "BATCH_MANAGER" ? "Manage News" : "News Manager", 
+      href: user.role === "BATCH_MANAGER" ? "/dashboard/news/manage" : "/admin/news", 
+      icon: <NewspaperIcon />, 
+      roles: ["ADMIN", "CO_ADMIN", "BATCH_MANAGER"] 
+    },
     { name: "Batch News", href: "/dashboard/news", icon: <NewspaperIcon />, roles: ["USER"] },
     { name: "Update Score", href: "/dashboard/update-score", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN", "SCORER"] },
     { name: "Members", href: "/dashboard/members", icon: <GroupIcon />, roles: ["USER", "BATCH_MANAGER"] },
