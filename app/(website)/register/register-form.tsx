@@ -115,6 +115,12 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
   }, [state?.success, state?.otpSent, router]);
 
   useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state?.error]);
+
+  useEffect(() => {
     if (otpState?.success) {
       toast.success('Email verified successfully!');
       const t = setTimeout(() => router.push('/dashboard'), 1500);
@@ -286,9 +292,6 @@ export default function RegisterForm({ batches }: { batches: any[] }) {
           <FieldMessage error={errors.password} touched={touched.password} />
         </div>
 
-        {state?.error && (
-          <p style={{ color: 'var(--accent-danger)', fontSize: '0.85rem', textAlign: 'center' }}>{state.error}</p>
-        )}
 
         <button type="submit" className="btn btn-primary" disabled={isPending || (mounted && !isFormValid)}
           style={{ width: '100%', marginTop: '0.25rem', opacity: (!mounted || isFormValid) ? 1 : 0.6, transition: 'opacity 0.2s ease' }}>

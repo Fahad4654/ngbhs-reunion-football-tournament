@@ -151,8 +151,8 @@ export async function updateProfile(prevState: any, formData: FormData) {
   } catch (error: any) {
     if (error.code === 'P2002') {
       const field = error.meta?.target?.[0];
-      if (field === 'username') return { error: 'This username is already taken. Please choose another one.' };
-      if (field === 'phone') return { error: 'This contact number is already linked to another account.' };
+      if (field === 'username') return { error: 'This username is already taken. Please choose another one.', field: 'username' };
+      if (field === 'phone') return { error: 'This contact number is already linked to another account.', field: 'phone' };
     }
     console.error('[updateProfile]', error);
     return { error: 'Failed to update profile.' };
