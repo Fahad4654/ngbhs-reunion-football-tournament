@@ -21,6 +21,9 @@ async function getMatches() {
 
 async function getNews() {
   return await prisma.news.findMany({
+    where: {
+      batchId: null // Only global news
+    },
     orderBy: {
       publishedAt: 'desc',
     },

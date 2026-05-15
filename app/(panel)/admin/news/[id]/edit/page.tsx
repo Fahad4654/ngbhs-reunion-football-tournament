@@ -21,6 +21,11 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
     redirect("/admin/news");
   }
 
+  const batches = await prisma.batch.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' }
+  });
+
   const initialData = {
     title: article.title,
     slug: article.slug,
@@ -28,12 +33,19 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
     excerpt: article.excerpt,
     imageUrl: article.imageUrl,
     isExclusive: article.isExclusive,
+    batchId: article.batchId,
   };
 
   return (
     <div>
       <h2 style={{ marginBottom: "2rem", fontWeight: "800", fontSize: "1.5rem" }}>Edit Article</h2>
-      <NewsForm initialData={initialData} newsId={article.id} />
+      <NewsForm 
+        initialData={initialData} 
+        newsId={article.id} 
+        batches={batches}
+        userRole={user.role}
+        userBatchId={user.batchId}
+      />
     </div>
   );
 }

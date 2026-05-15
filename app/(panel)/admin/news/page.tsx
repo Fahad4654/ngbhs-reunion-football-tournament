@@ -10,11 +10,17 @@ export default async function AdminNewsPage() {
   if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") redirect("/");
 
   const news = await prisma.news.findMany({
+    where: user.role === "BATCH_MANAGER" ? { batchId: user.batchId } : {},
     include: {
       author: {
         select: {
           name: true,
           role: true
+        }
+      },
+      batch: {
+        select: {
+          name: true
         }
       }
     },
@@ -34,6 +40,7 @@ export default async function AdminNewsPage() {
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)' }}>
               <th style={{ padding: '1.25rem' }}>Published</th>
+              <th style={{ padding: '1.25rem' }}>Target</th>
               <th style={{ padding: '1.25rem' }}>Title & Excerpt</th>
               <th style={{ padding: '1.25rem' }}>Author</th>
               <th style={{ padding: '1.25rem' }}>Actions</th>
@@ -45,6 +52,33 @@ export default async function AdminNewsPage() {
                 <td style={{ padding: '1.25rem' }}>
                   <div style={{ fontWeight: '600' }}>{new Date(item.publishedAt).toLocaleDateString()}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(item.publishedAt).toLocaleTimeString()}</div>
+                </td>
+                <td style={{ padding: '1.25rem' }}>
+                  {item.batch ? (
+                    <span style={{ 
+                      background: 'rgba(235, 183, 0, 0.1)', 
+                      color: 'var(--accent-primary)', 
+                      padding: '0.2rem 0.5rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      border: '1px solid rgba(235, 183, 0, 0.2)'
+                    }}>
+                      Batch {item.batch.name}
+                    </span>
+                  ) : (
+                    <span style={{ 
+                      background: 'rgba(255, 255, 255, 0.05)', 
+                      color: 'var(--text-secondary)', 
+                      padding: '0.2rem 0.5rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      border: '1px solid var(--border-color)'
+                    }}>
+                      Global
+                    </span>
+                  )}
                 </td>
                 <td style={{ padding: '1.25rem' }}>
                   <div style={{ fontWeight: '700', marginBottom: '0.25rem' }}>{item.title}</div>

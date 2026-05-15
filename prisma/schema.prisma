@@ -30,6 +30,7 @@ model Batch {
   tournamentTeams TournamentTeam[]
   members         User[]             @relation("BatchMembers")
   followers       User[]             @relation("UserFollows")
+  news            News[]
 
   @@index([points(sort: Desc), goalsFor(sort: Desc)])
 }
@@ -141,6 +142,8 @@ model News {
   updatedAt   DateTime @updatedAt
   authorId    String?
   author      User?    @relation(fields: [authorId], references: [id])
+  batchId     String?
+  batch       Batch?   @relation(fields: [batchId], references: [id])
 }
 
 model Highlight {

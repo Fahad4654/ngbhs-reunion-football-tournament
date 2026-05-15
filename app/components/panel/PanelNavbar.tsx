@@ -18,7 +18,7 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
   '/dashboard/news': { badge: 'News Manager', title: 'Latest Updates' },
   '/admin/batches': { badge: 'Batches', title: 'Batch Standings' },
   '/admin/matches': { badge: 'Matches', title: 'Tournament Schedule' },
-  '/admin/news': { badge: 'Announcements', title: 'News Manager' },
+  '/admin/news': { badge: 'News Manager', title: 'Latest Updates' },
   '/admin/posts': { badge: 'Post Moderation', title: 'User Posts' },
   '/admin/users': { badge: 'Users', title: 'Access Control' },
   '/admin/tournaments': { badge: 'Events', title: 'Tournaments' },
@@ -29,10 +29,11 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
 interface PanelNavbarProps {
   userName: string | null;
   userImage?: string | null;
+  userRole?: string;
   onMenuClick?: () => void;
 }
 
-export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelNavbarProps) {
+export default function PanelNavbar({ userName, userImage, userRole, onMenuClick }: PanelNavbarProps) {
   const pathname = usePathname();
   
   // Find the most specific match first
@@ -43,7 +44,12 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
   // Fallback for exact dashboard/admin matches if sub-route logic misses
   const finalKey = matchingKey || (Object.keys(PAGE_INFO).find(key => pathname === key));
   
-  const info = finalKey ? PAGE_INFO[finalKey] : { badge: 'Management', title: 'Panel' };
+  let info = finalKey ? { ...PAGE_INFO[finalKey] } : { badge: 'Management', title: 'Panel' };
+
+  // Customize label for Batch Managers
+  if (userRole === 'BATCH_MANAGER' && (finalKey === '/admin/news' || finalKey === '/dashboard/news')) {
+    info.badge = 'Batch News';
+  }
 
   return (
     <nav

@@ -6,7 +6,7 @@ import { createNews, updateNews } from "@/lib/actions/news.actions";
 import MediaRenderer from "@/app/components/MediaRenderer";
 import RichTextEditor from "@/app/components/RichTextEditor";
 
-export default function NewsForm({ initialData, newsId }: {
+export default function NewsForm({ initialData, newsId, batches, userRole, userBatchId }: {
   initialData?: {
     title: string;
     slug: string;
@@ -14,8 +14,12 @@ export default function NewsForm({ initialData, newsId }: {
     excerpt: string | null;
     imageUrl: string | null;
     isExclusive: boolean;
+    batchId: string | null;
   };
   newsId?: string;
+  batches?: { id: string; name: string }[];
+  userRole: string;
+  userBatchId?: string | null;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -39,6 +43,7 @@ export default function NewsForm({ initialData, newsId }: {
     excerpt: initialData?.excerpt || "",
     imageUrl: initialData?.imageUrl || "",
     isExclusive: initialData?.isExclusive || false,
+    batchId: initialData?.batchId || (userRole === "BATCH_MANAGER" ? userBatchId : null),
   });
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,9 +72,6 @@ export default function NewsForm({ initialData, newsId }: {
 
       if (res.ok && json.url) {
         setFormData(prev => ({ ...prev, imageUrl: json.url }));
-        // We keep the local blob URL in localPreview for the UI
-        // so the user doesn't see a flicker or 'vanish' while the 
-        // server URL becomes available.
       } else {
         setError(json.error || "Upload failed");
         setLocalPreview(null);
@@ -109,19 +111,46 @@ export default function NewsForm({ initialData, newsId }: {
     });
   };
 
+  const isAdmin = userRole === "ADMIN" || userRole === "CO_ADMIN";
+
   return (
     <form onSubmit={handleSubmit} className="glass" style={{ padding: "2rem", borderRadius: "12px", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       {error && <div style={{ background: "rgba(255,68,68,0.1)", border: "1px solid rgba(255,68,68,0.3)", borderRadius: "8px", padding: "0.75rem 1rem", color: "var(--accent-danger)", fontSize: "0.875rem" }}>{error}</div>}
       
-      <div>
-        <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Title</label>
-        <input 
-          type="text" 
-          value={formData.title}
-          onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-          style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", color: "white", outline: "none" }}
-          required
-        />
+      <div style={{ display: "grid", gridTemplateColumns: isAdmin ? "1fr 1fr" : "1fr", gap: "1.5rem" }}>
+        <div>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Title</label>
+          <input 
+            type="text" 
+            value={formData.title}
+            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+            style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", color: "white", outline: "none" }}
+            required
+          />
+        </div>
+
+        {isAdmin ? (
+          <div>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Target Batch (Optional)</label>
+            <select
+              value={formData.batchId || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, batchId: e.target.value || null }))}
+              style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", color: "white", outline: "none" }}
+            >
+              <option value="">Global (All Batches)</option>
+              {batches?.map(batch => (
+                <option key={batch.id} value={batch.id}>Batch {batch.name}</option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Target Batch</label>
+            <div style={{ padding: "0.75rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border-color)", color: "var(--accent-primary)", fontWeight: "700" }}>
+              Batch {batches?.find(b => b.id === userBatchId)?.name || "Your Batch"}
+            </div>
+          </div>
+        )}
       </div>
 
       <div>
@@ -200,11 +229,6 @@ export default function NewsForm({ initialData, newsId }: {
                 ✕
               </button>
             </div>
-            {formData.imageUrl && !localPreview && (
-              <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.5rem" }}>
-                Stored URL: {formData.imageUrl}
-              </p>
-            )}
           </div>
         )}
       </div>

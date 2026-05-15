@@ -15,11 +15,15 @@ export async function createNews(data: {
   excerpt?: string;
   imageUrl?: string;
   isExclusive?: boolean;
+  batchId?: string | null;
 }) {
   const user = await getServerUser();
   if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") {
     return { success: false, error: "Unauthorized" };
   }
+
+  // If BATCH_MANAGER, they can only post news for their batch
+  const finalBatchId = user.role === "BATCH_MANAGER" ? user.batchId : data.batchId;
 
   try {
     const news = await prisma.news.create({
@@ -31,20 +35,35 @@ export async function createNews(data: {
         imageUrl: data.imageUrl,
         isExclusive: data.isExclusive,
         authorId: user.uid,
+        batchId: finalBatchId,
       },
+      include: {
+        batch: {
+          select: { name: true }
+        }
+      }
     });
 
-    // Trigger notifications for all users
-    const allUsers = await prisma.user.findMany({
-      where: { status: 'APPROVED' },
+    // Trigger notifications
+    const notificationQuery: any = { status: 'APPROVED' };
+    if (finalBatchId) {
+      notificationQuery.batchId = finalBatchId;
+    }
+
+    const targetUsers = await prisma.user.findMany({
+      where: notificationQuery,
       select: { id: true }
     });
 
-    if (allUsers.length > 0) {
+    if (targetUsers.length > 0) {
+      const notificationTitle = news.batch 
+        ? `[Batch ${news.batch.name}] News: ${data.title}` 
+        : `New Announcement: ${data.title}`;
+
       await prisma.notification.createMany({
-        data: allUsers.map(u => ({
+        data: targetUsers.map(u => ({
           userId: u.id,
-          title: `New Announcement: ${data.title}`,
+          title: notificationTitle,
           message: data.excerpt || 'A new announcement has been published.',
           link: `/news/${data.slug}`,
         }))
@@ -70,6 +89,7 @@ export async function updateNews(id: string, data: {
   excerpt?: string;
   imageUrl?: string;
   isExclusive?: boolean;
+  batchId?: string | null;
 }) {
   const user = await getServerUser();
   if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") {
@@ -84,6 +104,9 @@ export async function updateNews(id: string, data: {
       return { success: false, error: "Unauthorized to edit this news" };
     }
 
+    // Admins can change batch, batch managers cannot
+    const finalBatchId = user.role === "BATCH_MANAGER" ? existingNews?.batchId : data.batchId;
+
     const oldNews = await prisma.news.findUnique({ where: { id }, select: { imageUrl: true } });
 
     const news = await prisma.news.update({
@@ -95,6 +118,7 @@ export async function updateNews(id: string, data: {
         excerpt: data.excerpt,
         imageUrl: data.imageUrl,
         isExclusive: data.isExclusive,
+        batchId: finalBatchId,
       },
     });
 
