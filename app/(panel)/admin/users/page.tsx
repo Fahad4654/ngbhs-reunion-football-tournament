@@ -2,6 +2,7 @@ import { getServerUser } from "@/lib/server-auth";
 import prisma from "@/lib/prisma";
 import UserActions from "./user-actions";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import UsersFilter from "./UsersFilter";
 import { Prisma } from "@prisma/client";
 
@@ -52,6 +53,10 @@ export default async function AdminUsersPage({
 
   return (
     <>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
+        <Link href="/admin/users/new" className="btn btn-primary">+ Create New User</Link>
+      </div>
+
       <UsersFilter />
       <div className="responsive-table-container glass" style={{ padding: '0' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>

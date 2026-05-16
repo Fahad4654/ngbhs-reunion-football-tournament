@@ -443,3 +443,62 @@ export async function updateVolunteerStatus(userId: string, isVolunteer: boolean
     return { error: 'Failed to update volunteer status.' };
   }
 }
+export async function createUserByAdmin(prevState: any, formData: FormData) {
+  try {
+    const requester = await getServerUser();
+    if (!requester || requester.role !== 'ADMIN') {
+      return { error: 'Unauthorized. Only Admins can create users.' };
+    }
+
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const name = `${firstName} ${lastName}`.trim();
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const phone = formData.get('phone') as string;
+    const username = formData.get('username') as string;
+    const role = formData.get('role') as any;
+    const batchId = formData.get('batchId') as string;
+
+    if (!isValidEmail(email)) return { error: 'Invalid email address.' };
+    if (phone && !isValidPhone(phone)) return { error: 'Invalid phone number.' };
+
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) return { error: 'Email already exists.' };
+
+    if (username) {
+      const existingUsername = await prisma.user.findUnique({ where: { username } });
+      if (existingUsername) return { error: 'Username already taken.' };
+    }
+
+    if (phone) {
+      const existingPhone = await prisma.user.findFirst({ where: { phone } });
+      if (existingPhone) return { error: 'Phone number already in use.' };
+    }
+
+    const { hashPassword } = await import('@/lib/auth-utils');
+    const hashedPassword = await hashPassword(password || 'NgBhs123!'); // Default password if empty
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        name,
+        firstName,
+        lastName,
+        username: username || null,
+        phone: phone || null,
+        password: hashedPassword,
+        role: role || 'USER',
+        batchId: batchId || null,
+        emailVerified: new Date(),
+        status: 'APPROVED',
+      }
+    });
+
+    revalidatePath('/admin/users');
+    return { success: true, message: 'User created successfully!' };
+  } catch (error: any) {
+    console.error('[createUserByAdmin]', error);
+    return { error: error.message || 'Failed to create user.' };
+  }
+}
