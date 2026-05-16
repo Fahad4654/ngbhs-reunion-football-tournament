@@ -138,7 +138,13 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                     )}
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '800', fontSize: '1rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: '1rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <UserLink 
+                        user={post.author} 
+                        currentUserBatchId={dbUser.batchId} 
+                        currentUserRole={userSession.role} 
+                      />
+                    </div>
                     <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                       {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </div>
@@ -191,7 +197,13 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                         {member.name?.charAt(0)}
                       </div>
                       <div>
-                        <div style={{ fontWeight: '700', color: 'white', fontSize: '1rem' }}>{member.name}</div>
+                        <div style={{ fontWeight: '700', color: 'white', fontSize: '1rem' }}>
+                          <UserLink 
+                            user={member} 
+                            currentUserBatchId={dbUser.batchId} 
+                            currentUserRole={userSession.role} 
+                          />
+                        </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{member.email}</div>
                       </div>
                     </div>
