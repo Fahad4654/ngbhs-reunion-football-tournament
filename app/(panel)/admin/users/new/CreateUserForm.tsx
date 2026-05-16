@@ -5,9 +5,12 @@ import { createUserByAdmin } from "@/lib/actions/user.actions";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
+import PhoneInput from "@/app/components/PhoneInput";
+
 export default function CreateUserForm({ batches }: { batches: { id: string, name: string }[] }) {
   const router = useRouter();
   const [state, action, isPending] = useActionState(createUserByAdmin, null);
+  const [phone, setPhone] = useState("");
 
   useEffect(() => {
     if (state?.success) {
@@ -59,11 +62,13 @@ export default function CreateUserForm({ batches }: { batches: { id: string, nam
         </div>
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Phone Number</label>
-          <input 
-            name="phone" 
-            placeholder="+880..."
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white' }} 
-          />
+          <div style={{ borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+            <PhoneInput 
+              name="phone" 
+              defaultValue={phone}
+              onChange={setPhone}
+            />
+          </div>
         </div>
       </div>
 
