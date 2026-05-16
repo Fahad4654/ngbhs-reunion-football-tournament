@@ -55,11 +55,36 @@ export default async function SurveysPage() {
     );
   }
 
+  // ── Batch Manager: show the management UI inline ──
+  if (user.role === 'BATCH_MANAGER') {
+    const { getSurveysForManager } = await import('@/lib/actions/survey.actions');
+    const SurveyManagerTab = (await import('@/app/(panel)/dashboard/manage-batch/SurveyManagerTab')).default;
+    const surveys = await getSurveysForManager();
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ background: 'rgba(235,183,0,0.1)', padding: '0.75rem', borderRadius: '12px', color: 'var(--accent-primary)' }}>
+            <AssignmentIcon />
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+              Manage Surveys
+            </h1>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+              Create and manage surveys for your batch members
+            </p>
+          </div>
+        </div>
+        <SurveyManagerTab surveys={surveys as any} />
+      </div>
+    );
+  }
+
+  // ── Regular member: fill-out view ──
   const { open, submitted } = await getOpenSurveysForMember();
 
   return (
-    <div style={{ maxWidth: 'min(100%, 640px)', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Page Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <div style={{ background: 'rgba(235,183,0,0.1)', padding: '0.75rem', borderRadius: '12px', color: 'var(--accent-primary)' }}>
           <AssignmentIcon />
@@ -69,12 +94,11 @@ export default async function SurveysPage() {
             Batch Surveys
           </h1>
           <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-            Forms & polls from your Batch Manager
+            Forms &amp; polls from your Batch Manager
           </p>
         </div>
       </div>
 
-      {/* Open Surveys */}
       {open.length > 0 && (
         <section>
           <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>
@@ -88,7 +112,6 @@ export default async function SurveysPage() {
         </section>
       )}
 
-      {/* Already Submitted */}
       {submitted.length > 0 && (
         <section>
           <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>
@@ -111,13 +134,12 @@ export default async function SurveysPage() {
         </section>
       )}
 
-      {/* Empty state */}
       {open.length === 0 && submitted.length === 0 && (
         <div className="glass" style={{ textAlign: 'center', padding: '5rem 2rem', borderRadius: '16px' }}>
           <AssignmentIcon sx={{ fontSize: '3.5rem', color: 'var(--text-muted)', display: 'block', margin: '0 auto 1rem' }} />
           <p style={{ color: 'var(--text-muted)', fontWeight: '600', fontSize: '1rem' }}>No surveys yet.</p>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-            Your Batch Manager hasn't created any surveys. Check back later!
+            Your Batch Manager hasn&apos;t created any surveys. Check back later!
           </p>
         </div>
       )}

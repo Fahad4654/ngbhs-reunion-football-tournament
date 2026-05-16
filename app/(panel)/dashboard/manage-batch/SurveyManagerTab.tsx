@@ -53,8 +53,30 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
     setQuestions((q) => q.map((item, idx) => (idx === i ? { ...item, [field]: value } : item)));
   }
 
-  function updateOptions(i: number, raw: string) {
-    updateQuestion(i, 'options', raw.split('\n').map((s) => s.trim()).filter(Boolean));
+  function addOption(qi: number) {
+    setQuestions((qs) =>
+      qs.map((q, idx) =>
+        idx === qi ? { ...q, options: [...(q.options ?? []), ''] } : q
+      )
+    );
+  }
+
+  function removeOption(qi: number, oi: number) {
+    setQuestions((qs) =>
+      qs.map((q, idx) =>
+        idx === qi ? { ...q, options: (q.options ?? []).filter((_, i) => i !== oi) } : q
+      )
+    );
+  }
+
+  function updateOption(qi: number, oi: number, value: string) {
+    setQuestions((qs) =>
+      qs.map((q, idx) =>
+        idx === qi
+          ? { ...q, options: (q.options ?? []).map((o, i) => (i === oi ? value : o)) }
+          : q
+      )
+    );
   }
 
   async function handleCreate() {
@@ -62,7 +84,16 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
     if (questions.some((q) => !q.label.trim())) return setError('All questions need a label');
     setError('');
     startTransition(async () => {
-      const res = await createSurvey({ title, description, closesAt: closesAt || null, questions });
+      const res = await createSurvey({
+        title,
+        description,
+        closesAt: closesAt || null,
+        questions: questions.map((q) => ({
+          ...q,
+          // filter blank lines only at submit time
+          options: (q.options ?? []).map((o) => o.trim()).filter(Boolean),
+        })),
+      });
       if (res.success) {
         setShowCreate(false);
         setTitle(''); setDescription(''); setClosesAt('');
@@ -118,7 +149,7 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
   };
 
   return (
-    <div style={{ maxWidth: 'min(100%, 640px)', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
@@ -181,8 +212,8 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
                         onChange={(e) => updateQuestion(i, 'type', e.target.value)}
                       >
                         <option value="TEXT">Short Text</option>
-                        <option value="CHOICE">Multiple Choice</option>
-                        <option value="CHECKBOX">Checkboxes</option>
+                        <option value="CHOICE">Single Choice (pick one)</option>
+                        <option value="CHECKBOX">Multiple Choice (pick many)</option>
                         <option value="RATING">Rating (1–5)</option>
                       </select>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--text-secondary)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -191,14 +222,41 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
                       </label>
                     </div>
                     {(q.type === 'CHOICE' || q.type === 'CHECKBOX') && (
-                      <div style={{ marginTop: '0.5rem' }}>
-                        <label style={labelStyle}>Options (one per line)</label>
-                        <textarea
-                          style={{ ...inputStyle, minHeight: '70px', resize: 'vertical' }}
-                          placeholder={"Option A\nOption B\nOption C"}
-                          value={q.options?.join('\n') || ''}
-                          onChange={(e) => updateOptions(i, e.target.value)}
-                        />
+                      <div style={{ marginTop: '0.75rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                          <label style={labelStyle}>Options</label>
+                          <button
+                            type="button"
+                            className="btn glass"
+                            style={{ fontSize: '0.7rem', padding: '0.25rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                            onClick={() => addOption(i)}
+                          >
+                            <AddIcon sx={{ fontSize: '0.85rem' }} /> Add Option
+                          </button>
+                        </div>
+                        {(q.options ?? []).length === 0 && (
+                          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No options yet. Click "Add Option".</p>
+                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                          {(q.options ?? []).map((opt, oi) => (
+                            <div key={oi} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '800', minWidth: '20px' }}>{oi + 1}.</span>
+                              <input
+                                style={{ ...inputStyle, flex: 1 }}
+                                placeholder={`Option ${oi + 1}`}
+                                value={opt}
+                                onChange={(e) => updateOption(i, oi, e.target.value)}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeOption(i, oi)}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-danger)', padding: '0.2rem', flexShrink: 0 }}
+                              >
+                                <DeleteIcon sx={{ fontSize: '1rem' }} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
