@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { kickoutMemberAction } from '@/lib/actions/user.actions';
 import { toast } from 'react-hot-toast';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import RemoveCircleOutlinedIcon from '@mui/icons-material/RemoveCircleOutlined';
 
 interface KickoutActionProps {
   userId: string;
@@ -49,7 +49,7 @@ export default function KickoutAction({ userId, userName }: KickoutActionProps) 
           gap: '0.5rem'
         }}
       >
-        <RemoveCircleOutlineIcon sx={{ fontSize: '1.1rem' }} />
+        <RemoveCircleOutlinedIcon sx={{ fontSize: '1.1rem' }} />
         KICK OUT
       </button>
 
