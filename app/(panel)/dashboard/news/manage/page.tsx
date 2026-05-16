@@ -53,12 +53,12 @@ export default async function BatchNewsManagePage() {
           </thead>
           <tbody>
             {news.map((item) => (
-              <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                <td style={{ padding: '1.25rem' }}>
+              <tr key={item.id}>
+                <td>
                   <div style={{ fontWeight: '600' }}>{new Date(item.publishedAt).toLocaleDateString()}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(item.publishedAt).toLocaleTimeString()}</div>
                 </td>
-                <td style={{ padding: '1.25rem' }}>
+                <td>
                   <span style={{ 
                     background: 'rgba(235, 183, 0, 0.1)', 
                     color: 'var(--accent-primary)', 
@@ -89,11 +89,11 @@ export default async function BatchNewsManagePage() {
                     {item.excerpt}
                   </div>
                 </td>
-                <td style={{ padding: '1.25rem' }}>
+                <td>
                   <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>{item.author?.name || 'System'}</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{item.author?.role || 'ADMIN'}</div>
                 </td>
-                <td className="sticky-actions" style={{ padding: '1.25rem' }}>
+                <td className="sticky-actions">
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     {item.authorId === user.uid && (
                       <>

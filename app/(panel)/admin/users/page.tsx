@@ -71,8 +71,8 @@ export default async function AdminUsersPage({
           </thead>
           <tbody>
             {users.length > 0 ? users.map((u) => (
-              <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                <td style={{ padding: '1.25rem' }}>
+              <tr key={u.id}>
+                <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ 
                       width: '32px', 
@@ -97,8 +97,8 @@ export default async function AdminUsersPage({
                     <span style={{ fontWeight: '600' }}>{u.name || 'Unknown User'}</span>
                   </div>
                 </td>
-                <td style={{ padding: '1.25rem' }}>{u.email}</td>
-                <td style={{ padding: '1.25rem' }}>
+                <td>{u.email}</td>
+                <td>
                   <span style={{ 
                     padding: '0.25rem 0.75rem', 
                     borderRadius: '100px', 
@@ -111,8 +111,8 @@ export default async function AdminUsersPage({
                     {u.role}
                   </span>
                 </td>
-                <td style={{ padding: '1.25rem' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
-                <td className="sticky-actions" style={{ padding: '1.25rem', textAlign: 'right' }}>
+                <td>{new Date(u.createdAt).toLocaleDateString()}</td>
+                <td className="sticky-actions" style={{ textAlign: 'right' }}>
                   <UserActions 
                     userId={u.id} 
                     currentUserId={user.uid}

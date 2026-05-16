@@ -833,7 +833,40 @@ select:disabled {
 
 .sticky-table {
   border-collapse: separate;
-  border-spacing: 0;
+  border-spacing: 0 0.5rem; /* Vertical gap between rows */
+  width: 100%;
+}
+
+.sticky-table thead tr {
+  background: transparent !important;
+}
+
+.sticky-table tbody tr {
+  background: rgba(255, 255, 255, 0.02);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.sticky-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: scale(1.002);
+}
+
+.sticky-table td {
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.25rem;
+}
+
+.sticky-table td:first-child {
+  border-left: 1px solid var(--border-color);
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.sticky-table td:last-child {
+  border-right: 1px solid var(--border-color);
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .sticky-actions {
@@ -841,20 +874,11 @@ select:disabled {
   right: 0;
   background: #0a0b0d;
   z-index: 10;
-  box-shadow: -4px 0 12px rgba(0,0,0,0.5);
+  /* box-shadow: -4px 0 12px rgba(0,0,0,0.5); */ /* Remove shadow to keep it clean with row gaps */
 }
 
 th.sticky-actions {
   z-index: 11;
   background: rgba(20, 21, 23, 0.98) !important;
-}
-
-.sticky-actions::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
