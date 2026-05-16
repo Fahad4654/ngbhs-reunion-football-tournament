@@ -179,18 +179,18 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
       ) : tab === 'profile' ? (
         <BatchProfileForm batch={dbUser.batch!} />
       ) : (
-        <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+        <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto', border: 'none', background: 'transparent' }}>
+          <table className="sticky-table">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
+              <tr>
                 <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>New Applicant</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Joined On</th>
-                <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
+                <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }} className="sticky-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pendingMembers.length > 0 ? pendingMembers.map((member) => (
-                <tr key={member.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <tr key={member.id}>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '1rem' }}>
@@ -211,7 +211,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                   <td style={{ padding: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                     {new Date(member.createdAt).toLocaleDateString()}
                   </td>
-                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                  <td style={{ padding: '1rem', textAlign: 'right' }} className="sticky-actions">
                     <ApprovalActions userId={member.id} />
                   </td>
                 </tr>

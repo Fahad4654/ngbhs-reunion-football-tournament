@@ -54,7 +54,12 @@ export default async function MembersPage() {
         </div>
       </div>
 
-      <MemberDirectory members={members} currentUserBatchId={dbUser.batchId} />
+      <MemberDirectory 
+        members={members} 
+        currentUserBatchId={dbUser.batchId} 
+        currentUserRole={userSession.role}
+        currentUserId={userSession.uid}
+      />
     </div>
   );
 }

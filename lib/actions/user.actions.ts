@@ -270,6 +270,43 @@ export async function approveUserAction(userId: string) {
   }
 }
 
+export async function kickoutMemberAction(userId: string, reason: string) {
+  try {
+    const manager = await getServerUser();
+    if (!manager) return { error: 'Unauthorized.' };
+
+    const target = await prisma.user.findUnique({ where: { id: userId } });
+    if (!target) return { error: 'User not found.' };
+
+    const authorized = await isAuthorizedForMember(manager.uid, manager.role, target.batchId);
+    if (!authorized) return { error: 'You can only kick out members of your own batch.' };
+
+    if (target.role === 'ADMIN' || target.role === 'CO_ADMIN') {
+      return { error: 'You cannot kick out an Administrator.' };
+    }
+
+    if (userId === manager.uid) {
+      return { error: 'You cannot kick out yourself.' };
+    }
+
+    await prisma.user.update({ 
+      where: { id: userId }, 
+      data: { 
+        status: 'REJECTED',
+        statusReason: reason || 'Kicked out for misbehave or misconduct.',
+        role: 'USER' // Reset role to USER just in case
+      } 
+    });
+
+    revalidatePath('/dashboard/manage-batch');
+    revalidatePath('/dashboard/members');
+    return { success: true };
+  } catch (error) {
+    console.error('[kickoutMemberAction]', error);
+    return { error: 'Failed to kick out user.' };
+  }
+}
+
 export async function rejectUserAction(userId: string) {
   try {
     const manager = await getServerUser();

@@ -236,6 +236,7 @@ model User {
   workplace           String?
   emailVerified       DateTime?
   status              UserStatus         @default(APPROVED)
+  statusReason        String?
   isPlayer            Boolean            @default(false)
   teamRole            String?
   teamDesignation     String?
