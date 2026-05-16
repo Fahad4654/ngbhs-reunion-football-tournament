@@ -4,11 +4,11 @@ import Link from "next/link";
 import MediaRenderer from "@/app/components/MediaRenderer";
 import { getServerUser } from "@/lib/server-auth";
 
-export default async function DashboardNewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function DashboardNewsArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getServerUser();
   if (!user) redirect("/login");
 
-  const { slug } = await params;
+  const { id: slug } = await params;
   
   const article = await prisma.news.findUnique({
     where: { slug },
