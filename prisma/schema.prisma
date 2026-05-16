@@ -31,6 +31,7 @@ model Batch {
   tournamentTeams TournamentTeam[]
   members         User[]             @relation("BatchMembers")
   followers       User[]             @relation("UserFollows")
+  surveys         Survey[]
 
   @@index([points(sort: Desc), goalsFor(sort: Desc)])
 }
@@ -278,6 +279,8 @@ model User {
   batch               Batch?             @relation("BatchMembers", fields: [batchId], references: [id])
   awardParticipations SeasonAward[]      @relation("AwardPlayers")
   followedBatches     Batch[]            @relation("UserFollows")
+  createdSurveys      Survey[]           @relation("SurveyCreator")
+  surveyResponses     SurveyResponse[]   @relation("SurveyResponder")
 }
 
 model VerificationToken {
@@ -456,4 +459,66 @@ enum AdPosition {
   ORGANIZATION
   MATCHES
   FLOATING
+}
+
+// ─────────────────────────────────────────
+// Survey System
+// ─────────────────────────────────────────
+
+model Survey {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  batchId     String
+  createdById String
+  isOpen      Boolean          @default(true)
+  closesAt    DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  batch       Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  createdBy   User             @relation("SurveyCreator", fields: [createdById], references: [id])
+  questions   SurveyQuestion[]
+  responses   SurveyResponse[]
+}
+
+model SurveyQuestion {
+  id       String         @id @default(cuid())
+  surveyId String
+  label    String
+  type     QuestionType
+  options  String[]       @default([])
+  required Boolean        @default(true)
+  order    Int
+  survey   Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers  SurveyAnswer[]
+}
+
+model SurveyResponse {
+  id          String         @id @default(cuid())
+  surveyId    String
+  responderId String
+  submittedAt DateTime       @default(now())
+  survey      Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  responder   User           @relation("SurveyResponder", fields: [responderId], references: [id])
+  answers     SurveyAnswer[]
+
+  @@unique([surveyId, responderId])
+}
+
+model SurveyAnswer {
+  id         String         @id @default(cuid())
+  responseId String
+  questionId String
+  value      String
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  response   SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  @@unique([responseId, questionId])
+}
+
+enum QuestionType {
+  TEXT
+  CHOICE
+  CHECKBOX
+  RATING
 }

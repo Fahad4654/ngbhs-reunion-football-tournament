@@ -18,6 +18,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import HomeIcon from '@mui/icons-material/Home';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import CloseIcon from '@mui/icons-material/Close';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import AdBanner from "./AdBanner";
 
 interface SidebarProps {
@@ -44,6 +45,7 @@ export default function Sidebar({ user, onClose }: SidebarProps) {
       roles: ["ADMIN", "CO_ADMIN", "BATCH_MANAGER"] 
     },
     { name: "Batch News", href: "/dashboard/news", icon: <NewspaperIcon />, roles: ["USER"] },
+    { name: "Surveys", href: "/dashboard/surveys", icon: <AssignmentIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Update Score", href: "/dashboard/update-score", icon: <SportsSoccerIcon />, roles: ["ADMIN", "CO_ADMIN", "SCORER"] },
     { name: "Members", href: "/dashboard/members", icon: <GroupIcon />, roles: ["USER", "BATCH_MANAGER"] },
     { name: "Post Moderation", href: "/admin/posts", icon: <ForumIcon />, roles: ["ADMIN", "CO_ADMIN"] },

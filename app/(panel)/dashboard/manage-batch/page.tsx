@@ -5,6 +5,7 @@ import ModerationActions from "@/app/(panel)/admin/posts/moderation-actions";
 import MediaGallery from "@/app/components/MediaGallery";
 import Link from "next/link";
 import { getPendingPosts, getPendingBatchMembers } from "@/lib/actions";
+import { getSurveysForManager } from "@/lib/actions/survey.actions";
 import ApprovalActions from "./approval-actions";
 import HandoverAction from "./handover-action";
 import TeamActions from "./team-actions";
@@ -13,11 +14,13 @@ import UserLink from "@/app/components/UserLink";
 import CollapsibleContent from "@/app/components/CollapsibleContent";
 import ClickablePost from "@/app/components/ClickablePost";
 import ManageBatchMembersClient from "./ManageBatchMembersClient";
+import SurveyManagerTab from "./SurveyManagerTab";
 
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import EditIcon from '@mui/icons-material/Edit';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 export const metadata = {
   title: 'Manage Batch - Dashboard',
@@ -50,14 +53,15 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
     );
   }
 
-  const [pendingPosts, members, pendingMembers] = await Promise.all([
+  const [pendingPosts, members, pendingMembers, surveys] = await Promise.all([
     getPendingPosts(),
     prisma.user.findMany({
       where: { batchId: dbUser.batchId, status: 'APPROVED' },
       include: { batch: true },
       orderBy: { name: 'asc' }
     }),
-    getPendingBatchMembers()
+    getPendingBatchMembers(),
+    getSurveysForManager(),
   ]);
 
   return (
@@ -106,6 +110,14 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
         >
           <EditIcon sx={{ fontSize: '1.1rem' }} />
           <span>PROFILE</span>
+        </Link>
+        <Link 
+          href="/dashboard/manage-batch?tab=surveys"
+          className="btn"
+          style={{ flex: '1', background: tab === 'surveys' ? 'var(--accent-primary)' : 'transparent', color: tab === 'surveys' ? 'black' : 'white', fontSize: '0.85rem', padding: '0.75rem 0.5rem', whiteSpace: 'nowrap', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '8px' }}
+        >
+          <AssignmentIcon sx={{ fontSize: '1.1rem' }} />
+          <span>SURVEYS ({surveys.length})</span>
         </Link>
       </div>
 
@@ -176,6 +188,8 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
           currentUserId={userSession.uid} 
         />
 
+      ) : tab === 'surveys' ? (
+        <SurveyManagerTab surveys={surveys as any} />
       ) : tab === 'profile' ? (
         <BatchProfileForm batch={dbUser.batch!} />
       ) : (

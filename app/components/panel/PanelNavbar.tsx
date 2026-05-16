@@ -10,6 +10,7 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
   '/dashboard/posts/my-posts': { badge: 'My Content', title: 'Your Posts' },
   '/dashboard/posts': { badge: 'Create Post', title: 'Community Sharing' },
   '/dashboard/batch-feed': { badge: 'Batch Activity', title: 'Batch Feed' },
+  '/dashboard/surveys': { badge: 'Batch Forms', title: 'Surveys' },
   '/dashboard/manage-batch': { badge: 'Moderation', title: 'Manage Batch' },
   '/dashboard/team-management': { badge: 'Team', title: 'Team Management' },
   '/dashboard/members': { badge: 'Community', title: 'Member Directory' },
