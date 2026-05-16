@@ -59,26 +59,26 @@ export default async function AdminUsersPage({
 
       <UsersFilter />
       <div className="responsive-table-container glass" style={{ padding: '0' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table className="sticky-table" style={{ width: '100%', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)' }}>
               <th style={{ padding: '1.25rem' }}>User</th>
               <th style={{ padding: '1.25rem' }}>Email</th>
               <th style={{ padding: '1.25rem' }}>Role</th>
               <th style={{ padding: '1.25rem' }}>Joined</th>
-              <th style={{ padding: '1.25rem', textAlign: 'right' }}>Actions</th>
+              <th className="sticky-actions" style={{ padding: '1.25rem', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {users.length > 0 ? users.map((user) => (
-              <tr key={user.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+            {users.length > 0 ? users.map((u) => (
+              <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ 
                       width: '32px', 
                       height: '32px', 
                       borderRadius: '50%', 
-                      background: user.image ? 'transparent' : 'var(--accent-primary)', 
+                      background: u.image ? 'transparent' : 'var(--accent-primary)', 
                       color: 'black', 
                       display: 'flex', 
                       alignItems: 'center', 
@@ -86,39 +86,40 @@ export default async function AdminUsersPage({
                       fontWeight: '800', 
                       fontSize: '0.8rem',
                       overflow: 'hidden',
-                      border: user.image ? '1px solid var(--border-color)' : 'none'
+                      border: u.image ? '1px solid var(--border-color)' : 'none'
                     }}>
-                      {user.image ? (
-                        <img src={user.image} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      {u.image ? (
+                        <img src={u.image} alt={u.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        user.name?.charAt(0) || 'U'
+                        u.name?.charAt(0) || 'U'
                       )}
                     </div>
-                    <span style={{ fontWeight: '600' }}>{user.name || 'Unknown User'}</span>
+                    <span style={{ fontWeight: '600' }}>{u.name || 'Unknown User'}</span>
                   </div>
                 </td>
-                <td style={{ padding: '1.25rem' }}>{user.email}</td>
+                <td style={{ padding: '1.25rem' }}>{u.email}</td>
                 <td style={{ padding: '1.25rem' }}>
                   <span style={{ 
                     padding: '0.25rem 0.75rem', 
                     borderRadius: '100px', 
                     fontSize: '0.7rem', 
                     fontWeight: '800',
-                    background: user.role === 'ADMIN' ? 'rgba(235, 183, 0, 0.1)' : user.role === 'CO_ADMIN' ? 'rgba(255, 215, 0, 0.05)' : 'rgba(255,255,255,0.03)',
-                    color: user.role === 'ADMIN' ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                    background: u.role === 'ADMIN' ? 'rgba(235, 183, 0, 0.1)' : u.role === 'CO_ADMIN' ? 'rgba(255, 215, 0, 0.05)' : 'rgba(255,255,255,0.03)',
+                    color: u.role === 'ADMIN' ? 'var(--accent-primary)' : 'var(--text-secondary)',
                     border: '1px solid currentColor'
                   }}>
-                    {user.role}
+                    {u.role}
                   </span>
                 </td>
-                <td style={{ padding: '1.25rem' }}>{new Date(user.createdAt).toLocaleDateString()}</td>
-                <td style={{ padding: '1.25rem', textAlign: 'right' }}>
+                <td style={{ padding: '1.25rem' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                <td className="sticky-actions" style={{ padding: '1.25rem', textAlign: 'right' }}>
                   <UserActions 
-                    userId={user.id} 
-                    currentRole={user.role} 
-                    isCommitteeMember={user.isCommitteeMember}
-                    committeeRole={user.committeeRole || ''}
-                    isVolunteer={user.isVolunteer}
+                    userId={u.id} 
+                    currentUserId={user.uid}
+                    currentRole={u.role} 
+                    isCommitteeMember={u.isCommitteeMember}
+                    committeeRole={u.committeeRole || ''}
+                    isVolunteer={u.isVolunteer}
                   />
                 </td>
               </tr>

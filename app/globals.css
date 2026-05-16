@@ -830,3 +830,31 @@ select:disabled {
 .news-title-link:hover {
   color: var(--accent-primary) !important;
 }
+
+.sticky-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.sticky-actions {
+  position: sticky;
+  right: 0;
+  background: #0a0b0d;
+  z-index: 10;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.5);
+}
+
+th.sticky-actions {
+  z-index: 11;
+  background: rgba(20, 21, 23, 0.98) !important;
+}
+
+.sticky-actions::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-color);
+}

@@ -46,14 +46,14 @@ export default async function AdminNewsPage() {
       </div>
 
       <div className="responsive-table-container glass" style={{ padding: '0' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table className="sticky-table" style={{ width: '100%', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)' }}>
               <th style={{ padding: '1.25rem' }}>Published</th>
               <th style={{ padding: '1.25rem' }}>Target</th>
               <th style={{ padding: '1.25rem' }}>Title & Excerpt</th>
               <th style={{ padding: '1.25rem' }}>Author</th>
-              <th style={{ padding: '1.25rem' }}>Actions</th>
+              <th className="sticky-actions" style={{ padding: '1.25rem' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -112,7 +112,7 @@ export default async function AdminNewsPage() {
                   <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>{item.author?.name || 'System'}</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{item.author?.role || 'ADMIN'}</div>
                 </td>
-                <td style={{ padding: '1.25rem' }}>
+                <td className="sticky-actions" style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <>
                       <Link href={`/admin/news/${item.id}/edit`} className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem' }}>Edit</Link>
