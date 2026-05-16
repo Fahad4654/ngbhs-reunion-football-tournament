@@ -15,17 +15,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     notFound();
   }
 
-  // Access control for batch news
+  // Redirect batch news to the dashboard
   if (article.batchId) {
-    const { getServerUser } = await import("@/lib/server-auth");
-    const user = await getServerUser();
-    
-    const isAdmin = user?.role === "ADMIN" || user?.role === "CO_ADMIN";
-    const isBatchMember = user?.batchId === article.batchId;
-
-    if (!isAdmin && !isBatchMember) {
-      notFound();
-    }
+    redirect(`/dashboard/news/${article.slug}`);
   }
 
   return (
