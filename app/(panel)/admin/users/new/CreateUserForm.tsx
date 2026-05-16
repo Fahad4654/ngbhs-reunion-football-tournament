@@ -167,8 +167,10 @@ export default function CreateUserForm({ batches }: { batches: { id: string, nam
               name="phone" 
               defaultValue={phone}
               onChange={(v) => {
-                setPhone(v);
-                if (v) touch('phone');
+                if (v !== phone) {
+                  setPhone(v);
+                  if (v) touch('phone');
+                }
               }}
             />
           </div>
