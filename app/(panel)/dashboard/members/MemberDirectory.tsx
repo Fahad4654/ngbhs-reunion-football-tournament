@@ -24,14 +24,14 @@ export default function MemberDirectory({ members, currentUserBatchId, currentUs
     <MemberFilter members={members}>
       {(filteredMembers) => (
         <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto', border: 'none', background: 'transparent' }}>
-          <table className="sticky-table">
+          <table className="sticky-table" style={{ minWidth: '800px' }}>
             <thead>
               <tr>
                 <th style={{ padding: '1.25rem 1rem', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Member</th>
                 <th style={{ padding: '1.25rem 1rem', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Role</th>
                 <th style={{ padding: '1.25rem 1rem', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Professional</th>
                 {isManager && (
-                  <th style={{ padding: '1.25rem 1rem', textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="sticky-actions">Actions</th>
+                  <th style={{ padding: '1.25rem 1rem', textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }} className="sticky-actions">Actions</th>
                 )}
               </tr>
             </thead>
@@ -94,8 +94,8 @@ export default function MemberDirectory({ members, currentUserBatchId, currentUs
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{member.workplace}</div>
                   </td>
                   {isManager && (
-                    <td style={{ padding: '1rem', textAlign: 'right' }} className="sticky-actions">
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                    <td style={{ padding: '1rem', textAlign: 'right', whiteSpace: 'nowrap' }} className="sticky-actions">
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', alignItems: 'center' }}>
                         {member.id !== currentUserId && member.role === 'USER' && (
                           <KickoutAction userId={member.id} userName={member.name || 'Member'} />
                         )}

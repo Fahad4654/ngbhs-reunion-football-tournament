@@ -84,7 +84,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
       return { error: 'Your batch is already locked. Please contact an Administrator if you need to change your graduation batch.' };
     }
 
-    const shouldResetStatus = hasBatchChanged && user.role === 'USER';
+    const shouldResetStatus = (hasBatchChanged || dbUser?.status === 'REJECTED') && user.role === 'USER';
 
     const dbUserRecord = await prisma.user.findUnique({ where: { id: user.uid } });
     const canUpdateUsername = !dbUserRecord?.username;
