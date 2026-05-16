@@ -88,7 +88,7 @@ export default async function DashboardNewsPage() {
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'white', marginBottom: '1rem' }}>{item.title}</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '1.5rem' }}>{item.excerpt || item.content.substring(0, 200) + '...'}</p>
-              <Link href={`/news/${item.slug}`} className="btn glass" style={{ width: '100%', justifyContent: 'center' }}>
+              <Link href={`/dashboard/news/${item.slug}`} className="btn glass" style={{ width: '100%', justifyContent: 'center' }}>
                 Read Full Story
               </Link>
             </div>
