@@ -89,7 +89,13 @@ export default async function AdminUsersPage({
                       border: u.image ? '1px solid var(--border-color)' : 'none'
                     }}>
                       {u.image ? (
-                        <img src={u.image} alt={u.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img 
+                          src={u.image} 
+                          alt={u.name || ''} 
+                          referrerPolicy="no-referrer"
+                          crossOrigin="anonymous"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
                       ) : (
                         u.name?.charAt(0) || 'U'
                       )}

@@ -156,7 +156,13 @@ export default function ProfileForm({ user, batches }: ProfileFormProps) {
           title="Click to change profile picture"
         >
           {previewImage
-            ? <img src={previewImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ? <img 
+                src={previewImage} 
+                alt="Profile" 
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
             : user.name?.charAt(0)
           }
           <div style={{

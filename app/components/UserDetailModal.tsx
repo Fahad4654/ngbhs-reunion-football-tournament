@@ -113,7 +113,13 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
             boxShadow: '0 10px 20px rgba(0,0,0,0.3)'
           }}>
             {user.image && user.privacySettings?.showImage !== false ? (
-              <img src={user.image} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img 
+                src={user.image} 
+                alt={user.name} 
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
             ) : (
               user.name?.charAt(0)
             )}

@@ -188,7 +188,13 @@ export default function PanelNavbar({ userName, userImage, userRole, onMenuClick
               }}
             >
               {userImage ? (
-                <img src={userImage} alt={userName || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img 
+                  src={userImage} 
+                  alt={userName || ''} 
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
               ) : (
                 (userName || 'U').charAt(0)
               )}
