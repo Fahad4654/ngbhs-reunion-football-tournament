@@ -163,3 +163,39 @@ export async function sendMatchAnnouncementEmail(emails: string[], homeTeamName:
     console.error(`[Mail Error] Failed to send match announcement:`, error);
   }
 }
+
+export async function sendSurveyAnnouncementEmail(emails: string[], surveyTitle: string, batchName: string) {
+  if (process.env.MAIL_SEND !== 'true') {
+    console.log(`Email sending disabled. Survey Announcement: ${surveyTitle} sent to ${emails.length} users.`);
+    return;
+  }
+
+  const mailOptions = {
+    from: `"NGBHS Reunion" <${process.env.SMTP_USER}>`,
+    bcc: emails,
+    subject: `New Batch Survey: ${surveyTitle}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+        <h2 style="color: #333; text-align: center;">New Batch Survey</h2>
+        <p>Hello,</p>
+        <p>Your Batch Manager for <strong>${batchName}</strong> has created a new survey: <strong>${surveyTitle}</strong>.</p>
+        <p>Your response is important! Please log in to your dashboard to submit your answers.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://ngbhs.com'}/dashboard/surveys" style="background-color: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Fill Out Survey</a>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #777; text-align: center;">
+          &copy; ${new Date().getFullYear()} NGBHS Reunion. All rights reserved.
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Mail] Survey announcement sent successfully. MessageId: ${info.messageId}`);
+  } catch (error) {
+    console.error(`[Mail Error] Failed to send survey announcement:`, error);
+  }
+}
+

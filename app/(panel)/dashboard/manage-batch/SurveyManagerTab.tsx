@@ -8,19 +8,22 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import DownloadIcon from '@mui/icons-material/Download';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
 type Survey = {
   id: string;
   title: string;
   description: string | null;
   isOpen: boolean;
+  requireUserDetails: boolean;
   closesAt: Date | null;
   createdAt: Date;
   questions: { id: string; label: string; type: string; options: string[]; order: number }[];
   responses: {
     id: string;
     submittedAt: Date;
-    responder: { id: string; name: string | null; image: string | null };
+    responder: { id: string; name: string | null; image: string | null; email: string | null; phone: string | null };
     answers: { questionId: string; value: string }[];
   }[];
   _count: { responses: number };
@@ -36,6 +39,7 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [closesAt, setClosesAt] = useState('');
+  const [requireUserDetails, setRequireUserDetails] = useState(false);
   const [questions, setQuestions] = useState<QuestionInput[]>([
     { label: '', type: 'TEXT', options: [], required: true, order: 0 },
   ]);
@@ -88,6 +92,7 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
         title,
         description,
         closesAt: closesAt || null,
+        requireUserDetails,
         questions: questions.map((q) => ({
           ...q,
           // filter blank lines only at submit time
@@ -96,7 +101,7 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
       });
       if (res.success) {
         setShowCreate(false);
-        setTitle(''); setDescription(''); setClosesAt('');
+        setTitle(''); setDescription(''); setClosesAt(''); setRequireUserDetails(false);
         setQuestions([{ label: '', type: 'TEXT', options: [], required: true, order: 0 }]);
         window.location.reload();
       } else {
@@ -118,6 +123,92 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
       await deleteSurvey(id);
       window.location.reload();
     });
+  }
+
+  function downloadCSV(survey: Survey) {
+    const headers = survey.requireUserDetails 
+      ? ['Responder Name', 'Email', 'Phone', 'Submitted At', ...survey.questions.map(q => q.label)]
+      : ['Responder', 'Submitted At', ...survey.questions.map(q => q.label)];
+    
+    const rows = survey.responses.map((resp, idx) => {
+      const row = survey.requireUserDetails 
+        ? [
+            resp.responder.name || 'Unknown',
+            resp.responder.email || '',
+            resp.responder.phone || '',
+            new Date(resp.submittedAt).toLocaleString(),
+          ]
+        : [
+            `Anonymous #${idx + 1}`,
+            new Date(resp.submittedAt).toLocaleString(),
+          ];
+      survey.questions.forEach(q => {
+        const ans = resp.answers.find(a => a.questionId === q.id);
+        row.push(ans ? ans.value : '');
+      });
+      return row;
+    });
+
+    const csvContent = [
+      headers.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','),
+      ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Survey_Results_${survey.title.replace(/[^a-z0-9]/gi, '_')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  async function downloadPDF(survey: Survey) {
+    const { jsPDF } = await import('jspdf');
+    const autoTable = (await import('jspdf-autotable')).default;
+
+    const doc = new jsPDF('landscape');
+    
+    doc.setFontSize(16);
+    doc.text(`Survey Results: ${survey.title}`, 14, 15);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated on ${new Date().toLocaleString()} | ${survey.responses.length} total responses`, 14, 22);
+
+    const headers = survey.requireUserDetails 
+      ? ['Responder Name', 'Email', 'Phone', 'Submitted At', ...survey.questions.map(q => q.label)]
+      : ['Responder', 'Submitted At', ...survey.questions.map(q => q.label)];
+    
+    const rows = survey.responses.map((resp, idx) => {
+      const row = survey.requireUserDetails 
+        ? [
+            resp.responder.name || 'Unknown',
+            resp.responder.email || '',
+            resp.responder.phone || '',
+            new Date(resp.submittedAt).toLocaleDateString(),
+          ]
+        : [
+            `Anonymous #${idx + 1}`,
+            new Date(resp.submittedAt).toLocaleDateString(),
+          ];
+      survey.questions.forEach(q => {
+        const ans = resp.answers.find(a => a.questionId === q.id);
+        row.push(ans ? ans.value : '');
+      });
+      return row;
+    });
+
+    autoTable(doc, {
+      head: [headers],
+      body: rows,
+      startY: 30,
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [235, 183, 0], textColor: [0, 0, 0], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+    });
+
+    doc.save(`Survey_Results_${survey.title.replace(/[^a-z0-9]/gi, '_')}.pdf`);
   }
 
   const cardStyle: React.CSSProperties = {
@@ -180,9 +271,17 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
               <label style={labelStyle}>Description (optional)</label>
               <textarea style={{ ...inputStyle, minHeight: '70px', resize: 'vertical' }} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this survey about?" />
             </div>
-            <div>
-              <label style={labelStyle}>Close Date (optional)</label>
-              <input type="datetime-local" style={inputStyle} value={closesAt} onChange={(e) => setClosesAt(e.target.value)} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label style={labelStyle}>Close Date (optional)</label>
+                <input type="datetime-local" style={inputStyle} value={closesAt} onChange={(e) => setClosesAt(e.target.value)} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', paddingTop: '1.25rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'white', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={requireUserDetails} onChange={(e) => setRequireUserDetails(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: 'var(--accent-primary)' }} />
+                  Require User Details (Name, Email, Phone)
+                </label>
+              </div>
             </div>
 
             {/* Questions */}
@@ -322,6 +421,22 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
                 <button
                   className="btn glass"
                   style={{ fontSize: '0.75rem', padding: '0.4rem 0.7rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                  onClick={() => downloadCSV(survey)}
+                >
+                  <DownloadIcon sx={{ fontSize: '1rem' }} />
+                  CSV
+                </button>
+                <button
+                  className="btn glass"
+                  style={{ fontSize: '0.75rem', padding: '0.4rem 0.7rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                  onClick={() => downloadPDF(survey)}
+                >
+                  <PictureAsPdfIcon sx={{ fontSize: '1rem', color: '#ef4444' }} />
+                  PDF
+                </button>
+                <button
+                  className="btn glass"
+                  style={{ fontSize: '0.75rem', padding: '0.4rem 0.7rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
                   onClick={() => setExpandedId(isExpanded ? null : survey.id)}
                 >
                   {isExpanded ? <ExpandLessIcon sx={{ fontSize: '1rem' }} /> : <ExpandMoreIcon sx={{ fontSize: '1rem' }} />}
@@ -347,14 +462,18 @@ export default function SurveyManagerTab({ surveys: initial }: { surveys: Survey
                   </p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {survey.responses.map((resp) => (
+                    {survey.responses.map((resp, idx) => (
                       <div key={resp.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '1rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem' }}>
                           <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '0.75rem', overflow: 'hidden', flexShrink: 0 }}>
-                            {resp.responder.image ? <img src={resp.responder.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : resp.responder.name?.charAt(0)}
+                            {survey.requireUserDetails ? (
+                              resp.responder.image ? <img src={resp.responder.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : resp.responder.name?.charAt(0) || '?'
+                            ) : '?'}
                           </div>
                           <div>
-                            <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'white' }}>{resp.responder.name || 'Unknown'}</div>
+                            <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'white' }}>
+                              {survey.requireUserDetails ? (resp.responder.name || 'Unknown') : `Anonymous #${idx + 1}`}
+                            </div>
                             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(resp.submittedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                           </div>
                         </div>

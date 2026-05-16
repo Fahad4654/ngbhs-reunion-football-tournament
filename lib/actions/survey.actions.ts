@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { getServerUser } from '@/lib/server-auth';
 import { revalidatePath } from 'next/cache';
+import { sendSurveyAnnouncementEmail } from '@/lib/mail';
 
 // ─────────────────────────────────────────
 // Types
@@ -20,6 +21,7 @@ export type SurveyInput = {
   title: string;
   description?: string;
   closesAt?: string | null;
+  requireUserDetails?: boolean;
   questions: QuestionInput[];
 };
 
@@ -36,8 +38,11 @@ export async function createSurvey(data: SurveyInput) {
   const user = await getServerUser();
   if (!user || user.role !== 'BATCH_MANAGER') return { success: false, error: 'Unauthorized' };
 
-  const dbUser = await prisma.user.findUnique({ where: { id: user.uid } });
-  if (!dbUser?.batchId) return { success: false, error: 'No batch assigned' };
+  const dbUser = await prisma.user.findUnique({ 
+    where: { id: user.uid },
+    include: { batch: true }
+  });
+  if (!dbUser?.batchId || !dbUser.batch) return { success: false, error: 'No batch assigned' };
 
   try {
     const survey = await prisma.survey.create({
@@ -46,6 +51,7 @@ export async function createSurvey(data: SurveyInput) {
         description: data.description?.trim() || null,
         batchId: dbUser.batchId,
         createdById: user.uid,
+        requireUserDetails: data.requireUserDetails ?? false,
         closesAt: data.closesAt ? new Date(data.closesAt) : null,
         questions: {
           create: data.questions.map((q) => ({
@@ -58,6 +64,34 @@ export async function createSurvey(data: SurveyInput) {
         },
       },
     });
+
+    // Notify all approved batch members (except the creator)
+    const members = await prisma.user.findMany({
+      where: {
+        batchId: dbUser.batchId,
+        status: 'APPROVED',
+        id: { not: user.uid },
+      },
+    });
+
+    if (members.length > 0) {
+      // 1. Create in-app notifications
+      await prisma.notification.createMany({
+        data: members.map((m) => ({
+          userId: m.id,
+          title: '📋 New Batch Survey',
+          message: `A new survey "${survey.title}" has been created.`,
+          link: '/dashboard/surveys',
+        })),
+      });
+
+      // 2. Send emails
+      const emails = members.map((m) => m.email).filter(Boolean) as string[];
+      if (emails.length > 0) {
+        // Fire and forget email sending
+        sendSurveyAnnouncementEmail(emails, survey.title, dbUser.batch.name).catch(console.error);
+      }
+    }
 
     revalidatePath('/dashboard/surveys');
     revalidatePath('/dashboard/manage-batch');
@@ -158,7 +192,7 @@ export async function getSurveysForManager() {
         questions: { orderBy: { order: 'asc' } },
         responses: {
           include: {
-            responder: { select: { id: true, name: true, image: true } },
+            responder: { select: { id: true, name: true, image: true, email: true, phone: true } },
             answers: true,
           },
           orderBy: { submittedAt: 'desc' },

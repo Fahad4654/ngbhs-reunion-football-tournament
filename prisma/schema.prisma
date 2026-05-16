@@ -471,9 +471,10 @@ model Survey {
   description String?
   batchId     String
   createdById String
-  isOpen      Boolean          @default(true)
-  closesAt    DateTime?
-  createdAt   DateTime         @default(now())
+  isOpen             Boolean          @default(true)
+  requireUserDetails Boolean          @default(false)
+  closesAt           DateTime?
+  createdAt          DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   batch       Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
   createdBy   User             @relation("SurveyCreator", fields: [createdById], references: [id])
