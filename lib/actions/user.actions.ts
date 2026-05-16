@@ -460,20 +460,20 @@ export async function createUserByAdmin(prevState: any, formData: FormData) {
     const role = formData.get('role') as any;
     const batchId = formData.get('batchId') as string;
 
-    if (!isValidEmail(email)) return { error: 'Invalid email address.' };
-    if (phone && !isValidPhone(phone)) return { error: 'Invalid phone number.' };
+    if (!isValidEmail(email)) return { error: 'Please enter a valid email address.' };
+    if (phone && !isValidPhone(phone)) return { error: 'Invalid phone number format or country code.' };
 
     const existingEmail = await prisma.user.findUnique({ where: { email } });
-    if (existingEmail) return { error: 'Email already exists.' };
+    if (existingEmail) return { error: 'An account with this email already exists.' };
 
     if (username) {
       const existingUsername = await prisma.user.findUnique({ where: { username } });
-      if (existingUsername) return { error: 'Username already taken.' };
+      if (existingUsername) return { error: 'This username is already taken. Please choose another.', field: 'username' };
     }
 
     if (phone) {
       const existingPhone = await prisma.user.findFirst({ where: { phone } });
-      if (existingPhone) return { error: 'Phone number already in use.' };
+      if (existingPhone) return { error: 'This phone number is already in use.', field: 'phone' };
     }
 
     const { hashPassword } = await import('@/lib/auth-utils');
