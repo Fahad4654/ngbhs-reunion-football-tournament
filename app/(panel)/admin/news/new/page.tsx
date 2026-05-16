@@ -12,6 +12,11 @@ export default async function NewNewsPage() {
   }
 
   const batches = await prisma.batch.findMany({
+    where: user.role === "ADMIN" ? {} : {
+      OR: [
+        { id: user.batchId || undefined },
+      ]
+    },
     select: { id: true, name: true },
     orderBy: { name: 'asc' }
   });

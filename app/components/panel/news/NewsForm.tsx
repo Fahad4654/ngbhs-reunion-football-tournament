@@ -94,7 +94,14 @@ export default function NewsForm({ initialData, newsId, batches, userRole, userB
     }
 
     startTransition(async () => {
-      const finalSlug = formData.slug.trim() || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      // Always generate slug from title unless it's an edit and we want to keep the old one?
+      // Actually the user said "all news' slug will be auto generated".
+      const finalSlug = formData.title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
       
       let res;
       if (newsId) {
@@ -153,16 +160,6 @@ export default function NewsForm({ initialData, newsId, batches, userRole, userB
         )}
       </div>
 
-      <div>
-        <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Slug (Optional)</label>
-        <input 
-          type="text" 
-          value={formData.slug}
-          onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-          style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", color: "white", outline: "none" }}
-          placeholder="auto-generated from title if empty"
-        />
-      </div>
 
       <div>
         <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem" }}>Excerpt</label>

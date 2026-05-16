@@ -24,6 +24,11 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
 
 
   const batches = await prisma.batch.findMany({
+    where: user.role === "ADMIN" ? {} : {
+      OR: [
+        { id: user.batchId || undefined },
+      ]
+    },
     select: { id: true, name: true },
     orderBy: { name: 'asc' }
   });

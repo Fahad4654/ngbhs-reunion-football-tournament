@@ -13,7 +13,14 @@ export default async function AdminNewsPage() {
   }
 
   const news = await prisma.news.findMany({
-    where: {},
+    where: user.role === "ADMIN" 
+      ? {} 
+      : {
+          OR: [
+            { batchId: null },
+            { batchId: user.batchId }
+          ]
+        },
     include: {
       author: {
         select: {
@@ -84,7 +91,19 @@ export default async function AdminNewsPage() {
                   )}
                 </td>
                 <td style={{ padding: '1.25rem' }}>
-                  <div style={{ fontWeight: '700', marginBottom: '0.25rem' }}>{item.title}</div>
+                  <Link 
+                    href={item.batchId ? `/dashboard/news/${item.slug}` : `/news/${item.slug}`} 
+                    className="news-title-link"
+                    style={{ 
+                      fontWeight: '700', 
+                      marginBottom: '0.25rem', 
+                      display: 'block', 
+                      color: 'white', 
+                      textDecoration: 'none' 
+                    }}
+                  >
+                    {item.title}
+                  </Link>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '400px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {item.excerpt}
                   </div>

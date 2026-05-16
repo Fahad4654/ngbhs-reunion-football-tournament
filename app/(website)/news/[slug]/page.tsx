@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "../news.module.css";

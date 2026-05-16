@@ -23,13 +23,36 @@ export async function createNews(data: {
   }
 
   // If BATCH_MANAGER, they can only post news for their batch
-  const finalBatchId = user.role === "BATCH_MANAGER" ? user.batchId : data.batchId;
+  // If CO_ADMIN, they can post to their batch or global
+  let finalBatchId = data.batchId;
+  if (user.role === "BATCH_MANAGER") {
+    finalBatchId = user.batchId;
+  } else if (user.role === "CO_ADMIN") {
+    if (data.batchId && data.batchId !== user.batchId) {
+      return { success: false, error: "Unauthorized to post to this batch" };
+    }
+  }
+
+  // Generate unique slug
+  let finalSlug = data.slug;
+  let isUnique = false;
+  let counter = 0;
+
+  while (!isUnique && counter < 10) {
+    const candidateSlug = counter === 0 ? finalSlug : `${finalSlug}-${Math.random().toString(36).substring(2, 7)}`;
+    const existing = await prisma.news.findUnique({ where: { slug: candidateSlug } });
+    if (!existing) {
+      finalSlug = candidateSlug;
+      isUnique = true;
+    }
+    counter++;
+  }
 
   try {
     const news = await prisma.news.create({
       data: {
         title: data.title,
-        slug: data.slug,
+        slug: finalSlug,
         content: data.content,
         excerpt: data.excerpt,
         imageUrl: data.imageUrl,
@@ -106,7 +129,24 @@ export async function updateNews(id: string, data: {
     }
 
     // Admins can change batch, batch managers cannot
-    const finalBatchId = user.role === "BATCH_MANAGER" ? existingNews?.batchId : data.batchId;
+    // CO_ADMIN can only change to their batch or global
+    let finalBatchId = data.batchId;
+    if (user.role === "BATCH_MANAGER") {
+      finalBatchId = existingNews?.batchId;
+    } else if (user.role === "CO_ADMIN") {
+      if (data.batchId && data.batchId !== user.batchId) {
+        return { success: false, error: "Unauthorized to change to this batch" };
+      }
+    }
+
+    // Handle slug update (only if it changes and check for uniqueness)
+    let finalSlug = data.slug;
+    if (existingNews?.slug !== finalSlug) {
+      const slugExists = await prisma.news.findUnique({ where: { slug: finalSlug } });
+      if (slugExists) {
+        finalSlug = `${finalSlug}-${Math.random().toString(36).substring(2, 7)}`;
+      }
+    }
 
     const oldNews = await prisma.news.findUnique({ where: { id }, select: { imageUrl: true } });
 
@@ -114,7 +154,7 @@ export async function updateNews(id: string, data: {
       where: { id },
       data: {
         title: data.title,
-        slug: data.slug,
+        slug: finalSlug,
         content: data.content,
         excerpt: data.excerpt,
         imageUrl: data.imageUrl,
