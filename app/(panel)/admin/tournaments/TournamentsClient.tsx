@@ -241,14 +241,14 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
 
       {/* Tournaments List */}
       <div className="glass responsive-table-container" style={{ padding: 0 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+        <table className="sticky-table" style={{ width: "100%", textAlign: "left" }}>
           <thead>
             <tr style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid var(--border-color)" }}>
               <th style={{ padding: "1.25rem" }}>Tournament</th>
               <th style={{ padding: "1.25rem", textAlign: "center" }}>Teams</th>
               <th style={{ padding: "1.25rem", textAlign: "center" }}>Matches</th>
               <th style={{ padding: "1.25rem", textAlign: "center" }}>Status</th>
-              <th style={{ padding: "1.25rem", textAlign: "right" }}>Actions</th>
+              <th className="sticky-actions" style={{ padding: "1.25rem", textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -261,9 +261,9 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
             ) : tournaments.map((t) => {
               const isEditing = editingId === t.id;
               return (
-                <tr key={t.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                <tr key={t.id}>
                   {/* Name cell — editable inline */}
-                  <td style={{ padding: "1.25rem" }}>
+                  <td>
                     {isEditing ? (
                       <input
                         autoFocus
@@ -283,10 +283,10 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
                     )}
                   </td>
 
-                  <td style={{ padding: "1.25rem", textAlign: "center", fontWeight: "700" }}>{t._count.teams}</td>
-                  <td style={{ padding: "1.25rem", textAlign: "center", fontWeight: "700" }}>{t._count.matches}</td>
+                  <td style={{ textAlign: "center", fontWeight: "700" }}>{t._count.teams}</td>
+                  <td style={{ textAlign: "center", fontWeight: "700" }}>{t._count.matches}</td>
 
-                  <td style={{ padding: "1.25rem", textAlign: "center" }}>
+                  <td style={{ textAlign: "center" }}>
                     {t.isActive ? (
                       <span className="badge badge-live">ACTIVE</span>
                     ) : (
@@ -296,7 +296,7 @@ export default function TournamentsClient({ tournaments: initial }: { tournament
                     )}
                   </td>
 
-                  <td style={{ padding: "1.25rem", textAlign: "right" }}>
+                  <td className="sticky-actions" style={{ textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "0.4rem", justifyContent: "flex-end", flexWrap: "wrap" }}>
                       {isEditing ? (
                         <>
