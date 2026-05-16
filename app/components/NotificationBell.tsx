@@ -186,6 +186,12 @@ export default function NotificationBell() {
               </div>
             )}
           </div>
+
+          <div style={{ padding: '8px', borderTop: '1px solid var(--border-color)', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
+            <Link href="/dashboard/notifications" onClick={() => setIsOpen(false)} style={{ color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: '700', textDecoration: 'none' }}>
+              See all notifications
+            </Link>
+          </div>
         </div>
       )}
     </div>
