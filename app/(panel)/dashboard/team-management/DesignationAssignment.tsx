@@ -15,7 +15,6 @@ interface DesignationAssignmentProps {
 }
 
 const TEAM_DESIGNATIONS = [
-  'Coach',
   'Captain',
   'Vice-Captain',
   'Substitute',

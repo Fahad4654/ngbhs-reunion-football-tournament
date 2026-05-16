@@ -256,6 +256,7 @@ model User {
   youtubeUrl          String?
   bio                 String?
   nicknames           String[]           @default([])
+  jerseyNumber        String?
   privacySettings     Json?              @default("{\"showEmail\": false, \"showPhone\": false, \"showAddress\": false, \"showOccupation\": true, \"showSocialLinks\": true}")
   judgeVotes          AwardRating[]      @relation("JudgeVotes")
   awardRatings        AwardRating[]      @relation("PlayerRatings")

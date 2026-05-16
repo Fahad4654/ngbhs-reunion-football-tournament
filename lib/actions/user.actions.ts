@@ -340,6 +340,30 @@ export async function handoverBatchManagerAction(targetUserId: string) {
   }
 }
 
+export async function updateJerseyNumberAction(userId: string, jerseyNumber: string) {
+  try {
+    const manager = await getServerUser();
+    if (!manager) return { error: 'Unauthorized.' };
+
+    const target = await prisma.user.findUnique({ where: { id: userId } });
+    if (!target) return { error: 'User not found.' };
+
+    const authorized = await isAuthorizedForMember(manager.uid, manager.role, target.batchId);
+    if (!authorized) return { error: 'You can only update members of your own batch.' };
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { jerseyNumber: jerseyNumber || null }
+    });
+
+    revalidatePath('/dashboard/manage-batch');
+    return { success: true };
+  } catch (error) {
+    console.error('[updateJerseyNumberAction]', error);
+    return { error: 'Failed to update jersey number.' };
+  }
+}
+
 // ─────────────────────────────────────────
 // User Deletion (Admin / Co-Admin)
 // ─────────────────────────────────────────
