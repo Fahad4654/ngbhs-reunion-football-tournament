@@ -121,6 +121,7 @@ model Match {
   homeCleanSheet    Boolean            @default(false)
   stage             MatchStage         @default(GROUP_STAGE)
   manOfTheMatchId   String?
+  isAlert           Boolean            @default(false)
   awayTeam          Batch              @relation("AwayTeam", fields: [awayTeamId], references: [id])
   homeTeam          Batch              @relation("HomeTeam", fields: [homeTeamId], references: [id])
   manOfTheMatch     User?              @relation("ManOfTheMatch", fields: [manOfTheMatchId], references: [id])
@@ -142,6 +143,7 @@ model News {
   updatedAt   DateTime @updatedAt
   authorId    String?
   batchId     String?
+  isAlert     Boolean  @default(false)
   author      User?    @relation(fields: [authorId], references: [id])
   batch       Batch?   @relation(fields: [batchId], references: [id])
 }

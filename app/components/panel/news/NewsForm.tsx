@@ -14,6 +14,7 @@ export default function NewsForm({ initialData, newsId, batches, userRole, userB
     excerpt: string | null;
     imageUrl: string | null;
     isExclusive: boolean;
+    isAlert?: boolean;
     batchId: string | null;
   };
   newsId?: string;
@@ -43,6 +44,7 @@ export default function NewsForm({ initialData, newsId, batches, userRole, userB
     excerpt: initialData?.excerpt || "",
     imageUrl: initialData?.imageUrl || "",
     isExclusive: initialData?.isExclusive || false,
+    isAlert: initialData?.isAlert || false,
     batchId: initialData?.batchId || (userRole === "BATCH_MANAGER" ? userBatchId : null),
   });
 
@@ -230,7 +232,7 @@ export default function NewsForm({ initialData, newsId, batches, userRole, userB
         )}
       </div>
 
-      <div>
+      <div style={{ display: "flex", gap: "2rem" }}>
         <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "600", cursor: "pointer", fontSize: "0.9rem" }}>
           <input 
             type="checkbox" 
@@ -240,6 +242,17 @@ export default function NewsForm({ initialData, newsId, batches, userRole, userB
           />
           Exclusive Content
         </label>
+        {isAdmin && (
+          <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "600", cursor: "pointer", fontSize: "0.9rem" }}>
+            <input 
+              type="checkbox" 
+              checked={formData.isAlert}
+              onChange={(e) => setFormData(prev => ({ ...prev, isAlert: e.target.checked }))}
+              style={{ accentColor: "var(--accent-danger)", width: "16px", height: "16px" }}
+            />
+            Mark as Alert
+          </label>
+        )}
       </div>
 
       <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "1rem" }}>

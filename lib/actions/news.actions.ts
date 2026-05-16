@@ -15,6 +15,7 @@ export async function createNews(data: {
   excerpt?: string;
   imageUrl?: string;
   isExclusive?: boolean;
+  isAlert?: boolean;
   batchId?: string | null;
 }) {
   const user = await getServerUser();
@@ -56,7 +57,8 @@ export async function createNews(data: {
         content: data.content,
         excerpt: data.excerpt,
         imageUrl: data.imageUrl,
-        isExclusive: data.isExclusive,
+        isExclusive: data.isExclusive ?? false,
+        isAlert: data.isAlert ?? false,
         authorId: user.uid,
         batchId: finalBatchId,
       },
@@ -113,6 +115,7 @@ export async function updateNews(id: string, data: {
   excerpt?: string;
   imageUrl?: string;
   isExclusive?: boolean;
+  isAlert?: boolean;
   batchId?: string | null;
 }) {
   const user = await getServerUser();
@@ -158,7 +161,8 @@ export async function updateNews(id: string, data: {
         content: data.content,
         excerpt: data.excerpt,
         imageUrl: data.imageUrl,
-        isExclusive: data.isExclusive,
+        isExclusive: data.isExclusive ?? false,
+        isAlert: data.isAlert ?? false,
         batchId: finalBatchId,
       },
     });

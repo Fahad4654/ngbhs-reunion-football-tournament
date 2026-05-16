@@ -23,6 +23,7 @@ export async function createMatch(data: {
   homeScore: number;
   awayScore: number;
   isFeatured: boolean;
+  isAlert?: boolean;
   stage?: string;
 }) {
   const user = await getServerUser();
@@ -40,6 +41,7 @@ export async function createMatch(data: {
         homeScore: data.homeScore,
         awayScore: data.awayScore,
         isFeatured: data.isFeatured,
+        isAlert: data.isAlert ?? false,
         stage: data.stage as any,
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
@@ -72,6 +74,7 @@ export async function updateMatch(
     homeScore: number;
     awayScore: number;
     isFeatured: boolean;
+    isAlert?: boolean;
     stage?: string;
   }
 ) {
@@ -91,6 +94,7 @@ export async function updateMatch(
         homeScore: data.homeScore,
         awayScore: data.awayScore,
         isFeatured: data.isFeatured,
+        isAlert: data.isAlert ?? false,
         stage: data.stage as any,
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },

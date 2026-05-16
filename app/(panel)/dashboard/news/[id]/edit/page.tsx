@@ -39,6 +39,7 @@ export default async function EditBatchNewsPage({ params }: { params: Promise<{ 
     excerpt: article.excerpt,
     imageUrl: article.imageUrl,
     isExclusive: article.isExclusive,
+    isAlert: article.isAlert,
     batchId: article.batchId,
   };
 

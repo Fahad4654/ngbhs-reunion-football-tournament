@@ -32,6 +32,7 @@ type Match = {
   awayScore: number;
   venue: string | null;
   isFeatured: boolean;
+  isAlert: boolean;
   tournamentId: string | null;
   tournament: { id: string; name: string } | null;
   stage: string;
@@ -47,6 +48,7 @@ type FormData = {
   homeScore: number;
   awayScore: number;
   isFeatured: boolean;
+  isAlert: boolean;
   stage: string;
 };
 
@@ -69,6 +71,7 @@ function emptyForm(): FormData {
     homeScore: 0,
     awayScore: 0,
     isFeatured: false,
+    isAlert: false,
     stage: "GROUP_STAGE",
   };
 }
@@ -84,6 +87,7 @@ function matchToForm(m: Match): FormData {
     homeScore: m.homeScore,
     awayScore: m.awayScore,
     isFeatured: m.isFeatured,
+    isAlert: m.isAlert || false,
     stage: m.stage || "GROUP_STAGE",
   };
 }
@@ -356,11 +360,17 @@ export default function MatchesClient({
 
             </div>
 
-            {/* Featured toggle */}
-            <label style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer", marginTop: "1rem", fontWeight: "600", fontSize: "0.9rem" }}>
-              <input type="checkbox" checked={form.isFeatured} onChange={(e) => set("isFeatured", e.target.checked)} style={{ accentColor: "var(--accent-primary)", width: "16px", height: "16px" }} />
-              Mark as Featured Match
-            </label>
+            {/* Featured and Alert toggles */}
+            <div style={{ display: "flex", gap: "2rem", marginTop: "1rem" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer", fontWeight: "600", fontSize: "0.9rem" }}>
+                <input type="checkbox" checked={form.isFeatured} onChange={(e) => set("isFeatured", e.target.checked)} style={{ accentColor: "var(--accent-primary)", width: "16px", height: "16px" }} />
+                Mark as Featured Match
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer", fontWeight: "600", fontSize: "0.9rem" }}>
+                <input type="checkbox" checked={form.isAlert} onChange={(e) => set("isAlert", e.target.checked)} style={{ accentColor: "var(--accent-danger)", width: "16px", height: "16px" }} />
+                Mark as Alert
+              </label>
+            </div>
 
             {error && <p style={{ color: "var(--accent-danger)", marginTop: "0.75rem", fontSize: "0.85rem" }}>{error}</p>}
 
@@ -410,6 +420,7 @@ export default function MatchesClient({
                       <span style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>vs</span>
                       <span style={{ fontWeight: "700" }}>{match.awayTeam.name}</span>
                       {match.isFeatured && <span className="badge" style={{ fontSize: "0.65rem", background: "rgba(235,183,0,0.15)", color: "var(--accent-primary)", border: "1px solid rgba(235,183,0,0.3)" }}>★ Featured</span>}
+                      {match.isAlert && <span className="badge" style={{ fontSize: "0.65rem", background: "rgba(255,68,68,0.15)", color: "var(--accent-danger)", border: "1px solid rgba(255,68,68,0.3)" }}>🚨 Alert</span>}
                     </div>
                     {match.venue && <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>{match.venue}</div>}
                   </td>

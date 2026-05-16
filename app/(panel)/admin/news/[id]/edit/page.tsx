@@ -40,6 +40,7 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
     excerpt: article.excerpt,
     imageUrl: article.imageUrl,
     isExclusive: article.isExclusive,
+    isAlert: article.isAlert,
     batchId: article.batchId,
   };
 
