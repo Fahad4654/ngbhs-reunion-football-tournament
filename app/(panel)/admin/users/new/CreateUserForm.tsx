@@ -6,11 +6,64 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 import PhoneInput from "@/app/components/PhoneInput";
+import { isValidPhone } from "@/lib/utils/phone";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+// ─── Validation helpers ───────────────────────────────────────────────────────
+const validateEmail    = (v: string) => {
+  if (!v) return 'Email is required.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return 'Enter a valid email address.';
+  return '';
+};
+const validateFirstName = (v: string) => (!v.trim() ? 'First name is required.' : '');
+const validateLastName  = (v: string) => (!v.trim() ? 'Last name is required.' : '');
+const validatePhone = (v: string) => {
+  if (v && !isValidPhone(v)) return 'Invalid phone number format.';
+  return '';
+};
+
+// ─── Inline field feedback ────────────────────────────────────────────────────
+function FieldMessage({ error, touched }: { error: string; touched: boolean }) {
+  if (!touched) return null;
+  return (
+    <p style={{
+      fontSize: '0.72rem',
+      marginTop: '4px',
+      color: error ? '#ef4444' : '#10b981',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '4px',
+    }}>
+      {error ? '✕ ' + error : <><CheckCircleIcon style={{ fontSize: '0.9rem' }} /> Looks good!</>}
+    </p>
+  );
+}
 
 export default function CreateUserForm({ batches }: { batches: { id: string, name: string }[] }) {
   const router = useRouter();
   const [state, action, isPending] = useActionState(createUserByAdmin, null);
-  const [phone, setPhone] = useState("");
+  
+  // Controlled field state
+  const [firstName, setFirstName] = useState('');
+  const [lastName,  setLastName]  = useState('');
+  const [email,     setEmail]     = useState('');
+  const [phone,     setPhone]     = useState('');
+  const [username,  setUsername]  = useState('');
+
+  // Touched state
+  const [touched, setTouched] = useState({
+    firstName: false, lastName: false, email: false, phone: false,
+  });
+  const touch = (field: keyof typeof touched) =>
+    setTouched(prev => ({ ...prev, [field]: true }));
+
+  // Live errors
+  const errors = {
+    firstName: validateFirstName(firstName),
+    lastName:  validateLastName(lastName),
+    email:     validateEmail(email),
+    phone:     validatePhone(phone),
+  };
 
   useEffect(() => {
     if (state?.success) {
@@ -29,16 +82,42 @@ export default function CreateUserForm({ batches }: { batches: { id: string, nam
           <input 
             name="firstName" 
             required 
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white' }} 
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            onBlur={() => touch('firstName')}
+            style={{ 
+              width: '100%', 
+              padding: '0.75rem', 
+              borderRadius: '8px', 
+              background: 'rgba(255,255,255,0.05)', 
+              border: `1px solid ${touched.firstName ? (errors.firstName ? '#ef4444' : '#10b981') : 'var(--border-color)'}`, 
+              color: 'white',
+              outline: 'none',
+              transition: 'border-color 0.2s'
+            }} 
           />
+          <FieldMessage error={errors.firstName} touched={touched.firstName} />
         </div>
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Last Name</label>
           <input 
             name="lastName" 
             required 
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white' }} 
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            onBlur={() => touch('lastName')}
+            style={{ 
+              width: '100%', 
+              padding: '0.75rem', 
+              borderRadius: '8px', 
+              background: 'rgba(255,255,255,0.05)', 
+              border: `1px solid ${touched.lastName ? (errors.lastName ? '#ef4444' : '#10b981') : 'var(--border-color)'}`, 
+              color: 'white',
+              outline: 'none',
+              transition: 'border-color 0.2s'
+            }} 
           />
+          <FieldMessage error={errors.lastName} touched={touched.lastName} />
         </div>
       </div>
 
@@ -48,8 +127,21 @@ export default function CreateUserForm({ batches }: { batches: { id: string, nam
           name="email" 
           type="email" 
           required 
-          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white' }} 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => touch('email')}
+          style={{ 
+            width: '100%', 
+            padding: '0.75rem', 
+            borderRadius: '8px', 
+            background: 'rgba(255,255,255,0.05)', 
+            border: `1px solid ${touched.email ? (errors.email ? '#ef4444' : '#10b981') : 'var(--border-color)'}`, 
+            color: 'white',
+            outline: 'none',
+            transition: 'border-color 0.2s'
+          }} 
         />
+        <FieldMessage error={errors.email} touched={touched.email} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
@@ -57,18 +149,30 @@ export default function CreateUserForm({ batches }: { batches: { id: string, nam
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Username (Optional)</label>
           <input 
             name="username" 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white' }} 
           />
         </div>
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Phone Number</label>
-          <div style={{ borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+          <div style={{ 
+            borderRadius: '8px', 
+            background: 'rgba(255,255,255,0.05)', 
+            border: `1px solid ${touched.phone ? (errors.phone ? '#ef4444' : '#10b981') : 'var(--border-color)'}`, 
+            overflow: 'hidden',
+            transition: 'border-color 0.2s'
+          }}>
             <PhoneInput 
               name="phone" 
               defaultValue={phone}
-              onChange={setPhone}
+              onChange={(v) => {
+                setPhone(v);
+                if (v) touch('phone');
+              }}
             />
           </div>
+          <FieldMessage error={errors.phone} touched={touched.phone} />
         </div>
       </div>
 
