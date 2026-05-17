@@ -238,7 +238,7 @@ export default function BatchesClient({ batches: initial }: { batches: Batch[] }
 
       {/* ── Batches Table ── */}
       <div className="glass responsive-table-container" style={{ padding: 0 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+        <table className="sticky-table" style={{ width: "100%", textAlign: "left" }}>
           <thead>
             <tr style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid var(--border-color)" }}>
               <th style={{ padding: "1.25rem" }}>Batch</th>
@@ -249,7 +249,7 @@ export default function BatchesClient({ batches: initial }: { batches: Batch[] }
               <th style={{ padding: "1.25rem", textAlign: "center" }}>L</th>
               <th style={{ padding: "1.25rem", textAlign: "center" }}>GD</th>
               <th style={{ padding: "1.25rem", textAlign: "center" }}>PTS</th>
-              <th style={{ padding: "1.25rem", textAlign: "right" }}>Actions</th>
+              <th className="sticky-actions" style={{ padding: "1.25rem", textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -263,8 +263,8 @@ export default function BatchesClient({ batches: initial }: { batches: Batch[] }
               const gd = batch.goalsFor - batch.goalsAgainst;
               const isActiveEdit = editingId === batch.id;
               return (
-                <tr key={batch.id} style={{ borderBottom: "1px solid var(--border-color)", background: isActiveEdit ? "rgba(235,183,0,0.04)" : "transparent" }}>
-                  <td style={{ padding: "1.25rem" }}>
+                <tr key={batch.id} style={{ background: isActiveEdit ? "rgba(235,183,0,0.06)" : "" }}>
+                  <td>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                       {batch.logoUrl ? (
                         <img src={batch.logoUrl} alt={batch.name} style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", border: "1px solid var(--border-color)" }} />
@@ -281,18 +281,18 @@ export default function BatchesClient({ batches: initial }: { batches: Batch[] }
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: "1.25rem", textAlign: "center", color: "var(--text-muted)" }}>{batch._count.members}</td>
-                  <td style={{ padding: "1.25rem", textAlign: "center" }}>{batch.played}</td>
-                  <td style={{ padding: "1.25rem", textAlign: "center" }}>{batch.won}</td>
-                  <td style={{ padding: "1.25rem", textAlign: "center" }}>{batch.drawn}</td>
-                  <td style={{ padding: "1.25rem", textAlign: "center" }}>{batch.lost}</td>
-                  <td style={{ padding: "1.25rem", textAlign: "center", fontWeight: "600", color: gd >= 0 ? "var(--accent-primary)" : "var(--accent-danger)" }}>
+                  <td style={{ textAlign: "center", color: "var(--text-muted)" }}>{batch._count.members}</td>
+                  <td style={{ textAlign: "center" }}>{batch.played}</td>
+                  <td style={{ textAlign: "center" }}>{batch.won}</td>
+                  <td style={{ textAlign: "center" }}>{batch.drawn}</td>
+                  <td style={{ textAlign: "center" }}>{batch.lost}</td>
+                  <td style={{ textAlign: "center", fontWeight: "600", color: gd >= 0 ? "var(--accent-primary)" : "var(--accent-danger)" }}>
                     {gd > 0 ? `+${gd}` : gd}
                   </td>
-                  <td style={{ padding: "1.25rem", textAlign: "center", fontWeight: "800", fontSize: "1.15rem", color: "var(--accent-primary)" }}>
+                  <td style={{ textAlign: "center", fontWeight: "800", fontSize: "1.15rem", color: "var(--accent-primary)" }}>
                     {batch.points}
                   </td>
-                  <td style={{ padding: "1.25rem", textAlign: "right" }}>
+                  <td className="sticky-actions" style={{ textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "0.4rem", justifyContent: "flex-end" }}>
                       <button className="btn glass" onClick={() => startEdit(batch)} disabled={isPending} style={{ padding: "0.35rem 0.7rem", fontSize: "0.72rem", color: isActiveEdit ? "var(--accent-primary)" : "inherit" }}>
                         Edit

@@ -10,6 +10,7 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
   '/dashboard/posts/my-posts': { badge: 'My Content', title: 'Your Posts' },
   '/dashboard/posts': { badge: 'Create Post', title: 'Community Sharing' },
   '/dashboard/batch-feed': { badge: 'Batch Activity', title: 'Batch Feed' },
+  '/dashboard/surveys': { badge: 'Batch Forms', title: 'Surveys' },
   '/dashboard/manage-batch': { badge: 'Moderation', title: 'Manage Batch' },
   '/dashboard/team-management': { badge: 'Team', title: 'Team Management' },
   '/dashboard/members': { badge: 'Community', title: 'Member Directory' },
@@ -18,7 +19,7 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
   '/dashboard/news': { badge: 'News Manager', title: 'Latest Updates' },
   '/admin/batches': { badge: 'Batches', title: 'Batch Standings' },
   '/admin/matches': { badge: 'Matches', title: 'Tournament Schedule' },
-  '/admin/news': { badge: 'Announcements', title: 'News Manager' },
+  '/admin/news': { badge: 'News Manager', title: 'Latest Updates' },
   '/admin/posts': { badge: 'Post Moderation', title: 'User Posts' },
   '/admin/users': { badge: 'Users', title: 'Access Control' },
   '/admin/tournaments': { badge: 'Events', title: 'Tournaments' },
@@ -29,10 +30,11 @@ const PAGE_INFO: Record<string, { badge: string; title: string }> = {
 interface PanelNavbarProps {
   userName: string | null;
   userImage?: string | null;
+  userRole?: string;
   onMenuClick?: () => void;
 }
 
-export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelNavbarProps) {
+export default function PanelNavbar({ userName, userImage, userRole, onMenuClick }: PanelNavbarProps) {
   const pathname = usePathname();
   
   // Find the most specific match first
@@ -43,7 +45,12 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
   // Fallback for exact dashboard/admin matches if sub-route logic misses
   const finalKey = matchingKey || (Object.keys(PAGE_INFO).find(key => pathname === key));
   
-  const info = finalKey ? PAGE_INFO[finalKey] : { badge: 'Management', title: 'Panel' };
+  let info = finalKey ? { ...PAGE_INFO[finalKey] } : { badge: 'Management', title: 'Panel' };
+
+  // Customize label for Batch Managers
+  if (userRole === 'BATCH_MANAGER' && (finalKey === '/admin/news' || finalKey === '/dashboard/news')) {
+    info.badge = 'Batch News';
+  }
 
   return (
     <nav
@@ -182,7 +189,13 @@ export default function PanelNavbar({ userName, userImage, onMenuClick }: PanelN
               }}
             >
               {userImage ? (
-                <img src={userImage} alt={userName || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img 
+                  src={userImage} 
+                  alt={userName || ''} 
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
               ) : (
                 (userName || 'U').charAt(0)
               )}

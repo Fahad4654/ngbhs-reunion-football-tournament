@@ -27,29 +27,31 @@ model Batch {
   homeMatches     Match[]            @relation("HomeTeam")
   matchEvents     MatchEvent[]
   matchSquads     MatchSquadMember[]
+  news            News[]
   tournamentTeams TournamentTeam[]
   members         User[]             @relation("BatchMembers")
   followers       User[]             @relation("UserFollows")
+  surveys         Survey[]
 
   @@index([points(sort: Desc), goalsFor(sort: Desc)])
 }
 
 model Tournament {
-  id          String            @id @default(cuid())
-  name        String            @unique
-  isActive    Boolean           @default(false)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  description String?
-  drawPoints  Int               @default(1)
-  lossPoints  Int               @default(0)
-  winPoints   Int               @default(3)
+  id            String            @id @default(cuid())
+  name          String            @unique
+  isActive      Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  description   String?
+  drawPoints    Int               @default(1)
+  lossPoints    Int               @default(0)
+  winPoints     Int               @default(3)
   bracketConfig Json?
-  matches     Match[]
-  groups      TournamentGroup[]
-  teams       TournamentTeam[]
-  awards      SeasonAward[]
-  ratings     AwardRating[]
+  ratings       AwardRating[]
+  matches       Match[]
+  awards        SeasonAward[]
+  groups        TournamentGroup[]
+  teams         TournamentTeam[]
 }
 
 model TournamentGroup {
@@ -120,6 +122,7 @@ model Match {
   homeCleanSheet    Boolean            @default(false)
   stage             MatchStage         @default(GROUP_STAGE)
   manOfTheMatchId   String?
+  isAlert           Boolean            @default(false)
   awayTeam          Batch              @relation("AwayTeam", fields: [awayTeamId], references: [id])
   homeTeam          Batch              @relation("HomeTeam", fields: [homeTeamId], references: [id])
   manOfTheMatch     User?              @relation("ManOfTheMatch", fields: [manOfTheMatchId], references: [id])
@@ -140,7 +143,10 @@ model News {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   authorId    String?
+  batchId     String?
+  isAlert     Boolean  @default(false)
   author      User?    @relation(fields: [authorId], references: [id])
+  batch       Batch?   @relation(fields: [batchId], references: [id])
 }
 
 model Highlight {
@@ -227,12 +233,13 @@ model User {
   password            String?
   batchId             String?
   occupation          String?
-  phone               String?
+  phone               String?            @unique
   currentAddress      String?
   permanentAddress    String?
   workplace           String?
   emailVerified       DateTime?
   status              UserStatus         @default(APPROVED)
+  statusReason        String?
   isPlayer            Boolean            @default(false)
   teamRole            String?
   teamDesignation     String?
@@ -249,10 +256,14 @@ model User {
   birthday            DateTime?
   maritalStatus       String?
   gender              String?
-  education           Json?              // List of institutes
+  education           Json?
   youtubeUrl          String?
   bio                 String?
   nicknames           String[]           @default([])
+  jerseyNumber        String?
+  privacySettings     Json?              @default("{\"showEmail\": false, \"showPhone\": false, \"showAddress\": false, \"showOccupation\": true, \"showSocialLinks\": true}")
+  judgeVotes          AwardRating[]      @relation("JudgeVotes")
+  awardRatings        AwardRating[]      @relation("PlayerRatings")
   cheers              Cheer[]
   comments            Comment[]
   manOfTheMatchAwards Match[]            @relation("ManOfTheMatch")
@@ -268,9 +279,8 @@ model User {
   batch               Batch?             @relation("BatchMembers", fields: [batchId], references: [id])
   awardParticipations SeasonAward[]      @relation("AwardPlayers")
   followedBatches     Batch[]            @relation("UserFollows")
-  awardRatings        AwardRating[]      @relation("PlayerRatings")
-  judgeVotes          AwardRating[]      @relation("JudgeVotes")
-  privacySettings     Json?              @default("{\"showPhone\": false, \"showEmail\": false, \"showAddress\": false, \"showOccupation\": true, \"showSocialLinks\": true}")
+  createdSurveys      Survey[]           @relation("SurveyCreator")
+  surveyResponses     SurveyResponse[]   @relation("SurveyResponder")
 }
 
 model VerificationToken {
@@ -319,19 +329,19 @@ model MatchEvent {
 }
 
 model SeasonAward {
-  id          String   @id @default(cuid())
-  category    String
-  title       String
-  description String?
+  id           String     @id @default(cuid())
+  category     String
+  title        String
+  description  String?
   tournamentId String
-  coachId     String?
-  captainId   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  tournament  Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  captain     User?    @relation("AwardCaptain", fields: [captainId], references: [id])
-  coach       User?    @relation("AwardCoach", fields: [coachId], references: [id])
-  players     User[]   @relation("AwardPlayers")
+  coachId      String?
+  captainId    String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  captain      User?      @relation("AwardCaptain", fields: [captainId], references: [id])
+  coach        User?      @relation("AwardCoach", fields: [coachId], references: [id])
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  players      User[]     @relation("AwardPlayers")
 
   @@unique([category, tournamentId])
 }
@@ -339,18 +349,30 @@ model SeasonAward {
 model AwardRating {
   id           String     @id @default(cuid())
   tournamentId String
-  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  category     String     // e.g., "BEST_PLAYER", "BEST_GOALKEEPER", "TOP_SCORER"
+  category     String
   playerId     String
-  player       User       @relation("PlayerRatings", fields: [playerId], references: [id], onDelete: Cascade)
   judgeId      String
-  judge        User       @relation("JudgeVotes", fields: [judgeId], references: [id], onDelete: Cascade)
-  rating       Int        // 1-10
+  rating       Int
   comment      String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  judge        User       @relation("JudgeVotes", fields: [judgeId], references: [id], onDelete: Cascade)
+  player       User       @relation("PlayerRatings", fields: [playerId], references: [id], onDelete: Cascade)
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
 
   @@unique([tournamentId, category, playerId, judgeId])
+}
+
+model Advertisement {
+  id         String     @id @default(cuid())
+  title      String
+  imageUrl   String
+  linkUrl    String?
+  position   AdPosition @default(SIDEBAR)
+  isActive   Boolean    @default(true)
+  closeDelay Int        @default(5)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
 
 enum MatchStatus {
@@ -429,19 +451,6 @@ enum MatchStage {
   THIRD_PLACE
 }
 
-model Advertisement {
-  id         String     @id @default(cuid())
-  title      String
-  imageUrl   String
-  linkUrl    String?
-  position   AdPosition @default(SIDEBAR)
-  isActive   Boolean    @default(true)
-  closeDelay Int        @default(5) // Seconds before close button appears
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-}
-
-
 enum AdPosition {
   SIDEBAR
   STANDINGS
@@ -452,4 +461,65 @@ enum AdPosition {
   FLOATING
 }
 
+// ─────────────────────────────────────────
+// Survey System
+// ─────────────────────────────────────────
 
+model Survey {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  batchId     String
+  createdById String
+  isOpen             Boolean          @default(true)
+  requireUserDetails Boolean          @default(false)
+  closesAt           DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  batch       Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  createdBy   User             @relation("SurveyCreator", fields: [createdById], references: [id])
+  questions   SurveyQuestion[]
+  responses   SurveyResponse[]
+}
+
+model SurveyQuestion {
+  id       String         @id @default(cuid())
+  surveyId String
+  label    String
+  type     QuestionType
+  options  String[]       @default([])
+  required Boolean        @default(true)
+  order    Int
+  survey   Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers  SurveyAnswer[]
+}
+
+model SurveyResponse {
+  id          String         @id @default(cuid())
+  surveyId    String
+  responderId String
+  submittedAt DateTime       @default(now())
+  survey      Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  responder   User           @relation("SurveyResponder", fields: [responderId], references: [id])
+  answers     SurveyAnswer[]
+
+  @@unique([surveyId, responderId])
+}
+
+model SurveyAnswer {
+  id         String         @id @default(cuid())
+  responseId String
+  questionId String
+  value      String
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  response   SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  @@unique([responseId, questionId])
+}
+
+enum QuestionType {
+  TEXT
+  CHOICE
+  CHECKBOX
+  RATING
+}

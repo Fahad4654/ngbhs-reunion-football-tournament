@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
@@ -19,10 +20,15 @@ import SchoolIcon from '@mui/icons-material/School';
 interface UserDetailModalProps {
   user: any;
   onClose: () => void;
+  isAdmin?: boolean;
+  isSameBatch?: boolean;
 }
 
-export default function UserDetailModal({ user, onClose }: UserDetailModalProps) {
+export default function UserDetailModal({ user, onClose, isAdmin, isSameBatch }: UserDetailModalProps) {
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   if (!user) return null;
+
+  const canSeeAll = isAdmin || isSameBatch;
 
   return (
     <div style={{
@@ -41,13 +47,16 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
     }}>
       <div className="glass" style={{
         width: '100%',
-        maxWidth: '500px',
+        maxWidth: '520px',
+        maxHeight: '90vh',
         borderRadius: '24px',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
         position: 'relative',
-        background: 'rgba(15, 17, 20, 0.95)',
+        background: 'rgba(15, 17, 20, 0.98)',
         border: '1px solid var(--border-color)',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+        boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
       }}>
         {/* Header/Cover */}
         <div style={{ 
@@ -82,7 +91,14 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
           <CloseIcon sx={{ fontSize: '1.2rem' }} />
         </button>
 
-        <div style={{ padding: '2rem', position: 'relative' }}>
+        <div style={{ 
+          padding: 'clamp(1.5rem, 5vw, 2.5rem)', 
+          position: 'relative',
+          overflowY: 'auto',
+          flex: 1,
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'var(--accent-primary) transparent'
+        }}>
           {/* Avatar */}
           <div style={{ 
             width: '100px', 
@@ -100,37 +116,45 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
             margin: '0 auto 1.5rem',
             boxShadow: '0 10px 20px rgba(0,0,0,0.3)'
           }}>
-            {user.image && user.privacySettings?.showImage !== false ? (
-              <img src={user.image} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {user.image && (user.privacySettings?.showImage !== false || canSeeAll) ? (
+              <img 
+                src={user.image} 
+                alt={user.name} 
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
             ) : (
               user.name?.charAt(0)
             )}
           </div>
 
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900', color: 'white' }}>
-              {user.privacySettings?.showFirstName !== false || user.privacySettings?.showLastName !== false
-                ? `${user.privacySettings?.showFirstName !== false ? (user.firstName || '') : ''} ${user.privacySettings?.showLastName !== false ? (user.lastName || '') : ''}`.trim() || user.name
-                : (user.privacySettings?.showUsername !== false ? `@${user.username}` : 'Private Member')
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <h2 style={{ margin: 0, fontSize: 'clamp(1.2rem, 4vw, 1.75rem)', fontWeight: '900', color: 'white', lineHeight: 1.2 }}>
+              {user.privacySettings?.showFirstName !== false || user.privacySettings?.showLastName !== false || canSeeAll
+                ? `${(user.privacySettings?.showFirstName !== false || canSeeAll) ? (user.firstName || '') : ''} ${(user.privacySettings?.showLastName !== false || canSeeAll) ? (user.lastName || '') : ''}`.trim() || user.name
+                : (user.privacySettings?.showUsername !== false || canSeeAll ? `@${user.username}` : 'Private Member')
               }
             </h2>
             <div style={{ 
-              display: 'inline-block', 
-              marginTop: '0.5rem', 
-              padding: '0.2rem 0.75rem', 
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginTop: '0.75rem', 
+              padding: '0.25rem 0.85rem', 
               borderRadius: '100px', 
-              background: 'rgba(235, 183, 0, 0.1)', 
+              background: 'rgba(235, 183, 0, 0.12)', 
               color: 'var(--accent-primary)',
-              fontSize: '0.75rem',
+              fontSize: '0.7rem',
               fontWeight: '800',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
-              border: '1px solid rgba(235, 183, 0, 0.2)'
+              border: '1px solid rgba(235, 183, 0, 0.25)'
             }}>
-              {user.teamRole || (user.isPlayer ? 'Player' : 'Member')} • {user.batch?.name || 'No Batch'}
+              {user.teamRole || (user.isPlayer ? 'Player' : 'Member')} <span style={{ opacity: 0.5 }}>•</span> {user.batch?.name || 'No Batch'}
             </div>
-            {user.privacySettings?.showUsername !== false && (user.privacySettings?.showFirstName !== false || user.privacySettings?.showLastName !== false) && (
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+            {(user.privacySettings?.showUsername !== false || canSeeAll) && (user.privacySettings?.showFirstName !== false || user.privacySettings?.showLastName !== false || canSeeAll) && (
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.4rem', fontStyle: 'italic' }}>
                 @{user.username}
               </div>
             )}
@@ -144,30 +168,39 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
             justifyContent: 'center', 
             marginBottom: '1.5rem' 
           }}>
-            {user.websiteUrl && user.privacySettings?.showWebsite !== false && (
-              <a href={user.websiteUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)' }} title="Website">
+            {user.websiteUrl && (user.privacySettings?.showWebsite !== false || canSeeAll) && (
+              <a href={user.websiteUrl} target="_blank" rel="noopener noreferrer" 
+                style={{ color: 'var(--accent-primary)', position: 'relative' }} 
+                onMouseEnter={() => setHoveredLink(user.websiteUrl)}
+                onMouseLeave={() => setHoveredLink(null)}
+              >
                 <LanguageIcon />
               </a>
             )}
-            {user.youtubeUrl && user.privacySettings?.showYoutube !== false && (
-              <a href={user.youtubeUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#FF0000' }} title="YouTube">
+            {user.youtubeUrl && (user.privacySettings?.showYoutube !== false || canSeeAll) && (
+              <a href={user.youtubeUrl} target="_blank" rel="noopener noreferrer" 
+                style={{ color: '#FF0000', position: 'relative' }}
+                onMouseEnter={() => setHoveredLink(user.youtubeUrl)}
+                onMouseLeave={() => setHoveredLink(null)}
+              >
                 <YouTubeIcon />
               </a>
             )}
           </div>
 
           {/* Bio */}
-          {user.bio && user.privacySettings?.showBio !== false && (
+          {user.bio && (user.privacySettings?.showBio !== false || canSeeAll) && (
             <div style={{ 
               background: 'rgba(255,255,255,0.03)', 
-              padding: '1rem', 
-              borderRadius: '12px', 
+              padding: '1.25rem', 
+              borderRadius: '16px', 
               border: '1px solid rgba(255,255,255,0.05)',
               marginBottom: '1.5rem',
-              fontSize: '0.9rem',
+              fontSize: '0.95rem',
               color: 'var(--text-secondary)',
-              lineHeight: '1.6',
-              fontStyle: 'italic'
+              lineHeight: '1.7',
+              fontStyle: 'italic',
+              textAlign: 'center'
             }}>
               "{user.bio}"
             </div>
@@ -175,7 +208,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {/* Nicknames */}
-            {user.nicknames?.length > 0 && user.privacySettings?.showNicknames !== false && (
+            {user.nicknames?.length > 0 && (user.privacySettings?.showNicknames !== false || canSeeAll) && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 {user.nicknames.filter((n: string) => !!n).map((n: string, i: number) => (
                   <span key={i} style={{ fontSize: '0.7rem', background: 'rgba(235, 183, 0, 0.1)', color: 'var(--accent-primary)', border: '1px solid rgba(235, 183, 0, 0.2)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
@@ -187,20 +220,28 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
 
             {/* Personal Details Row */}
             {(user.birthday || user.gender || user.maritalStatus) && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
-                {user.birthday && user.privacySettings?.showBirthday !== false && (
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+                gap: '1rem', 
+                background: 'rgba(255,255,255,0.02)', 
+                padding: '1.25rem', 
+                borderRadius: '16px',
+                border: '1px solid rgba(255,255,255,0.03)'
+              }}>
+                {user.birthday && (user.privacySettings?.showBirthday !== false || canSeeAll) && (
                   <div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Birthday</div>
                     <div style={{ color: 'white', fontWeight: '600', fontSize: '0.85rem' }}>{new Date(user.birthday).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}</div>
                   </div>
                 )}
-                {user.gender && user.privacySettings?.showGender !== false && (
+                {user.gender && (user.privacySettings?.showGender !== false || canSeeAll) && (
                   <div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Gender</div>
                     <div style={{ color: 'white', fontWeight: '600', fontSize: '0.85rem' }}>{user.gender}</div>
                   </div>
                 )}
-                {user.maritalStatus && user.privacySettings?.showMaritalStatus !== false && (
+                {user.maritalStatus && (user.privacySettings?.showMaritalStatus !== false || canSeeAll) && (
                   <div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Status</div>
                     <div style={{ color: 'white', fontWeight: '600', fontSize: '0.85rem' }}>{user.maritalStatus}</div>
@@ -209,7 +250,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               </div>
             )}
 
-            {user.email && user.privacySettings?.showEmail !== false && (
+            {user.email && (user.privacySettings?.showEmail !== false || canSeeAll) && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <EmailIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
@@ -219,7 +260,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               </div>
             )}
 
-            {user.phone && user.privacySettings?.showPhone !== false && (
+            {user.phone && (user.privacySettings?.showPhone !== false || canSeeAll) && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <PhoneIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
@@ -229,20 +270,20 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               </div>
             )}
 
-            {(user.occupation || user.workplace) && (user.privacySettings?.showOccupation !== false || user.privacySettings?.showWorkplace !== false) && (
+            {(user.occupation || user.workplace) && (user.privacySettings?.showOccupation !== false || user.privacySettings?.showWorkplace !== false || canSeeAll) && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <WorkIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Professional Details</div>
                   <div style={{ color: 'white', fontWeight: '600', fontSize: '0.9rem' }}>
-                    {user.privacySettings?.showOccupation !== false && user.occupation}
-                    {user.privacySettings?.showWorkplace !== false && user.workplace && ` at ${user.workplace}`}
+                    {(user.privacySettings?.showOccupation !== false || canSeeAll) && user.occupation}
+                    {(user.privacySettings?.showWorkplace !== false || canSeeAll) && user.workplace && ` at ${user.workplace}`}
                   </div>
                 </div>
               </div>
             )}
 
-            {user.currentAddress && user.privacySettings?.showCurrentAddress !== false && (
+            {user.currentAddress && (user.privacySettings?.showCurrentAddress !== false || canSeeAll) && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <LocationOnIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
@@ -252,7 +293,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               </div>
             )}
 
-            {user.permanentAddress && user.privacySettings?.showPermanentAddress !== false && (
+            {user.permanentAddress && (user.privacySettings?.showPermanentAddress !== false || canSeeAll) && (
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <HomeIcon sx={{ color: 'var(--accent-primary)', opacity: 0.7, marginTop: '0.2rem' }} />
                 <div>
@@ -261,7 +302,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
                 </div>
               </div>
             )}            {/* Education Section */}
-            {user.education?.length > 0 && user.privacySettings?.showEducation !== false && (
+            {user.education?.length > 0 && (user.privacySettings?.showEducation !== false || canSeeAll) && (
               <div style={{ marginTop: '0.5rem' }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <SchoolIcon sx={{ fontSize: '1rem', color: 'var(--accent-primary)' }} /> Education
@@ -280,14 +321,14 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
 
             {/* Social & Other Contact */}
             {(
-              (user.secondaryEmail && user.privacySettings?.showSecondaryEmail !== false) || 
-              (user.whatsappNo && user.privacySettings?.showWhatsapp !== false) || 
-              (user.facebookUrl && user.privacySettings?.showFacebook !== false) || 
-              (user.instagramUrl && user.privacySettings?.showInstagram !== false) || 
-              (user.linkedinUrl && user.privacySettings?.showLinkedin !== false) || 
-              (user.githubUrl && user.privacySettings?.showGithub !== false) || 
-              (user.websiteUrl && user.privacySettings?.showWebsite !== false) ||
-              (user.youtubeUrl && user.privacySettings?.showYoutube !== false)
+              (user.secondaryEmail && (user.privacySettings?.showSecondaryEmail !== false || canSeeAll)) || 
+              (user.whatsappNo && (user.privacySettings?.showWhatsapp !== false || canSeeAll)) || 
+              (user.facebookUrl && (user.privacySettings?.showFacebook !== false || canSeeAll)) || 
+              (user.instagramUrl && (user.privacySettings?.showInstagram !== false || canSeeAll)) || 
+              (user.linkedinUrl && (user.privacySettings?.showLinkedin !== false || canSeeAll)) || 
+              (user.githubUrl && (user.privacySettings?.showGithub !== false || canSeeAll)) || 
+              (user.websiteUrl && (user.privacySettings?.showWebsite !== false || canSeeAll)) ||
+              (user.youtubeUrl && (user.privacySettings?.showYoutube !== false || canSeeAll))
             ) && (
               <div style={{ 
                 marginTop: '1rem', 
@@ -298,52 +339,122 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
                 gap: '1rem',
                 justifyContent: 'center'
               }}>
-                {user.secondaryEmail && user.privacySettings?.showSecondaryEmail !== false && (
-                  <a href={`mailto:${user.secondaryEmail}`} title={`Secondary Email: ${user.secondaryEmail}`} style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseOver={e => e.currentTarget.style.color = 'var(--accent-primary)'} onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}>
+                {user.secondaryEmail && (user.privacySettings?.showSecondaryEmail !== false || canSeeAll) && (
+                  <a href={`mailto:${user.secondaryEmail}`} 
+                    style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} 
+                    onMouseEnter={() => setHoveredLink(user.secondaryEmail)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    onMouseOver={e => e.currentTarget.style.color = 'var(--accent-primary)'} 
+                    onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
+                  >
                     <EmailIcon />
                   </a>
                 )}
-                {user.whatsappNo && user.privacySettings?.showWhatsapp !== false && (
-                  <a href={`https://wa.me/${user.whatsappNo.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" style={{ color: '#25D366', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                {user.whatsappNo && (user.privacySettings?.showWhatsapp !== false || canSeeAll) && (
+                  <a href={`https://wa.me/${user.whatsappNo.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" 
+                    style={{ color: '#25D366', opacity: 0.8, transition: 'opacity 0.2s' }} 
+                    onMouseEnter={() => setHoveredLink(user.whatsappNo)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    onMouseOver={e => e.currentTarget.style.opacity = '1'} 
+                    onMouseOut={e => e.currentTarget.style.opacity = '0.8'}
+                  >
                     <WhatsAppIcon />
                   </a>
                 )}
-                {user.facebookUrl && user.privacySettings?.showFacebook !== false && (
-                  <a href={user.facebookUrl} target="_blank" rel="noopener noreferrer" title="Facebook" style={{ color: '#1877F2', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                {user.facebookUrl && (user.privacySettings?.showFacebook !== false || canSeeAll) && (
+                  <a href={user.facebookUrl} target="_blank" rel="noopener noreferrer" 
+                    style={{ color: '#1877F2', opacity: 0.8, transition: 'opacity 0.2s' }} 
+                    onMouseEnter={() => setHoveredLink(user.facebookUrl)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    onMouseOver={e => e.currentTarget.style.opacity = '1'} 
+                    onMouseOut={e => e.currentTarget.style.opacity = '0.8'}
+                  >
                     <FacebookIcon />
                   </a>
                 )}
-                {user.instagramUrl && user.privacySettings?.showInstagram !== false && (
-                  <a href={user.instagramUrl} target="_blank" rel="noopener noreferrer" title="Instagram" style={{ color: '#E4405F', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                {user.instagramUrl && (user.privacySettings?.showInstagram !== false || canSeeAll) && (
+                  <a href={user.instagramUrl} target="_blank" rel="noopener noreferrer" 
+                    style={{ color: '#E4405F', opacity: 0.8, transition: 'opacity 0.2s' }} 
+                    onMouseEnter={() => setHoveredLink(user.instagramUrl)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    onMouseOver={e => e.currentTarget.style.opacity = '1'} 
+                    onMouseOut={e => e.currentTarget.style.opacity = '0.8'}
+                  >
                     <InstagramIcon />
                   </a>
                 )}
-                {user.linkedinUrl && user.privacySettings?.showLinkedin !== false && (
-                  <a href={user.linkedinUrl} target="_blank" rel="noopener noreferrer" title="LinkedIn" style={{ color: '#0A66C2', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                {user.linkedinUrl && (user.privacySettings?.showLinkedin !== false || canSeeAll) && (
+                  <a href={user.linkedinUrl} target="_blank" rel="noopener noreferrer" 
+                    style={{ color: '#0A66C2', opacity: 0.8, transition: 'opacity 0.2s' }} 
+                    onMouseEnter={() => setHoveredLink(user.linkedinUrl)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    onMouseOver={e => e.currentTarget.style.opacity = '1'} 
+                    onMouseOut={e => e.currentTarget.style.opacity = '0.8'}
+                  >
                     <LinkedInIcon />
                   </a>
                 )}
-                {user.githubUrl && user.privacySettings?.showGithub !== false && (
-                  <a href={user.githubUrl} target="_blank" rel="noopener noreferrer" title="GitHub" style={{ color: '#ffffff', opacity: 0.7, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.7'}>
+                {user.githubUrl && (user.privacySettings?.showGithub !== false || canSeeAll) && (
+                  <a href={user.githubUrl} target="_blank" rel="noopener noreferrer" 
+                    style={{ color: '#ffffff', opacity: 0.7, transition: 'opacity 0.2s' }} 
+                    onMouseEnter={() => setHoveredLink(user.githubUrl)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    onMouseOver={e => e.currentTarget.style.opacity = '1'} 
+                    onMouseOut={e => e.currentTarget.style.opacity = '0.7'}
+                  >
                     <GitHubIcon />
                   </a>
                 )}
-                {user.youtubeUrl && user.privacySettings?.showYoutube !== false && (
-                  <a href={user.youtubeUrl} target="_blank" rel="noopener noreferrer" title="YouTube" style={{ color: '#FF0000', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                {user.youtubeUrl && (user.privacySettings?.showYoutube !== false || canSeeAll) && (
+                  <a href={user.youtubeUrl} target="_blank" rel="noopener noreferrer" 
+                    style={{ color: '#FF0000', opacity: 0.8, transition: 'opacity 0.2s' }} 
+                    onMouseEnter={() => setHoveredLink(user.youtubeUrl)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    onMouseOver={e => e.currentTarget.style.opacity = '1'} 
+                    onMouseOut={e => e.currentTarget.style.opacity = '0.8'}
+                  >
                     <YouTubeIcon />
                   </a>
                 )}
-                {user.websiteUrl && user.privacySettings?.showWebsite !== false && (
-                  <a href={user.websiteUrl} target="_blank" rel="noopener noreferrer" title="Website" style={{ color: 'var(--accent-primary)', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.8'}>
+                {user.websiteUrl && (user.privacySettings?.showWebsite !== false || canSeeAll) && (
+                  <a href={user.websiteUrl} target="_blank" rel="noopener noreferrer" 
+                    style={{ color: 'var(--accent-primary)', opacity: 0.8, transition: 'opacity 0.2s' }} 
+                    onMouseEnter={() => setHoveredLink(user.websiteUrl)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    onMouseOver={e => e.currentTarget.style.opacity = '1'} 
+                    onMouseOut={e => e.currentTarget.style.opacity = '0.8'}
+                  >
                     <LanguageIcon />
                   </a>
                 )}
               </div>
             )}
+
+            {/* Link Preview Tooltip */}
+            {hoveredLink && (
+              <div style={{
+                position: 'absolute',
+                bottom: '1rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(0,0,0,0.9)',
+                color: 'var(--accent-primary)',
+                padding: '0.4rem 1rem',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                border: '1px solid var(--accent-primary)',
+                whiteSpace: 'nowrap',
+                zIndex: 100,
+                pointerEvents: 'none',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
+                animation: 'fadeInCentered 0.2s ease'
+              }}>
+                {hoveredLink}
+              </div>
+            )}
+          </div>
           </div>
         </div>
       </div>
-    </div>
   );
-;
 }

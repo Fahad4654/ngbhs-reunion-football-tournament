@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import MediaRenderer from "@/app/components/MediaRenderer";
 import styles from "../news.module.css";
 
@@ -12,6 +13,11 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
   if (!article) {
     notFound();
+  }
+
+  // Redirect batch news to the dashboard
+  if (article.batchId) {
+    redirect(`/dashboard/news/${article.slug}`);
   }
 
   return (
@@ -51,7 +57,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         />
 
         <footer style={{ marginTop: '6rem', padding: '3rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <a href="/news" className="btn glass">← Back to News Feed</a>
+          <Link href={article.batchId ? "/dashboard/news" : "/news"} className="btn glass">← Back to News Feed</Link>
         </footer>
       </article>
     </div>

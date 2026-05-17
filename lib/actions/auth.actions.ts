@@ -11,7 +11,7 @@ import { generateOTP, storeOTP, verifyOTP, verifyOTPNoDelete, deleteOTP } from '
 import { sendOTPEmail, sendPasswordResetEmail } from '@/lib/mail';
 import { adminAuth } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
-import { generateUniqueUsername } from '@/lib/utils/username';
+import { generateUniqueUsername, slugify } from '@/lib/utils/username';
 import { isValidPhone } from '@/lib/utils/phone';
 import { isValidEmail } from '@/lib/utils/email';
 
@@ -83,6 +83,30 @@ export async function registerWithEmail(prevState: any, formData: FormData) {
 
     if (existingUser && existingUser.emailVerified) {
       return { error: 'An account with this email already exists.' };
+    }
+
+    // Check if phone is already in use
+    if (phone) {
+      const userWithPhone = await prisma.user.findFirst({
+        where: { 
+          phone,
+          email: { not: email } // Allow re-registration if email is the same
+        }
+      });
+      if (userWithPhone && userWithPhone.emailVerified) {
+        return { error: 'This phone number is already in use.', field: 'phone' };
+      }
+    }
+
+    // Check if preferred username is already taken
+    if (preferredUsername) {
+      const slugifiedUsername = slugify(preferredUsername);
+      const userWithUsername = await prisma.user.findUnique({
+        where: { username: slugifiedUsername }
+      });
+      if (userWithUsername && userWithUsername.email !== email) {
+        return { error: 'This username is already taken. Please choose another.', field: 'username' };
+      }
     }
 
     const hashedPassword = await hashPassword(password);

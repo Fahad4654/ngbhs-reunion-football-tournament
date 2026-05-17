@@ -58,6 +58,38 @@ export async function createPost(prevState: any, formData: FormData) {
       },
     });
 
+    if (scope === 'GLOBAL') {
+      const admins = await prisma.user.findMany({
+        where: { role: { in: ['ADMIN', 'CO_ADMIN'] } },
+        select: { id: true },
+      });
+      if (admins.length > 0) {
+        await prisma.notification.createMany({
+          data: admins.map(admin => ({
+            userId: admin.id,
+            title: 'New Global Post Pending Approval',
+            message: `A new global post ${title ? `"${title}" ` : ''}requires your approval.`,
+            link: '/admin/posts',
+          })),
+        });
+      }
+    } else if (scope === 'BATCH' && user.batchId) {
+      const batchManagers = await prisma.user.findMany({
+        where: { role: 'BATCH_MANAGER', batchId: user.batchId },
+        select: { id: true },
+      });
+      if (batchManagers.length > 0) {
+        await prisma.notification.createMany({
+          data: batchManagers.map(manager => ({
+            userId: manager.id,
+            title: 'New Batch Post Pending Approval',
+            message: `A new batch post ${title ? `"${title}" ` : ''}requires your approval.`,
+            link: '/dashboard/manage-batch',
+          })),
+        });
+      }
+    }
+
     revalidatePath('/dashboard/posts/my-posts');
     revalidatePath('/admin/posts');
     revalidatePath('/feed');
@@ -197,6 +229,16 @@ export async function approvePost(postId: string) {
 
     await prisma.post.update({ where: { id: postId }, data: { status: 'APPROVED' } });
 
+    const scopeName = post.scope === 'GLOBAL' ? 'global' : 'batch';
+    await prisma.notification.create({
+      data: {
+        userId: post.authorId,
+        title: 'Post Approved',
+        message: `Your ${scopeName} post ${post.title ? `"${post.title}" ` : ''}has been approved.`,
+        link: '/dashboard/posts/my-posts',
+      },
+    });
+
     revalidatePath('/admin/posts');
     revalidatePath('/dashboard/manage-batch');
     revalidatePath('/feed');
@@ -232,6 +274,16 @@ export async function rejectPost(postId: string) {
     // 3. Update status to REJECTED
     await prisma.post.update({ where: { id: postId }, data: { status: 'REJECTED' } });
 
+    const scopeName = post.scope === 'GLOBAL' ? 'global' : 'batch';
+    await prisma.notification.create({
+      data: {
+        userId: post.authorId,
+        title: 'Post Rejected',
+        message: `Your ${scopeName} post ${post.title ? `"${post.title}" ` : ''}has been rejected.`,
+        link: '/dashboard/posts/my-posts',
+      },
+    });
+
     revalidatePath('/admin/posts');
     revalidatePath('/dashboard/manage-batch');
 
@@ -259,6 +311,18 @@ export async function toggleCheer(postId: string) {
       await prisma.cheer.delete({ where: { id: existing.id } });
     } else {
       await prisma.cheer.create({ data: { postId, userId: user.uid } });
+
+      const post = await prisma.post.findUnique({ where: { id: postId } });
+      if (post && post.authorId !== user.uid) {
+        await prisma.notification.create({
+          data: {
+            userId: post.authorId,
+            title: 'New Cheer',
+            message: `${user.name || 'Someone'} cheered your post${post.title ? ` "${post.title}"` : ''}.`,
+            link: '/feed',
+          },
+        });
+      }
     }
 
     revalidatePath('/feed');
@@ -276,6 +340,18 @@ export async function addComment(postId: string, content: string) {
     if (!content?.trim()) return { error: 'Comment cannot be empty.' };
 
     await prisma.comment.create({ data: { content, postId, authorId: user.uid } });
+
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (post && post.authorId !== user.uid) {
+      await prisma.notification.create({
+        data: {
+          userId: post.authorId,
+          title: 'New Comment',
+          message: `${user.name || 'Someone'} commented on your post${post.title ? ` "${post.title}"` : ''}.`,
+          link: '/feed',
+        },
+      });
+    }
 
     revalidatePath('/feed');
     return { success: true };

@@ -9,6 +9,14 @@ import { getActiveAdsByPosition } from "@/lib/actions/ad.actions";
 
 async function getNews() {
   return await prisma.news.findMany({
+    where: {
+      batchId: null // Only global news
+    },
+    include: {
+      batch: {
+        select: { name: true }
+      }
+    },
     orderBy: {
       publishedAt: 'desc',
     },
@@ -57,31 +65,42 @@ export default async function NewsPage() {
           {/* Mobile Floating Ads (Consolidated) */}
           <FloatingAd positions={['NEWS', 'SIDEBAR', 'FLOATING']} />
 
-
-
           <div className={styles.newsGrid}>
             {news.length > 0 ? news.map((item) => (
               <article key={item.id} className={`${styles.newsCard} glass`}>
                 <div className={styles.image}>
-                  {item.isExclusive && (
-                    <div style={{ 
-                      position: 'absolute', 
-                      top: '1rem', 
-                      left: '1rem', 
-                      background: 'var(--accent-primary)', 
-                      color: '#000', 
-                      padding: '0.25rem 0.6rem', 
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
-                      fontWeight: '900',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                      zIndex: 2
-                    }}>
-                      Exclusive
-                    </div>
-                  )}
+                  <div style={{ position: 'absolute', top: '1rem', left: '1rem', display: 'flex', gap: '0.5rem', zIndex: 2 }}>
+                    {item.isExclusive && (
+                      <div style={{ 
+                        background: 'var(--accent-primary)', 
+                        color: '#000', 
+                        padding: '0.25rem 0.6rem', 
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: '900',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                      }}>
+                        Exclusive
+                      </div>
+                    )}
+                    {item.batch && (
+                      <div style={{ 
+                        background: 'rgba(255,255,255,0.9)', 
+                        color: '#000', 
+                        padding: '0.25rem 0.6rem', 
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: '900',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                      }}>
+                        Batch {item.batch.name}
+                      </div>
+                    )}
+                  </div>
                   {item.imageUrl && (
                     <MediaRenderer 
                       url={item.imageUrl} 

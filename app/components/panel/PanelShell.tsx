@@ -75,7 +75,12 @@ export default function PanelShell({ children, user }: PanelShellProps) {
         position: 'relative'
       }}>
         <div style={{ minHeight: '8vh' }}>
-          <PanelNavbar userName={user.name} userImage={user.image} onMenuClick={toggleSidebar} />
+          <PanelNavbar 
+            userName={user.name} 
+            userImage={user.image} 
+            userRole={user.role}
+            onMenuClick={toggleSidebar} 
+          />
         </div>
 
         <main style={{ flex: 1, overflowY: 'auto', padding: '2.963vh 1.667vw' }} className="panel-main-content">
