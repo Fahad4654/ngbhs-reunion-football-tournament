@@ -72,10 +72,10 @@ export default function PhoneInput({
     if (parsed) {
       const match = allOptions.find(o => o.code === parsed.dialCode)
         ?? allOptions.find(o => o.isoCode === parsed.countryCode);
-      if (match) setSelectedOption(match);
-      setLocalNumber(parsed.localNumber);
+      if (match && match.code !== selectedOption.code) setSelectedOption(match);
+      if (parsed.localNumber !== localNumber) setLocalNumber(parsed.localNumber);
     } else {
-      setLocalNumber(defaultValue);
+      if (defaultValue !== localNumber) setLocalNumber(defaultValue);
     }
   }, [defaultValue]);
 

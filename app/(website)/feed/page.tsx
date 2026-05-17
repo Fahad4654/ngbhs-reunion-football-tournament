@@ -94,7 +94,13 @@ export default async function FeedPage() {
                     flexShrink: 0
                   }}>
                     {post.author.image ? (
-                      <img src={post.author.image} alt={post.author.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img 
+                        src={post.author.image} 
+                        alt={post.author.name || ''} 
+                        referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      />
                     ) : (
                       post.author.name?.charAt(0)
                     )}

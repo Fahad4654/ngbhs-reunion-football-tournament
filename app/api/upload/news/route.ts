@@ -7,7 +7,7 @@ const MAX_SIZE = 1024 * 1024 * 1024; // 1 GB
 
 export async function POST(req: NextRequest) {
   const user = await getServerUser();
-  if (!user || (user.role !== "ADMIN" && user.role !== "CO_ADMIN")) {
+  if (!user || (user.role !== "ADMIN" && user.role !== "CO_ADMIN" && user.role !== "BATCH_MANAGER")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

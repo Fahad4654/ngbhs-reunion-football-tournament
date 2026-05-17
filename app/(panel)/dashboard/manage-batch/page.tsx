@@ -5,6 +5,7 @@ import ModerationActions from "@/app/(panel)/admin/posts/moderation-actions";
 import MediaGallery from "@/app/components/MediaGallery";
 import Link from "next/link";
 import { getPendingPosts, getPendingBatchMembers } from "@/lib/actions";
+import { getSurveysForManager } from "@/lib/actions/survey.actions";
 import ApprovalActions from "./approval-actions";
 import HandoverAction from "./handover-action";
 import TeamActions from "./team-actions";
@@ -13,11 +14,13 @@ import UserLink from "@/app/components/UserLink";
 import CollapsibleContent from "@/app/components/CollapsibleContent";
 import ClickablePost from "@/app/components/ClickablePost";
 import ManageBatchMembersClient from "./ManageBatchMembersClient";
+import SurveyManagerTab from "./SurveyManagerTab";
 
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import EditIcon from '@mui/icons-material/Edit';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 export const metadata = {
   title: 'Manage Batch - Dashboard',
@@ -50,14 +53,15 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
     );
   }
 
-  const [pendingPosts, members, pendingMembers] = await Promise.all([
+  const [pendingPosts, members, pendingMembers, surveys] = await Promise.all([
     getPendingPosts(),
     prisma.user.findMany({
       where: { batchId: dbUser.batchId, status: 'APPROVED' },
       include: { batch: true },
       orderBy: { name: 'asc' }
     }),
-    getPendingBatchMembers()
+    getPendingBatchMembers(),
+    getSurveysForManager(),
   ]);
 
   return (
@@ -107,6 +111,14 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
           <EditIcon sx={{ fontSize: '1.1rem' }} />
           <span>PROFILE</span>
         </Link>
+        <Link 
+          href="/dashboard/manage-batch?tab=surveys"
+          className="btn"
+          style={{ flex: '1', background: tab === 'surveys' ? 'var(--accent-primary)' : 'transparent', color: tab === 'surveys' ? 'black' : 'white', fontSize: '0.85rem', padding: '0.75rem 0.5rem', whiteSpace: 'nowrap', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '8px' }}
+        >
+          <AssignmentIcon sx={{ fontSize: '1.1rem' }} />
+          <span>SURVEYS ({surveys.length})</span>
+        </Link>
       </div>
 
       {tab === 'posts' ? (
@@ -138,7 +150,13 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                     )}
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ color: 'white', fontWeight: '800', fontSize: '1rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.author.name}</div>
+                    <div style={{ color: 'white', fontWeight: '800', fontSize: '1rem', lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <UserLink 
+                        user={post.author} 
+                        currentUserBatchId={dbUser.batchId} 
+                        currentUserRole={userSession.role} 
+                      />
+                    </div>
                     <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '0.185vh' }}>
                       {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </div>
@@ -170,28 +188,36 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
           currentUserId={userSession.uid} 
         />
 
+      ) : tab === 'surveys' ? (
+        <SurveyManagerTab surveys={surveys as any} />
       ) : tab === 'profile' ? (
         <BatchProfileForm batch={dbUser.batch!} />
       ) : (
-        <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+        <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto', border: 'none', background: 'transparent' }}>
+          <table className="sticky-table">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
+              <tr>
                 <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>New Applicant</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Joined On</th>
-                <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
+                <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }} className="sticky-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pendingMembers.length > 0 ? pendingMembers.map((member) => (
-                <tr key={member.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <tr key={member.id}>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '800', fontSize: '1rem' }}>
                         {member.name?.charAt(0)}
                       </div>
                       <div>
-                        <div style={{ fontWeight: '700', color: 'white', fontSize: '1rem' }}>{member.name}</div>
+                        <div style={{ fontWeight: '700', color: 'white', fontSize: '1rem' }}>
+                          <UserLink 
+                            user={member} 
+                            currentUserBatchId={dbUser.batchId} 
+                            currentUserRole={userSession.role} 
+                          />
+                        </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{member.email}</div>
                       </div>
                     </div>
@@ -199,7 +225,7 @@ export default async function ManageBatchPage(props: { searchParams: Promise<{ t
                   <td style={{ padding: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                     {new Date(member.createdAt).toLocaleDateString()}
                   </td>
-                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                  <td style={{ padding: '1rem', textAlign: 'right' }} className="sticky-actions">
                     <ApprovalActions userId={member.id} />
                   </td>
                 </tr>

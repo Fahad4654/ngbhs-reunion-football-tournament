@@ -78,10 +78,23 @@ export default async function BatchFeedPage() {
             <CancelIcon sx={{ fontSize: 'clamp(3rem, 10vw, 4rem)', color: 'var(--accent-danger)' }} />
           </div>
           <h2 style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.5rem)', marginBottom: '1.481vh', color: 'var(--accent-danger)' }}>Request Rejected</h2>
-          <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+          <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '1rem' }}>
             Your membership request for <strong style={{ color: 'white' }}>{dbUser.batch?.name}</strong> was not approved.
           </p>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1.481vh' }}>
+          {(dbUser as any).statusReason && (
+            <div className="glass" style={{ 
+              padding: '1rem', 
+              borderRadius: '12px', 
+              background: 'rgba(239, 68, 68, 0.05)', 
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              marginBottom: '1.5rem',
+              textAlign: 'left'
+            }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--accent-danger)', fontWeight: '800', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.05em' }}>Reason from Manager:</div>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic' }}>"{(dbUser as any).statusReason}"</div>
+            </div>
+          )}
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
             Please contact your Batch Manager or update your batch selection in your profile.
           </p>
           <div style={{ display: 'flex', gap: '0.833vw', justifyContent: 'center', marginTop: '2.963vh', flexWrap: 'wrap' }}>

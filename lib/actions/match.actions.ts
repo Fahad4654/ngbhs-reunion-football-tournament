@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
 import { resolveStageIfComplete } from "./bracket.actions";
+import { sendMatchAnnouncementEmail } from "@/lib/mail";
 
 function isAdmin(role: string | undefined) {
   return role === "ADMIN" || role === "CO_ADMIN";
@@ -23,6 +24,7 @@ export async function createMatch(data: {
   homeScore: number;
   awayScore: number;
   isFeatured: boolean;
+  isAlert?: boolean;
   stage?: string;
 }) {
   const user = await getServerUser();
@@ -40,6 +42,7 @@ export async function createMatch(data: {
         homeScore: data.homeScore,
         awayScore: data.awayScore,
         isFeatured: data.isFeatured,
+        isAlert: data.isAlert ?? false,
         stage: data.stage as any,
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
@@ -48,6 +51,34 @@ export async function createMatch(data: {
     if (match.tournamentId) {
       await recalculateTournamentStandings(match.tournamentId);
       revalidatePath("/standings");
+    }
+
+    // Notify users of both batches
+    const targetUsers = await prisma.user.findMany({
+      where: { 
+        status: 'APPROVED',
+        batchId: { in: [data.homeTeamId, data.awayTeamId] }
+      },
+      select: { id: true, email: true }
+    });
+
+    if (targetUsers.length > 0) {
+      await prisma.notification.createMany({
+        data: targetUsers.map((u) => ({
+          userId: u.id,
+          title: 'New Match Scheduled!',
+          message: `Your batch will play in ${match.homeTeam.name} vs ${match.awayTeam.name}.`,
+          link: `/matches/${match.id}`,
+        })),
+      });
+
+      const emails = targetUsers.map((u) => u.email).filter(Boolean);
+      sendMatchAnnouncementEmail(
+        emails, 
+        match.homeTeam.name, 
+        match.awayTeam.name, 
+        match.date.toISOString()
+      ).catch(console.error);
     }
 
     revalidatePath("/admin/matches");
@@ -72,6 +103,7 @@ export async function updateMatch(
     homeScore: number;
     awayScore: number;
     isFeatured: boolean;
+    isAlert?: boolean;
     stage?: string;
   }
 ) {
@@ -91,6 +123,7 @@ export async function updateMatch(
         homeScore: data.homeScore,
         awayScore: data.awayScore,
         isFeatured: data.isFeatured,
+        isAlert: data.isAlert ?? false,
         stage: data.stage as any,
       },
       include: { homeTeam: true, awayTeam: true, tournament: true },
@@ -103,6 +136,35 @@ export async function updateMatch(
       if (match.status === "FINISHED" && match.stage) {
         await resolveStageIfComplete(match.tournamentId, match.stage);
       }
+    }
+
+    // Notify users of both batches about the update
+    const targetUsers = await prisma.user.findMany({
+      where: { 
+        status: 'APPROVED',
+        batchId: { in: [data.homeTeamId, data.awayTeamId] }
+      },
+      select: { id: true, email: true }
+    });
+
+    if (targetUsers.length > 0) {
+      await prisma.notification.createMany({
+        data: targetUsers.map((u) => ({
+          userId: u.id,
+          title: 'Match Details Updated',
+          message: `Details for ${match.homeTeam.name} vs ${match.awayTeam.name} have been updated.`,
+          link: `/matches/${match.id}`,
+        })),
+      });
+
+      const emails = targetUsers.map((u) => u.email).filter(Boolean);
+      sendMatchAnnouncementEmail(
+        emails, 
+        match.homeTeam.name, 
+        match.awayTeam.name, 
+        match.date.toISOString(),
+        true
+      ).catch(console.error);
     }
 
     revalidatePath("/admin/matches");

@@ -15,36 +15,80 @@ export async function createNews(data: {
   excerpt?: string;
   imageUrl?: string;
   isExclusive?: boolean;
+  isAlert?: boolean;
+  batchId?: string | null;
 }) {
   const user = await getServerUser();
   if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") {
     return { success: false, error: "Unauthorized" };
   }
 
+  // If BATCH_MANAGER, they can only post news for their batch
+  // If CO_ADMIN, they can post to their batch or global
+  let finalBatchId = data.batchId;
+  if (user.role === "BATCH_MANAGER") {
+    finalBatchId = user.batchId;
+  } else if (user.role === "CO_ADMIN") {
+    if (data.batchId && data.batchId !== user.batchId) {
+      return { success: false, error: "Unauthorized to post to this batch" };
+    }
+  }
+
+  // Generate unique slug
+  let finalSlug = data.slug;
+  let isUnique = false;
+  let counter = 0;
+
+  while (!isUnique && counter < 10) {
+    const candidateSlug = counter === 0 ? finalSlug : `${finalSlug}-${Math.random().toString(36).substring(2, 7)}`;
+    const existing = await prisma.news.findUnique({ where: { slug: candidateSlug } });
+    if (!existing) {
+      finalSlug = candidateSlug;
+      isUnique = true;
+    }
+    counter++;
+  }
+
   try {
     const news = await prisma.news.create({
       data: {
         title: data.title,
-        slug: data.slug,
+        slug: finalSlug,
         content: data.content,
         excerpt: data.excerpt,
         imageUrl: data.imageUrl,
-        isExclusive: data.isExclusive,
+        isExclusive: data.isExclusive ?? false,
+        isAlert: data.isAlert ?? false,
         authorId: user.uid,
+        batchId: finalBatchId,
       },
+      include: {
+        batch: {
+          select: { name: true }
+        }
+      }
     });
 
-    // Trigger notifications for all users
-    const allUsers = await prisma.user.findMany({
-      where: { status: 'APPROVED' },
+    // Trigger notifications
+    const notificationQuery: any = { status: 'APPROVED' };
+    if (finalBatchId) {
+      notificationQuery.batchId = finalBatchId;
+    }
+
+    const targetUsers = await prisma.user.findMany({
+      where: notificationQuery,
       select: { id: true }
     });
 
-    if (allUsers.length > 0) {
+    if (targetUsers.length > 0) {
+      const notificationTitle = news.batch 
+        ? `[Batch ${news.batch.name}] News: ${data.title}` 
+        : `New Announcement: ${data.title}`;
+
       await prisma.notification.createMany({
-        data: allUsers.map(u => ({
+        data: targetUsers.map(u => ({
           userId: u.id,
-          title: `New Announcement: ${data.title}`,
+          title: notificationTitle,
           message: data.excerpt || 'A new announcement has been published.',
           link: `/news/${data.slug}`,
         }))
@@ -52,6 +96,7 @@ export async function createNews(data: {
     }
 
     revalidatePath("/admin/news");
+    revalidatePath("/dashboard/news/manage");
     revalidatePath("/news");
     return { success: true, data: news };
   } catch (error: any) {
@@ -70,6 +115,8 @@ export async function updateNews(id: string, data: {
   excerpt?: string;
   imageUrl?: string;
   isExclusive?: boolean;
+  isAlert?: boolean;
+  batchId?: string | null;
 }) {
   const user = await getServerUser();
   if (user?.role !== "ADMIN" && user?.role !== "CO_ADMIN" && user?.role !== "BATCH_MANAGER") {
@@ -84,17 +131,39 @@ export async function updateNews(id: string, data: {
       return { success: false, error: "Unauthorized to edit this news" };
     }
 
+    // Admins can change batch, batch managers cannot
+    // CO_ADMIN can only change to their batch or global
+    let finalBatchId = data.batchId;
+    if (user.role === "BATCH_MANAGER") {
+      finalBatchId = existingNews?.batchId;
+    } else if (user.role === "CO_ADMIN") {
+      if (data.batchId && data.batchId !== user.batchId) {
+        return { success: false, error: "Unauthorized to change to this batch" };
+      }
+    }
+
+    // Handle slug update (only if it changes and check for uniqueness)
+    let finalSlug = data.slug;
+    if (existingNews?.slug !== finalSlug) {
+      const slugExists = await prisma.news.findUnique({ where: { slug: finalSlug } });
+      if (slugExists) {
+        finalSlug = `${finalSlug}-${Math.random().toString(36).substring(2, 7)}`;
+      }
+    }
+
     const oldNews = await prisma.news.findUnique({ where: { id }, select: { imageUrl: true } });
 
     const news = await prisma.news.update({
       where: { id },
       data: {
         title: data.title,
-        slug: data.slug,
+        slug: finalSlug,
         content: data.content,
         excerpt: data.excerpt,
         imageUrl: data.imageUrl,
-        isExclusive: data.isExclusive,
+        isExclusive: data.isExclusive ?? false,
+        isAlert: data.isAlert ?? false,
+        batchId: finalBatchId,
       },
     });
 
@@ -104,6 +173,7 @@ export async function updateNews(id: string, data: {
     }
 
     revalidatePath("/admin/news");
+    revalidatePath("/dashboard/news/manage");
     revalidatePath("/news");
     revalidatePath(`/news/${news.slug}`);
     return { success: true, data: news };
@@ -139,6 +209,7 @@ export async function deleteNews(id: string) {
     });
 
     revalidatePath("/admin/news");
+    revalidatePath("/dashboard/news/manage");
     revalidatePath("/news");
     return { success: true };
   } catch (error: any) {

@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
 import { recalculateTournamentStandings } from "./match.actions";
+import { sendTournamentAnnouncementEmail } from "@/lib/mail";
 
 export async function createTournament(name: string, isActive: boolean = false, bracketConfig?: any) {
   const user = await getServerUser();
@@ -27,6 +28,26 @@ export async function createTournament(name: string, isActive: boolean = false, 
       },
     });
     
+    // Fetch all users to notify
+    const allUsers = await prisma.user.findMany({
+      where: { status: 'APPROVED' },
+      select: { id: true, email: true },
+    });
+
+    if (allUsers.length > 0) {
+      await prisma.notification.createMany({
+        data: allUsers.map((u) => ({
+          userId: u.id,
+          title: 'New Tournament Created!',
+          message: `${name} has just been announced.`,
+          link: '/standings',
+        })),
+      });
+
+      const emails = allUsers.map((u) => u.email).filter(Boolean);
+      sendTournamentAnnouncementEmail(emails, name).catch(console.error);
+    }
+
     revalidatePath("/admin/tournaments");
     revalidatePath("/standings");
     revalidatePath("/");

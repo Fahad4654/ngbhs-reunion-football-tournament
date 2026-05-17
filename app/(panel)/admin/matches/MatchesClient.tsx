@@ -32,6 +32,7 @@ type Match = {
   awayScore: number;
   venue: string | null;
   isFeatured: boolean;
+  isAlert: boolean;
   tournamentId: string | null;
   tournament: { id: string; name: string } | null;
   stage: string;
@@ -47,6 +48,7 @@ type FormData = {
   homeScore: number;
   awayScore: number;
   isFeatured: boolean;
+  isAlert: boolean;
   stage: string;
 };
 
@@ -69,6 +71,7 @@ function emptyForm(): FormData {
     homeScore: 0,
     awayScore: 0,
     isFeatured: false,
+    isAlert: false,
     stage: "GROUP_STAGE",
   };
 }
@@ -84,6 +87,7 @@ function matchToForm(m: Match): FormData {
     homeScore: m.homeScore,
     awayScore: m.awayScore,
     isFeatured: m.isFeatured,
+    isAlert: m.isAlert || false,
     stage: m.stage || "GROUP_STAGE",
   };
 }
@@ -356,11 +360,17 @@ export default function MatchesClient({
 
             </div>
 
-            {/* Featured toggle */}
-            <label style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer", marginTop: "1rem", fontWeight: "600", fontSize: "0.9rem" }}>
-              <input type="checkbox" checked={form.isFeatured} onChange={(e) => set("isFeatured", e.target.checked)} style={{ accentColor: "var(--accent-primary)", width: "16px", height: "16px" }} />
-              Mark as Featured Match
-            </label>
+            {/* Featured and Alert toggles */}
+            <div style={{ display: "flex", gap: "2rem", marginTop: "1rem" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer", fontWeight: "600", fontSize: "0.9rem" }}>
+                <input type="checkbox" checked={form.isFeatured} onChange={(e) => set("isFeatured", e.target.checked)} style={{ accentColor: "var(--accent-primary)", width: "16px", height: "16px" }} />
+                Mark as Featured Match
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer", fontWeight: "600", fontSize: "0.9rem" }}>
+                <input type="checkbox" checked={form.isAlert} onChange={(e) => set("isAlert", e.target.checked)} style={{ accentColor: "var(--accent-danger)", width: "16px", height: "16px" }} />
+                Mark as Alert
+              </label>
+            </div>
 
             {error && <p style={{ color: "var(--accent-danger)", marginTop: "0.75rem", fontSize: "0.85rem" }}>{error}</p>}
 
@@ -376,7 +386,7 @@ export default function MatchesClient({
 
       {/* ─── Matches Table ───────────────────────────── */}
       <div className="glass responsive-table-container" style={{ padding: 0 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+        <table className="sticky-table" style={{ width: "100%", textAlign: "left" }}>
           <thead>
             <tr style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid var(--border-color)" }}>
               <th style={{ padding: "1.25rem" }}>Date & Time</th>
@@ -384,7 +394,7 @@ export default function MatchesClient({
               <th style={{ padding: "1.25rem" }}>Score</th>
               <th style={{ padding: "1.25rem" }}>Status</th>
               <th style={{ padding: "1.25rem" }}>Tournament</th>
-              <th style={{ padding: "1.25rem", textAlign: "right" }}>Actions</th>
+              <th className="sticky-actions" style={{ padding: "1.25rem", textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -397,35 +407,37 @@ export default function MatchesClient({
             ) : [...matches].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((match) => {
               const label = `${match.homeTeam.name} vs ${match.awayTeam.name}`;
               const d = new Date(match.date);
+              const isEditing = editingId === match.id;
               return (
-                <tr key={match.id} style={{ borderBottom: "1px solid var(--border-color)", background: editingId === match.id ? "rgba(235,183,0,0.04)" : "transparent" }}>
-                  <td style={{ padding: "1.25rem" }}>
+                <tr key={match.id} style={{ background: isEditing ? "rgba(235,183,0,0.06)" : "" }}>
+                  <td>
                     <div style={{ fontWeight: "600" }}>{d.toLocaleDateString()}</div>
                     <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
                   </td>
-                  <td style={{ padding: "1.25rem" }}>
+                  <td>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
                       <span style={{ fontWeight: "700" }}>{match.homeTeam.name}</span>
                       <span style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>vs</span>
                       <span style={{ fontWeight: "700" }}>{match.awayTeam.name}</span>
                       {match.isFeatured && <span className="badge" style={{ fontSize: "0.65rem", background: "rgba(235,183,0,0.15)", color: "var(--accent-primary)", border: "1px solid rgba(235,183,0,0.3)" }}>★ Featured</span>}
+                      {match.isAlert && <span className="badge" style={{ fontSize: "0.65rem", background: "rgba(255,68,68,0.15)", color: "var(--accent-danger)", border: "1px solid rgba(255,68,68,0.3)" }}>🚨 Alert</span>}
                     </div>
                     {match.venue && <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>{match.venue}</div>}
                   </td>
-                  <td style={{ padding: "1.25rem" }}>
+                  <td>
                     <div style={{ background: "var(--bg-secondary)", padding: "0.2rem 0.65rem", borderRadius: "6px", display: "inline-block", fontFamily: "monospace", fontWeight: "800", fontSize: "1.05rem", letterSpacing: "0.05em" }}>
                       {match.homeScore} – {match.awayScore}
                     </div>
                   </td>
-                  <td style={{ padding: "1.25rem" }}>
+                  <td>
                     <span className={`badge ${match.status === "LIVE" ? "badge-live" : ""}`} style={{ background: "rgba(255,255,255,0.05)", color: statusColor[match.status] ?? "inherit", border: "1px solid currentColor" }}>
                       {match.status}
                     </span>
                   </td>
-                  <td style={{ padding: "1.25rem", color: "var(--text-muted)", fontSize: "0.82rem" }}>
+                  <td style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>
                     {match.tournament?.name ?? <span style={{ opacity: 0.4 }}>—</span>}
                   </td>
-                  <td style={{ padding: "1.25rem", textAlign: "right" }}>
+                  <td className="sticky-actions" style={{ textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "0.4rem", justifyContent: "flex-end" }}>
                       <button
                         className="btn glass"

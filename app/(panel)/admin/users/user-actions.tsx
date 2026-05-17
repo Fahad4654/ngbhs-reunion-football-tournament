@@ -11,6 +11,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 interface UserActionsProps {
   userId: string;
+  currentUserId: string;
   currentRole: 'USER' | 'CO_ADMIN' | 'BATCH_MANAGER' | 'ADMIN' | 'SCORER';
   isCommitteeMember: boolean;
   committeeRole: string;
@@ -19,6 +20,7 @@ interface UserActionsProps {
 
 export default function UserActions({ 
   userId, 
+  currentUserId,
   currentRole, 
   isCommitteeMember, 
   committeeRole: initialCommitteeRole, 
@@ -165,15 +167,17 @@ export default function UserActions({
             </CustomSelect>
           </div>
         )}
-        <button 
-          onClick={handleDelete}
-          disabled={isPending}
-          className="btn glass" 
-          style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', color: 'var(--accent-danger)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-        >
-          <DeleteIcon sx={{ fontSize: '1rem' }} />
-          Delete
-        </button>
+        {userId !== currentUserId && (
+          <button 
+            onClick={handleDelete}
+            disabled={isPending}
+            className="btn glass" 
+            style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', color: 'var(--accent-danger)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <DeleteIcon sx={{ fontSize: '1rem' }} />
+            Delete
+          </button>
+        )}
       </div>
 
       {confirmModal}

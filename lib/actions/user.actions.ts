@@ -84,7 +84,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
       return { error: 'Your batch is already locked. Please contact an Administrator if you need to change your graduation batch.' };
     }
 
-    const shouldResetStatus = hasBatchChanged && user.role === 'USER';
+    const shouldResetStatus = (hasBatchChanged || dbUser?.status === 'REJECTED') && user.role === 'USER';
 
     const dbUserRecord = await prisma.user.findUnique({ where: { id: user.uid } });
     const canUpdateUsername = !dbUserRecord?.username;
@@ -151,8 +151,8 @@ export async function updateProfile(prevState: any, formData: FormData) {
   } catch (error: any) {
     if (error.code === 'P2002') {
       const field = error.meta?.target?.[0];
-      if (field === 'username') return { error: 'This username is already taken. Please choose another one.' };
-      if (field === 'phone') return { error: 'This contact number is already linked to another account.' };
+      if (field === 'username') return { error: 'This username is already taken. Please choose another one.', field: 'username' };
+      if (field === 'phone') return { error: 'This contact number is already linked to another account.', field: 'phone' };
     }
     console.error('[updateProfile]', error);
     return { error: 'Failed to update profile.' };
@@ -270,6 +270,43 @@ export async function approveUserAction(userId: string) {
   }
 }
 
+export async function kickoutMemberAction(userId: string, reason: string) {
+  try {
+    const manager = await getServerUser();
+    if (!manager) return { error: 'Unauthorized.' };
+
+    const target = await prisma.user.findUnique({ where: { id: userId } });
+    if (!target) return { error: 'User not found.' };
+
+    const authorized = await isAuthorizedForMember(manager.uid, manager.role, target.batchId);
+    if (!authorized) return { error: 'You can only kick out members of your own batch.' };
+
+    if (target.role === 'ADMIN' || target.role === 'CO_ADMIN') {
+      return { error: 'You cannot kick out an Administrator.' };
+    }
+
+    if (userId === manager.uid) {
+      return { error: 'You cannot kick out yourself.' };
+    }
+
+    await prisma.user.update({ 
+      where: { id: userId }, 
+      data: { 
+        status: 'REJECTED',
+        statusReason: reason || 'Kicked out for misbehave or misconduct.',
+        role: 'USER' // Reset role to USER just in case
+      } 
+    });
+
+    revalidatePath('/dashboard/manage-batch');
+    revalidatePath('/dashboard/members');
+    return { success: true };
+  } catch (error) {
+    console.error('[kickoutMemberAction]', error);
+    return { error: 'Failed to kick out user.' };
+  }
+}
+
 export async function rejectUserAction(userId: string) {
   try {
     const manager = await getServerUser();
@@ -337,6 +374,30 @@ export async function handoverBatchManagerAction(targetUserId: string) {
   } catch (error) {
     console.error('[handoverBatchManagerAction]', error);
     return { error: 'Failed to handover batch management.' };
+  }
+}
+
+export async function updateJerseyNumberAction(userId: string, jerseyNumber: string) {
+  try {
+    const manager = await getServerUser();
+    if (!manager) return { error: 'Unauthorized.' };
+
+    const target = await prisma.user.findUnique({ where: { id: userId } });
+    if (!target) return { error: 'User not found.' };
+
+    const authorized = await isAuthorizedForMember(manager.uid, manager.role, target.batchId);
+    if (!authorized) return { error: 'You can only update members of your own batch.' };
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { jerseyNumber: jerseyNumber || null }
+    });
+
+    revalidatePath('/dashboard/manage-batch');
+    return { success: true };
+  } catch (error) {
+    console.error('[updateJerseyNumberAction]', error);
+    return { error: 'Failed to update jersey number.' };
   }
 }
 
@@ -441,5 +502,64 @@ export async function updateVolunteerStatus(userId: string, isVolunteer: boolean
   } catch (error: any) {
     console.error('[updateVolunteerStatus]', error);
     return { error: 'Failed to update volunteer status.' };
+  }
+}
+export async function createUserByAdmin(prevState: any, formData: FormData) {
+  try {
+    const requester = await getServerUser();
+    if (!requester || requester.role !== 'ADMIN') {
+      return { error: 'Unauthorized. Only Admins can create users.' };
+    }
+
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const name = `${firstName} ${lastName}`.trim();
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const phone = formData.get('phone') as string;
+    const username = formData.get('username') as string;
+    const role = formData.get('role') as any;
+    const batchId = formData.get('batchId') as string;
+
+    if (!isValidEmail(email)) return { error: 'Please enter a valid email address.' };
+    if (phone && !isValidPhone(phone)) return { error: 'Invalid phone number format or country code.' };
+
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) return { error: 'An account with this email already exists.' };
+
+    if (username) {
+      const existingUsername = await prisma.user.findUnique({ where: { username } });
+      if (existingUsername) return { error: 'This username is already taken. Please choose another.', field: 'username' };
+    }
+
+    if (phone) {
+      const existingPhone = await prisma.user.findFirst({ where: { phone } });
+      if (existingPhone) return { error: 'This phone number is already in use.', field: 'phone' };
+    }
+
+    const { hashPassword } = await import('@/lib/auth-utils');
+    const hashedPassword = await hashPassword(password || 'NgBhs123!'); // Default password if empty
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        name,
+        firstName,
+        lastName,
+        username: username || null,
+        phone: phone || null,
+        password: hashedPassword,
+        role: role || 'USER',
+        batchId: batchId || null,
+        emailVerified: new Date(),
+        status: 'APPROVED',
+      }
+    });
+
+    revalidatePath('/admin/users');
+    return { success: true, message: 'User created successfully!' };
+  } catch (error: any) {
+    console.error('[createUserByAdmin]', error);
+    return { error: error.message || 'Failed to create user.' };
   }
 }

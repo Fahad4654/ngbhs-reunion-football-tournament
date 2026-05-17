@@ -72,25 +72,25 @@ export default function ManageAdsClient({ initialAds }: ManageAdsClientProps) {
         </div>
 
         <div className="responsive-table-container glass" style={{ padding: '0' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table className="sticky-table" style={{ width: '100%', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)' }}>
                 <th style={{ padding: '1.25rem' }}>Image</th>
                 <th style={{ padding: '1.25rem' }}>Details</th>
                 <th style={{ padding: '1.25rem' }}>Position</th>
                 <th style={{ padding: '1.25rem' }}>Status</th>
-                <th style={{ padding: '1.25rem', textAlign: 'right' }}>Actions</th>
+                <th className="sticky-actions" style={{ padding: '1.25rem', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredAds.length > 0 ? filteredAds.map((ad) => (
-                <tr key={ad.id} style={{ borderBottom: '1px solid var(--border-color)', background: editingAd?.id === ad.id ? 'rgba(235, 183, 0, 0.05)' : 'transparent' }}>
-                  <td style={{ padding: '1.25rem' }}>
+                <tr key={ad.id} style={{ background: editingAd?.id === ad.id ? 'rgba(235, 183, 0, 0.08)' : '' }}>
+                  <td>
                     <div style={{ width: '120px', height: '60px', borderRadius: '4px', overflow: 'hidden', background: '#000' }}>
                       <img src={ad.imageUrl} alt={ad.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     </div>
                   </td>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td>
                     <div style={{ fontWeight: 'bold', marginBottom: '0.2rem' }}>{ad.title}</div>
                     {ad.linkUrl && (
                       <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textDecoration: 'underline' }}>
@@ -98,7 +98,7 @@ export default function ManageAdsClient({ initialAds }: ManageAdsClientProps) {
                       </a>
                     )}
                   </td>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td>
                     <span style={{ 
                       padding: '0.25rem 0.5rem', 
                       background: 'rgba(255,255,255,0.05)', 
@@ -109,7 +109,7 @@ export default function ManageAdsClient({ initialAds }: ManageAdsClientProps) {
                       {ad.position}
                     </span>
                   </td>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td>
                     <span style={{ 
                       padding: '0.25rem 0.5rem', 
                       background: ad.isActive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
@@ -122,7 +122,7 @@ export default function ManageAdsClient({ initialAds }: ManageAdsClientProps) {
                       {ad.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td style={{ padding: '1.25rem', textAlign: 'right' }}>
+                  <td className="sticky-actions" style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
                       <button 
                         onClick={() => handleEdit(ad)}

@@ -13,16 +13,11 @@ interface UserLinkProps {
 export default function UserLink({ user, currentUserBatchId, currentUserRole, style }: UserLinkProps) {
   const [showModal, setShowModal] = useState(false);
 
-  const isAdmin = currentUserRole === 'ADMIN' || currentUserRole === 'CO_ADMIN';
-  const sameBatch = currentUserBatchId === user.batchId;
-  const isTargetAdmin = user.role === 'ADMIN' || user.role === 'CO_ADMIN';
-  
-  const canSeeProfile = isAdmin || sameBatch || isTargetAdmin;
+  // Anyone can click to see public info
+  const canSeeProfile = true;
 
   const handleClick = () => {
-    if (canSeeProfile) {
-      setShowModal(true);
-    }
+    setShowModal(true);
   };
 
   return (
@@ -51,6 +46,8 @@ export default function UserLink({ user, currentUserBatchId, currentUserRole, st
         <UserDetailModal 
           user={user} 
           onClose={() => setShowModal(false)} 
+          isAdmin={currentUserRole === 'ADMIN' || currentUserRole === 'CO_ADMIN'}
+          isSameBatch={currentUserBatchId === user.batchId}
         />
       )}
     </>

@@ -5,6 +5,8 @@ import TeamActions from "../manage-batch/team-actions";
 import RoleAssignment from "./RoleAssignment";
 import DesignationAssignment from "./DesignationAssignment";
 import MemberFilter from "@/app/components/MemberFilter";
+import JerseyNumberAction from "../manage-batch/JerseyNumberAction";
+import OfficialActions from "./OfficialActions";
 
 interface TeamManagementClientProps {
   members: any[];
@@ -20,6 +22,44 @@ export default function TeamManagementClient({ members, batchId }: TeamManagemen
 
         return (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+            {/* Officials Section */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <section style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '900', color: 'var(--accent-secondary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  TEAM OFFICIALS
+                </h3>
+                <div className="glass" style={{ borderRadius: '1rem', overflow: 'hidden', display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem' }}>
+                  {filteredMembers.filter(m => m.teamRole === 'Coach').length > 0 ? (
+                    filteredMembers.filter(m => m.teamRole === 'Coach').map(official => (
+                      <div key={official.id} style={{ 
+                        background: 'rgba(255,255,255,0.03)', 
+                        padding: '1rem', 
+                        borderRadius: '12px', 
+                        border: '1px solid var(--accent-secondary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        minWidth: '280px'
+                      }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--accent-secondary)', color: 'black', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800' }}>
+                          {official.name?.charAt(0)}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: '800', color: 'white' }}>{official.name}</div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--accent-secondary)', fontWeight: '800', textTransform: 'uppercase' }}>Head Coach</div>
+                        </div>
+                        <RoleAssignment userId={official.id} currentRole={official.teamRole} userName={official.name || 'Official'} />
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', width: '100%', fontSize: '0.9rem', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px' }}>
+                      No Head Coach assigned yet. Assign a coach from the available members list below.
+                    </div>
+                  )}
+                </div>
+              </section>
+            </div>
+
             {/* Squad List */}
             <section>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -56,7 +96,12 @@ export default function TeamManagementClient({ members, batchId }: TeamManagemen
                       </div>
                       <TeamActions userId={player.id} isPlayer={true} userName={player.name || 'Player'} />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <OfficialActions userId={player.id} currentRole={player.teamRole} userName={player.name || 'Player'} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.03)', padding: '0.4rem 0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Jersey:</span>
+                        <JerseyNumberAction userId={player.id} initialJerseyNumber={player.jerseyNumber} />
+                      </div>
                       <RoleAssignment userId={player.id} currentRole={player.teamRole} userName={player.name || 'Player'} />
                       <DesignationAssignment userId={player.id} currentDesignation={player.teamDesignation} userName={player.name || 'Player'} />
                     </div>
@@ -105,7 +150,8 @@ export default function TeamManagementClient({ members, batchId }: TeamManagemen
                       </div>
                       <TeamActions userId={member.id} isPlayer={false} userName={member.name || 'Member'} />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <OfficialActions userId={member.id} currentRole={member.teamRole} userName={member.name || 'Member'} />
                       <RoleAssignment userId={member.id} currentRole={member.teamRole} userName={member.name || 'Member'} />
                       <DesignationAssignment userId={member.id} currentDesignation={member.teamDesignation} userName={member.name || 'Member'} />
                     </div>

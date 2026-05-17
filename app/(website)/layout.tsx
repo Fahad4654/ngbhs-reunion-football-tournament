@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar";
+import AlertBanner from "../components/AlertBanner";
 import { getServerUser } from "@/lib/server-auth";
 
 export default async function WebsiteLayout({
@@ -12,7 +13,11 @@ export default async function WebsiteLayout({
     <>
       <Navbar user={user} />
       
-      <main style={{ marginTop: 'var(--nav-height)' }}>
+      <div style={{ marginTop: 'var(--nav-height)' }}>
+        <AlertBanner />
+      </div>
+
+      <main>
         {children}
       </main>
 

@@ -19,18 +19,18 @@ export default function ManageBatchMembersClient({
   return (
     <MemberFilter members={members}>
       {(filteredMembers) => (
-        <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+        <div className="responsive-table-container glass" style={{ borderRadius: '1rem', overflowX: 'auto', border: 'none', background: 'transparent' }}>
+          <table className="sticky-table">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
+              <tr>
                 <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Member Name</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Occupation</th>
-                <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
+                <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase' }} className="sticky-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredMembers.length > 0 ? filteredMembers.map((member) => (
-                <tr key={member.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <tr key={member.id}>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       <div style={{ 
@@ -67,7 +67,7 @@ export default function ManageBatchMembersClient({
                   <td style={{ padding: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                     {member.occupation || '---'}
                   </td>
-                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                  <td style={{ padding: '1rem', textAlign: 'right' }} className="sticky-actions">
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap' }}>
                       <TeamActions userId={member.id} isPlayer={member.isPlayer} userName={member.name || 'Member'} />
                       {member.id !== currentUserId && member.role === 'USER' && (
